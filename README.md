@@ -123,7 +123,6 @@ This codebase follows a consistent set of patterns. Read these before contributi
 - [`SUPABASE_CONVENTIONS.md`](SUPABASE_CONVENTIONS.md) — the data-layer playbook
 - [`MIGRATION_CONVENTIONS.md`](MIGRATION_CONVENTIONS.md) — schema changes and `@geiger/orm`
 - [`crafting.md`](crafting.md) — UI craft and quality bar
-- [`db.md`](db.md) — table reference
 
 ## The Geiger suite
 
