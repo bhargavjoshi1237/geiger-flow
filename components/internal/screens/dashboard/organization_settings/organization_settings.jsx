@@ -1,58 +1,176 @@
 "use client";
 
-import React from "react";
-import { Settings, Shield, Bell, Database, HardDrive, Key } from "lucide-react";
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import { Copy, Check } from "lucide-react";
 
 export function OrganizationSettingsScreen() {
-  const sections = [
-    {
-      title: "General",
-      description: "Manage organization name and description",
-      icon: Settings,
-    },
-    {
-      title: "Security",
-      description: "Two-factor authentication and login logs",
-      icon: Shield,
-    },
-    {
-      title: "Notifications",
-      description: "Email and SMS settings",
-      icon: Bell,
-    },
-    { title: "API Keys", description: "Manage project access keys", icon: Key },
-  ];
+  const [copied, setCopied] = useState(false);
+  const orgSlug = "dusonpazefscwxdmryip";
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(orgSlug);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
-    <div className="flex flex-col gap-8 w-full px-2 lg:px-0 lg:w-[75%] mx-auto my-3 text-[#e7e7e7]">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-semibold text-[#e7e7e7] tracking-tight">
+    <div className="space-y-6 w-full px-2 lg:px-0 max-w-5xl mx-auto py-4">
+      <div>
+        <h1 className="text-2xl mt-4 font-semibold text-[#e7e7e7] tracking-tight mb-2">
           Organization Settings
         </h1>
-        <button className="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
-          Delete Organization
-        </button>
+        <p className="text-[#a3a3a3] text-sm">
+          General configuration, privacy, and lifecycle controls
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-12 mt-4">
-        {sections.map((s, i) => (
-          <div
-            key={i}
-            className="flex gap-6 group cursor-pointer relative p-6 bg-[#202020] border border-[#2a2a2a] rounded-2xl hover:border-[#474747] transition-all duration-300"
-          >
-            <div className="w-12 h-12 rounded-xl bg-[#1a1a1a] border border-[#2a2a2a] flex items-center justify-center text-white shrink-0 shadow-inner group-hover:bg-[#2a2a2a] group-hover:border-[#333333] transition-colors">
-              <s.icon className="w-6 h-6 text-[#737373] group-hover:text-[#e7e7e7] transition-colors" />
+      <div className="space-y-4">
+        <h3 className="text-lg font-medium text-[#e7e7e7]">
+          Organization details
+        </h3>
+        <Card className="bg-[#181818] border-[#2c2c2c] text-[#e7e7e7] rounded-xl overflow-hidden shadow-sm">
+          <div className="flex flex-col">
+            <div className="flex flex-col md:flex-row md:items-center gap-4 py-4 px-6 border-b border-[#2c2c2c]">
+              <div className="md:w-[250px] shrink-0 text-sm font-medium text-[#e7e7e7]">
+                Organization name
+              </div>
+              <div className="flex-1">
+                <Input
+                  className="bg-[#121212] border-[#2c2c2c] h-9 text-sm text-[#e7e7e7] focus-visible:ring-1 focus-visible:ring-[#474747]"
+                  defaultValue="bhargavjoshi1237's Org"
+                />
+              </div>
             </div>
-            <div>
-              <h3 className="text-lg font-bold text-[#e7e7e7] mb-1 tracking-tight group-hover:text-[#e7e7e7] transition-colors">
-                {s.title}
-              </h3>
-              <p className="text-sm font-medium text-[#a3a3a3] leading-relaxed ">
-                {s.description}
-              </p>
+
+            <div className="flex flex-col md:flex-row md:items-center gap-4 py-4 px-6">
+              <div className="md:w-[250px] shrink-0 text-sm font-medium text-[#e7e7e7]">
+                Organization slug
+              </div>
+              <div className="flex-1 flex gap-2">
+                <Input
+                  className="bg-[#121212] border-[#2c2c2c] h-9 text-sm text-[#a3a3a3] focus-visible:ring-1 focus-visible:ring-[#474747] font-mono"
+                  defaultValue={orgSlug}
+                  readOnly
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="bg-[#181818] border-[#2c2c2c] h-9 w-9 shrink-0 hover:bg-[#2c2c2c] text-[#a3a3a3] hover:text-[#e7e7e7]"
+                  onClick={handleCopy}
+                >
+                  {copied ? (
+                    <Check className="w-4 h-4 text-primary" />
+                  ) : (
+                    <Copy className="w-4 h-4" />
+                  )}
+                </Button>
+              </div>
             </div>
           </div>
-        ))}
+          <div className="py-3 px-6 flex justify-end gap-3 border-t border-[#2c2c2c]">
+            <Button
+              variant="ghost"
+              className="h-8 text-sm hover:bg-[#2c2c2c] text-[#a3a3a3] hover:text-[#e7e7e7]"
+            >
+              Cancel
+            </Button>
+            <Button className="h-8 text-sm bg-primary hover:bg-primary/90 text-primary-foreground font-semibold transition-colors px-6">
+              Save
+            </Button>
+          </div>
+        </Card>
+      </div>
+
+      <div className="space-y-4">
+        <h3 className="text-lg font-medium text-[#e7e7e7]">Data privacy</h3>
+        <Card className="bg-[#181818] border-[#2c2c2c] text-[#e7e7e7] p-6 rounded-xl flex flex-col lg:flex-row gap-6 lg:gap-8 shadow-sm">
+          <div className="lg:w-5/12 shrink-0">
+            <h4 className="text-sm font-medium mb-3 text-[#e7e7e7]">
+              Supabase Assistant Opt-in Level
+            </h4>
+            <p className="text-sm text-[#8b8b8b] mb-4 leading-[1.6]">
+              Supabase AI can provide more relevant answers if you choose to
+              share different levels of data. This feature is powered by
+              third-party AI providers. This is an organization-wide setting, so
+              please select the level of data you are comfortable sharing.
+            </p>
+            <p className="text-sm text-[#8b8b8b] mb-6 leading-[1.6]">
+              For organizations with HIPAA compliance enabled in their Supabase
+              configuration, any consented information will only be shared with
+              third-party AI providers with whom Supabase has established a
+              Business Associate Agreement (BAA).
+            </p>
+            <Button
+              variant="outline"
+              className="h-8 text-xs bg-transparent border-[#2c2c2c] text-[#a3a3a3] hover:bg-[#2c2c2c] hover:text-[#e7e7e7] transition-colors"
+            >
+              Learn more about data privacy
+            </Button>
+          </div>
+
+          <div className="lg:w-7/12 flex flex-col gap-6">
+            <label className="flex gap-4 items-start cursor-pointer group">
+              <div className="mt-0.5 flex items-center justify-center w-4 h-4 rounded-full border border-[var(--primary,white)] bg-[var(--primary,white)] shrink-0">
+                <div className="w-1.5 h-1.5 rounded-full bg-black"></div>
+              </div>
+              <div>
+                <div className="text-sm font-medium text-[#e7e7e7] mb-1">
+                  Disabled
+                </div>
+                <div className="text-[13px] text-[#8b8b8b] leading-[1.5]">
+                  You do not consent to sharing any database information with
+                  third-party AI providers and understand that responses will be
+                  generic and not tailored to your database
+                </div>
+              </div>
+            </label>
+
+            <label className="flex gap-4 items-start cursor-pointer group">
+              <div className="mt-0.5 flex items-center justify-center w-4 h-4 rounded-full border border-[#474747] bg-transparent group-hover:border-[#a3a3a3] transition-colors shrink-0"></div>
+              <div>
+                <div className="text-sm font-medium text-[#e7e7e7] mb-1">
+                  Schema Only
+                </div>
+                <div className="text-[13px] text-[#8b8b8b] leading-[1.5]">
+                  You consent to sharing your database's schema metadata (such
+                  as table and column names, data types, and relationships—but
+                  not actual database data) with third-party AI providers
+                </div>
+              </div>
+            </label>
+
+            <label className="flex gap-4 items-start cursor-pointer group">
+              <div className="mt-0.5 flex items-center justify-center w-4 h-4 rounded-full border border-[#474747] bg-transparent group-hover:border-[#a3a3a3] transition-colors shrink-0"></div>
+              <div>
+                <div className="text-sm font-medium text-[#e7e7e7] mb-1">
+                  Schema & Logs
+                </div>
+                <div className="text-[13px] text-[#8b8b8b] leading-[1.5]">
+                  You consent to sharing your schema and logs (which may contain
+                  PII/database data) with third-party AI providers for better
+                  results
+                </div>
+              </div>
+            </label>
+
+            <label className="flex gap-4 items-start cursor-pointer group">
+              <div className="mt-0.5 flex items-center justify-center w-4 h-4 rounded-full border border-[#474747] bg-transparent group-hover:border-[#a3a3a3] transition-colors shrink-0"></div>
+              <div>
+                <div className="text-sm font-medium text-[#e7e7e7] mb-1">
+                  Schema, Logs & Database Data
+                </div>
+                <div className="text-[13px] text-[#8b8b8b] leading-[1.5]">
+                  You consent to give third-party AI providers full access to
+                  run database read-only queries and analyze results for optimal
+                  results
+                </div>
+              </div>
+            </label>
+          </div>
+        </Card>
       </div>
     </div>
   );

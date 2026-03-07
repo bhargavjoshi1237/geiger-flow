@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Database, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 
 export function DatasetsScreen() {
   const datasets = [
@@ -30,7 +31,7 @@ export function DatasetsScreen() {
   ];
 
   return (
-    <div className="space-y-6 w-full px-2 lg:px-0 lg:max-w-[75%] mx-auto text-[#e7e7e7]">
+    <MainScreenWrapper className="text-[#e7e7e7]">
       <div className="flex items-center justify-between border-b border-[#2a2a2a] pb-6">
         <div>
           <h1 className="text-3xl font-bold text-[#e7e7e7]">Datasets</h1>
@@ -76,6 +77,6 @@ export function DatasetsScreen() {
           </TableBody>
         </Table>
       </div>
-    </div>
+    </MainScreenWrapper>
   );
 }

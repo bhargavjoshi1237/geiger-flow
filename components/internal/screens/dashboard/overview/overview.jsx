@@ -17,7 +17,7 @@ import {
 export function OverviewScreen() {
   return (
     <div className="w-full px-2 lg:px-0 lg:w-[75%] mx-auto my-3 space-y-8 text-[#e7e7e7]">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg">
         {[
           {
             label: "Active Sessions",
@@ -43,9 +43,9 @@ export function OverviewScreen() {
         ].map((metric, i) => (
           <div
             key={i}
-            className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-2xl p-6 relative overflow-hidden group hover:border-[#474747] transition-all duration-300"
+            className=" bg-[#1a1a1a] border border-[#2a2a2a] rounded-2xl p-6 relative overflow-hidden group hover:border-[#474747] transition-all duration-300"
           >
-            <div className="flex justify-between items-start mb-4">
+            <div className="flex justify-between items-center mb-4">
               <div>
                 <h3 className="text-[#a3a3a3] text-sm font-medium mb-1">
                   {metric.label}
@@ -61,7 +61,7 @@ export function OverviewScreen() {
                   </span>
                 </div>
               </div>
-              <div className="w-24 h-12">
+              <div className="w-24 h-12 flex items-center justify-center">
                 <ChartContainer
                   config={{
                     value: {

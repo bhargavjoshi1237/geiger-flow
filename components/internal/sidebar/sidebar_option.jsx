@@ -7,6 +7,7 @@ import {
   SidebarMenuBadge,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+import { ChevronDown } from "lucide-react";
 
 export function SidebarOption({
   title,
@@ -15,16 +16,23 @@ export function SidebarOption({
   onClick,
   badge,
   className,
+  subItems,
+  isExpanded,
+  onToggle,
+  activeSubTab,
 }) {
   return (
     <SidebarMenuItem>
       <SidebarMenuButton
-        onClick={onClick}
+        onClick={subItems ? onToggle : onClick}
         isActive={isActive}
         tooltip={title}
         className={cn(
           "transition-all text-sm h-9",
-          isActive ? "bg-[#2a2a2a] text-white" : "text-[#a3a3a3]",
+          // Highlight parent when its dropdown is open OR when it is directly active
+          isExpanded || (isActive && !subItems)
+            ? "bg-sidebar-accent text-white"
+            : "text-sidebar-foreground",
           className,
         )}
       >
@@ -32,17 +40,60 @@ export function SidebarOption({
           <Icon
             className={cn(
               "w-4 h-4 shrink-0 transition-colors",
-              isActive ? "text-white" : "text-[#737373]",
+              isExpanded || isActive
+                ? "text-white"
+                : "text-sidebar-foreground/70",
             )}
           />
         )}
         <span>{title}</span>
-        {badge && (
+        {subItems && (
+          <ChevronDown
+            className={cn(
+              "ml-auto w-4 h-4 transition-transform duration-200",
+              isExpanded && "rotate-180",
+            )}
+          />
+        )}
+        {badge && !subItems && (
           <SidebarMenuBadge className="text-[#a3a3a3] text-[10px] px-1.5 py-0.5 rounded border border-[#333333] ml-auto">
             {badge}
           </SidebarMenuBadge>
         )}
       </SidebarMenuButton>
+
+      {subItems && isExpanded && (
+        <ul className="flex flex-col gap-0.5 pt-2 w-[95%]">
+          {subItems.map((sub) => (
+            <li key={sub.title}>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  onClick(sub.title);
+                }}
+                className={cn(
+                  "relative w-full flex items-center px-4 py-3 rounded-md text-[0.85rem] leading-none transition-colors gap-2",
+                  activeSubTab === sub.title
+                    ? "bg-sidebar-accent text-white font-medium"
+                    : "text-sidebar-foreground/70 hover:text-white hover:bg-sidebar-accent/50",
+                )}
+              >
+                {sub.icon && (
+                  <sub.icon
+                    className={cn(
+                      "w-4 h-4 shrink-0 transition-colors",
+                      activeSubTab === sub.title
+                        ? "text-white"
+                        : "text-sidebar-foreground/70",
+                    )}
+                  />
+                )}
+                {sub.title}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </SidebarMenuItem>
   );
 }

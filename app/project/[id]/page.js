@@ -9,7 +9,9 @@ import { ProjectDetailsScreen } from "@/components/internal/screens/projects/pro
 import { WorkflowsScreen } from "@/components/internal/screens/projects/workflows";
 import { DatasetsScreen } from "@/components/internal/screens/projects/datasets";
 import { TeamScreen } from "@/components/internal/screens/projects/team/team";
+import { SettingsScreen } from "@/components/internal/screens/projects/settings/settings_screen";
 import { ProjectProvider, useProject } from "@/context/project-context";
+import { settingsNav } from "@/components/internal/sidebar/projects/sidebar_data";
 import { useEffect } from "react";
 
 function ProjectLayoutContent({ id }) {
@@ -23,6 +25,12 @@ function ProjectLayoutContent({ id }) {
   }, [id, fetchProjectInfo]);
 
   const renderScreen = () => {
+    // If currentTab is any of the settings nav items, render settings screen
+    const isSettingsTab = settingsNav.some((item) => item.title === currentTab);
+    if (isSettingsTab) {
+      return <SettingsScreen activeSettingsTab={currentTab} />;
+    }
+
     switch (currentTab) {
       case "Overview":
         return <ProjectDetailsScreen id={id} />;
@@ -35,8 +43,6 @@ function ProjectLayoutContent({ id }) {
       case "Team":
         return <TeamScreen />;
       case "Security":
-        return <DatasetsScreen />;
-      case "Settings":
         return <DatasetsScreen />;
       default:
         return <ProjectDetailsScreen id={id} />;

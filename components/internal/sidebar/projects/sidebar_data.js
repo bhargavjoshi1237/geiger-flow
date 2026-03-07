@@ -6,6 +6,10 @@ import {
   Settings,
   ShieldCheck,
   Users,
+  Settings2,
+  Network,
+  BarChart,
+  Cpu,
 } from "lucide-react";
 
 export const projectNav = [
@@ -15,5 +19,13 @@ export const projectNav = [
   { title: "Milestones", icon: Activity, badge: "Live" },
   { title: "Team", icon: Users, badge: "7" },
   { title: "Security", icon: ShieldCheck },
-  { title: "Settings", icon: Settings },
+  { title: "Settings", icon: Settings, hasSubmenu: true },
+];
+
+export const settingsNav = [
+  { title: "General", icon: Settings2 },
+  { title: "Security", icon: ShieldCheck },
+  { title: "Connectivity", icon: Network },
+  { title: "Usage", icon: BarChart },
+  { title: "Advanced", icon: Cpu },
 ];

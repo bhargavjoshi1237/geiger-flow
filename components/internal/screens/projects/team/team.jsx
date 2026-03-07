@@ -28,6 +28,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 
 export function TeamScreen() {
   const { project } = useProject();
@@ -102,7 +103,7 @@ export function TeamScreen() {
   };
 
   return (
-    <div className="flex flex-col gap-8 w-full px-2 lg:px-0 lg:w-[75%] mx-auto my-3 text-[#e7e7e7]">
+    <MainScreenWrapper className="text-[#e7e7e7]">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-semibold text-[#e7e7e7] tracking-tight">
           Team Members
@@ -217,6 +218,6 @@ export function TeamScreen() {
           </TableBody>
         </Table>
       </div>
-    </div>
+    </MainScreenWrapper>
   );
 }

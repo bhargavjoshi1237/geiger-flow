@@ -23,7 +23,7 @@ export function AppSidebar({ activeTab = "Overview", onTabChange = () => {} }) {
   return (
     <Sidebar
       collapsible="icon"
-      className="bg-[#202020] border-r border-[#2a2a2a] text-[#a3a3a3]"
+      className="bg-sidebar border-r border-sidebar-border text-sidebar-foreground"
     >
       <SidebarContent className="px-1 py-1 space-y-2">
         <SidebarGroup>
@@ -43,10 +43,10 @@ export function AppSidebar({ activeTab = "Overview", onTabChange = () => {} }) {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="p-2 border-t border-[#2a2a2a] mt-auto">
+      <SidebarFooter className="p-2 border-t border-sidebar-border mt-auto">
         <button
           onClick={toggleSidebar}
-          className="flex items-center gap-3 p-2 w-full rounded-lg hover:bg-[#2a2a2a] transition-all text-[#a3a3a3] hover:text-white group-data-[collapsible=icon]:justify-center"
+          className="flex items-center gap-3 p-2 w-full rounded-lg hover:bg-sidebar-accent transition-all text-sidebar-foreground hover:text-white group-data-[collapsible=icon]:justify-center"
         >
           <PanelLeft className="w-5 h-5 shrink-0" />
         </button>

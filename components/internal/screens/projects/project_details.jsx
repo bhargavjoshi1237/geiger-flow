@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Activity, Sparkles, Bug, GitMerge } from "lucide-react";
 import { useProject } from "@/context/project-context";
 import { DeadlinesSection } from "@/components/internal/shared/deadlines";
 import { useBanner } from "@/context/banner-context";
@@ -15,6 +15,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import FilterDropdown from "./overview/filter_dropdown";
+import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 
 function MetricCard({ title, subtitle, value, data }) {
   const chartData =
@@ -33,18 +34,18 @@ function MetricCard({ title, subtitle, value, data }) {
     <Card className="bg-[#1a1a1a] border-[#2a2a2a] text-[#e7e7e7] overflow-hidden group hover:border-[#474747] transition-all duration-300">
       <CardHeader className="pb-2 space-y-1">
         <div className="flex items-center gap-2 text-[#a3a3a3]">
-          <div className="w-4 h-4 rounded bg-[#2a2a2a] flex items-center justify-center">
-            {title === "Database" && (
-              <div className="w-1.5 h-1.5 bg-[#4f4f4f] rounded-sm" />
+          <div className="w-5 h-5 rounded bg-[#2a2a2a] flex items-center justify-center">
+            {title === "Productivity" && (
+              <Activity className="w-3 h-3 text-[#737373]" />
             )}
-            {title === "Auth" && (
-              <div className="w-1.5 h-1.5 bg-[#4f4f4f] rounded-full" />
+            {title === "New Features" && (
+              <Sparkles className="w-3 h-3 text-[#737373]" />
             )}
-            {title === "Storage" && (
-              <div className="w-1.5 h-1.5 bg-[#4f4f4f] rotate-45" />
+            {title === "Issues Solved" && (
+              <Bug className="w-3 h-3 text-[#737373]" />
             )}
-            {title === "Realtime" && (
-              <div className="w-1.5 h-1.5 bg-[#4f4f4f] rounded-sm -rotate-12" />
+            {title === "PR Merged" && (
+              <GitMerge className="w-3 h-3 text-[#737373]" />
             )}
           </div>
           <span className="text-sm font-medium">{title}</span>
@@ -104,7 +105,7 @@ export function ProjectDetailsScreen() {
   const authData = [5, 15, 2, 20, 10, 35, 5, 25, 2, 45, 5];
 
   return (
-    <div className="space-y-8 w-full px-2 lg:px-0 lg:max-w-[85%] mx-auto py-4">
+    <MainScreenWrapper>
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mt-2 gap-4">
         <div className="flex items-center justify-center md:justify-start gap-3 w-full md:w-auto text-center md:text-left">
@@ -138,7 +139,7 @@ export function ProjectDetailsScreen() {
           </div>
         </div>
       </div>
-      <div className="w-full mt-2 mb-6 md:mb-2">
+      <div className="w-full mt-2 mb-6 md:mb-6">
         <p className="text-zinc-500 text-sm text-center md:text-left">
           Geiger Flow Lightweight creative project manager. Kanban, Timeline
           view, Process, End Node Progress Hiring Templets , Project Templets
@@ -177,6 +178,6 @@ export function ProjectDetailsScreen() {
 
       {/* Deadlines Section */}
       <DeadlinesSection />
-    </div>
+    </MainScreenWrapper>
   );
 }
