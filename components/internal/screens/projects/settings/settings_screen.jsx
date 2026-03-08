@@ -16,20 +16,11 @@ export function SettingsScreen({ activeSettingsTab = "General" }) {
         return <GeneralSettingsScreen />;
       default:
         return (
-          <Card className="bg-[#1a1a1a] border-[#2a2a2a] text-[#e7e7e7]">
-            <CardHeader>
-              <CardTitle>Configuration</CardTitle>
-              <CardDescription className="text-[#a3a3a3]">
-                Update your {activeSettingsTab.toLowerCase()} configuration
-                here.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64 rounded bg-[#111] border border-[#2a2a2a] flex items-center justify-center text-[#525252]">
-                {activeSettingsTab} settings template area
-              </div>
-            </CardContent>
-          </Card>
+          <div className="h-[400px] flex items-center justify-center border-2 border-dashed border-[#2a2a2a] rounded-lg text-[#a3a3a3]">
+            <div className="flex flex-col items-center gap-2">
+              <span>{activeSettingsTab} settings placeholder</span>
+            </div>
+          </div>
         );
     }
   };

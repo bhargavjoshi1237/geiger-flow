@@ -7,6 +7,13 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+const users = [
+  { id: 1, name: "User 1", src: "https://i.pravatar.cc/150?u=1" },
+  { id: 2, name: "User 2", src: "https://i.pravatar.cc/150?u=2" },
+  { id: 3, name: "User 3", src: "https://i.pravatar.cc/150?u=3" },
+];
 
 const deadlines = [
   {
@@ -122,13 +129,13 @@ export function DeadlinesSection() {
 
             <CardFooter className="p-5 pt-4 border-t border-[#2a2a2a] flex items-center justify-between">
               <div className="flex -space-x-2">
-                {[1, 2, 3].map((i) => (
-                  <div
-                    key={i}
-                    className="w-6 h-6 rounded-full border-2 border-[#202020] bg-[#333333] flex items-center justify-center text-[9px] text-[#a3a3a3] font-medium"
-                  >
-                    U{i}
-                  </div>
+                {users.map((user) => (
+                  <Avatar key={user.id} className="w-6 h-6 border-2 border-[#202020]">
+                    <AvatarImage src={user.src} alt={user.name} />
+                    <AvatarFallback className="text-[9px] bg-[#333333] text-[#a3a3a3]">
+                      {user.name.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
                 ))}
               </div>
               <button className="text-[11px] font-medium text-[#737373] hover:text-[#e7e7e7] transition-colors">

@@ -88,43 +88,4 @@ function IssueItem({
   );
 }
 
-function IssuesList({ 
-  className, 
-  issues = [], 
-  showHeader = true,
-  title = "Top Issues",
-  ...props 
-}) {
-  return (
-    <div className={cn("space-y-4", className)} {...props}>
-      {showHeader && (
-        <div className="flex items-center justify-between">
-          <h3 className="text-[#e7e7e7] font-medium">{title}</h3>
-          <button className="text-sm font-medium text-[#a3a3a3] hover:text-[#e7e7e7] transition-colors">
-            View All
-          </button>
-        </div>
-      )}
-      <div className="space-y-2">
-        {issues.length > 0 ? (
-          issues.map((issue, index) => (
-            <IssueItem
-              key={index}
-              title={issue.title}
-              severity={issue.severity}
-              status={issue.status}
-              assignee={issue.assignee}
-              dueDate={issue.dueDate}
-            />
-          ))
-        ) : (
-          <p className="text-sm text-[#737373] text-center py-4">
-            No issues found
-          </p>
-        )}
-      </div>
-    </div>
-  );
-}
-
-export { IssueItem, IssuesList, severityColors };
+export { IssueItem, severityColors };
