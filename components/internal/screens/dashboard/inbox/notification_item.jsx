@@ -25,18 +25,14 @@ export function NotificationItem({
   onDelete,
   onClick,
 }) {
-  // Try to get icon component from lucide-react dynamically, fallback to Bell
-  const IconComponent = LucideIcons[notification.icon] || Bell;
-
-  // Format the time nicely if it's a valid date, otherwise just use it as string (for dummy data fallback)
-  let formattedTime = notification.time;
+ const IconComponent = LucideIcons[notification.icon] || Bell;
+ let formattedTime = notification.time;
   try {
     const date = new Date(notification.time);
     if (!isNaN(date.getTime())) {
       formattedTime = formatDistanceToNow(date, { addSuffix: true });
     }
   } catch (e) {
-    // Keep as is if error parsing
   }
 
   let extraContent = null;
@@ -50,7 +46,6 @@ export function NotificationItem({
       extraContent = notification.extra;
     }
   } catch (e) {
-    // Failed to parse extra context
   }
 
   return (

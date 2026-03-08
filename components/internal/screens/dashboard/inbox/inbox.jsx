@@ -7,9 +7,6 @@ import {
   Filter,
   MailOpen,
   Inbox,
-  Calendar,
-  Type,
-  Hash,
   Activity,
   User as UserIcon,
 } from "lucide-react";
@@ -128,7 +125,6 @@ export function InboxScreen() {
       ? LucideIcons[selectedNotification.icon]
       : LucideIcons.Bell;
 
-  // Manual fallback format for the detail sheet directly in component
   let formattedDetailDate = "";
   let fullDateStr = "";
   try {
@@ -258,7 +254,6 @@ export function InboxScreen() {
         )}
       </div>
 
-      {/* Right-side Details Sidebar */}
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
         <SheetContent className="bg-[#161616] border-l border-[#2a2a2a] text-[#e7e7e7] p-0 sm:max-w-md w-full shadow-2xl flex flex-col [&>button]:right-6 [&>button]:top-6 [&>button]:text-[#737373] hover:[&>button]:text-white">
           {selectedNotification && (
@@ -335,7 +330,6 @@ export function InboxScreen() {
                 </div>
               </div>
 
-              {/* Action Footer */}
               <div className="p-4 border-t border-[#2a2a2a] bg-[#1a1a1a] flex gap-3 shrink-0">
                 {!selectedNotification.read && (
                   <button
