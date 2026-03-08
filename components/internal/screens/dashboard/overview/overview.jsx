@@ -13,6 +13,8 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import FilterDropdown from "../../projects/overview/filter_dropdown";
+import { ChevronRight } from "lucide-react";
 
 export function OverviewScreen() {
   return (
@@ -96,7 +98,7 @@ export function OverviewScreen() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 z-10 relative">
         <div className="lg:col-span-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded-2xl p-6 h-96 flex flex-col min-w-0">
           <div className="flex items-center justify-between mb-8">
-            <div>
+            <div className="">
               <h3 className="text-[#e7e7e7] font-medium">
                 Throughput Analysis
               </h3>
@@ -104,10 +106,11 @@ export function OverviewScreen() {
                 Live requests across regions
               </p>
             </div>
-            <select className="bg-[#161616] border border-[#2a2a2a] text-[#e7e7e7] text-sm rounded-lg px-3 py-1.5 focus:outline-none focus:border-[#474747]">
-              <option>Last 24 Hours</option>
-              <option>Last 7 Days</option>
-            </select>
+           <div>
+              <FilterDropdown
+               
+              />
+            </div>
           </div>
           <div className="flex-1 w-full min-h-0">
             <ChartContainer
@@ -215,8 +218,8 @@ export function OverviewScreen() {
       <div className="bg-[#202020] border border-[#2a2a2a] rounded-2xl overflow-hidden w-full relative z-10">
         <div className="px-6 py-5 border-b border-[#2a2a2a] flex items-center justify-between bg-[#202020]">
           <h3 className="text-[#e7e7e7] font-medium">Recent Deployments</h3>
-          <button className="text-sm font-medium text-[#e7e7e7] bg-[#2a2a2a] hover:bg-[#333333] border border-[#333333] px-3 py-1.5 rounded-lg transition-colors">
-            View All
+          <button className="flex items-center gap-2 text-xs font-medium text-[#737373] hover:text-[#e7e7e7] px-3 py-1.5 rounded-lg transition-colors">
+            View All <ChevronRight className="w-3 h-3" />
           </button>
         </div>
         <Table>

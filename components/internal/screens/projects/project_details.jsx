@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronDown, Activity, Sparkles, Bug, GitMerge } from "lucide-react";
 import { useProject } from "@/context/project-context";
 import { DeadlinesSection } from "@/components/internal/shared/deadlines";
+import { IssuesList } from "@/components/ui/issue-item";
 import { useBanner } from "@/context/banner-context";
 import { useEffect } from "react";
 import { LineChart, Line } from "recharts";
@@ -146,8 +147,9 @@ export function ProjectDetailsScreen() {
           Staging. Milestones. Comments/Discussions , Dropdown Stack of Nodes
         </p>
       </div>
-
-      <FilterDropdown />
+      <div className="pt-4 border-t border-[#242424]">
+        <FilterDropdown />
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
         <MetricCard
@@ -178,6 +180,50 @@ export function ProjectDetailsScreen() {
 
       {/* Deadlines Section */}
       <DeadlinesSection />
+
+      {/* Top Issues Section */}
+      <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-2xl p-6">
+        <IssuesList
+          title="Top Issues"
+          issues={[
+            {
+              title: "API response time exceeding 500ms on /users endpoint",
+              severity: "critical",
+              status: "open",
+              assignee: "Alex M.",
+              dueDate: "Today",
+            },
+            {
+              title: "Memory leak in websocket connection handler",
+              severity: "critical",
+              status: "in_progress",
+              assignee: "Sarah J.",
+              dueDate: "Tomorrow",
+            },
+            {
+              title: "Database connection pool exhaustion",
+              severity: "high",
+              status: "open",
+              assignee: "Mike T.",
+              dueDate: "Mar 10",
+            },
+            {
+              title: "Authentication token refresh failing intermittently",
+              severity: "high",
+              status: "in_progress",
+              assignee: "Lisa K.",
+              dueDate: "Mar 12",
+            },
+            {
+              title: "Frontend build size exceeds 2MB limit",
+              severity: "medium",
+              status: "resolved",
+              assignee: "Chris P.",
+              dueDate: "Mar 8",
+            },
+          ]}
+        />
+      </div>
     </MainScreenWrapper>
   );
 }

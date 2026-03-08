@@ -7,7 +7,6 @@ import {
   Filter,
   MailOpen,
   Inbox,
-  Activity,
   User as UserIcon,
 } from "lucide-react";
 import * as LucideIcons from "lucide-react";
@@ -150,11 +149,6 @@ export function InboxScreen() {
         <div>
           <h1 className="text-3xl font-semibold text-[#e7e7e7] tracking-tight flex items-center gap-3">
             Inbox
-            {unreadCount > 0 && (
-              <span className="bg-blue-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full shadow-sm">
-                {unreadCount} new
-              </span>
-            )}
           </h1>
           <p className="text-[#a3a3a3] text-sm mt-1.5 font-medium">
             Stay updated with all notifications and alerts across your
@@ -174,7 +168,7 @@ export function InboxScreen() {
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-4 shrink-0 bg-[#161616] z-10 sticky top-0 pb-2">
+      <div className="flex items-center justify-between gap-4 shrink-0 z-10 sticky top-0 pb-2">
         <div className="flex items-center gap-1 bg-[#1a1a1a] rounded-lg p-1 border border-[#2a2a2a]">
           <button
             onClick={() => setActiveTab("all")}
@@ -223,8 +217,8 @@ export function InboxScreen() {
       </div>
 
       <div
-        className="flex-1 overflow-y-auto min-h-0 pr-1 pb-10 flex flex-col gap-3"
-        style={{ scrollbarWidth: "thin", scrollbarColor: "#333 #161616" }}
+        className="flex-1 overflow-y-auto min-h-0 pr-1 pb-10 flex flex-col gap-3 [&::-webkit-scrollbar]:hidden [&]:-ms-overflow-style:none [&]:scrollbar-width:none"
+        style={{ scrollbarWidth: "none", scrollbarColor: "transparent transparent" }}
       >
         {loading ? (
           <div className="flex items-center justify-center h-[200px] text-[#737373]">
@@ -255,99 +249,151 @@ export function InboxScreen() {
       </div>
 
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        <SheetContent className="bg-[#161616] border-l border-[#2a2a2a] text-[#e7e7e7] p-0 sm:max-w-md w-full shadow-2xl flex flex-col [&>button]:right-6 [&>button]:top-6 [&>button]:text-[#737373] hover:[&>button]:text-white">
+        <SheetContent className="bg-[#141414] border-l border-[#1f1f1f] text-[#e7e7e7] p-0 w-full max-w-md shadow-2xl flex flex-col [&>button]:right-5 [&>button]:top-5 [&>button]:text-[#555555] hover:[&>button]:text-white">
           {selectedNotification && (
             <>
-              <SheetHeader className="px-6 pt-10 pb-6 border-b border-[#2a2a2a] shrink-0 bg-[#1a1a1a] shadow-sm relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-purple-500"></div>
-                <div className="flex items-start gap-4 mb-4 relative z-10">
+              {/* Header */}
+              <div className="px-6 pt-12 pb-5 border-b border-[#1f1f1f] shrink-0 bg-[#171717]">
+                <div className="flex items-center gap-3 mb-4">
                   <div
-                    className={`flex items-center justify-center w-12 h-12 rounded-xl shrink-0 ${
+                    className={`flex items-center justify-center w-10 h-10 rounded-lg shrink-0 ${
                       selectedNotification.bg_color ||
                       selectedNotification.bgColor ||
-                      "bg-[#2a2a2a]"
-                    } border border-white/10 shadow-sm`}
+                      "bg-[#1f1f1f]"
+                    } border border-white/[0.06]`}
                   >
                     <DetailIconComponent
-                      className={`w-6 h-6 ${
+                      className={`w-5 h-5 ${
                         selectedNotification.icon_color ||
                         selectedNotification.iconColor ||
-                        "text-[#737373]"
+                        "text-[#666666]"
                       }`}
                       strokeWidth={1.8}
                     />
                   </div>
-                  <div className="flex flex-col items-start gap-1 flex-1 min-w-0 mt-1">
-                    <div className="flex items-center justify-between w-full gap-2">
-                      <span className="text-[10px] uppercase font-bold tracking-wider text-[#a3a3a3] bg-[#2a2a2a] px-2 py-0.5 rounded border border-[#3a3a3a] leading-tight flex items-center">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[10px] uppercase font-semibold tracking-wider text-[#666666] bg-[#1f1f1f] px-2 py-1 rounded-md border border-[#252525]">
                         {selectedNotification.type}
                       </span>
-                      <span className="text-[11px] font-medium text-[#737373] shrink-0">
+                      <span className="text-[11px] text-[#555555] shrink-0">
                         {formattedDetailDate || "Just now"}
                       </span>
                     </div>
                   </div>
                 </div>
-                <SheetTitle className="text-xl font-semibold text-white mt-2 pr-6 leading-tight relative z-10">
+                <SheetTitle className="text-lg font-semibold text-white leading-tight pr-6">
                   {selectedNotification.title}
                 </SheetTitle>
-              </SheetHeader>
+              </div>
 
-              <div className="flex-1 overflow-y-auto px-6 py-8 custom-scrollbar bg-[#161616]">
-                <div className="space-y-8">
-                  <section>
-                    <SheetDescription className="text-[15px] text-[#d4d4d4] leading-relaxed whitespace-pre-wrap">
-                      {selectedNotification.description}
-                    </SheetDescription>
-                  </section>
+              {/* Content */}
+              <div className="flex-1 overflow-y-auto px-6 py-5 bg-[#141414]">
+                <div className="space-y-5">
+                  {/* Description */}
+                  <p className="text-[14px] text-[#909090] leading-relaxed whitespace-pre-wrap">
+                    {selectedNotification.description}
+                  </p>
 
-                  <section className="bg-[#1a1a1a] rounded-xl border border-[#2a2a2a] p-4">
-                    <h4 className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wider mb-3 flex items-center gap-2">
-                      <Activity className="w-3.5 h-3.5" />
-                      Metadata
-                    </h4>
+                  {/* Extra Content */}
+                  {(() => {
+                    let extraContent = null;
+                    try {
+                      if (selectedNotification.extra) {
+                        extraContent = typeof selectedNotification.extra === "string" 
+                          ? JSON.parse(selectedNotification.extra) 
+                          : selectedNotification.extra;
+                      }
+                    } catch {}
+                    
+                    if (!extraContent) return null;
 
-                    <div className="grid grid-cols-[100px_1fr] gap-y-3 text-sm">
-                      <div className="text-[#737373] font-medium">Date</div>
-                      <div className="text-[#e7e7e7]" title={fullDateStr}>
-                        {formattedDetailDate || "Unknown date"}
+                    if (extraContent.type === "comment") {
+                      return (
+                        <div className="bg-[#1a1a1a] border border-[#1f1f1f] rounded-lg p-4">
+                          <p className="text-[13px] text-[#888888] leading-relaxed">
+                            {extraContent.text}
+                          </p>
+                        </div>
+                      );
+                    }
+
+                    if (extraContent.type === "file" && extraContent.files?.length > 0) {
+                      return (
+                        <div className="space-y-2">
+                          <p className="text-[11px] uppercase font-semibold text-[#555555] tracking-wider">
+                            Attachments
+                          </p>
+                          {extraContent.files.map((f, i) => (
+                            <div
+                              key={i}
+                              className="flex items-center justify-between p-3 border border-[#1f1f1f] rounded-lg bg-[#1a1a1a] hover:border-[#2a2a2a] transition-colors"
+                            >
+                              <div className="flex items-center gap-3 overflow-hidden">
+                                <div className="w-8 h-8 rounded flex items-center justify-center bg-[#1f1f1f] text-[10px] font-semibold text-[#666666]">
+                                  {f.name.split('.').pop().toUpperCase()}
+                                </div>
+                                <div className="min-w-0">
+                                  <div className="text-[13px] text-[#c0c0c0] truncate">{f.name}</div>
+                                  <div className="text-[11px] text-[#555555]">{f.size}</div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    }
+
+                    if (extraContent.type === "actions") {
+                      return (
+                        <div className="flex items-center gap-2 pt-2">
+                          <button className="flex-1 py-2 rounded-lg border border-[#2a2a2a] text-[13px] font-medium text-[#888888] hover:bg-[#1f1f1f] hover:text-white transition-colors">
+                            {extraContent.options?.[0] || "Decline"}
+                          </button>
+                          <button className="flex-1 py-2 rounded-lg bg-white text-[13px] font-medium text-black hover:bg-gray-200 transition-colors">
+                            {extraContent.options?.[1] || "Accept"}
+                          </button>
+                        </div>
+                      );
+                    }
+
+                    return null;
+                  })()}
+
+                  {/* Metadata Card */}
+                  <div className="bg-[#1a1a1a] rounded-lg border border-[#1f1f1f] p-4">
+                    <div className="grid grid-cols-2 gap-y-3 text-[12px]">
+                      <div className="text-[#555555]">Received</div>
+                      <div className="text-[#909090] text-right">
+                        {formattedDetailDate || "Unknown"}
                       </div>
-
-                      <div className="text-[#737373] font-medium">Type</div>
-                      <div className="text-[#e7e7e7] capitalize">
-                        {selectedNotification.type}
-                      </div>
-
-                      <div className="text-[#737373] font-medium">Status</div>
-                      <div className="flex items-center gap-2 text-[#e7e7e7]">
-                        <div
-                          className={`w-2 h-2 rounded-full ${selectedNotification.read ? "bg-[#737373]" : "bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"}`}
-                        ></div>
+                      <div className="text-[#555555]">Status</div>
+                      <div className="flex items-center justify-end gap-2 text-[#909090]">
+                        <span className={`w-1.5 h-1.5 rounded-full ${selectedNotification.read ? "bg-[#555555]" : "bg-blue-500"}`} />
                         {selectedNotification.read ? "Read" : "Unread"}
                       </div>
                     </div>
-                  </section>
+                  </div>
                 </div>
               </div>
 
-              <div className="p-4 border-t border-[#2a2a2a] bg-[#1a1a1a] flex gap-3 shrink-0">
+              {/* Footer Actions */}
+              <div className="p-4 border-t border-[#1f1f1f] bg-[#171717] flex gap-2 shrink-0">
                 {!selectedNotification.read && (
                   <button
                     onClick={() => {
                       handleMarkAsRead(selectedNotification.id);
                       setIsSheetOpen(false);
                     }}
-                    className="flex-1 bg-white hover:bg-gray-100 text-black font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors text-sm"
+                    className="flex-1 bg-white hover:bg-gray-100 text-black font-medium py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors text-[13px]"
                   >
                     <MailOpen className="w-4 h-4" />
-                    Mark Read
+                    Mark as Read
                   </button>
                 )}
                 <button
-                  onClick={() => {
-                    handleDelete(selectedNotification.id);
-                  }}
-                  className="w-10 h-10 border border-[#2a2a2a] text-[#a3a3a3] hover:text-red-400 hover:border-red-400/50 hover:bg-red-500/10 rounded-lg flex items-center justify-center transition-colors shrink-0"
+                  onClick={() => handleDelete(selectedNotification.id)}
+                  className="w-10 h-10 border border-[#1f1f1f] text-[#666666] hover:text-red-400 hover:border-red-400/30 hover:bg-red-500/5 rounded-lg flex items-center justify-center transition-colors"
                   title="Delete"
                 >
                   <LucideIcons.Trash2 className="w-4 h-4" />

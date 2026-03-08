@@ -21,7 +21,7 @@ export default function FilterDropdown() {
   };
 
   return (
-    <div className="flex items-center gap-4 pt-4 border-t border-[#242424]">
+    <div className="flex items-center gap-4">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
