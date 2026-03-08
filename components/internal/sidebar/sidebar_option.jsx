@@ -24,7 +24,8 @@ export function SidebarOption({
   return (
     <SidebarMenuItem>
       <SidebarMenuButton
-        onClick={subItems ? onToggle : onClick}
+        type="button"
+        onClick={subItems ? onToggle : () => onClick?.()}
         isActive={isActive}
         tooltip={title}
         className={cn(
@@ -56,7 +57,7 @@ export function SidebarOption({
           />
         )}
         {badge && !subItems && (
-          <SidebarMenuBadge className="text-[#a3a3a3] text-[10px] px-1.5 py-0.5 rounded border border-[#333333] ml-auto">
+          <SidebarMenuBadge className="mr-2 text-[#a3a3a3] text-[10px] px-1.5 py-0.5 rounded border border-[#333333] ml-auto">
             {badge}
           </SidebarMenuBadge>
         )}
@@ -67,12 +68,13 @@ export function SidebarOption({
           {subItems.map((sub) => (
             <li key={sub.title}>
               <button
+                type="button"
                 onClick={(e) => {
                   e.preventDefault();
                   onClick(sub.title);
                 }}
                 className={cn(
-                  "relative w-full flex items-center px-4 py-3 rounded-md text-[0.85rem] leading-none transition-colors gap-2",
+                  "relative w-full flex items-center px-4 h-[35px] rounded-md text-sm leading-none transition-colors gap-2",
                   activeSubTab === sub.title
                     ? "bg-sidebar-accent text-white font-medium"
                     : "text-sidebar-foreground/70 hover:text-white hover:bg-sidebar-accent/50",
@@ -88,7 +90,7 @@ export function SidebarOption({
                     )}
                   />
                 )}
-                {sub.title}
+                <p className="">{sub.title}</p>
               </button>
             </li>
           ))}

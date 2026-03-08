@@ -6,6 +6,7 @@ import { Topbar } from '@/components/internal/topbar/topbar';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { OverviewScreen } from '@/components/internal/screens/dashboard/overview/overview';
 import { ProjectsScreen } from '@/components/internal/screens/dashboard/projects/projects';
+import { InboxScreen } from '@/components/internal/screens/dashboard/inbox/inbox';
 import { TeamScreen } from '@/components/internal/screens/dashboard/team/team';
 import { IntegrationsScreen } from '@/components/internal/screens/dashboard/integrations/integrations';
 import { UsageScreen } from '@/components/internal/screens/dashboard/usage/usage';
@@ -21,6 +22,8 @@ export default function Dashboard() {
         return <OverviewScreen />;
       case "Projects":
         return <ProjectsScreen />;
+      case "Inbox":
+        return <InboxScreen />;
       case "Team":
         return <TeamScreen />;
       case "Integrations":

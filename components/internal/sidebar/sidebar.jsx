@@ -45,6 +45,7 @@ export function AppSidebar({ activeTab = "Overview", onTabChange = () => {} }) {
       </SidebarContent>
       <SidebarFooter className="p-2 border-t border-sidebar-border mt-auto">
         <button
+          type="button"
           onClick={toggleSidebar}
           className="flex items-center gap-3 p-2 w-full rounded-lg hover:bg-sidebar-accent transition-all text-sidebar-foreground hover:text-white group-data-[collapsible=icon]:justify-center"
         >

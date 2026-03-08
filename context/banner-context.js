@@ -8,9 +8,9 @@ export function BannerProvider({ children }) {
   const [banner, setBanner] = useState({
     isVisible: false,
     message: "",
-    type: "warning", // 'info', 'warning', 'error', 'success'
+    type: "warning",
     isSticky: false,
-    link: null, // { text: string, url: string }
+    link: null,
   });
 
   const showBanner = useCallback((config) => {

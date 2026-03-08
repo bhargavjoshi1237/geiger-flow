@@ -11,20 +11,19 @@ import { IntegrationsScreen } from '@/components/internal/screens/dashboard/inte
 import { UsageScreen } from '@/components/internal/screens/dashboard/usage/usage';
 import { BillingScreen } from '@/components/internal/screens/dashboard/billing/billing';
 import { OrganizationSettingsScreen } from '@/components/internal/screens/dashboard/organization_settings/organization_settings';
+import { InboxScreen } from '@/components/internal/screens/dashboard/inbox/inbox';
 
 export default function Home() {
-  const [currentTab, setCurrentTab] = useState("Home");
+  const [currentTab, setCurrentTab] = useState("Overview");
 
   const renderScreen = () => {
     switch (currentTab) {
-      case "Home":
-        return (
-        <></>
-        );
       case "Overview":
         return <OverviewScreen />;
       case "Projects":
         return <ProjectsScreen />;
+      case "Inbox":
+        return <InboxScreen />;
       case "Team":
         return <TeamScreen />;
       case "Integrations":

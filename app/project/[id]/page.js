@@ -8,6 +8,8 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { ProjectDetailsScreen } from "@/components/internal/screens/projects/project_details";
 import { WorkflowsScreen } from "@/components/internal/screens/projects/workflows";
 import { DatasetsScreen } from "@/components/internal/screens/projects/datasets";
+import { TasksScreen } from "@/components/internal/screens/projects/tasks/tasks_screen";
+import { GoalsScreen } from "@/components/internal/screens/projects/goals/goals_screen";
 import { TeamScreen } from "@/components/internal/screens/projects/team/team";
 import { SettingsScreen } from "@/components/internal/screens/projects/settings/settings_screen";
 import { ProjectProvider, useProject } from "@/context/project-context";
@@ -25,7 +27,6 @@ function ProjectLayoutContent({ id }) {
   }, [id, fetchProjectInfo]);
 
   const renderScreen = () => {
-    // If currentTab is any of the settings nav items, render settings screen
     const isSettingsTab = settingsNav.some((item) => item.title === currentTab);
     if (isSettingsTab) {
       return <SettingsScreen activeSettingsTab={currentTab} />;
@@ -36,6 +37,10 @@ function ProjectLayoutContent({ id }) {
         return <ProjectDetailsScreen id={id} />;
       case "Issues":
         return <WorkflowsScreen />;
+      case "Tasks":
+        return <TasksScreen />;
+      case "Goals":
+        return <GoalsScreen />;
       case "Objectives":
         return <DatasetsScreen />;
       case "Milestones":

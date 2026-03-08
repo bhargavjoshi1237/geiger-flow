@@ -13,7 +13,6 @@ export function IconButtonCard({
 }) {
   return (
     <div className={cn("flex flex-col gap-4", className, classNames.wrapper)}>
-      {/* Banner Section */}
       {(banner || subBanner) && (
         <div className={cn("flex flex-col gap-1.5", classNames.bannerWrapper)}>
           {banner && (
@@ -39,7 +38,6 @@ export function IconButtonCard({
         </div>
       )}
 
-      {/* Card Section */}
       <div
         className={cn(
           "flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 py-4 border rounded-xl bg-card text-card-foreground shadow-sm",
@@ -49,7 +47,6 @@ export function IconButtonCard({
         <div
           className={cn("flex items-center gap-4", classNames.contentWrapper)}
         >
-          {/* Icon */}
           {icon && (
             <div
               className={cn(
@@ -61,7 +58,6 @@ export function IconButtonCard({
             </div>
           )}
 
-          {/* Text Content */}
           <div className={cn("flex flex-col gap-0.5", classNames.textWrapper)}>
             <h4
               className={cn(
@@ -84,7 +80,6 @@ export function IconButtonCard({
           </div>
         </div>
 
-        {/* Ending Component */}
         {endingComponent && (
           <div
             className={cn("flex-shrink-0 md:ml-4", classNames.endingComponent)}

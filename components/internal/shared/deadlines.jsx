@@ -15,7 +15,7 @@ const deadlines = [
     date: "Mar 15, 2026",
     priority: "High",
     progress: 75,
-    color: "#f59e0b", // Amber
+    color: "#f59e0b",
     remaining: "14 days left",
   },
   {
@@ -24,7 +24,7 @@ const deadlines = [
     date: "Mar 22, 2026",
     priority: "Critical",
     progress: 40,
-    color: "#ef4444", // Red
+    color: "#ef4444",
     remaining: "21 days left",
   },
   {
@@ -33,7 +33,7 @@ const deadlines = [
     date: "Apr 05, 2026",
     priority: "Medium",
     progress: 10,
-    color: "#3b82f6", // Blue
+    color: "#3b82f6",
     remaining: "35 days left",
   },
   {
@@ -42,7 +42,7 @@ const deadlines = [
     date: "Apr 12, 2026",
     priority: "Low",
     progress: 90,
-    color: "#10b981", // Emerald
+    color: "#10b981",
     remaining: "42 days left",
   },
 ];

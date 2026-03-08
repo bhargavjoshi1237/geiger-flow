@@ -75,7 +75,6 @@ export function UsageScreen() {
         </div>
       </div>
 
-      {/* Project summary section */}
       <div className="space-y-4">
         <h3 className="text-xl font-medium text-[#e7e7e7]">Project summary</h3>
         <p className="text-[13px] text-[#8b8b8b] mt-1">
@@ -129,7 +128,6 @@ export function UsageScreen() {
 
       <div className="border-b border-[#2c2c2c] w-full" />
 
-      {/* Database & Storage Size */}
       <div className="space-y-6">
         <div>
           <h3 className="text-xl font-medium text-[#e7e7e7]">
@@ -214,7 +212,6 @@ export function UsageScreen() {
 
       <div className="border-b border-[#2c2c2c] w-full" />
 
-      {/* Activity */}
       <div className="space-y-6">
         <div>
           <h3 className="text-xl font-medium text-[#e7e7e7]">Activity</h3>

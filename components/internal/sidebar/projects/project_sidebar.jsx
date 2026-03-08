@@ -18,7 +18,7 @@ import { projectNav, settingsNav } from "./sidebar_data";
 export function ProjectSidebar({
   activeTab = "Overview",
   onTabChange = () => {},
-  subMenuMode = "dropdown", // modes: 'slide' | 'dropdown'
+  subMenuMode = "dropdown",
 }) {
   const { toggleSidebar } = useSidebar();
   const [activeMenu, setActiveMenu] = useState("main");
@@ -37,7 +37,6 @@ export function ProjectSidebar({
       className="bg-sidebar border-r border-sidebar-border text-sidebar-foreground"
     >
       <SidebarContent className="space-y-2 relative flex-1 overflow-hidden bg-sidebar">
-        {/* Main Menu */}
         <div
           className={`absolute inset-0 w-full h-full bg-sidebar transition-transform duration-300 ease-in-out ${
             activeMenu === "main" ? "translate-x-0" : "-translate-x-full"
@@ -66,13 +65,17 @@ export function ProjectSidebar({
                       onToggle={() => toggleExpand(item.title)}
                       activeSubTab={activeTab}
                       onClick={(tabTitle) => {
-                        if (subMenuMode === "slide" && item.hasSubmenu) {
+                        if (tabTitle) {
+                          onTabChange(tabTitle);
+                        } else if (subMenuMode === "slide" && item.hasSubmenu) {
                           setActiveMenu(item.title.toLowerCase());
                           if (item.title === "Settings") {
                             onTabChange("General");
                           }
+                        } else if (item.hasSubmenu) {
+                          toggleExpand(item.title);
                         } else {
-                          onTabChange(tabTitle || item.title);
+                          onTabChange(item.title);
                         }
                       }}
                       badge={item.badge}
@@ -84,7 +87,6 @@ export function ProjectSidebar({
           </div>
         </div>
 
-        {/* Settings Sub-Menu (only in slide mode) */}
         {subMenuMode === "slide" && (
           <div
             className={`absolute inset-0 w-full h-full bg-sidebar transition-transform duration-300 ease-in-out flex flex-col ${
@@ -93,9 +95,10 @@ export function ProjectSidebar({
           >
             <div className="px-2 pt-3 pb-2 border-b border-sidebar-border mb-2 bg-sidebar">
               <button
+                type="button"
                 onClick={() => {
                   setActiveMenu("main");
-                  onTabChange("Overview"); // Option to go back to something
+                  onTabChange("Overview");
                 }}
                 className="flex items-center gap-2 text-sidebar-foreground hover:text-white transition-colors text-sm font-medium w-full group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:hidden px-2 py-1 rounded-md hover:bg-sidebar-accent"
               >
@@ -103,6 +106,7 @@ export function ProjectSidebar({
                 Settings
               </button>
               <button
+                type="button"
                 onClick={() => {
                   setActiveMenu("main");
                   onTabChange("Overview");
@@ -133,6 +137,7 @@ export function ProjectSidebar({
       </SidebarContent>
       <SidebarFooter className="p-2 border-t border-sidebar-border mt-auto z-10 bg-sidebar">
         <button
+          type="button"
           onClick={toggleSidebar}
           className="flex items-center gap-3 p-2 w-full rounded-lg hover:bg-sidebar-accent transition-all text-sidebar-foreground hover:text-white group-data-[collapsible=icon]:justify-center"
         >
