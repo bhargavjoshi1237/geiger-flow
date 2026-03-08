@@ -1,3 +1,5 @@
+Before Implementing any Changes Read the Project and its files, Take a good look around related Files and Folder Structure to gather Context and resulting in better,cleaner and more suiting code.
+Carefully plan actions and steps to achive the objective, and then clearly and cleanly go throug that plan. 
 This is a Next JS 16 Project
 We are wokring with app router and mainly focuesd on SSR and SSG
 We are mainly focusing on using shadcn ui for the ui components

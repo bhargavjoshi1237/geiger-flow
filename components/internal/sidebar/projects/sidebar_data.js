@@ -7,19 +7,20 @@ import {
   ShieldCheck,
   Users,
   Settings2,
-  Lock,
   Link,
   BarChart3,
   Sliders,
   CheckSquare,
   Flag,
   Target,
+  LucideSquareChevronRight,
 } from "lucide-react";
 
 export const projectNav = [
   { title: "Overview", icon: LayoutDashboard },
   { title: "Issues", icon: GitBranch },
   { title: "Tasks", icon: CheckSquare },
+  { title: "Projections", icon: LucideSquareChevronRight },
   { title: "Milestones", icon: Flag, badge: "3" },
   { title: "Goals", icon: Target },
   { title: "Objectives", icon: Database },
@@ -30,7 +31,6 @@ export const projectNav = [
 
 export const settingsNav = [
   { title: "General", icon: Settings2 },
-  { title: "Security", icon: Lock },
   { title: "Connectivity", icon: Link },
   { title: "Usage", icon: BarChart3 },
   { title: "Advanced", icon: Sliders },
