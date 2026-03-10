@@ -155,45 +155,15 @@ export function ProjectionsScreen() {
     : SAMPLE_EVENTS;
 
   return (
-    <div className="flex flex-col h-full w-full min-h-screen bg-[#161616]">
+    <div className="flex flex-col h-full w-full min-h-screen">
       {/* ── Page header ──────────────────────────────────────────────────────── */}
-      <div className="px-4 sm:px-6 pt-5 pb-3">
-        <div className="flex items-center justify-between">
+      <div className="px-4 sm:px-6 pt-6 pb-8">
+        <div className="flex items-center justify-between ">
           <h1 className="text-[22px] sm:text-[26px] font-bold text-white tracking-tight">
             Calendar
           </h1>
-          {/* Desktop: inline search */}
-          <div className="relative hidden sm:block">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#737373]" />
-            <Input
-              placeholder="Search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 pr-12 h-9 w-60 bg-[#202020] border-[#333333] text-[#a3a3a3] placeholder:text-[#737373] rounded-lg text-sm focus-visible:ring-0 focus-visible:border-[#474747]"
-            />
-            <kbd className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-[#737373] bg-[#2a2a2a] border border-[#333333] px-1.5 py-0.5 rounded pointer-events-none font-mono">
-              ⌘K
-            </kbd>
-          </div>
-        </div>
-        {/* Mobile: full-width search below title */}
-        <div className="relative mt-3 sm:hidden">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#737373]" />
-          <Input
-            placeholder="Search"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-8 pr-12 h-9 w-full bg-[#202020] border-[#333333] text-[#a3a3a3] placeholder:text-[#737373] rounded-lg text-sm focus-visible:ring-0 focus-visible:border-[#474747]"
-          />
-          <kbd className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-[#737373] bg-[#2a2a2a] border border-[#333333] px-1.5 py-0.5 rounded pointer-events-none font-mono">
-            ⌘K
-          </kbd>
-        </div>
-      </div>
-
-      {/* ── Tabs ─────────────────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-1 px-4 sm:px-6 pb-3">
-        <div className="flex items-center gap-1.5 pb-1 justify-center">
+          <div className="flex items-center ">
+        <div className="flex items-center gap-1.5 justify-center">
           <div className="flex items-center gap-1 bg-[#1a1a1a] w-full justify-center rounded-lg p-1 border border-[#2a2a2a]">
             {TABS.map((tab, idx) => (
               <button
@@ -213,6 +183,37 @@ export function ProjectionsScreen() {
           </div>
         </div>
       </div>
+          {/* Desktop: inline search */}
+          {/* <div className="relative hidden sm:block">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#737373]" />
+            <Input
+              placeholder="Search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-8 pr-12 h-9 w-60 bg-[#202020] border-[#333333] text-[#a3a3a3] placeholder:text-[#737373] rounded-lg text-sm focus-visible:ring-0 focus-visible:border-[#474747]"
+            />
+            <kbd className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-[#737373] bg-[#2a2a2a] border border-[#333333] px-1.5 py-0.5 rounded pointer-events-none font-mono">
+              ⌘K
+            </kbd>
+          </div> */}
+        </div>
+        {/* Mobile: full-width search below title */}
+        {/* <div className="relative mt-3 sm:hidden">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#737373]" />
+          <Input
+            placeholder="Search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-8 pr-12 h-9 w-full bg-[#202020] border-[#333333] text-[#a3a3a3] placeholder:text-[#737373] rounded-lg text-sm focus-visible:ring-0 focus-visible:border-[#474747]"
+          />
+          <kbd className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-[#737373] bg-[#2a2a2a] border border-[#333333] px-1.5 py-0.5 rounded pointer-events-none font-mono">
+            ⌘K
+          </kbd>
+        </div> */}
+      </div>
+
+      {/* ── Tabs ─────────────────────────────────────────────────────────────── */}
+      
 
       {/* ── Calendar area ────────────────────────────────────────────────────── */}
       <div className="flex-1 px-3 sm:px-6 pb-3 sm:pb-6 overflow-auto">
@@ -245,7 +246,7 @@ export function ProjectionsScreen() {
                 </Select>
                 <Button className="h-9 bg-white text-black hover:bg-[#e5e5e5] text-sm font-medium px-3 rounded-lg gap-1.5 shrink-0">
                   <Plus className="w-4 h-4" />
-                  Add event
+                 Add event 
                 </Button>
                 <button
                   type="button"
@@ -286,7 +287,8 @@ export function ProjectionsScreen() {
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
                   {/* mini date badge - always shows real today's date */}
-                  <div className="flex flex-col items-center justify-center w-11 h-11 rounded-lg border border-[#333333] bg-[#242424] text-center leading-none">
+                  <div
+                  className="pointer mr-2 flex flex-col items-center justify-center w-11 h-11 rounded-lg border border-[#333333] bg-[#242424] text-center leading-none">
                     <span className="text-[9px] font-bold text-[#60a5fa] uppercase tracking-widest">
                       {MONTHS[today.getMonth()].slice(0, 3)}
                     </span>
@@ -305,8 +307,9 @@ export function ProjectionsScreen() {
                 </div>
               </div>
 
-              {/* Center: nav controls */}
-              <div className="flex items-center gap-1">
+              {/* Right: view selector + add button */}
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-1">
                 <button
                   type="button"
                   className="p-1.5 rounded-lg text-[#737373] hover:text-white hover:bg-[#202020] transition-colors"
@@ -314,13 +317,13 @@ export function ProjectionsScreen() {
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
-                <button
+                {/* <button
                   type="button"
                   onClick={goToToday}
                   className="px-3.5 py-1.5 text-sm font-medium text-[#a3a3a3] hover:text-white border border-[#2a2a2a] rounded-lg hover:bg-[#202020] transition-colors"
                 >
-                  Today
-                </button>
+                  Today Button
+                </button> */}
                 <button
                   type="button"
                   className="p-1.5 rounded-lg text-[#737373] hover:text-white hover:bg-[#202020] transition-colors"
@@ -329,9 +332,6 @@ export function ProjectionsScreen() {
                   <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
-
-              {/* Right: view selector + add button */}
-              <div className="flex items-center gap-2">
                 <Select value={viewMode} onValueChange={setViewMode}>
                   <SelectTrigger className="h-9 w-36 bg-[#202020] border-[#333333] text-[#a3a3a3] text-sm rounded-lg focus:ring-0 focus:border-[#474747]">
                     <CalendarDays className="w-3.5 h-3.5 mr-1.5 text-[#737373]" />
@@ -345,7 +345,6 @@ export function ProjectionsScreen() {
                 </Select>
                 <Button className="h-9 bg-white text-black hover:bg-[#e5e5e5] text-sm font-medium px-4 rounded-lg gap-1.5">
                   <Plus className="w-4 h-4" />
-                  Add event
                 </Button>
               </div>
             </div>

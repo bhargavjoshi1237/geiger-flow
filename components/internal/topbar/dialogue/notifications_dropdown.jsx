@@ -55,16 +55,16 @@ export function NotificationsDropdown({ children }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="w-[380px] p-0 bg-white dark:bg-[#161616] border border-gray-100 dark:border-[#333] shadow-xl rounded-2xl overflow-hidden"
+        className="mt-1 w-[380px] p-0 bg-[#141414] border border-[#1f1f1f] rounded-2xl overflow-hidden  scrollbar-hide"
       >
-        <div className="p-4 flex flex-col gap-4">
+        <div className="px-5 pt-5 pb-4 flex flex-col gap-4 border-b border-[#1f1f1f]">
           <div className="flex items-center justify-between">
-            <h2 className="text-[15px] font-semibold text-gray-900 dark:text-white">
+            <h2 className="text-[15px] font-semibold text-white">
               Notifications
             </h2>
           </div>
 
-          <div className="flex items-center gap-1.5 pb-1 justify-center">
+          <div className="flex items-center gap-1.5">
             <div className="flex items-center gap-1 bg-[#1a1a1a] w-full justify-center rounded-lg p-1 border border-[#2a2a2a]">
               <button
                 onClick={() => setActiveTab("all")}
@@ -110,9 +110,9 @@ export function NotificationsDropdown({ children }) {
           </div>
         </div>
 
-        <div className="max-h-[420px] overflow-y-auto pb-4 custom-scrollbar">
+        <div className="max-h-[420px] overflow-y-auto pb-2 custom-scrollbar">
           {filteredNotifications.length === 0 ? (
-            <div className="px-4 py-8 text-center text-[13px] text-gray-500 dark:text-[#a3a3a3]">
+            <div className="px-4 py-12 text-center text-[13px] text-[#666666]">
               No notifications found.
             </div>
           ) : (
@@ -140,21 +140,29 @@ export function NotificationsDropdown({ children }) {
                 }
               } catch (e) {}
 
+              const isUnread = !notification.read;
+              const bgColor = notification.bg_color || notification.bgColor || "bg-[#1f1f1f]";
+              const iconColor = notification.icon_color || notification.iconColor || "text-[#666666]";
+
               return (
                 <div
                   key={notification.id}
-                  className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-[#1f1f1f] transition-colors relative group"
+                  className={`px-4 py-3.5 transition-colors relative group cursor-pointer border-b border-[#1a1a1a] last:border-b-0 ${
+                    isUnread
+                      ? "bg-[#1a1a1a]/50 hover:bg-[#1f1f1f]"
+                      : "hover:bg-[#181818]"
+                  }`}
                 >
-                  {!notification.read && (
+                  {isUnread && (
                     <div className="absolute left-1.5 top-5 w-1.5 h-1.5 rounded-full bg-blue-500"></div>
                   )}
 
                   <div className="pl-3 flex items-start gap-3">
                     <div
-                      className={`mt-0.5 flex items-center justify-center w-8 h-8 rounded-full shrink-0 ${notification.bg_color || notification.bgColor || "bg-gray-100 dark:bg-[#2a2a2a]"} border border-gray-200/50 dark:border-white/5`}
+                      className={`mt-0.5 flex items-center justify-center w-9 h-9 rounded-lg shrink-0 ${bgColor} border border-white/[0.06]`}
                     >
                       <IconComponent
-                        className={`w-[16px] h-[16px] ${notification.icon_color || notification.iconColor || "text-gray-500 dark:text-[#737373]"}`}
+                        className={`w-4 h-4 ${iconColor}`}
                         strokeWidth={1.8}
                       />
                     </div>
@@ -162,20 +170,19 @@ export function NotificationsDropdown({ children }) {
                     <div className="flex-1 min-w-0 flex flex-col justify-center">
                       <div className="flex items-center justify-between gap-3 mb-1">
                         <h3
-                          className={`text-[13.5px] font-medium truncate ${
-                            notification.read
-                              ? "text-gray-900 dark:text-gray-200"
-                              : "text-black dark:text-white font-semibold"
+                          className={`text-[13px] font-medium truncate ${
+                            isUnread ? "text-white" : "text-[#c0c0c0]"
                           }`}
                         >
                           {notification.title}
                         </h3>
+                        <span className="text-[11px] text-[#555555] whitespace-nowrap shrink-0">
+                          {formattedTime}
+                        </span>
                       </div>
                       <p
-                        className={`text-[12.5px] leading-snug ${
-                          notification.read
-                            ? "text-gray-500 dark:text-[#a3a3a3]"
-                            : "text-gray-700 dark:text-[#d4d4d4]"
+                        className={`text-[12px] leading-relaxed ${
+                          isUnread ? "text-[#a0a0a0]" : "text-[#707070]"
                         } line-clamp-2`}
                       >
                         {notification.description}
@@ -184,7 +191,7 @@ export function NotificationsDropdown({ children }) {
                       {extraContent && (
                         <div className="mt-3">
                           {extraContent.type === "comment" && (
-                            <div className="bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl p-3 text-[13px] text-gray-600 dark:text-[#d4d4d4] leading-snug relative before:content-[''] before:absolute before:-top-[6px] before:left-4 before:w-3 before:h-3 before:bg-gray-50 dark:before:bg-[#1a1a1a] before:border-l before:border-t before:border-gray-200 dark:before:border-[#333] before:rotate-45">
+                            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-3 text-[12px] text-[#909090] leading-relaxed">
                               {extraContent.text}
                             </div>
                           )}
@@ -193,28 +200,24 @@ export function NotificationsDropdown({ children }) {
                             extraContent.files?.map((f, i) => (
                               <div
                                 key={i}
-                                className="flex items-center justify-between p-3 border border-gray-200 dark:border-[#333] rounded-xl bg-white dark:bg-[#1a1a1a] mt-2 first:mt-0"
+                                className="flex items-center justify-between p-2.5 border border-[#2a2a2a] rounded-lg bg-[#1a1a1a] mt-2"
                               >
-                                <div className="flex items-center gap-3 overflow-hidden">
-                                  <div className="w-8 h-8 rounded flex items-center justify-center bg-gray-50 dark:bg-[#222] shrink-0 text-gray-500 dark:text-[#a3a3a3]">
-                                    {f.iconType === "image" ? (
-                                      <ImageIcon className="w-4 h-4" />
-                                    ) : (
-                                      <FileText className="w-4 h-4" />
-                                    )}
+                                <div className="flex items-center gap-2.5 overflow-hidden">
+                                  <div className="w-7 h-7 rounded flex items-center justify-center bg-[#222222] text-[#808080] text-[10px] font-medium">
+                                    {f.name.split('.').pop().toUpperCase()}
                                   </div>
                                   <div className="min-w-0">
-                                    <div className="text-[13px] font-medium text-gray-900 dark:text-white truncate">
+                                    <div className="text-[12px] text-[#c0c0c0] truncate">
                                       {f.name}
                                     </div>
-                                    <div className="text-[11px] text-gray-500 dark:text-[#a3a3a3]">
+                                    <div className="text-[10px] text-[#666666]">
                                       {f.size}
                                     </div>
                                   </div>
                                 </div>
                                 <button
                                   onClick={(e) => e.stopPropagation()}
-                                  className="w-8 h-8 rounded flex items-center justify-center text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#333] transition-colors shrink-0"
+                                  className="w-8 h-8 rounded flex items-center justify-center text-[#666666] hover:text-white hover:bg-[#2a2a2a] transition-colors shrink-0"
                                 >
                                   <Download className="w-4 h-4" />
                                 </button>
@@ -222,16 +225,16 @@ export function NotificationsDropdown({ children }) {
                             ))}
 
                           {extraContent.type === "actions" && (
-                            <div className="flex flex-wrap items-center gap-2 mt-2">
+                            <div className="flex items-center gap-2 mt-2.5">
                               <button
                                 onClick={(e) => e.stopPropagation()}
-                                className="px-4 py-1.5 rounded-full border border-gray-200 dark:border-[#444] text-[13px] font-medium text-gray-700 dark:text-[#d4d4d4] hover:bg-gray-50 dark:hover:bg-[#222] transition-colors"
+                                className="px-3 py-1.5 rounded-lg border border-[#333333] text-[11px] font-medium text-[#909090] hover:bg-[#252525] hover:text-white transition-colors"
                               >
                                 {extraContent.options?.[0] || "Decline"}
                               </button>
                               <button
                                 onClick={(e) => e.stopPropagation()}
-                                className="px-4 py-1.5 rounded-full bg-gray-900 dark:bg-white text-[13px] font-medium text-white dark:text-[#161616] hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
+                                className="px-3 py-1.5 rounded-lg bg-white text-[11px] font-medium text-black hover:bg-gray-200 transition-colors"
                               >
                                 {extraContent.options?.[1] || "Accept"}
                               </button>
@@ -240,13 +243,10 @@ export function NotificationsDropdown({ children }) {
                         </div>
                       )}
 
-                      <div className="text-[11px] font-medium text-gray-400 dark:text-[#737373] mt-2 flex items-center justify-between">
-                        {formattedTime}
-                        {notification.type && (
-                          <span className="text-[9px] uppercase font-bold tracking-wider text-gray-500 dark:text-[#a3a3a3] bg-gray-100 dark:bg-[#2a2a2a] px-1.5 py-0.5 rounded border border-gray-200 dark:border-[#3a3a3a]">
-                            {notification.type}
-                          </span>
-                        )}
+                      <div className="mt-3">
+                        <span className="text-[9px] uppercase font-semibold tracking-wider text-[#666666] bg-[#1f1f1f] px-2 py-1 rounded-md border border-[#2a2a2a]">
+                          {notification.type}
+                        </span>
                       </div>
                     </div>
                   </div>
