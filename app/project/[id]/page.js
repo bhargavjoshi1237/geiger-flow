@@ -15,6 +15,7 @@ import { MilestonesScreen } from "@/components/internal/screens/projects/milesto
 import { ProjectionsScreen } from "@/components/internal/screens/projects/projections/projections_screen";
 import { SecurityScreen } from "@/components/internal/screens/projects/security/security_screen";
 import { SettingsScreen } from "@/components/internal/screens/projects/settings/settings_screen";
+import { VaultScreen } from "@/components/internal/screens/projects/vault/vault_screen";
 import { ProjectProvider, useProject } from "@/context/project-context";
 import { settingsNav } from "@/components/internal/sidebar/projects/sidebar_data";
 import { useEffect } from "react";
@@ -52,6 +53,8 @@ function ProjectLayoutContent({ id }) {
         return <MilestonesScreen />;
       case "Team":
         return <TeamScreen />;
+      case "Vault":
+        return <VaultScreen />;
       case "Security":
         return <SecurityScreen />;
       default:

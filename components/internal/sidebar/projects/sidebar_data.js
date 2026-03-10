@@ -14,6 +14,7 @@ import {
   Flag,
   Target,
   LucideSquareChevronRight,
+  Key,
 } from "lucide-react";
 
 export const projectNav = [
@@ -25,6 +26,7 @@ export const projectNav = [
   { title: "Goals", icon: Target },
   { title: "Objectives", icon: Database },
   { title: "Team", icon: Users, badge: "7" },
+  { title: "Vault", icon: Key },
   { title: "Security", icon: ShieldCheck },
   { title: "Settings", icon: Settings, hasSubmenu: true },
 ];
