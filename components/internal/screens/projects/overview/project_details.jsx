@@ -91,6 +91,9 @@ export function ProjectDetailsScreen() {
   const { project } = useProject();
   const { showBanner } = useBanner();
   const [activeIssueTab, setActiveIssueTab] = useState("SECURITY");
+  const [filterValue, setFilterValue] = useState("1w");
+  
+  console.log("Current filter value:", filterValue);
 
   useEffect(() => {
     if (window.location.pathname === "/") {
@@ -148,7 +151,10 @@ export function ProjectDetailsScreen() {
         </p>
       </div>
       <div className="pt-4 border-t border-[#242424]">
-        <FilterDropdown />
+        <FilterDropdown
+          value={filterValue}
+          onValueChange={setFilterValue}
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">

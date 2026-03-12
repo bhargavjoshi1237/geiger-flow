@@ -11,13 +11,35 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export default function FilterDropdown() {
-  const [filter, setFilter] = useState("1d");
+const defaultOptions = [
+  { value: "1d", label: "Last 1 day" },
+  { value: "1w", label: "Last 1 week" },
+  { value: "1m", label: "Last 1 month" },
+];
 
-  const filterLabels = {
-    "1d": "Last 1 day",
-    "1w": "Last 1 week",
-    "1m": "Last 1 month",
+export default function FilterDropdown({
+  value: controlledValue,
+  onValueChange,
+  options = defaultOptions,
+  placeholder = "Select filter",
+  height = "h-8",
+}) {
+  const [internalFilter, setInternalFilter] = useState(options[0]?.value || "1d");
+  
+  // Use controlled value if provided, otherwise use internal state
+  const filter = controlledValue !== undefined ? controlledValue : internalFilter;
+  
+  const handleValueChange = (newValue) => {
+    if (onValueChange) {
+      onValueChange(newValue);
+    } else {
+      setInternalFilter(newValue);
+    }
+  };
+
+  const getFilterLabel = (filterValue) => {
+    const option = options.find(opt => opt.value === filterValue);
+    return option?.label || placeholder;
   };
 
   return (
@@ -26,32 +48,23 @@ export default function FilterDropdown() {
         <DropdownMenuTrigger asChild>
           <Button
             variant="outline"
-            className="bg-[#202020] border-[#2a2a2a] text-[#ededed] hover:bg-[#1a1a1a] text-xs h-8 px-3 rounded-md font-medium"
+            className={`bg-[#202020] border-[#2a2a2a] text-[#ededed] hover:bg-[#1a1a1a] text-xs px-3 rounded-md font-medium ${height}`}
           >
-            {filterLabels[filter]}{" "}
+            {getFilterLabel(filter)}{" "}
             <ChevronDown className="w-3.5 h-3.5 ml-2 text-[#737373]" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="bg-[#1a1a1a] border-[#2a2a2a] text-[#ededed]">
-          <DropdownMenuRadioGroup value={filter} onValueChange={setFilter}>
-            <DropdownMenuRadioItem
-              value="1d"
-              className="text-xs focus:bg-[#2a2a2a] focus:text-[#ededed] cursor-pointer"
-            >
-              1 Day
-            </DropdownMenuRadioItem>
-            <DropdownMenuRadioItem
-              value="1w"
-              className="text-xs focus:bg-[#2a2a2a] focus:text-[#ededed] cursor-pointer"
-            >
-              1 Week
-            </DropdownMenuRadioItem>
-            <DropdownMenuRadioItem
-              value="1m"
-              className="text-xs focus:bg-[#2a2a2a] focus:text-[#ededed] cursor-pointer"
-            >
-              1 Month
-            </DropdownMenuRadioItem>
+          <DropdownMenuRadioGroup value={filter} onValueChange={handleValueChange}>
+            {options.map((option) => (
+              <DropdownMenuRadioItem
+                key={option.value}
+                value={option.value}
+                className="text-xs focus:bg-[#2a2a2a] focus:text-[#ededed] cursor-pointer"
+              >
+                {option.label}
+              </DropdownMenuRadioItem>
+            ))}
           </DropdownMenuRadioGroup>
         </DropdownMenuContent>
       </DropdownMenu>

@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -17,6 +20,9 @@ import FilterDropdown from "../../projects/overview/filter_dropdown";
 import { ChevronRight } from "lucide-react";
 
 export function OverviewScreen() {
+  const [filterValue, setFilterValue] = useState("1w");
+  
+  console.log("Current filter value:", filterValue);
   return (
     <div className="w-full px-2 lg:px-0 lg:w-[75%] mx-auto my-3 space-y-8 text-[#e7e7e7]">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg">
@@ -108,7 +114,8 @@ export function OverviewScreen() {
             </div>
            <div>
               <FilterDropdown
-               
+                value={filterValue}
+                onValueChange={setFilterValue}
               />
             </div>
           </div>

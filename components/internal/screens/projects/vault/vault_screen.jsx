@@ -1,4 +1,3 @@
-// filepath: components/internal/screens/projects/vault/vault_screen.jsx
 "use client";
 
 import React, { useState } from "react";
@@ -6,31 +5,14 @@ import {
   Key,
   Plus,
   Search,
-  Eye,
-  EyeOff,
-  Copy,
-  Trash2,
-  Shield,
-  Clock,
-  Lock,
-  Unlock,
-  MoreVertical,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { VaultItemCard } from "./vault_item_card";
 import { AddVaultItemDialog } from "./add_vault_item_dialog";
 import { VaultAccessControl } from "./vault_access_control";
+import FilterDropdown from "../overview/filter_dropdown";
 
-// Mock vault items for demonstration
 const initialVaultItems = [
   {
     id: "1",
@@ -204,10 +186,10 @@ export function VaultScreen() {
           </div>
         </div>
         <AddVaultItemDialog onSave={handleAddItem}>
-          <button className="bg-white text-black px-4 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 hover:bg-[#e5e5e5] transition-colors">
-            <Plus className="w-4 h-4 stroke-[2.5]" />
-            Add Secret
-          </button>
+          <button className="bg-[#e7e7e7] hover:bg-zinc-200 text-black px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors">
+                     <Plus className="w-4 h-4 text-black font-bold stroke-[3]" />
+                     Add Secrate
+                   </button>
         </AddVaultItemDialog>
       </div>
 
@@ -222,17 +204,13 @@ export function VaultScreen() {
             className="pl-10 bg-[#1a1a1a] border-[#2a2a2a] text-white placeholder:text-[#737373] focus-visible:ring-0 focus-visible:border-[#474747] h-10"
           />
         </div>
-        <select
+        <FilterDropdown
           value={filterType}
-          onChange={(e) => setFilterType(e.target.value)}
-          className="bg-[#1a1a1a] border border-[#2a2a2a] text-[#a3a3a3] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#474747] cursor-pointer hover:bg-[#202020] transition-colors"
-        >
-          {VAULT_TYPES.map((type) => (
-            <option key={type.value} value={type.value}>
-              {type.icon} {type.label}
-            </option>
-          ))}
-        </select>
+          onValueChange={setFilterType}
+          options={VAULT_TYPES.map(type => ({ value: type.value, label: type.label }))}
+          placeholder="Select type"
+          height="h-10"
+        />
       </div>
 
       {/* Vault Items Grid */}

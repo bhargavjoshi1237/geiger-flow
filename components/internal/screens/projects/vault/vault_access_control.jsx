@@ -1,4 +1,3 @@
-// filepath: components/internal/screens/projects/vault/vault_access_control.jsx
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -31,7 +30,6 @@ import {
   Clock,
   Lock,
   Unlock,
-  Info,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
