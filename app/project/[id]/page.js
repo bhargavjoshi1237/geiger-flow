@@ -16,6 +16,7 @@ import { ProjectionsScreen } from "@/components/internal/screens/projects/projec
 import { SecurityScreen } from "@/components/internal/screens/projects/security/security_screen";
 import { SettingsScreen } from "@/components/internal/screens/projects/settings/settings_screen";
 import { VaultScreen } from "@/components/internal/screens/projects/vault/vault_screen";
+import { LogsScreen } from "@/components/internal/screens/projects/logs/logs_screen";
 import { ProjectProvider, useProject } from "@/context/project-context";
 import { settingsNav } from "@/components/internal/sidebar/projects/sidebar_data";
 import { useEffect } from "react";
@@ -55,6 +56,8 @@ function ProjectLayoutContent({ id }) {
         return <TeamScreen />;
       case "Vault":
         return <VaultScreen />;
+      case "Logs":
+        return <LogsScreen />;
       case "Security":
         return <SecurityScreen />;
       default:

@@ -77,11 +77,11 @@ function IssueItem({
         )}
         <span
           className={cn(
-            "text-xs px-2 py-0.5 rounded-md border capitalize",
+            "text-xs px-2 min-w-[60px] items-center flex py-0.5 rounded-md border capitalize",
             severityColors[severity] || severityColors.medium
           )}
         >
-          {severity}
+          <p className="w-full text-center">{severity}</p>
         </span>
       </div>
     </div>

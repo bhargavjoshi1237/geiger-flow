@@ -4,13 +4,8 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, CheckSquare } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { AddActivityDialog } from "@/components/internal/dilouges/activities/add_activity_dilouge";
 
 export function TasksScreen() {
-  const handleSaveActivity = async (activity) => {
-    console.log("Saving task activity:", activity);
-    // Add your save logic here
-  };
 
   return (
     <MainScreenWrapper>
@@ -21,12 +16,10 @@ export function TasksScreen() {
             Manage and track your project tasks.
           </p>
         </div>
-        <AddActivityDialog onSave={handleSaveActivity}>
-          <Button className="bg-white text-black hover:bg-[#e7e7e7]">
+        <Button className="bg-white text-black hover:bg-[#e7e7e7]">
             <Plus className="w-4 h-4 mr-2" />
             Create New Task
           </Button>
-        </AddActivityDialog>
       </div>
 
       <div className="h-[400px] flex items-center justify-center border-2 border-dashed border-[#2a2a2a] rounded-lg text-[#a3a3a3]">

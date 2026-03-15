@@ -14,11 +14,7 @@ export function SecurityScreen() {
           <p className="text-[#a3a3a3] mt-1">
             Monitor project security status, access logs, and team permissions.
           </p>
-        </div>
-        <Button className="bg-white text-black hover:bg-[#e7e7e7]">
-          <Settings className="w-4 h-4 mr-2" />
-          Security Settings
-        </Button>
+        </div>  
       </div>
 
       <div className="h-[400px] flex items-center justify-center border-2 border-dashed border-[#2a2a2a] rounded-lg text-[#a3a3a3]">
