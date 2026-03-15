@@ -1,11 +1,13 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Info, ExternalLink, FileText } from "lucide-react";
+import UpgradePlanDialogue from "./upgrade_plan_dialouge";
 
 export function BillingScreen() {
+  const [isUpgradeOpen, setIsUpgradeOpen] = useState(false);
   const invoices = [
     {
       date: "Feb 18, 2026",
@@ -55,9 +57,11 @@ export function BillingScreen() {
           <Button
             variant="outline"
             className="h-8 text-[13px] bg-transparent border-[#2c2c2c] hover:bg-[#2c2c2c] text-[#e7e7e7] transition-colors"
+            onClick={() => setIsUpgradeOpen(true)}
           >
             Change subscription plan
           </Button>
+          <UpgradePlanDialogue open={isUpgradeOpen} onOpenChange={setIsUpgradeOpen} />
 
           <Card className="bg-[#181818] border-[#2c2c2c] flex gap-4 p-5 rounded-xl text-left shadow-sm w-full mt-2">
             <div className="bg-[#2c2c2c] text-[#a3a3a3] w-6 h-6 rounded flex items-center justify-center shrink-0 mt-0.5">

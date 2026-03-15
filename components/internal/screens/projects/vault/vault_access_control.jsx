@@ -14,13 +14,6 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Users,
   Shield,
   UserCheck,
@@ -32,6 +25,7 @@ import {
   Unlock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import FilterDropdown from "../overview/filter_dropdown";
 
 const ALL_ROLES = ["admin", "member", "viewer", "devops", "billing", "security"];
 const ALL_POSITIONS = [
@@ -46,6 +40,16 @@ const ALL_POSITIONS = [
   "Product Manager",
 ];
 
+const TTL_OPTIONS = [
+  { value: "none", label: "Never" },
+  { value: "1h", label: "1 hour" },
+  { value: "6h", label: "6 hours" },
+  { value: "24h", label: "24 hours" },
+  { value: "7d", label: "7 days" },
+  { value: "30d", label: "30 days" },
+  { value: "90d", label: "90 days" },
+];
+
 export function VaultAccessControl({
   item,
   open = false,
@@ -58,20 +62,21 @@ export function VaultAccessControl({
     allowedUsers: [],
     allowedPositions: [],
   });
-  const [ttl, setTtl] = useState("");
+  const [ttl, setTtl] = useState("none");
   const [keylessEntry, setKeylessEntry] = useState(false);
+  const [userInput, setUserInput] = useState("");
 
   useEffect(() => {
-    if (item) {
+    if (item && open) {
       setAccessControl(
         item.accessControl || {
           type: "team",
           allowedRoles: [],
           allowedUsers: [],
           allowedPositions: [],
-        },
+        }
       );
-      setTtl(item.ttl || "");
+      setTtl(item.ttl || "none");
       setKeylessEntry(item.keylessEntry || false);
     }
   }, [item, open]);
@@ -104,12 +109,13 @@ export function VaultAccessControl({
     }));
   };
 
-  const handleUserAdd = (email) => {
-    if (email && !accessControl.allowedUsers.includes(email)) {
+  const handleUserAdd = () => {
+    if (userInput && !accessControl.allowedUsers.includes(userInput)) {
       setAccessControl((prev) => ({
         ...prev,
-        allowedUsers: [...prev.allowedUsers, email],
+        allowedUsers: [...prev.allowedUsers, userInput],
       }));
+      setUserInput("");
     }
   };
 
@@ -120,61 +126,84 @@ export function VaultAccessControl({
     }));
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleUserAdd();
+    }
+  };
+
   const handleSave = () => {
     onSave({
       ...item,
       accessControl,
-      ttl: ttl || null,
+      ttl: ttl === "none" ? null : ttl,
       keylessEntry,
     });
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto bg-[#161616] border-[#2a2a2a] text-white rounded-2xl">
-        <DialogHeader className="pb-4 border-b border-[#2a2a2a]">
-          <DialogTitle className="text-lg font-semibold flex items-center gap-2">
-            <Shield className="w-4 h-4 text-purple-400" />
+      <DialogContent className="sm:max-w-[520px] max-h-[85vh] overflow-y-auto bg-[#161616] text-[#ededed] border border-[#2a2a2a]">
+        <DialogHeader className="pb-2">
+          <DialogTitle className="font-semibold flex items-center gap-2.5 text-white">
+            <Shield className="w-5 h-5 text-[#737373] text-sm" />
             Access Control
           </DialogTitle>
-          <DialogDescription className="text-[#a3a3a3] text-sm">
-            Configure who can access "{item?.name}"
+          <DialogDescription className="text-[#737373] pt-1 text-xs">
+            Configure who can access {item?.name}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="py-4 space-y-5">
-          {/* Access Type */}
+        <div className="space-y-5 ">
           <div className="space-y-3">
-            <Label className="text-[13px] font-medium text-[#a3a3a3]">Access Type</Label>
-            <div className="grid grid-cols-2 gap-2">
+            <Label className="text-xs font-semibold text-[#a3a3a3] tracking-wide">Access Type</Label>
+            <div className="grid grid-cols-4 gap-2.5">
               {[
                 { value: "team", label: "Team", icon: Users },
                 { value: "roles", label: "Roles", icon: Shield },
                 { value: "users", label: "Users", icon: UserCheck },
                 { value: "positions", label: "Positions", icon: Building2 },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => handleTypeChange(option.value)}
-                  className={cn(
-                    "flex items-center gap-2 p-3 rounded-xl border text-[13px] font-medium transition-all",
-                    accessControl.type === option.value
-                      ? "bg-[#202020] border-[#474747] text-white"
-                      : "bg-[#1a1a1a] border-[#2a2a2a] text-[#a3a3a3] hover:border-[#3a3a3a]",
-                  )}
-                >
-                  <option.icon className="w-4 h-4" />
-                  {option.label}
-                </button>
-              ))}
+              ].map((option) => {
+                const isActive = accessControl.type === option.value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => handleTypeChange(option.value)}
+                    className={cn(
+                      "relative flex flex-col items-center justify-center gap-2 py-3.5 px-3 rounded-lg border text-xs font-medium",
+                      isActive
+                        ? "border-[#404040] text-white"
+                        : "bg-[#1a1a1a] border-[#2a2a2a] text-[#737373] hover:border-[#3a3a3a] hover:text-[#a3a3a3]",
+                    )}
+                  >
+                    <div className={cn(
+                      "relative p-1.5 rounded-md transition-all duration-300",
+                      isActive ? "" : "bg-transparent group-hover:bg-[#2a2a2a]/60"
+                    )}>
+                      <option.icon className={cn(
+                        "w-4 h-4 transition-all duration-300",
+                        isActive ? "text-white" : "text-[#666666] group-hover:text-[#999999]"
+                      )} />
+                    </div>
+                    <span className={cn(
+                      "transition-all duration-200",
+                      isActive && "font-semibold tracking-wide"
+                    )}>
+                      {option.label}
+                    </span>
+                     
+                  </button>
+                );
+              })}
             </div>
           </div>
 
           {/* Role Selection */}
           {accessControl.type === "roles" && (
             <div className="space-y-3">
-              <Label className="text-[13px] font-medium text-[#a3a3a3]">Allowed Roles</Label>
+              <Label className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wide">Allowed Roles</Label>
               <div className="flex flex-wrap gap-2">
                 {ALL_ROLES.map((role) => (
                   <button
@@ -182,10 +211,10 @@ export function VaultAccessControl({
                     type="button"
                     onClick={() => handleRoleToggle(role)}
                     className={cn(
-                      "px-3 py-1.5 rounded-lg text-[12px] font-medium border transition-all",
+                      "px-3 py-1 rounded-md text-xs font-medium border transition-all duration-200",
                       accessControl.allowedRoles.includes(role)
-                        ? "bg-purple-500/20 border-purple-500/30 text-purple-400"
-                        : "bg-[#1a1a1a] border-[#2a2a2a] text-[#a3a3a3]",
+                        ? "bg-[#202020] border-[#474747] text-white shadow-sm"
+                        : "bg-[#1a1a1a] border-[#2a2a2a] text-[#737373] hover:border-[#3a3a3a] hover:text-[#a3a3a3] hover:bg-[#1f1f1f]",
                     )}
                   >
                     {role.charAt(0).toUpperCase() + role.slice(1)}
@@ -195,47 +224,61 @@ export function VaultAccessControl({
             </div>
           )}
 
+
           {/* User Selection */}
           {accessControl.type === "users" && (
             <div className="space-y-3">
-              <Label className="text-[13px] font-medium text-[#a3a3a3]">Email Addresses</Label>
-              <div className="space-y-2">
-                {accessControl.allowedUsers.map((email, index) => (
-                  <div key={index} className="flex items-center gap-2 bg-[#1a1a1a] rounded-lg px-3 py-2 border border-[#2a2a2a]">
-                    <UserCheck className="w-4 h-4 text-green-400" />
-                    <span className="flex-1 text-[13px] text-white">{email}</span>
+              <Label className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wide">Email Addresses</Label>
+              <div className="space-y-2.5">
+                {accessControl.allowedUsers.length > 0 && (
+                  <div className="space-y-2">
+                    {accessControl.allowedUsers.map((email, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center gap-3 bg-[#1a1a1a] rounded-lg px-3.5 py-2 border border-[#2a2a2a] group hover:border-[#3a3a3a] transition-all duration-200"
+                      >
+                        <div className="w-7 h-7 rounded-full bg-[#202020] border border-[#333333] flex items-center justify-center">
+                          <UserCheck className="w-3.5 h-3.5 text-[#737373]" />
+                        </div>
+                        <span className="flex-1 text-sm text-[#ededed]">{email}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleUserRemove(email)}
+                          className="text-[#525252] hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div 
+                  data-slot="input-group" 
+                  role="group" 
+                  className="group/input-group relative flex h-9 w-full min-w-0 items-center rounded-lg border border-[#2a2a2a] transition-colors outline-none hover:border-[#3a3a3a] has-[[data-slot=input-group-control]:focus-visible]:border-[#3a3a3a] has-[[data-slot=input-group-control]:focus-visible]:ring-1 has-[[data-slot=input-group-control]:focus-visible]:ring-[#3a3a3a]/50"
+                >
+                  <input 
+                    data-slot="input-group-control"
+                    placeholder="email@example.com"
+                    value={userInput}
+                    onChange={(e) => setUserInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    className="h-9 flex-1 rounded-none border-0 bg-transparent px-3 text-sm text-[#ededed] outline-none ring-0 placeholder:text-[#525252] focus-visible:ring-0"
+                  />
+                  <div 
+                    role="group" 
+                    data-slot="input-group-addon" 
+                    data-align="inline-end"
+                    className="flex h-auto cursor-text items-center justify-center gap-2 py-1.5 text-sm font-medium text-[#737373] select-none order-last pr-2"
+                  >
                     <button
                       type="button"
-                      onClick={() => handleUserRemove(email)}
-                      className="text-[#737373] hover:text-red-400 transition-colors"
+                      onClick={handleUserAdd}
+                      className="flex size-5 items-center justify-center rounded-full bg-[#ededed] text-[#161616] hover:bg-white transition-all duration-200"
                     >
-                      <X className="w-4 h-4" />
+                      <Plus className="size-3" />
                     </button>
                   </div>
-                ))}
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="email@example.com"
-                    className="bg-[#1a1a1a] border-[#2a2a2a] text-white placeholder:text-[#737373] h-9"
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        handleUserAdd(e.target.value);
-                        e.target.value = "";
-                      }
-                    }}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={(e) => {
-                      const input = e.target.previousSibling;
-                      handleUserAdd(input.value);
-                      input.value = "";
-                    }}
-                    className="border-[#2a2a2a] text-[#a3a3a3] hover:text-white hover:bg-[#202020]"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </Button>
                 </div>
               </div>
             </div>
@@ -244,7 +287,7 @@ export function VaultAccessControl({
           {/* Position Selection */}
           {accessControl.type === "positions" && (
             <div className="space-y-3">
-              <Label className="text-[13px] font-medium text-[#a3a3a3]">Positions</Label>
+              <Label className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wide">Positions</Label>
               <div className="flex flex-wrap gap-2">
                 {ALL_POSITIONS.map((position) => (
                   <button
@@ -252,10 +295,10 @@ export function VaultAccessControl({
                     type="button"
                     onClick={() => handlePositionToggle(position)}
                     className={cn(
-                      "px-3 py-1.5 rounded-lg text-[12px] font-medium border transition-all",
+                      "px-3 py-1 rounded-md text-xs font-medium border transition-all duration-200",
                       accessControl.allowedPositions.includes(position)
-                        ? "bg-amber-500/20 border-amber-500/30 text-amber-400"
-                        : "bg-[#1a1a1a] border-[#2a2a2a] text-[#a3a3a3]",
+                        ? "bg-[#202020] border-[#474747] text-white shadow-sm"
+                        : "bg-[#1a1a1a] border-[#2a2a2a] text-[#737373] hover:border-[#3a3a3a] hover:text-[#a3a3a3] hover:bg-[#1f1f1f]",
                     )}
                   >
                     {position}
@@ -265,71 +308,54 @@ export function VaultAccessControl({
             </div>
           )}
 
-          {/* Divider */}
-          <div className="border-t border-[#2a2a2a]" />
-
-          {/* Security Settings */}
+          <div className="mt-8" />
           <div className="space-y-4">
-            <h3 className="text-[13px] font-medium text-white">Security</h3>
-
-            {/* Keyless Entry */}
-            <div className="flex items-center justify-between p-4 bg-[#1a1a1a] rounded-xl border border-[#2a2a2a]">
+            <div className="flex items-center justify-between mb-7">
               <div className="flex items-center gap-3">
-                {keylessEntry ? (
-                  <Unlock className="w-4 h-4 text-green-400" />
-                ) : (
-                  <Lock className="w-4 h-4 text-[#737373]" />
-                )}
                 <div>
-                  <Label className="text-[13px] font-medium text-white">Keyless Entry</Label>
-                  <p className="text-[11px] text-[#737373]">
-                    {keylessEntry ? "Anyone can view" : "Password required"}
-                  </p>
+                  <Label className="text-sm text-[#a3a3a3]">Keyless Entry</Label>
                 </div>
               </div>
               <Switch
                 checked={keylessEntry}
                 onCheckedChange={setKeylessEntry}
-              />
+                className="data-[state=checked]:bg-[#ededed] data-[state=unchecked]:bg-[#333333]"
+              >
+                <Switch.Thumb className="data-[state=checked]:bg-[#161616] data-[state=unchecked]:bg-[#737373]" />
+              </Switch>
             </div>
 
-            {/* TTL */}
             <div className="space-y-2">
-              <Label className="text-[13px] font-medium text-[#a3a3a3] flex items-center gap-2">
-                <Clock className="w-3.5 h-3.5" />
-                Expires
-              </Label>
-              <Select value={ttl || "none"} onValueChange={setTtl}>
-                <SelectTrigger className="bg-[#1a1a1a] border-[#2a2a2a] text-white h-10">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-[#1a1a1a] border-[#2a2a2a] text-white">
-                  <SelectItem value="none" className="focus:bg-[#2a2a2a]">Never</SelectItem>
-                  <SelectItem value="1h" className="focus:bg-[#2a2a2a]">1 hour</SelectItem>
-                  <SelectItem value="6h" className="focus:bg-[#2a2a2a]">6 hours</SelectItem>
-                  <SelectItem value="24h" className="focus:bg-[#2a2a2a]">24 hours</SelectItem>
-                  <SelectItem value="7d" className="focus:bg-[#2a2a2a]">7 days</SelectItem>
-                  <SelectItem value="30d" className="focus:bg-[#2a2a2a]">30 days</SelectItem>
-                  <SelectItem value="90d" className="focus:bg-[#2a2a2a]">90 days</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex items-center gap-2 justify-between">
+<div>
+                  <Label className="text-sm text-[#a3a3a3]">Time To Live</Label>
+                </div>
+                <FilterDropdown
+                value={ttl}
+                onValueChange={setTtl}
+                options={TTL_OPTIONS}
+                placeholder="Select expiration"
+                height="h-9"
+              />
+              </div> 
+             
             </div>
           </div>
         </div>
 
-        <DialogFooter className="gap-2">
+        <DialogFooter className="gap-3 pt-4">
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
-            className="border-[#2a2a2a] text-[#a3a3a3] hover:text-white hover:bg-[#202020]"
+            className="flex-1 border-[#2a2a2a] text-[#737373] hover:text-white hover:bg-[#202020] hover:border-[#3a3a3a] h-9 text-sm font-medium transition-all duration-200"
           >
             Cancel
           </Button>
           <Button
             onClick={handleSave}
-            className="bg-white text-black hover:bg-[#e5e5e5]"
+            className="flex-1 bg-[#ededed] text-[#161616] hover:bg-white h-9 text-sm font-medium transition-all duration-200"
           >
-            Save
+            Save Changes
           </Button>
         </DialogFooter>
       </DialogContent>

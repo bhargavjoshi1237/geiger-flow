@@ -17,7 +17,9 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import FilterDropdown from "../../projects/overview/filter_dropdown";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { AddActivityDialog } from "@/components/internal/dilouges/activities/add_activity_dilouge";
 
 export function OverviewScreen() {
   const [filterValue, setFilterValue] = useState("1w");
@@ -170,9 +172,17 @@ export function OverviewScreen() {
           </div>
         </div>
         <div className="bg-[#202020] border border-[#2a2a2a] rounded-2xl p-6 flex flex-col min-w-0">
-          <div className="mb-6">
-            <h3 className="text-[#e7e7e7] font-medium">Activity Log</h3>
-            <p className="text-sm text-[#737373]">Recent workspace actions</p>
+          <div className="mb-6 flex items-center justify-between">
+            <div>
+              <h3 className="text-[#e7e7e7] font-medium">Activity Log</h3>
+              <p className="text-sm text-[#737373]">Recent workspace actions</p>
+            </div>
+            <AddActivityDialog onSave={(activity) => console.log("Adding activity:", activity)}>
+              <Button variant="outline" size="sm" className="bg-[#1a1a1a] border-[#2a2a2a] text-[#a3a3a3] hover:text-[#ededed] h-8">
+                <Plus className="w-3.5 h-3.5 mr-1.5" />
+                Add Activity
+              </Button>
+            </AddActivityDialog>
           </div>
           <div className="flex-1 space-y-6">
             {[

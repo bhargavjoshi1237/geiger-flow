@@ -10,22 +10,58 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { EmptyState } from "@/components/internal/notfound/not_found";
 
 export function TeamScreen() {
-  const members = [
-    {
-      name: "Caitlyn King",
-      email: "caitlyn@untitledui.com",
-      role: "Owner",
-      status: "Active",
-    },
-    {
-      name: "Priya Shepard",
-      email: "priya@untitledui.com",
-      role: "Admin",
-      status: "Active",
-    },
-  ];
+  const members = [];
+
+  if (members.length === 0) {
+    const avatarStack = (
+      <div className="flex -space-x-4 items-center -mr-0.5">
+        <Avatar className="w-12 h-12 bg-[#2a2a2a] ring-4 ring-[#121212]">
+          <AvatarImage src="https://github.com/shadcn.png" />
+          <AvatarFallback>JD</AvatarFallback>
+        </Avatar>
+        <Avatar className="w-12 h-12 bg-[#2a2a2a] ring-4 ring-[#121212]">
+          <AvatarImage src="https://github.com/nutlope.png" />
+          <AvatarFallback>MK</AvatarFallback>
+        </Avatar>
+        <Avatar className="w-12 h-12 bg-[#2a2a2a] ring-4 ring-[#121212]">
+           <AvatarImage src="https://avatar.vercel.sh/shadcn" />
+           <AvatarFallback>R</AvatarFallback>
+        </Avatar>
+      </div>
+    );
+
+    return (
+      <div className="flex flex-col gap-8 w-full px-2 lg:px-0 lg:w-[75%] mx-auto my-3 text-[#e7e7e7]">
+        <div className="flex items-center justify-between">
+        <div className="flex flex-col items-start gap-3">
+        <h1 className="text-3xl font-semibold text-[#e7e7e7]">
+          Team Members
+        </h1>
+        <p className="text-[#a3a3a3] text-sm mt-1.5 font-medium">
+            Stay updated with all notifications and alerts across your
+            workspace.
+          </p>
+        </div>
+        <button className="bg-[#e7e7e7] hover:bg-zinc-200 text-black px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors">
+          <Plus className="w-4 h-4 text-black font-bold stroke-[3]" />
+          Invite member
+        </button>
+      </div>
+      <div className="bg-transparent rounded-2xl overflow-hidden w-full">
+        <EmptyState
+          icon={avatarStack}
+          title="No Team Members"
+          description="Invite your team to collaborate on this project."
+          actionLabel="Invite Members"
+          onAction={() => console.log("Invite clicked")}
+        /></div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-8 w-full px-2 lg:px-0 lg:w-[75%] mx-auto my-3 text-[#e7e7e7]">

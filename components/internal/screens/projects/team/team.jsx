@@ -30,10 +30,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { EmptyState } from "@/components/internal/notfound/not_found";
+import { Button } from "@/components/ui/button";
+
 export function TeamScreen() {
   const { project } = useProject();
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isInviteOpen, setIsInviteOpen] = useState(false);
 
   useEffect(() => {
     const fetchTeam = async () => {
@@ -73,6 +78,44 @@ export function TeamScreen() {
     fetchTeam();
   }, [project?.id]);
 
+  if (!loading && members.length === 0) {
+    const avatarStack = (
+      <div className="flex -space-x-4 items-center -mr-0.5">
+        <Avatar className="w-12 h-12 bg-[#2a2a2a] ring-4 ring-[#121212]">
+          <AvatarImage src="https://github.com/shadcn.png" />
+          <AvatarFallback>JD</AvatarFallback>
+        </Avatar>
+        <Avatar className="w-12 h-12 bg-[#2a2a2a] ring-4 ring-[#121212]">
+          <AvatarImage src="https://github.com/nutlope.png" />
+          <AvatarFallback>MK</AvatarFallback>
+        </Avatar>
+        <Avatar className="w-12 h-12 bg-[#2a2a2a] ring-4 ring-[#121212]">
+           <AvatarImage src="https://avatar.vercel.sh/shadcn" />
+           <AvatarFallback>R</AvatarFallback>
+        </Avatar>
+      </div>
+    );
+
+    return (
+      <MainScreenWrapper>
+        <div className="flex flex-col gap-8 w-full max-w-4xl mx-auto py-12">
+          <EmptyState
+            icon={avatarStack}
+            title="No Team Members"
+            description="Invite your team to collaborate on this project."
+            actionLabel="Invite Members"
+            onAction={() => setIsInviteOpen(true)}
+          />
+          <InviteMemberDialog 
+            isOpen={isInviteOpen}
+            onClose={() => setIsInviteOpen(false)}
+            onInvite={handleInvite}
+          />
+        </div>
+      </MainScreenWrapper>
+    );
+  }
+
   const saveMembers = async (newMembers) => {
     setMembers(newMembers);
     if (!project?.id) return;
@@ -104,10 +147,13 @@ export function TeamScreen() {
 
   return (
     <MainScreenWrapper className="text-[#e7e7e7]">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-semibold text-[#e7e7e7] tracking-tight">
-          Team Members
-        </h1>
+      <div className="flex items-center justify-between border-b border-[#2a2a2a] pb-6">
+        <div>
+          <h1 className="text-3xl font-bold text-[#e7e7e7]">Team</h1>
+          <p className="text-[#a3a3a3] mt-1">
+            Manage your team members and their roles.
+          </p>
+        </div>
         <InviteMemberDialog onInvite={handleInvite}>
           <button className="bg-[#e7e7e7] hover:bg-zinc-200 text-black px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors">
             <Plus className="w-4 h-4 text-black font-bold stroke-[3]" />
@@ -115,6 +161,7 @@ export function TeamScreen() {
           </button>
         </InviteMemberDialog>
       </div>
+       
 
       <div className="bg-[#202020] border border-[#2a2a2a] rounded-2xl overflow-hidden w-full">
         <Table>

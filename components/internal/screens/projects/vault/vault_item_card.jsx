@@ -88,7 +88,7 @@ export function VaultItemCard({
   const typeStyle = { bg: 'bg-[#202020]', border: 'border-[#2a2a2a]', text: 'text-[#a3a3a3]' };
 
   const handleCopy = () => {
-    const textToCopy = item.password || item.apiKey || item.username || "";
+    const textToCopy = item.secret || item.password || item.apiKey || item.username || "";
     if (textToCopy) {
       navigator.clipboard.writeText(textToCopy);
       setCopied(true);
@@ -96,7 +96,7 @@ export function VaultItemCard({
     }
   };
 
-  const secretValue = item.password || item.apiKey || "";
+  const secretValue = item.secret || item.password || item.apiKey || "";
   const hasSecret = secretValue.length > 0;
 
   return (
@@ -200,15 +200,6 @@ export function VaultItemCard({
         <ContextMenuItem onClick={onDuplicate} className="cursor-pointer focus:bg-[#323232] focus:text-[#e7e7e7] flex items-center gap-2 px-2 py-1.5">
           <Copy className="w-3.5 h-3.5" />
           <span className="text-xs">Duplicate</span>
-        </ContextMenuItem>
-        <ContextMenuItem onClick={onViewAccessControl} className="cursor-pointer focus:bg-[#323232] focus:text-[#e7e7e7] flex items-center gap-2 px-2 py-1.5">
-          <Shield className="w-3.5 h-3.5" />
-          <span className="text-xs">Access Control</span>
-        </ContextMenuItem>
-        <ContextMenuSeparator className="bg-[#2a2a2a]" />
-        <ContextMenuItem onClick={onDelete} className="cursor-pointer flex items-center gap-2 px-2 py-1.5">
-          <Trash2 className="w-3.5 h-3.5" />
-          <span className="text-xs font-medium">Delete</span>
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>

@@ -40,12 +40,6 @@ export function InviteMemberDialog({
     viewer: "Viewer",
   };
 
-  const roleDescriptions = {
-    admin: "Can manage projects and members",
-    member: "Can view and edit projects",
-    viewer: "Can only view projects",
-  };
-
   useEffect(() => {
     if (isOpen) {
       setEmail(defaultEmail);
@@ -124,9 +118,6 @@ export function InviteMemberDialog({
                       className="flex flex-col items-start gap-0.5 py-2 focus:bg-[#2a2a2a] focus:text-[#ededed] cursor-pointer"
                     >
                       <span className="text-sm font-medium">{label}</span>
-                      <span className="text-[11px] text-zinc-500 leading-none">
-                        {roleDescriptions[key]}
-                      </span>
                     </DropdownMenuRadioItem>
                   ))}
                 </DropdownMenuRadioGroup>

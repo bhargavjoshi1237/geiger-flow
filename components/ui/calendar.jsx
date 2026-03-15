@@ -29,6 +29,7 @@ import {
   List,
   Grid3X3,
   Plus,
+  Activity,
 } from "lucide-react";
 import { Input } from "./input";
 
@@ -124,7 +125,7 @@ const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 // Event Types Configuration
 export const EVENT_COLORS = {
-  default:    { pill: "bg-blue-500/[0.15] text-blue-300",    dot: "#3b82f6",  special: false },
+  default:    { pill: "bg-zinc-500/[0.15] text-blue-300",    dot: "#3b82f6",  special: false },
   standup:    { pill: "bg-indigo-500/[0.15] text-indigo-300", dot: "#6366f1",  special: false },
   meeting:    { pill: "bg-cyan-500/[0.15] text-cyan-300",     dot: "#06b6d4",  special: false },
   coffee:     { pill: "bg-violet-500/[0.15] text-violet-300", dot: "#8b5cf6",  special: false },
@@ -133,7 +134,7 @@ export const EVENT_COLORS = {
   inspection: { pill: "bg-red-500/[0.12] text-red-400",       dot: "#ef4444",  special: true  },
   work:       { pill: "bg-zinc-500/[0.2] text-zinc-300",       dot: "#71717a",  special: false },
   lunch:      { pill: "bg-orange-500/[0.15] text-orange-300",  dot: "#f97316",  special: false },
-  planning:   { pill: "bg-blue-500/[0.15] text-blue-300",      dot: "#3b82f6",  special: false },
+  planning:   { pill: "bg-zinc-500/[0.15] text-blue-300",      dot: "#3b82f6",  special: false },
   design:     { pill: "bg-purple-500/[0.15] text-purple-300",  dot: "#a855f7",  special: false },
   social:     { pill: "bg-violet-500/[0.12] text-violet-400",  dot: "#8b5cf6",  special: true  },
   exercise:   { pill: "bg-emerald-500/[0.12] text-emerald-400",dot: "#10b981", special: true  },
@@ -150,6 +151,55 @@ const formatEventTime = (dateStr) => {
     minute: "2-digit",
     hour12: true,
   });
+};
+
+// Activity Intensity Colors
+const ACTIVITY_COLORS = {
+  0: 'bg-transparent',
+  1: 'bg-zinc-500/10',
+  2: 'bg-zinc-500/20',
+  3: 'bg-zinc-500/30',
+  4: 'bg-zinc-500/40',
+  5: 'bg-zinc-500/50',
+};
+
+// Get activity level for a specific date and time range
+const getActivityLevel = (activities, date, startHour = null, endHour = null) => {
+  if (!activities || activities.length === 0) return 0;
+  
+  const checkDate = new Date(date);
+  let totalActivity = 0;
+  
+  const relevantActivities = activities.filter(activity => {
+    const activityDate = new Date(activity.timestamp);
+    
+    // Check if same day
+    if (!isSameDay(activityDate, checkDate)) return false;
+    
+    // If hours specified, check if within range
+    if (startHour !== null && endHour !== null) {
+      const activityHour = activityDate.getHours();
+      return activityHour >= startHour && activityHour < endHour;
+    }
+    
+    return true;
+  });
+  
+  // Sum activity intensities
+  totalActivity = relevantActivities.reduce((sum, activity) => {
+    return sum + (activity.intensity || activity.count || 1);
+  }, 0);
+  
+  // Normalize to 0-5 scale (adjust maxCount based on your data)
+  const maxCount = 20; // Adjust this based on expected maximum activity
+  const level = Math.min(5, Math.ceil((totalActivity / maxCount) * 5));
+  
+  return level;
+};
+
+// Get total activity for a date
+const getActivityForDate = (activities, date) => {
+  return getActivityLevel(activities, date);
 };
 
 // Calendar Component
@@ -171,15 +221,26 @@ export function Calendar({
   maxHour = 23,
   hourInterval = 1,
   timeFormat = "12h",
+  // Activity visualization props
+  activities = [], // Array of { timestamp: Date, intensity?: number, count?: number, type?: string }
+  showActivity = false, // Enable activity visualization
+  activityViewMode = 'overlay', // 'overlay' | 'replace' - show activity as overlay or replace events
+  activityColorScheme = 'zinc', // Color scheme for activity: 'zinc', 'blue', 'green', 'purple'
 }) {
   const [currentDate, setCurrentDate] = useState(new Date(selectedDate));
   const [currentView, setCurrentView] = useState(view);
   const [selectedDay, setSelectedDay] = useState(new Date(selectedDate));
+  const [dayStripOffset, setDayStripOffset] = useState(0);
+  const [dayStripBaseDate, setDayStripBaseDate] = useState(new Date(selectedDate));
 
   useEffect(() => {
     setCurrentDate(new Date(selectedDate));
     setSelectedDay(new Date(selectedDate));
   }, [selectedDate]);
+
+  useEffect(() => {
+    setCurrentView(view);
+  }, [view]);
 
   // Go to today on initial mount
   useEffect(() => {
@@ -243,6 +304,11 @@ export function Calendar({
       
       return (eventStart < hourEnd && eventEnd > hourStart);
     });
+  };
+  
+  // Get activity level for hour
+  const getActivityForHour = (date, hour) => {
+    return getActivityLevel(activities, date, hour, hour + 1);
   };
 
   const renderHeader = () => (
@@ -369,6 +435,7 @@ export function Calendar({
             const isToday = isSameDay(day.date, today);
             const isCurrentMonth = day.isCurrentMonth;
             const overflowCount = dayEvents.length - MAX_PILLS;
+            const activityLevel = showActivity ? getActivityForDate(activities, day.date) : 0;
 
             return (
               <ContextMenu key={index}>
@@ -382,8 +449,9 @@ export function Calendar({
                       if (onDateSelect) onDateSelect(day.date);
                     }}
                     className={cn(
-                      "min-h-[70px] sm:min-h-[120px] p-1 sm:p-1.5 border-b border-r border-[#2a2a2a] cursor-pointer",
+                      "min-h-[70px] sm:min-h-[120px] p-1 sm:p-1.5 border-b border-r border-[#2a2a2a] cursor-pointer relative overflow-hidden",
                       "transition-colors hover:bg-[#202020]",
+                      ACTIVITY_COLORS[activityLevel],
                       !isCurrentMonth && "opacity-35",
                       index % 7 === 6 && "border-r-0", // last col
                       index >= 35 && "border-b-0",     // last row
@@ -608,7 +676,7 @@ export function Calendar({
                   className={cn(
                     "text-lg font-medium mt-1 w-8 h-8 mx-auto flex items-center justify-center rounded-full",
                     isToday
-                      ? "bg-blue-500 text-white"
+                      ? "bg-zinc-500 text-white"
                       : "text-[#e7e7e7]"
                   )}
                 >
@@ -627,7 +695,7 @@ export function Calendar({
               {hours.map((hour) => (
                 <div
                   key={hour}
-                  className="h-16 text-xs text-[#6b6b6b] text-right pr-2 pt-1"
+                  className="h-16 text-xs text-[#6b6b6b] text-right pr-2 pt-1 flex items-center justify-center border-b border-[#2a2a2a]/50"
                 >
                   {timeFormat === "12h" ? formatHour(hour) : `${hour}:00`}
                 </div>
@@ -642,15 +710,19 @@ export function Calendar({
                   key={dayIndex}
                   className={cn(
                     "border-r border-[#2a2a2a] last:border-r-0",
-                    isToday && "bg-blue-500/5"
+                    isToday && "bg-zinc-500/5"
                   )}
                 >
                   {hours.map((hour) => {
                     const hourEvents = getEventsForHour(day, hour);
+                    const activityLevel = showActivity ? getActivityForHour(day, hour) : 0;
                     return (
                       <div
                         key={hour}
-                        className="h-16 border-b border-[#2a2a2a]/50 relative group"
+                        className={cn(
+                          "h-16 border-b border-[#2a2a2a]/50 relative group",
+                          ACTIVITY_COLORS[activityLevel]
+                        )}
                         onClick={() => {
                           const clickedDate = new Date(day);
                           clickedDate.setHours(hour, 0, 0, 0);
@@ -738,18 +810,49 @@ export function Calendar({
       return isSameDay(eventStart, selectedDay);
     });
 
+    // Generate 10 days centered around base date for horizontal strip
+    const getDaysStrip = (centerDate) => {
+      const days = [];
+      const start = new Date(centerDate);
+      start.setDate(start.getDate() - 4); // Show 4 days before
+      for (let i = 0; i < 14; i++) {
+        const day = new Date(start);
+        day.setDate(start.getDate() + i);
+        days.push(day);
+      }
+      return days;
+    };
+
+    const stripCenterDate = new Date(dayStripBaseDate);
+    stripCenterDate.setDate(stripCenterDate.getDate() + dayStripOffset);
+    const visibleDays = getDaysStrip(stripCenterDate);
+
+    const handleDayStripClick = (day) => {
+      setSelectedDay(day);
+      // Don't change strip position - keep dayStripBaseDate and offset as-is
+      if (onDateSelect) onDateSelect(day);
+    };
+
+    const handleScrollPrev = () => {
+      setDayStripOffset(prev => prev - 10);
+    };
+
+    const handleScrollNext = () => {
+      setDayStripOffset(prev => prev + 10);
+    };
+
     return (
       <div className="flex flex-col h-full">
         {/* Day header */}
-        <div className="text-center py-4 border-b border-[#2a2a2a] mb-4">
+        <div className="text-center py-4 border-b border-[#2a2a2a]">
           <div className="text-sm text-[#6b6b6b] uppercase">
             {WEEKDAYS[selectedDay.getDay()]}
           </div>
           <div
             className={cn(
-              "text-4xl font-bold mt-1 w-16 h-16 mx-auto flex items-center justify-center rounded-full",
+              "text-4xl font-bold mt-2 w-16 h-16 mx-auto flex items-center justify-center rounded-2xl",
               isSameDay(selectedDay, today)
-                ? "bg-blue-500 text-white"
+                ? "bg-zinc-500 text-white"
                 : "text-[#e7e7e7]"
             )}
           >
@@ -760,23 +863,89 @@ export function Calendar({
           </div>
         </div>
 
+        {/* Horizontal day navigation strip */}
+        <div className="border-b border-[#2a2a2a] py-3 px-4">
+          <div className="flex items-center gap-2">
+            {/* Left scroll arrow */}
+            <button
+              onClick={handleScrollPrev}
+              className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-[#a3a3a3] hover:text-[#e7e7e7] hover:bg-[#2a2a2a] transition-colors"
+              title="Previous 10 days"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+
+            {/* Day strip - 10 days horizontal */}
+            <div className="flex-1 flex gap-1.5 overflow-hidden">
+              {visibleDays.map((day, idx) => {
+                const isSelected = isSameDay(day, selectedDay);
+                const isToday = isSameDay(day, today);
+                const dayActivity = showActivity ? getActivityForDate(activities, day) : 0;
+                
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => handleDayStripClick(day)}
+                    className={cn(
+                      "flex-1 min-w-0 flex flex-col items-center justify-center rounded-lg",
+                      "hover:bg-[#2a2a2a] transition-colors",
+                      isSelected && "bg-[#2a2a2a] border border-[#474747]",
+                      ACTIVITY_COLORS[dayActivity]
+                    )}
+                  >
+                    {/* <div className="text-[9px] font-medium text-[#737373] uppercase">
+                      {WEEKDAYS[day.getDay()].slice(0, 3)}
+                    </div> */}
+                    <div
+                      className={cn(
+                        "text-sm font-semibold mt-0.5 w-7 h-7 flex items-center justify-center rounded-lg",
+                        isToday && "bg-zinc-500 text-white",
+                        !isToday && !isSelected && "text-[#e7e7e7]",
+                        isSelected && !isToday && "text-white"
+                      )}
+                    >
+                      {day.getDate()}
+                    </div>
+                    {/* {dayActivity > 0 && (
+                      <div className={cn(
+                        "w-1.5 h-1.5 rounded-full mt-0.5",
+                        dayActivity >= 4 ? "bg-green-500" : dayActivity >= 2 ? "bg-yellow-500" : "bg-zinc-500"
+                      )} />
+                    )} */}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Right scroll arrow */}
+            <button
+              onClick={handleScrollNext}
+              className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-[#a3a3a3] hover:text-[#e7e7e7] hover:bg-[#2a2a2a] transition-colors"
+              title="Next 10 days"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
         {/* Events list */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto mt-6">
           <div className="space-y-2">
             {hours.map((hour) => {
               const hourEvents = getEventsForHour(selectedDay, hour);
+              const activityLevel = showActivity ? getActivityForHour(selectedDay, hour) : 0;
               
               return (
                 <div
                   key={hour}
-                  className="flex gap-4 min-h-[60px] border-b border-[#2a2a2a]/30"
+                  className="flex gap-4 min-h-[60px] border-b border-[#2a2a2a]/30 px-8"
                 >
                   <div className="w-16 flex-shrink-0 pt-2">
                     <span className="text-sm text-[#6b6b6b]">
                       {timeFormat === "12h" ? formatHour(hour) : `${hour}:00`}
                     </span>
                   </div>
-                  <div className="flex-1 pt-2 relative">
+                  <div className={cn("w-full relative rounded-lg p-1", ACTIVITY_COLORS[activityLevel])}>
                     {hourEvents.length === 0 ? (
                       <div 
                         className={cn(
@@ -851,15 +1020,64 @@ export function Calendar({
     );
   };
 
-  return (
-    <div className={cn("bg-[#1a1a1a] border border-[#2a2a2a] rounded-2xl p-6", className)}>
-      {showHeader && renderHeader()}
-      
-      <div className={cn(showHeader && "mt-4")}>
-        {currentView === "month" && renderMonthView()}
-        {currentView === "week" && renderWeekView()}
-        {currentView === "day" && renderDayView()}
+  // Render activity summary widget
+  const renderActivitySummary = () => {
+    if (!showActivity) return null;
+    
+    // Calculate total activity for visible period
+    let daysToCheck = [];
+    if (currentView === 'day') {
+      daysToCheck = [selectedDay];
+    } else if (currentView === 'week') {
+      daysToCheck = getWeekDays(currentDate);
+    } else {
+      daysToCheck = getDaysInMonth(currentDate, 1).map(d => d.date);
+    }
+    
+    const totalActivity = daysToCheck.reduce((sum, date) => {
+      return sum + getActivityForDate(activities, date);
+    }, 0);
+    
+    const avgActivity = totalActivity / daysToCheck.length;
+    const activityLabel = avgActivity > 4 ? 'Very High' : avgActivity > 3 ? 'High' : avgActivity > 2 ? 'Moderate' : avgActivity > 1 ? 'Low' : 'Minimal';
+    
+    return (
+      <div className="px-6 py-3 border-t border-[#2a2a2a] bg-[#1a1a1a] rounded-b-2xl">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Activity className="w-4 h-4 text-[#a3a3a3]" />
+            <span className="text-sm text-[#a3a3a3]">Activity Level:</span>
+            <span className="text-sm font-semibold text-[#e7e7e7]">{activityLabel}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            {[1, 2, 3, 4, 5].map(level => (
+              <div
+                key={level}
+                className={cn(
+                  "w-4 h-4 rounded",
+                  level <= Math.round(avgActivity) ? ACTIVITY_COLORS[level] : 'bg-zinc-500/10'
+                )}
+                title={`Level ${level}`}
+              />
+            ))}
+          </div>
+        </div>
       </div>
+    );
+  };
+
+  return (
+    <div className={cn("bg-[#1a1a1a] border border-[#2a2a2a] rounded-2xl overflow-hidden", className)}>
+      <div className="p-6">
+        {showHeader && renderHeader()}
+        
+        <div className={cn(showHeader && "mt-4")}>
+          {currentView === "month" && renderMonthView()}
+          {currentView === "week" && renderWeekView()}
+          {currentView === "day" && renderDayView()}
+        </div>
+      </div>
+      {renderActivitySummary()}
     </div>
   );
 }
@@ -965,7 +1183,7 @@ export function Timeline({
                   key={index}
                   className={cn(
                     "text-center py-2 rounded-lg",
-                    isToday ? "bg-blue-500/20" : ""
+                    isToday ? "bg-zinc-500/20" : ""
                   )}
                 >
                   <div className="text-xs text-[#6b6b6b] uppercase">
@@ -995,7 +1213,7 @@ export function Timeline({
                   key={dayIndex}
                   className={cn(
                     "grid grid-cols-[80px_repeat(14,1fr)] gap-1 py-1 rounded-lg",
-                    isToday && "bg-blue-500/5"
+                    isToday && "bg-zinc-500/20"
                   )}
                 >
                   {/* Day label */}
@@ -1253,7 +1471,7 @@ export function EventModal({
               </Button>
               <Button
                 type="submit"
-                className="flex-1 bg-blue-600 hover:bg-blue-700"
+                className="flex-1 bg-zinc-600 hover:bg-zinc-700"
               >
                 {mode === "create" ? "Create" : "Save"}
               </Button>

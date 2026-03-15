@@ -5,9 +5,15 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarMenuBadge,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function SidebarOption({
   title,
@@ -21,6 +27,9 @@ export function SidebarOption({
   onToggle,
   activeSubTab,
 }) {
+  const { state, isMobile } = useSidebar();
+  const isCollapsed = state === "collapsed" && !isMobile;
+
   return (
     <SidebarMenuItem>
       <SidebarMenuButton
@@ -63,8 +72,8 @@ export function SidebarOption({
         )}
       </SidebarMenuButton>
 
-      {subItems && isExpanded && (
-        <ul className="flex flex-col gap-0.5 pt-2 w-[95%]">
+      {subItems && isExpanded && !isCollapsed && (
+        <ul className="flex flex-col gap-0.5 pt-2">
           {subItems.map((sub) => (
             <li key={sub.title}>
               <button
@@ -74,7 +83,7 @@ export function SidebarOption({
                   onClick(sub.title);
                 }}
                 className={cn(
-                  "relative w-full flex items-center px-4 h-[35px] rounded-md text-sm leading-none transition-colors gap-2",
+                  "relative w-full flex items-center px-2 h-[35px] rounded-md text-sm leading-none transition-colors gap-2",
                   activeSubTab === sub.title
                     ? "bg-sidebar-accent text-white font-medium"
                     : "text-sidebar-foreground/70 hover:text-white hover:bg-sidebar-accent/50",
@@ -92,6 +101,47 @@ export function SidebarOption({
                 )}
                 <p className="">{sub.title}</p>
               </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* Collapsed state subitems with tooltips */}
+      {subItems && isExpanded && isCollapsed && (
+        <ul className="flex flex-col gap-0.5 pt-2">
+          {subItems.map((sub) => (
+            <li key={sub.title}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onClick(sub.title);
+                    }}
+                    className={cn(
+                      "relative w-full flex items-center justify-center px-2 h-[35px] rounded-md text-sm leading-none transition-colors",
+                      activeSubTab === sub.title
+                        ? "bg-sidebar-accent text-white font-medium"
+                        : "text-sidebar-foreground/70 hover:text-white hover:bg-sidebar-accent/50",
+                    )}
+                  >
+                    {sub.icon && (
+                      <sub.icon
+                        className={cn(
+                          "w-4 h-4 shrink-0 transition-colors",
+                          activeSubTab === sub.title
+                            ? "text-white"
+                            : "text-sidebar-foreground/70",
+                        )}
+                      />
+                    )}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="right" align="center">
+                  {sub.title}
+                </TooltipContent>
+              </Tooltip>
             </li>
           ))}
         </ul>

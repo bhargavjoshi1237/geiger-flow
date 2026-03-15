@@ -12,6 +12,7 @@ import {
 import { Database, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
+import { AddActivityDialog } from "@/components/internal/dilouges/activities/add_activity_dilouge";
 
 export function DatasetsScreen() {
   const datasets = [
@@ -30,6 +31,11 @@ export function DatasetsScreen() {
     { name: "Marketing Leads", type: "JSON", size: "8.2 MB", status: "Active" },
   ];
 
+  const handleSaveActivity = async (activity) => {
+    console.log("Saving dataset activity:", activity);
+    // Add your save logic here
+  };
+
   return (
     <MainScreenWrapper className="text-[#e7e7e7]">
       <div className="flex items-center justify-between border-b border-[#2a2a2a] pb-6">
@@ -39,10 +45,12 @@ export function DatasetsScreen() {
             Manage your data sources and datasets.
           </p>
         </div>
-        <Button className="bg-white text-black hover:bg-[#e7e7e7]">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Dataset
-        </Button>
+        <AddActivityDialog onSave={handleSaveActivity}>
+          <Button className="bg-white text-black hover:bg-[#e7e7e7]">
+            <Plus className="w-4 h-4 mr-2" />
+            Add Dataset
+          </Button>
+        </AddActivityDialog>
       </div>
 
       <div className="border border-[#2a2a2a] rounded-lg overflow-hidden bg-[#1a1a1a]">

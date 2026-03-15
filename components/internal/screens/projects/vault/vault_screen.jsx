@@ -125,6 +125,7 @@ export function VaultScreen() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [viewingAccessControl, setViewingAccessControl] = useState(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   // Filter vault items based on search and type
   const filteredItems = vaultItems.filter((item) => {
@@ -174,22 +175,37 @@ export function VaultScreen() {
   return (
     <MainScreenWrapper>
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-4">
-          <div>
-           <div>
+      <div className="flex items-center justify-between border-b border-[#2a2a2a] pb-6">
+        <div>
           <h1 className="text-3xl font-bold text-[#e7e7e7]">Vault</h1>
           <p className="text-[#a3a3a3] mt-1">
-           {vaultItems.length} secret{vaultItems.length !== 1 ? "s" : ""} in this project
+            Manage your assets and store them securely.
           </p>
         </div>
-          </div>
-        </div>
-        <AddVaultItemDialog onSave={handleAddItem}>
-          <button className="bg-[#e7e7e7] hover:bg-zinc-200 text-black px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors">
-                     <Plus className="w-4 h-4 text-black font-bold stroke-[3]" />
-                     Add Secrate
-                   </button>
+                <AddVaultItemDialog 
+          open={dialogOpen} 
+          onOpenChange={(open) => {
+            setDialogOpen(open);
+            if (!open) setEditingItem(null);
+          }}
+          item={editingItem}
+          onSave={(item) => {
+            if (editingItem) {
+              handleUpdateItem(item);
+            } else {
+              handleAddItem(item);
+            }
+            setDialogOpen(false);
+            setEditingItem(null);
+          }}
+        >
+          <button 
+            onClick={() => setDialogOpen(true)}
+            className="bg-[#e7e7e7] hover:bg-zinc-200 text-black px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors"
+          >
+            <Plus className="w-4 h-4 text-black font-bold stroke-[3]" />
+            Add Secret
+          </button>
         </AddVaultItemDialog>
       </div>
 
@@ -238,7 +254,7 @@ export function VaultScreen() {
               item={item}
               onEdit={() => {
                 setEditingItem(item);
-                setIsAddDialogOpen(true);
+                setDialogOpen(true);
               }}
               onDelete={() => handleDeleteItem(item.id)}
               onDuplicate={() => handleDuplicate(item)}

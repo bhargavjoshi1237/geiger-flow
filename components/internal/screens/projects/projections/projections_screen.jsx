@@ -18,6 +18,8 @@ import {
   ChevronRight,
   CalendarDays,
 } from "lucide-react";
+import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
+import { AddActivityDialog } from "@/components/internal/dilouges/activities/add_activity_dilouge";
 import { cn } from "@/lib/utils";
 
 const TABS = ["All", "Shared", "Public", "Archived"];
@@ -25,6 +27,10 @@ const TAB_KEYS = ["all events", "shared", "public", "archived"];
 
 // ─── Sample events – January 2025 (matching reference screenshot) ──────────────
 const SAMPLE_EVENTS = [
+  // ═══════════════════════════════════════════════════════════════════════════
+  // SINGLE DAY ACTIVITIES (events that occur within one day)
+  // ═══════════════════════════════════════════════════════════════════════════
+  
   // ── Dec 30 ──────────────────────────────────────────────────────────────────
   { id: "d30-1", title: "Monday standup",         start: "2024-12-30T09:00", end: "2024-12-30T09:30",  type: "standup"    },
   { id: "d30-2", title: "Coffee with Ali",         start: "2024-12-30T11:30", end: "2024-12-30T12:00",  type: "coffee"     },
@@ -109,6 +115,130 @@ const SAMPLE_EVENTS = [
   { id: "j31-1", title: "Friday standup",         start: "2025-01-31T09:00", end: "2025-01-31T09:30",  type: "standup"    },
   // ── Feb 2 ───────────────────────────────────────────────────────────────────
   { id: "f2-1",  title: "Monday standup",         start: "2025-02-02T09:00", end: "2025-02-02T09:30",  type: "standup"    },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // MULTI-DAY ACTIVITIES (events spanning multiple consecutive days)
+  // ═══════════════════════════════════════════════════════════════════════════
+  
+  // Example 1: Team offsite spanning 3 days (Dec 6-8)
+  { id: "multi-1", title: "Team Offsite - Strategy", start: "2024-12-06T09:00", end: "2024-12-08T18:00", type: "meeting" },
+  
+  // Example 2: Product launch week spanning 5 days (Jan 13-17)
+  { id: "multi-2", title: "Product Launch Week v2.0", start: "2025-01-13T00:00", end: "2025-01-17T23:59", type: "milestone" },
+  
+  // Example 3: Conference spanning 2 days (Jan 20-21)
+  { id: "multi-3", title: "Tech Conference 2025", start: "2025-01-20T08:00", end: "2025-01-21T20:00", type: "meeting" },
+  
+  // Example 4: Sprint week spanning 5 days (Jan 6-10)
+  { id: "multi-4", title: "Sprint 15 - Development", start: "2025-01-06T09:00", end: "2025-01-10T18:00", type: "work" },
+  
+  // Example 5: Client workshop spanning 2 days (Jan 23-24)
+  { id: "multi-5", title: "Client Workshop - Phase 2", start: "2025-01-23T10:00", end: "2025-01-24T17:00", type: "meeting" },
+  
+  // Example 6: Company retreat spanning 3 days (Feb 3-5)
+  { id: "multi-6", title: "Annual Company Retreat", start: "2025-02-03T07:00", end: "2025-02-05T20:00", type: "social" },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // MULTI-WEEK ACTIVITIES (long-term projects and recurring events)
+  // ═══════════════════════════════════════════════════════════════════════════
+  
+  // Example 1: Product development phase spanning 4 weeks (Dec 2 - Dec 30)
+  { id: "week-1", title: "Q1 Product Development", start: "2024-12-02T09:00", end: "2024-12-30T18:00", type: "deadline" },
+  
+  // Example 2: Marketing campaign spanning 3 weeks (Jan 6 - Jan 26)
+  { id: "week-2", title: "Winter Marketing Campaign", start: "2025-01-06T00:00", end: "2025-01-26T23:59", type: "marketing" },
+  
+  // Example 3: Beta testing phase spanning 2 weeks (Jan 13 - Jan 27)
+  { id: "week-3", title: "Beta Testing - Phase 1", start: "2025-01-13T00:00", end: "2025-01-27T23:59", type: "task" },
+  
+  // Example 4: Training program spanning 2 weeks (Feb 3 - Feb 14)
+  { id: "week-4", title: "New Hire Onboarding Batch 1", start: "2025-02-03T09:00", end: "2025-02-14T17:00", type: "planning" },
+];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ACTIVITY DATA - March 15-23, 2026 (Demo for activity visualization)
+// ═══════════════════════════════════════════════════════════════════════════
+const SAMPLE_ACTIVITIES = [
+  // March 15, 2026 (Sunday)
+  { timestamp: "2026-03-15T09:00", intensity: 3 },
+  { timestamp: "2026-03-15T10:00", intensity: 4 },
+  { timestamp: "2026-03-15T11:00", intensity: 2 },
+  { timestamp: "2026-03-15T14:00", intensity: 5 },
+  { timestamp: "2026-03-15T15:00", intensity: 3 },
+  { timestamp: "2026-03-15T16:00", intensity: 1 },
+  
+  // March 16, 2026 (Monday)
+  { timestamp: "2026-03-16T08:00", intensity: 2 },
+  { timestamp: "2026-03-16T09:00", intensity: 5 },
+  { timestamp: "2026-03-16T10:00", intensity: 4 },
+  { timestamp: "2026-03-16T11:00", intensity: 3 },
+  { timestamp: "2026-03-16T13:00", intensity: 2 },
+  { timestamp: "2026-03-16T14:00", intensity: 5 },
+  { timestamp: "2026-03-16T15:00", intensity: 4 },
+  { timestamp: "2026-03-16T16:00", intensity: 3 },
+  { timestamp: "2026-03-16T17:00", intensity: 2 },
+  
+  // March 17, 2026 (Tuesday)
+  { timestamp: "2026-03-17T09:00", intensity: 3 },
+  { timestamp: "2026-03-17T10:00", intensity: 4 },
+  { timestamp: "2026-03-17T11:00", intensity: 2 },
+  { timestamp: "2026-03-17T14:00", intensity: 5 },
+  { timestamp: "2026-03-17T15:00", intensity: 5 },
+  { timestamp: "2026-03-17T16:00", intensity: 4 },
+  
+  // March 18, 2026 (Wednesday)
+  { timestamp: "2026-03-18T08:00", intensity: 1 },
+  { timestamp: "2026-03-18T09:00", intensity: 4 },
+  { timestamp: "2026-03-18T10:00", intensity: 5 },
+  { timestamp: "2026-03-18T11:00", intensity: 5 },
+  { timestamp: "2026-03-18T12:00", intensity: 2 },
+  { timestamp: "2026-03-18T14:00", intensity: 3 },
+  { timestamp: "2026-03-18T15:00", intensity: 4 },
+  { timestamp: "2026-03-18T16:00", intensity: 2 },
+  { timestamp: "2026-03-18T17:00", intensity: 1 },
+  
+  // March 19, 2026 (Thursday)
+  { timestamp: "2026-03-19T09:00", intensity: 3 },
+  { timestamp: "2026-03-19T10:00", intensity: 3 },
+  { timestamp: "2026-03-19T11:00", intensity: 4 },
+  { timestamp: "2026-03-19T13:00", intensity: 5 },
+  { timestamp: "2026-03-19T14:00", intensity: 5 },
+  { timestamp: "2026-03-19T15:00", intensity: 4 },
+  { timestamp: "2026-03-19T16:00", intensity: 3 },
+  
+  // March 20, 2026 (Friday)
+  { timestamp: "2026-03-20T08:00", intensity: 2 },
+  { timestamp: "2026-03-20T09:00", intensity: 5 },
+  { timestamp: "2026-03-20T10:00", intensity: 4 },
+  { timestamp: "2026-03-20T11:00", intensity: 3 },
+  { timestamp: "2026-03-20T14:00", intensity: 2 },
+  { timestamp: "2026-03-20T15:00", intensity: 1 },
+  { timestamp: "2026-03-20T16:00", intensity: 2 },
+  { timestamp: "2026-03-20T17:00", intensity: 3 },
+  
+  // March 21, 2026 (Saturday)
+  { timestamp: "2026-03-21T10:00", intensity: 2 },
+  { timestamp: "2026-03-21T11:00", intensity: 1 },
+  { timestamp: "2026-03-21T14:00", intensity: 3 },
+  { timestamp: "2026-03-21T15:00", intensity: 2 },
+  
+  // March 22, 2026 (Sunday)
+  { timestamp: "2026-03-22T09:00", intensity: 1 },
+  { timestamp: "2026-03-22T10:00", intensity: 2 },
+  { timestamp: "2026-03-22T11:00", intensity: 1 },
+  { timestamp: "2026-03-22T15:00", intensity: 2 },
+  { timestamp: "2026-03-22T16:00", intensity: 1 },
+  
+  // March 23, 2026 (Monday)
+  { timestamp: "2026-03-23T08:00", intensity: 3 },
+  { timestamp: "2026-03-23T09:00", intensity: 5 },
+  { timestamp: "2026-03-23T10:00", intensity: 4 },
+  { timestamp: "2026-03-23T11:00", intensity: 5 },
+  { timestamp: "2026-03-23T13:00", intensity: 3 },
+  { timestamp: "2026-03-23T14:00", intensity: 4 },
+  { timestamp: "2026-03-23T15:00", intensity: 5 },
+  { timestamp: "2026-03-23T16:00", intensity: 4 },
+  { timestamp: "2026-03-23T17:00", intensity: 3 },
 ];
 
 const MONTHS = [
@@ -125,6 +255,72 @@ function formatDateRange(date) {
   return `${firstDay.toLocaleDateString("en-US", { month: "short", day: "numeric" })}, ${year} – ${lastDay.toLocaleDateString("en-US", opts)}`;
 }
 
+function getWeekStart(date) {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diffToMonday = (day + 6) % 7;
+  d.setDate(d.getDate() - diffToMonday);
+  return d;
+}
+
+function formatWeekRange(date) {
+  const start = getWeekStart(date);
+  const end = new Date(start);
+  end.setDate(start.getDate() + 6);
+
+  const startLabel = start.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  const sameYear = start.getFullYear() === end.getFullYear();
+  const endLabel = end.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  if (sameYear) {
+    return `${startLabel} – ${endLabel}`;
+  }
+
+  const startWithYear = start.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+  return `${startWithYear} – ${endLabel}`;
+}
+
+function getViewTitle(date, viewMode) {
+  if (viewMode === "day") {
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
+  }
+
+  if (viewMode === "week") {
+    return `Week of ${formatWeekRange(date)}`;
+  }
+
+  return `${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
+}
+
+function getViewSubtitle(date, viewMode) {
+  if (viewMode === "day") {
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  }
+
+  if (viewMode === "week") {
+    return formatWeekRange(date);
+  }
+
+  return formatDateRange(date);
+}
+
 export function ProjectionsScreen() {
   const [activeTab, setActiveTab]       = useState("all events");
   const [currentDate, setCurrentDate]   = useState(new Date(2025, 0, 10)); // Jan 10 2025
@@ -134,19 +330,44 @@ export function ProjectionsScreen() {
   // Real today's date from browser
   const today = new Date();
 
+  const handleViewModeChange = (newView) => {
+    setViewMode(newView);
+    // Always pivot to the current period when a view is selected.
+    setCurrentDate(new Date());
+  };
+
   const navigatePrev = () => {
     const d = new Date(currentDate);
-    d.setMonth(d.getMonth() - 1);
+
+    if (viewMode === "week") {
+      d.setDate(d.getDate() - 7);
+    } else if (viewMode === "day") {
+      d.setDate(d.getDate() - 1);
+    } else {
+      d.setMonth(d.getMonth() - 1);
+    }
+
     setCurrentDate(d);
   };
 
   const navigateNext = () => {
     const d = new Date(currentDate);
-    d.setMonth(d.getMonth() + 1);
+
+    if (viewMode === "week") {
+      d.setDate(d.getDate() + 7);
+    } else if (viewMode === "day") {
+      d.setDate(d.getDate() + 1);
+    } else {
+      d.setMonth(d.getMonth() + 1);
+    }
+
     setCurrentDate(d);
   };
 
   const goToToday = () => setCurrentDate(new Date());
+
+  const [isAddActivityOpen, setIsAddActivityOpen] = useState(false);
+  const [selectedCreateDate, setSelectedCreateDate] = useState(null);
 
   const filteredEvents = searchQuery.trim()
     ? SAMPLE_EVENTS.filter((e) =>
@@ -154,15 +375,29 @@ export function ProjectionsScreen() {
       )
     : SAMPLE_EVENTS;
 
+  const handleEventCreate = (date) => {
+    setSelectedCreateDate(date);
+    setIsAddActivityOpen(true);
+  };
+
+  const handleSaveActivity = async (activity) => {
+    console.log("Saving calendar activity:", activity);
+    // Add your save logic here
+    setIsAddActivityOpen(false);
+    setSelectedCreateDate(null);
+  };
+
   return (
+    <MainScreenWrapper className="text-[#e7e7e7]">
     <div className="flex flex-col h-full w-full min-h-screen">
-      {/* ── Page header ──────────────────────────────────────────────────────── */}
-      <div className="px-4 sm:px-6 pt-6 pb-8">
-        <div className="flex items-center justify-between ">
-          <h1 className="text-[22px] sm:text-[26px] font-bold text-white tracking-tight">
-            Calendar
-          </h1>
-          <div className="flex items-center ">
+    <div className="flex items-center justify-between border-b border-[#2a2a2a] pb-6 mb-8"> 
+        <div>
+          <h1 className="text-3xl font-bold text-[#e7e7e7]">Calendar</h1>
+          <p className="text-[#a3a3a3] mt-1">
+            Manage your team members and their roles.
+          </p>
+        </div>
+        <div className="flex items-center ">
         <div className="flex items-center gap-1.5 justify-center">
           <div className="flex items-center gap-1 bg-[#1a1a1a] w-full justify-center rounded-lg p-1 border border-[#2a2a2a]">
             {TABS.map((tab, idx) => (
@@ -174,7 +409,7 @@ export function ProjectionsScreen() {
                   "px-4 py-1.5 text-sm w-full font-medium rounded-md transition-all",
                   activeTab === TAB_KEYS[idx]
                     ? "bg-[#2a2a2a] text-white shadow-sm"
-                    : "text-[#737373] hover:text-white hover:bg-[#202020]"
+                    : "text-[#737373] hover:text-white"
                 )}
               >
                 {tab}
@@ -183,57 +418,26 @@ export function ProjectionsScreen() {
           </div>
         </div>
       </div>
-          {/* Desktop: inline search */}
-          {/* <div className="relative hidden sm:block">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#737373]" />
-            <Input
-              placeholder="Search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 pr-12 h-9 w-60 bg-[#202020] border-[#333333] text-[#a3a3a3] placeholder:text-[#737373] rounded-lg text-sm focus-visible:ring-0 focus-visible:border-[#474747]"
-            />
-            <kbd className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-[#737373] bg-[#2a2a2a] border border-[#333333] px-1.5 py-0.5 rounded pointer-events-none font-mono">
-              ⌘K
-            </kbd>
-          </div> */}
-        </div>
-        {/* Mobile: full-width search below title */}
-        {/* <div className="relative mt-3 sm:hidden">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#737373]" />
-          <Input
-            placeholder="Search"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-8 pr-12 h-9 w-full bg-[#202020] border-[#333333] text-[#a3a3a3] placeholder:text-[#737373] rounded-lg text-sm focus-visible:ring-0 focus-visible:border-[#474747]"
-          />
-          <kbd className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-[#737373] bg-[#2a2a2a] border border-[#333333] px-1.5 py-0.5 rounded pointer-events-none font-mono">
-            ⌘K
-          </kbd>
-        </div> */}
       </div>
-
-      {/* ── Tabs ─────────────────────────────────────────────────────────────── */}
       
-
       {/* ── Calendar area ────────────────────────────────────────────────────── */}
-      <div className="flex-1 px-3 sm:px-6 pb-3 sm:pb-6 overflow-auto">
         <div className="border border-[#2a2a2a] rounded-2xl overflow-hidden bg-[#1a1a1a]">
           {/* Sub-header: month nav + controls */}
           <div className="border-b border-[#2a2a2a]">
             {/* ── Mobile layout ──────────────────────────────────────────────── */}
             <div className="flex flex-col gap-3 px-4 py-3 sm:hidden">
               {/* Row 1: month title + date range */}
-              <div>
+              <div className="bg-red-500">
                 <p className="text-[15px] font-semibold text-white leading-tight">
-                  {MONTHS[currentDate.getMonth()]} {currentDate.getFullYear()}
+                  {getViewTitle(currentDate, viewMode)}
                 </p>
                 <p className="text-xs text-[#737373] leading-tight mt-0.5">
-                  {formatDateRange(currentDate)}
+                  {getViewSubtitle(currentDate, viewMode)}
                 </p>
               </div>
               {/* Row 2: view selector + add event + search icon */}
               <div className="flex items-center gap-2">
-                <Select value={viewMode} onValueChange={setViewMode}>
+                <Select value={viewMode} onValueChange={handleViewModeChange}>
                   <SelectTrigger className="h-9 flex-1 bg-[#202020] border-[#333333] text-[#a3a3a3] text-sm rounded-lg focus:ring-0 focus:border-[#474747]">
                     <CalendarDays className="w-3.5 h-3.5 mr-1.5 text-[#737373]" />
                     <SelectValue />
@@ -244,10 +448,12 @@ export function ProjectionsScreen() {
                     <SelectItem value="day"   className="text-[#a3a3a3] focus:bg-[#2a2a2a]">Day view</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button className="h-9 bg-white text-black hover:bg-[#e5e5e5] text-sm font-medium px-3 rounded-lg gap-1.5 shrink-0">
-                  <Plus className="w-4 h-4" />
-                 Add event 
-                </Button>
+                <AddActivityDialog onSave={handleSaveActivity}>
+                  <Button className="h-9 bg-white text-black hover:bg-[#e5e5e5] text-sm font-medium px-3 rounded-lg gap-1.5 shrink-0">
+                    <Plus className="w-4 h-4" />
+                   Add event 
+                  </Button>
+                </AddActivityDialog>
                 <button
                   type="button"
                   className="p-2 rounded-lg text-[#737373] hover:text-white hover:bg-[#202020] transition-colors shrink-0"
@@ -298,10 +504,10 @@ export function ProjectionsScreen() {
                   </div>
                   <div>
                     <p className="text-[15px] font-semibold text-white leading-tight">
-                      {MONTHS[currentDate.getMonth()]} {currentDate.getFullYear()}
+                      {getViewTitle(currentDate, viewMode)}
                     </p>
                     <p className="text-xs text-[#737373] leading-tight mt-0.5">
-                      {formatDateRange(currentDate)}
+                      {getViewSubtitle(currentDate, viewMode)}
                     </p>
                   </div>
                 </div>
@@ -332,7 +538,7 @@ export function ProjectionsScreen() {
                   <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
-                <Select value={viewMode} onValueChange={setViewMode}>
+                <Select value={viewMode} onValueChange={handleViewModeChange}>
                   <SelectTrigger className="h-9 w-36 bg-[#202020] border-[#333333] text-[#a3a3a3] text-sm rounded-lg focus:ring-0 focus:border-[#474747]">
                     <CalendarDays className="w-3.5 h-3.5 mr-1.5 text-[#737373]" />
                     <SelectValue />
@@ -343,9 +549,11 @@ export function ProjectionsScreen() {
                     <SelectItem value="day"   className="text-[#a3a3a3] focus:bg-[#2a2a2a]">Day</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button className="h-9 bg-white text-black hover:bg-[#e5e5e5] text-sm font-medium px-4 rounded-lg gap-1.5">
-                  <Plus className="w-4 h-4" />
-                </Button>
+                <AddActivityDialog onSave={handleSaveActivity}>
+                  <Button className="h-9 bg-white text-black hover:bg-[#e5e5e5] text-sm font-medium px-4 rounded-lg gap-1.5">
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </AddActivityDialog>
               </div>
             </div>
           </div>
@@ -353,18 +561,34 @@ export function ProjectionsScreen() {
           {/* Calendar grid */}
           <Calendar
             events={filteredEvents}
+            activities={SAMPLE_ACTIVITIES}
+            showActivity={true}
             selectedDate={currentDate}
             onDateSelect={setCurrentDate}
             view={viewMode}
             onViewChange={setViewMode}
             showHeader={false}
             showViewSwitcher={false}
-            defaultViewOnDayClick="month"
+            defaultViewOnDayClick="day"
             enableCreate
+            onEventCreate={handleEventCreate}
             className="border-0 rounded-none bg-transparent p-0"
           />
         </div>
-      </div>
-    </div>
+
+        {/* Controlled Add Activity Dialog for calendar date clicks */}
+        <AddActivityDialog
+          open={isAddActivityOpen}
+          onOpenChange={setIsAddActivityOpen}
+          onSave={handleSaveActivity}
+          activity={selectedCreateDate ? {
+            startDate: selectedCreateDate,
+            startTime: selectedCreateDate ? 
+              `${String(selectedCreateDate.getHours()).padStart(2, '0')}:${String(selectedCreateDate.getMinutes()).padStart(2, '0')}` 
+              : "09:00",
+          } : null}
+        />
+
+    </div></MainScreenWrapper>
   );
 }

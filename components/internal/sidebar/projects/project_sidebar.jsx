@@ -42,7 +42,7 @@ export function ProjectSidebar({
             activeMenu === "main" ? "translate-x-0" : "-translate-x-full"
           }`}
         >
-          <div className="h-full overflow-y-auto px-1 py-1 overflow-x-hidden">
+          <div className="h-full overflow-y-auto  overflow-x-hidden">
             <SidebarGroup>
               <SidebarGroupContent>
                 <SidebarMenu>
@@ -65,16 +65,24 @@ export function ProjectSidebar({
                       onToggle={() => toggleExpand(item.title)}
                       activeSubTab={activeTab}
                       onClick={(tabTitle) => {
-                        if (tabTitle) {
+                        // If clicking a subitem
+                        if (tabTitle && typeof tabTitle === "string") {
                           onTabChange(tabTitle);
                         } else if (subMenuMode === "slide" && item.hasSubmenu) {
+                          // Collapse all other submenus when opening slide menu
+                          setExpandedItems({});
                           setActiveMenu(item.title.toLowerCase());
                           if (item.title === "Settings") {
                             onTabChange("General");
                           }
                         } else if (item.hasSubmenu) {
-                          toggleExpand(item.title);
+                          // Collapse all other submenus when toggling this one
+                          setExpandedItems({
+                            [item.title]: !expandedItems[item.title],
+                          });
                         } else {
+                          // Collapse all submenus when clicking a main menu item
+                          setExpandedItems({});
                           onTabChange(item.title);
                         }
                       }}
