@@ -25,7 +25,7 @@ export function GoalsScreen() {
       <div className="h-[400px] flex items-center justify-center border-2 border-dashed border-[#2a2a2a] rounded-lg text-[#a3a3a3]">
         <div className="flex flex-col items-center gap-2">
           <Target className="w-12 h-12 opacity-20" />
-          <span>Goals Overview Placeholder</span>
+          <span>Goals Are Mainly Assigned As Collection Of Tasks On A Team or Colection of People.</span>
         </div>
       </div>
     </MainScreenWrapper>
