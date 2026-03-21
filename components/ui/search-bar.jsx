@@ -23,17 +23,17 @@ export function SearchBar({
 
   return (
     <div className={cn("relative w-full", className)}>
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#737373] pointer-events-none" />
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" />
       <Input
         placeholder={placeholder}
         value={value}
         onChange={onChange}
-        className="pl-10 pr-8 bg-[#1a1a1a] border-[#2a2a2a] text-white placeholder:text-[#737373] focus-visible:ring-0 focus-visible:border-[#474747] h-10 rounded-xl"
+        className="pl-10 pr-8 bg-surface border-subtle text-foreground placeholder:text-muted focus-visible:ring-0 focus-visible:border-emphasis h-10 rounded-xl"
       />
       {value && value.length > 0 && (
         <button
           onClick={handleClear}
-          className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#737373] hover:text-white transition-colors"
+          className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted hover:text-primary transition-colors"
         >
           <X className="w-4 h-4" />
         </button>

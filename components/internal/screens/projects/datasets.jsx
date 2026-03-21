@@ -38,63 +38,52 @@ export function DatasetsScreen() {
   };
 
   return (
-    <MainScreenWrapper className="text-[#e7e7e7]">
-      <div className="flex items-center justify-between border-b border-[#2a2a2a] pb-6">
+    <MainScreenWrapper className="text-primary">
+      <div className="flex items-center justify-between border-b border-border pb-6">
         <div>
-          <h1 className="text-3xl font-bold text-[#e7e7e7]">Objectives</h1>
-          <p className="text-[#a3a3a3] mt-1">
+          <h1 className="text-3xl font-bold text-primary">Datasets</h1>
+          <p className="text-secondary mt-1">
             Manage your data sources and datasets.
           </p>
         </div>
-        <AddActivityDialog onSave={handleSaveActivity}>
-          <Button className="bg-white text-black hover:bg-[#e7e7e7]">
-            <Plus className="w-4 h-4 mr-2" />
-            Add Objective
-          </Button>
-        </AddActivityDialog>
+        <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+          <Plus className="w-4 h-4 mr-2" />
+          Add Dataset
+        </Button>
       </div>
 
-      {hasDatasets ? (
-        <div className="border border-[#2a2a2a] rounded-lg overflow-hidden bg-[#1a1a1a]">
-          <Table>
-            <TableHeader className="bg-[#242424]">
-              <TableRow className="border-[#2a2a2a] hover:bg-[#242424]">
-                <TableHead className="text-[#a3a3a3]">Name</TableHead>
-                <TableHead className="text-[#a3a3a3]">Type</TableHead>
-                <TableHead className="text-[#a3a3a3]">Size</TableHead>
-                <TableHead className="text-[#a3a3a3]">Status</TableHead>
+      <div className="border border-border rounded-lg overflow-hidden bg-surface">
+        <Table>
+          <TableHeader className="bg-surface-hover">
+            <TableRow className="border-border hover:bg-surface-hover">
+              <TableHead className="text-muted">Name</TableHead>
+              <TableHead className="text-muted">Type</TableHead>
+              <TableHead className="text-muted">Size</TableHead>
+              <TableHead className="text-muted">Status</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {datasets.map((ds) => (
+              <TableRow
+                key={ds.name}
+                className="border-border hover:bg-surface-hover"
+              >
+                <TableCell className="font-medium text-primary flex items-center gap-2">
+                  <Database className="w-4 h-4 text-muted" />
+                  {ds.name}
+                </TableCell>
+                <TableCell className="text-muted">{ds.type}</TableCell>
+                <TableCell className="text-muted">{ds.size}</TableCell>
+                <TableCell>
+                  <span className="px-2 py-1 rounded text-xs bg-green-500/10 text-green-500 border border-green-500/20">
+                    {ds.status}
+                  </span>
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {datasets.map((ds) => (
-                <TableRow
-                  key={ds.name}
-                  className="border-[#2a2a2a] hover:bg-[#2a2a2a]"
-                >
-                  <TableCell className="font-medium text-[#e7e7e7] flex items-center gap-2">
-                    <Database className="w-4 h-4 text-[#a3a3a3]" />
-                    {ds.name}
-                  </TableCell>
-                  <TableCell className="text-[#a3a3a3]">{ds.type}</TableCell>
-                  <TableCell className="text-[#a3a3a3]">{ds.size}</TableCell>
-                  <TableCell>
-                    <span className="px-2 py-1 rounded text-xs bg-green-500/10 text-green-500 border border-green-500/20">
-                      {ds.status}
-                    </span>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      ) : (
-        <div className="h-[400px] flex items-center justify-center border-2 border-dashed border-[#2a2a2a] rounded-lg text-[#a3a3a3]">
-          <div className="flex flex-col items-center gap-2 text-center px-4">
-            <Database className="w-12 h-12 opacity-20" />
-            <span>Objectives Are Mainly Assigned As Collection Of Tasks For The Whole Project & Its Achivements.</span>
-          </div>
-        </div>
-      )}
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </MainScreenWrapper>
   );
 }

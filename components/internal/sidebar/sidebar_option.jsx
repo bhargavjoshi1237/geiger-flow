@@ -38,11 +38,11 @@ export function SidebarOption({
         isActive={isActive}
         tooltip={title}
         className={cn(
-          "transition-all text-sm h-9",
+          "transition-all text-sm h-9 hover:bg-sidebar-accent-hover",
           // Highlight parent when its dropdown is open OR when it is directly active
           isExpanded || (isActive && !subItems)
-            ? "bg-sidebar-accent text-white"
-            : "text-sidebar-foreground",
+            ? "bg-sidebar-accent text-sidebar-text-active"
+            : "text-sidebar-foreground hover:text-sidebar-text-hover",
           className,
         )}
       >
@@ -51,7 +51,7 @@ export function SidebarOption({
             className={cn(
               "w-4 h-4 shrink-0 transition-colors",
               isExpanded || isActive
-                ? "text-white"
+                ? "text-sidebar-text-active"
                 : "text-sidebar-foreground/70",
             )}
           />
@@ -66,7 +66,7 @@ export function SidebarOption({
           />
         )}
         {badge && !subItems && (
-          <SidebarMenuBadge className="mr-2 text-[#a3a3a3] text-[10px] px-1.5 py-0.5 rounded border border-[#333333] ml-auto">
+          <SidebarMenuBadge className="mr-2 text-muted-foreground text-[10px] px-1.5 py-0.5 rounded border ml-auto">
             {badge}
           </SidebarMenuBadge>
         )}
@@ -85,8 +85,8 @@ export function SidebarOption({
                 className={cn(
                   "relative w-full flex items-center px-2 h-[35px] rounded-md text-sm leading-none transition-colors gap-2",
                   activeSubTab === sub.title
-                    ? "bg-sidebar-accent text-white font-medium"
-                    : "text-sidebar-foreground/70 hover:text-white hover:bg-sidebar-accent/50",
+                    ? "bg-sidebar-accent text-sidebar-text-active font-medium"
+                    : "text-sidebar-foreground/70 hover:text-sidebar-text-hover hover:bg-sidebar-accent-hover",
                 )}
               >
                 {sub.icon && (
@@ -94,7 +94,7 @@ export function SidebarOption({
                     className={cn(
                       "w-4 h-4 shrink-0 transition-colors",
                       activeSubTab === sub.title
-                        ? "text-white"
+                        ? "text-sidebar-text-active"
                         : "text-sidebar-foreground/70",
                     )}
                   />

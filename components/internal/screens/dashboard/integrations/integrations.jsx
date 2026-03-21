@@ -26,16 +26,16 @@ export function IntegrationsScreen() {
   ];
 
   return (
-    <div className="flex flex-col gap-8 w-full px-2 lg:px-0 lg:w-[75%] mx-auto my-3 text-[#e7e7e7]">
+    <div className="flex flex-col gap-8 w-full px-2 lg:px-0 lg:w-[75%] mx-auto my-3 text-foreground">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-semibold text-[#e7e7e7] tracking-tight">
+        <h1 className="text-3xl font-semibold text-primary tracking-tight">
           Integrations
         </h1>
-        <div className="bg-[#202020] border border-[#2a2a2a] rounded-sm p-1 shrink-0 flex items-center gap-1">
-          <button className="px-3 py-1.5 rounded-sm bg-[#2a2a2a] text-[#e7e7e7] text-sm font-medium">
+        <div className="bg-surface border-border rounded-sm p-1 shrink-0 flex items-center gap-1">
+          <button className="px-3 py-1.5 rounded-sm bg-surface-active text-primary text-sm font-medium">
             All
           </button>
-          <button className="px-3 py-1.5 rounded-sm hover:bg-[#2a2a2a] text-[#737373] hover:text-[#e7e7e7] text-sm font-medium transition-colors">
+          <button className="px-3 py-1.5 rounded-sm hover:bg-surface-active text-muted hover:text-primary text-sm font-medium transition-colors">
             Connected
           </button>
         </div>
@@ -45,33 +45,33 @@ export function IntegrationsScreen() {
         {integrations.map((app, i) => (
           <div
             key={i}
-            className="bg-[#202020] border border-[#2a2a2a] rounded-2xl p-6 hover:border-[#474747] transition-all duration-300 flex flex-col group"
+            className="bg-surface-elevated border border-subtle rounded-2xl p-6 hover:border-emphasis transition-all duration-300 flex flex-col group"
           >
             <div className="flex items-start justify-between">
-              <div className="w-12 h-12 rounded-xl bg-[#1a1a1a] border border-[#2a2a2a] flex items-center justify-center text-white mb-4 shadow-inner group-hover:border-[#333333] transition-colors">
-                <app.icon className="w-6 h-6 text-[#a3a3a3]" />
+              <div className="w-12 h-12 rounded-xl bg-surface border border-subtle flex items-center justify-center text-primary mb-4 shadow-inner group-hover:border-border-default transition-colors">
+                <app.icon className="w-6 h-6 text-text-tertiary" />
               </div>
-              <button className="text-[#525252] hover:text-[#a3a3a3] transition-colors">
+              <button className="text-zinc-500 hover:text-text-tertiary transition-colors">
                 <ExternalLink className="w-4 h-4" />
               </button>
             </div>
-            <h2 className="text-[#e7e7e7] font-semibold text-lg mb-1">
+            <h2 className="text-primary font-semibold text-lg mb-1">
               {app.name}
             </h2>
-            <p className="text-[#a3a3a3] text-sm font-medium leading-normal mb-6 flex-1">
+            <p className="text-text-tertiary text-sm font-medium leading-normal mb-6 flex-1">
               {app.description}
             </p>
-            <div className="flex items-center justify-between pt-4 border-t border-[#1a1a1a]">
+            <div className="flex items-center justify-between pt-4 border-t border-surface">
               <span
                 className={`text-[10px] font-bold tracking-[0.1em] px-2 py-0.5 rounded uppercase border ${
                   app.status === "Connected"
                     ? "bg-green-500/10 text-green-400 border-green-500/20"
-                    : "bg-transparent text-[#525252] border-[#2a2a2a]"
+                    : "bg-transparent text-zinc-500 border-subtle"
                 }`}
               >
                 {app.status}
               </span>
-              <button className="text-xs font-bold text-[#e7e7e7] bg-[#2a2a2a] hover:bg-[#333333] px-3 py-1.5 rounded-lg border border-[#333333] transition-all">
+                <button className="text-xs font-bold text-primary bg-surface-active hover:bg-emphasis px-3 py-1.5 rounded-lg border border-emphasis transition-all">
                 {app.status === "Connected" ? "Manage" : "Connect"}
               </button>
             </div>

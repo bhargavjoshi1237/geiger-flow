@@ -57,7 +57,7 @@ export function InviteMemberDialog({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-md bg-[#161616] border-[#2a2a2a] text-[#ededed]">
+      <DialogContent className="sm:max-w-md bg-background border-border text-foreground">
         <DialogHeader>
           <DialogTitle className="text-xl">
             {isEditMode ? "Edit Member Role" : "Invite Team Member"}
@@ -84,7 +84,7 @@ export function InviteMemberDialog({
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={isEditMode}
-              className="bg-[#202020] border-[#333333] text-white focus-visible:ring-zinc-600 focus-visible:ring-offset-0 focus-visible:ring-1 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-input border-border text-foreground focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1 disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </div>
 
@@ -96,7 +96,7 @@ export function InviteMemberDialog({
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="outline"
-                  className="w-full justify-between bg-[#202020] border-[#333333] text-white hover:bg-[#252525] hover:text-white"
+                  className="w-full justify-between bg-input border-border text-foreground hover:bg-accent hover:text-foreground"
                 >
                   <div className="flex flex-col items-start">
                     <span className="text-sm font-medium">
@@ -107,7 +107,7 @@ export function InviteMemberDialog({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
-                className="w-[var(--radix-dropdown-menu-trigger-width)] bg-[#1a1a1a] border-[#2a2a2a] text-[#ededed]"
+                className="w-[var(--radix-dropdown-menu-trigger-width)] bg-popover border-border text-foreground"
                 align="start"
               >
                 <DropdownMenuRadioGroup value={role} onValueChange={setRole}>
@@ -115,7 +115,7 @@ export function InviteMemberDialog({
                     <DropdownMenuRadioItem
                       key={key}
                       value={key}
-                      className="flex flex-col items-start gap-0.5 py-2 focus:bg-[#2a2a2a] focus:text-[#ededed] cursor-pointer"
+                      className="flex flex-col items-start gap-0.5 py-2 focus:bg-accent focus:text-foreground cursor-pointer"
                     >
                       <span className="text-sm font-medium">{label}</span>
                     </DropdownMenuRadioItem>
@@ -131,7 +131,7 @@ export function InviteMemberDialog({
             type="button"
             variant="ghost"
             onClick={() => setIsOpen(false)}
-            className="text-zinc-400 hover:text-white hover:bg-[#202020] border border-transparent"
+            className="text-muted-foreground hover:text-foreground hover:bg-accent border border-transparent"
           >
             Cancel
           </Button>
@@ -139,7 +139,7 @@ export function InviteMemberDialog({
             type="button"
             onClick={handleInvite}
             disabled={!email}
-            className="bg-[#ededed] text-black hover:bg-zinc-300"
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
             {isEditMode ? "Save Changes" : "Send Invite"}
           </Button>

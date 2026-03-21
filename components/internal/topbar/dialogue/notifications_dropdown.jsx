@@ -45,33 +45,33 @@ export function NotificationsDropdown({ children }) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         {children || (
-          <button className="w-8 h-8 rounded-full border border-transparent hover:bg-[#2a2a2a] flex items-center justify-center transition-colors text-[#a3a3a3] hover:text-white relative">
-            <Bell className="w-[18px] h-[18px]" strokeWidth={2} />
+          <button className="w-8 h-8 rounded-full border border-transparent hover:bg-surface-hover flex items-center justify-center transition-colors text-text-tertiary hover:text-primary relative">
+            <Bell className="w-[18px] h-[18px] stroke-black dark:stroke-white" strokeWidth={2} />
             {notifications.some((n) => !n.read) && (
-              <div className="absolute top-[6px] right-[7px] w-2 h-2 rounded-full bg-[#3b82f6] border border-[#161616]"></div>
+              <div className="absolute top-[6px] right-[7px] w-2 h-2 rounded-full bg-blue-500 border border-surface"></div>
             )}
           </button>
         )}
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="mt-1 w-[380px] p-0 bg-[#141414] border border-[#1f1f1f] rounded-2xl overflow-hidden  scrollbar-hide"
+        className="mt-1 w-[380px] p-0 bg-popover border rounded-2xl overflow-hidden  scrollbar-hide"
       >
-        <div className="px-5 pt-5 pb-4 flex flex-col gap-4 border-b border-[#1f1f1f]">
+        <div className="px-5 pt-5 pb-4 flex flex-col gap-4 border-b">
           <div className="flex items-center justify-between">
-            <h2 className="text-[15px] font-semibold text-white">
+            <h2 className="text-[15px] font-semibold text-foreground">
               Notifications
             </h2>
           </div>
 
           <div className="flex items-center gap-1.5">
-            <div className="flex items-center gap-1 bg-[#1a1a1a] w-full justify-center rounded-lg p-1 border border-[#2a2a2a]">
+            <div className="flex items-center gap-1 bg-muted w-full justify-center rounded-lg p-1 border">
               <button
                 onClick={() => setActiveTab("all")}
                 className={`px-4 py-1.5 text-sm w-full font-medium rounded-md transition-all ${
                   activeTab === "all"
-                    ? "bg-[#2a2a2a] text-[#e7e7e7] shadow-sm"
-                    : "text-[#737373] hover:text-[#e7e7e7] hover:bg-[#202020]"
+                    ? "bg-[--tab-selected] text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
                 }`}
               >
                 All
@@ -80,15 +80,15 @@ export function NotificationsDropdown({ children }) {
                 onClick={() => setActiveTab("unread")}
                 className={`px-4 py-1.5 text-sm w-full font-medium rounded-md transition-all flex items-center gap-2 ${
                   activeTab === "unread"
-                    ? "bg-[#2a2a2a] text-[#e7e7e7] shadow-sm"
-                    : "text-[#737373] hover:text-[#e7e7e7] hover:bg-[#202020]"
+                    ? "bg-[--tab-selected] text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
                 }`}
               >
                 Unread
                 {notifications.some((n) => !n.read) && (
                   <span
                     className={`w-2 h-2 rounded-full ${
-                      activeTab === "unread" ? "bg-blue-500" : "bg-blue-500/60"
+                      activeTab === "unread" ? "bg-primary" : "bg-primary/60"
                     }`}
                   ></span>
                 )}
@@ -99,8 +99,8 @@ export function NotificationsDropdown({ children }) {
                   onClick={() => setActiveTab(tab.toLowerCase())}
                   className={`px-4 py-1.5 text-sm w-full font-medium rounded-md transition-all ${
                     activeTab === tab.toLowerCase()
-                      ? "bg-[#2a2a2a] text-[#e7e7e7] shadow-sm"
-                      : "text-[#737373] hover:text-[#e7e7e7] hover:bg-[#202020]"
+                      ? "bg-accent text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
                   }`}
                 >
                   {tab}
@@ -112,7 +112,7 @@ export function NotificationsDropdown({ children }) {
 
         <div className="max-h-[420px] overflow-y-auto pb-2 custom-scrollbar">
           {filteredNotifications.length === 0 ? (
-            <div className="px-4 py-12 text-center text-[13px] text-[#666666]">
+            <div className="px-4 py-12 text-center text-[13px] text-muted-foreground">
               No notifications found.
             </div>
           ) : (
@@ -147,19 +147,19 @@ export function NotificationsDropdown({ children }) {
               return (
                 <div
                   key={notification.id}
-                  className={`px-4 py-3.5 transition-colors relative group cursor-pointer border-b border-[#1a1a1a] last:border-b-0 ${
+                  className={`px-4 py-3.5 transition-colors relative group cursor-pointer border-b last:border-b-0 ${
                     isUnread
-                      ? "bg-[#1a1a1a]/50 hover:bg-[#1f1f1f]"
-                      : "hover:bg-[#181818]"
+                      ? "bg-accent/30 hover:bg-accent/50"
+                      : "hover:bg-accent/20"
                   }`}
                 >
                   {isUnread && (
-                    <div className="absolute left-1.5 top-5 w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                    <div className="absolute left-1.5 top-5 w-1.5 h-1.5 rounded-full bg-primary"></div>
                   )}
 
                   <div className="pl-3 flex items-start gap-3">
                     <div
-                      className={`mt-0.5 flex items-center justify-center w-9 h-9 rounded-lg shrink-0 ${bgColor} border border-white/[0.06]`}
+                      className={`mt-0.5 flex items-center justify-center w-9 h-9 rounded-lg shrink-0 ${bgColor} border`}
                     >
                       <IconComponent
                         className={`w-4 h-4 ${iconColor}`}
@@ -171,18 +171,18 @@ export function NotificationsDropdown({ children }) {
                       <div className="flex items-center justify-between gap-3 mb-1">
                         <h3
                           className={`text-[13px] font-medium truncate ${
-                            isUnread ? "text-white" : "text-[#c0c0c0]"
+                            isUnread ? "text-foreground" : "text-foreground/80"
                           }`}
                         >
                           {notification.title}
                         </h3>
-                        <span className="text-[11px] text-[#555555] whitespace-nowrap shrink-0">
+                        <span className="text-[11px] text-muted-foreground whitespace-nowrap shrink-0">
                           {formattedTime}
                         </span>
                       </div>
                       <p
                         className={`text-[12px] leading-relaxed ${
-                          isUnread ? "text-[#a0a0a0]" : "text-[#707070]"
+                          isUnread ? "text-muted-foreground" : "text-muted-foreground/70"
                         } line-clamp-2`}
                       >
                         {notification.description}
@@ -191,7 +191,7 @@ export function NotificationsDropdown({ children }) {
                       {extraContent && (
                         <div className="mt-3">
                           {extraContent.type === "comment" && (
-                            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-3 text-[12px] text-[#909090] leading-relaxed">
+                            <div className="bg-muted border rounded-lg p-3 text-[12px] text-muted-foreground leading-relaxed">
                               {extraContent.text}
                             </div>
                           )}
@@ -200,24 +200,24 @@ export function NotificationsDropdown({ children }) {
                             extraContent.files?.map((f, i) => (
                               <div
                                 key={i}
-                                className="flex items-center justify-between p-2.5 border border-[#2a2a2a] rounded-lg bg-[#1a1a1a] mt-2"
+                                className="flex items-center justify-between p-2.5 border border-subtle rounded-lg bg-surface mt-2"
                               >
                                 <div className="flex items-center gap-2.5 overflow-hidden">
-                                  <div className="w-7 h-7 rounded flex items-center justify-center bg-[#222222] text-[#808080] text-[10px] font-medium">
+                                  <div className="w-7 h-7 rounded flex items-center justify-center bg-surface-active text-text-muted text-[10px] font-medium">
                                     {f.name.split('.').pop().toUpperCase()}
                                   </div>
                                   <div className="min-w-0">
-                                    <div className="text-[12px] text-[#c0c0c0] truncate">
+                                    <div className="text-[12px] text-text-secondary truncate">
                                       {f.name}
                                     </div>
-                                    <div className="text-[10px] text-[#666666]">
+                                    <div className="text-[10px] text-text-muted">
                                       {f.size}
                                     </div>
                                   </div>
                                 </div>
                                 <button
                                   onClick={(e) => e.stopPropagation()}
-                                  className="w-8 h-8 rounded flex items-center justify-center text-[#666666] hover:text-white hover:bg-[#2a2a2a] transition-colors shrink-0"
+                                  className="w-8 h-8 rounded flex items-center justify-center text-text-muted hover:text-primary hover:bg-surface-hover transition-colors shrink-0"
                                 >
                                   <Download className="w-4 h-4" />
                                 </button>
@@ -228,13 +228,13 @@ export function NotificationsDropdown({ children }) {
                             <div className="flex items-center gap-2 mt-2.5">
                               <button
                                 onClick={(e) => e.stopPropagation()}
-                                className="px-3 py-1.5 rounded-lg border border-[#333333] text-[11px] font-medium text-[#909090] hover:bg-[#252525] hover:text-white transition-colors"
+                                className="px-3 py-1.5 rounded-lg border border-border-default text-[11px] font-medium text-text-muted hover:bg-surface-hover hover:text-primary transition-colors"
                               >
                                 {extraContent.options?.[0] || "Decline"}
                               </button>
                               <button
                                 onClick={(e) => e.stopPropagation()}
-                                className="px-3 py-1.5 rounded-lg bg-white text-[11px] font-medium text-black hover:bg-gray-200 transition-colors"
+                                className="px-3 py-1.5 rounded-lg bg-primary text-[11px] font-medium text-primary-foreground hover:bg-primary/80 transition-colors"
                               >
                                 {extraContent.options?.[1] || "Accept"}
                               </button>
@@ -244,7 +244,7 @@ export function NotificationsDropdown({ children }) {
                       )}
 
                       <div className="mt-3">
-                        <span className="text-[9px] uppercase font-semibold tracking-wider text-[#666666] bg-[#1f1f1f] px-2 py-1 rounded-md border border-[#2a2a2a]">
+                        <span className="text-[9px] uppercase font-semibold tracking-wider text-text-muted bg-surface-elevated px-2 py-1 rounded-md border border-subtle">
                           {notification.type}
                         </span>
                       </div>

@@ -57,11 +57,11 @@ export function OverviewScreen() {
           >
             <div className="flex justify-between items-center mb-4">
               <div>
-                <h3 className="text-[#a3a3a3] text-sm font-medium mb-1">
+                <h3 className="text-secondary text-sm font-medium mb-1">
                   {metric.label}
                 </h3>
                 <div className="flex items-baseline gap-3">
-                  <span className="text-3xl font-semibold text-[#e7e7e7] tracking-tight">
+                  <span className="text-3xl font-semibold text-primary tracking-tight">
                     {metric.value}
                   </span>
                   <span
@@ -289,7 +289,7 @@ export function OverviewScreen() {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-[#161616] border border-[#2a2a2a] text-xs text-[#a3a3a3]">
+                  <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-surface-elevated border border-border text-xs text-secondary">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="12"
@@ -312,10 +312,10 @@ export function OverviewScreen() {
                 <TableCell className={`text-sm font-medium ${row.sColor}`}>
                   {row.status}
                 </TableCell>
-                <TableCell className="text-sm text-[#a3a3a3]">
+                <TableCell className="text-sm text-secondary">
                   {row.env}
                 </TableCell>
-                <TableCell className="text-sm text-[#737373]">
+                <TableCell className="text-sm text-muted">
                   {row.time}
                 </TableCell>
               </TableRow>

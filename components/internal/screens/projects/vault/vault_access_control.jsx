@@ -144,66 +144,49 @@ export function VaultAccessControl({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[520px] max-h-[85vh] overflow-y-auto bg-[#161616] text-[#ededed] border border-[#2a2a2a]">
-        <DialogHeader className="pb-2">
-          <DialogTitle className="font-semibold flex items-center gap-2.5 text-white">
-            <Shield className="w-5 h-5 text-[#737373] text-sm" />
+      <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto bg-popover border-border text-foreground rounded-2xl">
+        <DialogHeader className="pb-4 border-b border-border">
+          <DialogTitle className="text-lg font-semibold flex items-center gap-2">
+            <Shield className="w-4 h-4 text-purple-400" />
             Access Control
           </DialogTitle>
-          <DialogDescription className="text-[#737373] pt-1 text-xs">
-            Configure who can access {item?.name}
+          <DialogDescription className="text-secondary text-sm">
+            Configure who can access "{item?.name}"
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-5 ">
           <div className="space-y-3">
-            <Label className="text-xs font-semibold text-[#a3a3a3] tracking-wide">Access Type</Label>
-            <div className="grid grid-cols-4 gap-2.5">
+            <Label className="text-[13px] font-medium text-secondary">Access Type</Label>
+            <div className="grid grid-cols-2 gap-2">
               {[
                 { value: "team", label: "Team", icon: Users },
                 { value: "roles", label: "Roles", icon: Shield },
                 { value: "users", label: "Users", icon: UserCheck },
                 { value: "positions", label: "Positions", icon: Building2 },
-              ].map((option) => {
-                const isActive = accessControl.type === option.value;
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => handleTypeChange(option.value)}
-                    className={cn(
-                      "relative flex flex-col items-center justify-center gap-2 py-3.5 px-3 rounded-lg border text-xs font-medium",
-                      isActive
-                        ? "border-[#404040] text-white"
-                        : "bg-[#1a1a1a] border-[#2a2a2a] text-[#737373] hover:border-[#3a3a3a] hover:text-[#a3a3a3]",
-                    )}
-                  >
-                    <div className={cn(
-                      "relative p-1.5 rounded-md transition-all duration-300",
-                      isActive ? "" : "bg-transparent group-hover:bg-[#2a2a2a]/60"
-                    )}>
-                      <option.icon className={cn(
-                        "w-4 h-4 transition-all duration-300",
-                        isActive ? "text-white" : "text-[#666666] group-hover:text-[#999999]"
-                      )} />
-                    </div>
-                    <span className={cn(
-                      "transition-all duration-200",
-                      isActive && "font-semibold tracking-wide"
-                    )}>
-                      {option.label}
-                    </span>
-                     
-                  </button>
-                );
-              })}
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => handleTypeChange(option.value)}
+                  className={cn(
+                    "flex items-center gap-2 p-3 rounded-xl border text-[13px] font-medium transition-all",
+                    accessControl.type === option.value
+                      ? "bg-surface-elevated border-emphasis text-foreground"
+                      : "bg-surface border-border text-secondary hover:border-emphasis",
+                  )}
+                >
+                  <option.icon className="w-4 h-4" />
+                  {option.label}
+                </button>
+              ))}
             </div>
           </div>
 
           {/* Role Selection */}
           {accessControl.type === "roles" && (
             <div className="space-y-3">
-              <Label className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wide">Allowed Roles</Label>
+              <Label className="text-[13px] font-medium text-secondary">Allowed Roles</Label>
               <div className="flex flex-wrap gap-2">
                 {ALL_ROLES.map((role) => (
                   <button
@@ -213,8 +196,8 @@ export function VaultAccessControl({
                     className={cn(
                       "px-3 py-1 rounded-md text-xs font-medium border transition-all duration-200",
                       accessControl.allowedRoles.includes(role)
-                        ? "bg-[#202020] border-[#474747] text-white shadow-sm"
-                        : "bg-[#1a1a1a] border-[#2a2a2a] text-[#737373] hover:border-[#3a3a3a] hover:text-[#a3a3a3] hover:bg-[#1f1f1f]",
+                        ? "bg-purple-500/20 border-purple-500/30 text-purple-400"
+                        : "bg-surface border-border text-secondary",
                     )}
                   >
                     {role.charAt(0).toUpperCase() + role.slice(1)}

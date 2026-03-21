@@ -314,7 +314,7 @@ export function Calendar({
   const renderHeader = () => (
     <div className="flex items-center justify-between mb-4">
       <div className="flex items-center gap-3">
-        <h2 className="text-xl font-semibold text-[#e7e7e7]">
+        <h2 className="text-xl font-semibold text-foreground">
           {currentView === "day"
             ? selectedDay.toLocaleDateString("en-US", {
                 weekday: "long",
@@ -330,7 +330,7 @@ export function Calendar({
           variant="ghost"
           size="sm"
           onClick={goToToday}
-          className="text-[#a3a3a3] hover:text-[#e7e7e7] hover:bg-[#2a2a2a]"
+          className="text-muted-foreground hover:text-foreground hover:bg-accent"
         >
           Today
         </Button>
@@ -338,7 +338,7 @@ export function Calendar({
 
       <div className="flex items-center gap-2">
         {showViewSwitcher && (
-          <div className="flex items-center bg-[#1a1a1a] rounded-lg p-1 border border-[#2a2a2a]">
+          <div className="flex items-center bg-surface rounded-lg p-1 border border-border-subtle">
             <Button
               variant={currentView === "month" ? "default" : "ghost"}
               size="sm"
@@ -346,8 +346,8 @@ export function Calendar({
               className={cn(
                 "h-8 px-3 rounded-md text-sm",
                 currentView === "month"
-                  ? "bg-[#2a2a2a] text-[#e7e7e7]"
-                  : "text-[#a3a3a3] hover:text-[#e7e7e7]"
+                  ? "bg-accent text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
               )}
             >
               <Grid3X3 className="w-4 h-4 mr-1" />
@@ -360,8 +360,8 @@ export function Calendar({
               className={cn(
                 "h-8 px-3 rounded-md text-sm",
                 currentView === "week"
-                  ? "bg-[#2a2a2a] text-[#e7e7e7]"
-                  : "text-[#a3a3a3] hover:text-[#e7e7e7]"
+                  ? "bg-accent text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
               )}
             >
               <List className="w-4 h-4 mr-1" />
@@ -374,8 +374,8 @@ export function Calendar({
               className={cn(
                 "h-8 px-3 rounded-md text-sm",
                 currentView === "day"
-                  ? "bg-[#2a2a2a] text-[#e7e7e7]"
-                  : "text-[#a3a3a3] hover:text-[#e7e7e7]"
+                  ? "bg-accent text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
               )}
             >
               <CalendarIcon className="w-4 h-4 mr-1" />
@@ -389,7 +389,7 @@ export function Calendar({
             variant="ghost"
             size="icon"
             onClick={navigatePrev}
-            className="h-8 w-8 text-[#a3a3a3] hover:text-[#e7e7e7] hover:bg-[#2a2a2a]"
+            className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-accent"
           >
             <ChevronLeft className="w-4 h-4" />
           </Button>
@@ -397,7 +397,7 @@ export function Calendar({
             variant="ghost"
             size="icon"
             onClick={navigateNext}
-            className="h-8 w-8 text-[#a3a3a3] hover:text-[#e7e7e7] hover:bg-[#2a2a2a]"
+            className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-accent"
           >
             <ChevronRight className="w-4 h-4" />
           </Button>
@@ -416,11 +416,11 @@ export function Calendar({
     return (
       <div className="overflow-hidden">
         {/* Weekday headers */}
-        <div className="grid grid-cols-7 border-b border-[#2a2a2a] bg-[#1a1a1a]">
+        <div className="grid grid-cols-7 border-b border-border-subtle bg-surface">
           {MON_WEEKDAYS.map((day, idx) => (
             <div
               key={idx}
-              className="text-center text-xs font-medium text-[#737373] py-2 sm:py-3 uppercase tracking-wide"
+              className="text-center text-xs font-medium text-muted-foreground py-2 sm:py-3 uppercase tracking-wide"
             >
               <span className="hidden sm:inline">{day}</span>
               <span className="sm:hidden">{MON_WEEKDAYS_SHORT[idx]}</span>
@@ -449,9 +449,8 @@ export function Calendar({
                       if (onDateSelect) onDateSelect(day.date);
                     }}
                     className={cn(
-                      "min-h-[70px] sm:min-h-[120px] p-1 sm:p-1.5 border-b border-r border-[#2a2a2a] cursor-pointer relative overflow-hidden",
-                      "transition-colors hover:bg-[#202020]",
-                      ACTIVITY_COLORS[activityLevel],
+                      "min-h-[70px] sm:min-h-[120px] p-1 sm:p-1.5 border-b border-r border-border-subtle cursor-pointer",
+                      "transition-colors hover:bg-surface-elevated",
                       !isCurrentMonth && "opacity-35",
                       index % 7 === 6 && "border-r-0", // last col
                       index >= 35 && "border-b-0",     // last row
@@ -466,21 +465,21 @@ export function Calendar({
                             className={cn(
                               "inline-flex items-center justify-center text-xs sm:text-sm font-medium rounded-full w-6 h-6 sm:w-7 sm:h-7 cursor-default select-none transition-colors",
                               isToday
-                                ? "bg-white text-black font-semibold"
+                                ? "bg-primary text-primary-foreground font-semibold"
                                 : isCurrentMonth
-                                ? "text-[#a3a3a3] hover:bg-[#202020]"
-                                : "text-[#474747]"
+                                ? "text-muted-foreground hover:bg-surface-elevated"
+                                : "text-border-emphasis"
                             )}
                           >
                             {day.date.getDate()}
                           </span>
                         </HoverCardTrigger>
                         <HoverCardContent
-                          className="w-60 bg-[#161616] border-[#2a2a2a] p-3 shadow-xl"
+                          className="w-60 bg-background border-border-subtle p-3 shadow-xl"
                           side="top"
                           align="start"
                         >
-                          <p className="text-sm font-semibold text-white mb-2">
+                          <p className="text-sm font-semibold text-foreground mb-2">
                             {day.date.toLocaleDateString("en-US", {
                               weekday: "long",
                               month: "long",
@@ -488,7 +487,7 @@ export function Calendar({
                             })}
                           </p>
                           {dayEvents.length === 0 ? (
-                            <p className="text-xs text-[#737373]">No events scheduled</p>
+                            <p className="text-xs text-muted-foreground">No events scheduled</p>
                           ) : (
                             <div className="space-y-1.5">
                               {dayEvents.map((ev, i) => {
@@ -499,10 +498,10 @@ export function Calendar({
                                       className="w-2 h-2 rounded-full flex-shrink-0"
                                       style={{ backgroundColor: cs.dot }}
                                     />
-                                    <span className="text-xs text-[#a3a3a3] truncate flex-1">
+                                    <span className="text-xs text-muted-foreground truncate flex-1">
                                       {ev.title}
                                     </span>
-                                    <span className="text-[10px] text-[#737373] flex-shrink-0">
+                                    <span className="text-[10px] text-muted-foreground flex-shrink-0">
                                       {formatEventTime(ev.start)}
                                     </span>
                                   </div>
@@ -527,7 +526,7 @@ export function Calendar({
                         );
                       })}
                       {dayEvents.length > 3 && (
-                        <span className="text-[9px] text-[#737373] leading-none">
+                        <span className="text-[9px] text-muted-foreground leading-none">
                           +{dayEvents.length - 3}
                         </span>
                       )}
@@ -572,7 +571,7 @@ export function Calendar({
                             handleViewChange("day");
                             if (onDateSelect) onDateSelect(day.date);
                           }}
-                          className="text-[11px] text-[#737373] hover:text-[#a3a3a3] px-1.5 py-[2px] transition-colors"
+                          className="text-[11px] text-muted-foreground hover:text-secondary px-1.5 py-[2px] transition-colors"
                         >
                           {overflowCount} more...
                         </button>
@@ -581,9 +580,9 @@ export function Calendar({
                   </div>
                 </ContextMenuTrigger>
 
-                <ContextMenuContent className="w-52 bg-[#202020] border-[#333333] shadow-xl">
+                <ContextMenuContent className="w-52 bg-surface-elevated border-border shadow-xl">
                   <ContextMenuItem
-                    className="text-[#a3a3a3] focus:bg-[#2a2a2a] focus:text-white cursor-pointer gap-2"
+                    className="text-muted-foreground focus:bg-accent focus:text-foreground cursor-pointer gap-2"
                     onClick={() => {
                       if (enableCreate && onEventCreate) onEventCreate(day.date);
                     }}
@@ -592,7 +591,7 @@ export function Calendar({
                     Add event
                   </ContextMenuItem>
                   <ContextMenuItem
-                    className="text-[#a3a3a3] focus:bg-[#2a2a2a] focus:text-white cursor-pointer gap-2"
+                    className="text-muted-foreground focus:bg-accent focus:text-foreground cursor-pointer gap-2"
                     onClick={() => {
                       setSelectedDay(day.date);
                       handleViewChange("day");
@@ -603,7 +602,7 @@ export function Calendar({
                     View day
                   </ContextMenuItem>
                   <ContextMenuItem
-                    className="text-[#a3a3a3] focus:bg-[#2a2a2a] focus:text-white cursor-pointer gap-2"
+                    className="text-muted-foreground focus:bg-accent focus:text-foreground cursor-pointer gap-2"
                     onClick={() => {
                       setSelectedDay(day.date);
                       handleViewChange("week");
@@ -613,9 +612,9 @@ export function Calendar({
                     <List className="w-3.5 h-3.5" />
                     View week
                   </ContextMenuItem>
-                  <ContextMenuSeparator className="bg-[#333333]" />
+                  <ContextMenuSeparator className="bg-border" />
                   <ContextMenuItem
-                    className="text-[#737373] focus:bg-[#2a2a2a] focus:text-white cursor-pointer gap-2"
+                    className="text-muted-foreground focus:bg-accent focus:text-foreground cursor-pointer gap-2"
                     onClick={() => {
                       navigator.clipboard?.writeText(
                         day.date.toLocaleDateString("en-US", {
@@ -649,7 +648,7 @@ export function Calendar({
     return (
       <div className="flex flex-col h-full">
         {/* Week day headers */}
-        <div className="grid grid-cols-8 border-b border-[#2a2a2a]">
+        <div className="grid grid-cols-8 border-b border-border-subtle">
           <div className="w-16"></div>
           {weekDays.map((day, index) => {
             const isToday = isSameDay(day, today);
@@ -657,8 +656,8 @@ export function Calendar({
               <div
                 key={index}
                 className={cn(
-                  "text-center py-3 cursor-pointer hover:bg-[#1a1a1a]/50",
-                  isToday && "bg-[#1a1a1a]"
+                  "text-center py-3 cursor-pointer hover:bg-surface/50",
+                  isToday && "bg-surface"
                 )}
                 onClick={() => {
                   setSelectedDay(day);
@@ -669,15 +668,15 @@ export function Calendar({
                   if (onDateSelect) onDateSelect(day);
                 }}
               >
-                <div className="text-xs text-[#6b6b6b] uppercase">
+                <div className="text-xs text-muted-foreground uppercase">
                   {WEEKDAYS[day.getDay()]}
                 </div>
                 <div
                   className={cn(
                     "text-lg font-medium mt-1 w-8 h-8 mx-auto flex items-center justify-center rounded-full",
                     isToday
-                      ? "bg-zinc-500 text-white"
-                      : "text-[#e7e7e7]"
+                      ? "bg-primary text-primary-foreground"
+                      : "text-foreground"
                   )}
                 >
                   {day.getDate()}
@@ -691,11 +690,11 @@ export function Calendar({
         <div className="flex-1 overflow-y-auto">
           <div className="grid grid-cols-8">
             {/* Time column */}
-            <div className="border-r border-[#2a2a2a]">
+            <div className="border-r border-border-subtle">
               {hours.map((hour) => (
                 <div
                   key={hour}
-                  className="h-16 text-xs text-[#6b6b6b] text-right pr-2 pt-1 flex items-center justify-center border-b border-[#2a2a2a]/50"
+                  className="h-16 text-xs text-muted-foreground text-right pr-2 pt-1"
                 >
                   {timeFormat === "12h" ? formatHour(hour) : `${hour}:00`}
                 </div>
@@ -709,8 +708,8 @@ export function Calendar({
                 <div
                   key={dayIndex}
                   className={cn(
-                    "border-r border-[#2a2a2a] last:border-r-0",
-                    isToday && "bg-zinc-500/5"
+                    "border-r border-border-subtle last:border-r-0",
+                    isToday && "bg-primary/5"
                   )}
                 >
                   {hours.map((hour) => {
@@ -719,10 +718,7 @@ export function Calendar({
                     return (
                       <div
                         key={hour}
-                        className={cn(
-                          "h-16 border-b border-[#2a2a2a]/50 relative group",
-                          ACTIVITY_COLORS[activityLevel]
-                        )}
+                        className="h-16 border-b border-border-subtle/50 relative group"
                         onClick={() => {
                           const clickedDate = new Date(day);
                           clickedDate.setHours(hour, 0, 0, 0);
@@ -844,21 +840,21 @@ export function Calendar({
     return (
       <div className="flex flex-col h-full">
         {/* Day header */}
-        <div className="text-center py-4 border-b border-[#2a2a2a]">
-          <div className="text-sm text-[#6b6b6b] uppercase">
+        <div className="text-center py-4 border-b border-border-subtle mb-4">
+          <div className="text-sm text-muted-foreground uppercase">
             {WEEKDAYS[selectedDay.getDay()]}
           </div>
           <div
             className={cn(
               "text-4xl font-bold mt-2 w-16 h-16 mx-auto flex items-center justify-center rounded-2xl",
               isSameDay(selectedDay, today)
-                ? "bg-zinc-500 text-white"
-                : "text-[#e7e7e7]"
+                ? "bg-primary text-primary-foreground"
+                : "text-foreground"
             )}
           >
             {selectedDay.getDate()}
           </div>
-          <div className="text-lg text-[#a3a3a3] mt-1">
+          <div className="text-lg text-muted-foreground mt-1">
             {MONTHS[selectedDay.getMonth()]} {selectedDay.getFullYear()}
           </div>
         </div>
@@ -938,10 +934,10 @@ export function Calendar({
               return (
                 <div
                   key={hour}
-                  className="flex gap-4 min-h-[60px] border-b border-[#2a2a2a]/30 px-8"
+                  className="flex gap-4 min-h-[60px] border-b border-border-subtle/30"
                 >
                   <div className="w-16 flex-shrink-0 pt-2">
-                    <span className="text-sm text-[#6b6b6b]">
+                    <span className="text-sm text-muted-foreground">
                       {timeFormat === "12h" ? formatHour(hour) : `${hour}:00`}
                     </span>
                   </div>
@@ -949,7 +945,7 @@ export function Calendar({
                     {hourEvents.length === 0 ? (
                       <div 
                         className={cn(
-                          "h-12 rounded-lg border border-dashed border-[#2a2a2a] cursor-pointer hover:border-[#474747] hover:bg-[#1a1a1a]/30 transition-all",
+                          "h-12 rounded-lg border border-dashed border-border-subtle cursor-pointer hover:border-border-emphasis hover:bg-surface/30 transition-all",
                           enableCreate && "group"
                         )}
                         onClick={() => {
@@ -961,7 +957,7 @@ export function Calendar({
                         }}
                       >
                         {enableCreate && (
-                          <div className="hidden group-hover:flex items-center justify-center h-full text-[#6b6b6b] text-sm">
+                          <div className="hidden group-hover:flex items-center justify-center h-full text-muted-foreground text-sm">
                             Click to add event
                           </div>
                         )}
@@ -987,21 +983,21 @@ export function Calendar({
                               )}
                             >
                               <div className="flex items-center justify-between">
-                                <div className="font-medium text-[#e7e7e7]">
+                                <div className="font-medium text-foreground">
                                   {event.title}
                                 </div>
-                                <div className="flex items-center gap-1 text-xs text-[#a3a3a3]">
+                                <div className="flex items-center gap-1 text-xs text-muted-foreground">
                                   <Clock className="w-3 h-3" />
                                   {startTime} - {endTime}
                                 </div>
                               </div>
                               {event.description && (
-                                <div className="text-sm text-[#a3a3a3] mt-1">
+                                <div className="text-sm text-muted-foreground mt-1">
                                   {event.description}
                                 </div>
                               )}
                               {event.location && (
-                                <div className="text-xs text-[#6b6b6b] mt-2 flex items-center gap-1">
+                                <div className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
                                   📍 {event.location}
                                 </div>
                               )}
@@ -1020,64 +1016,15 @@ export function Calendar({
     );
   };
 
-  // Render activity summary widget
-  const renderActivitySummary = () => {
-    if (!showActivity) return null;
-    
-    // Calculate total activity for visible period
-    let daysToCheck = [];
-    if (currentView === 'day') {
-      daysToCheck = [selectedDay];
-    } else if (currentView === 'week') {
-      daysToCheck = getWeekDays(currentDate);
-    } else {
-      daysToCheck = getDaysInMonth(currentDate, 1).map(d => d.date);
-    }
-    
-    const totalActivity = daysToCheck.reduce((sum, date) => {
-      return sum + getActivityForDate(activities, date);
-    }, 0);
-    
-    const avgActivity = totalActivity / daysToCheck.length;
-    const activityLabel = avgActivity > 4 ? 'Very High' : avgActivity > 3 ? 'High' : avgActivity > 2 ? 'Moderate' : avgActivity > 1 ? 'Low' : 'Minimal';
-    
-    return (
-      <div className="px-6 py-3 border-t border-[#2a2a2a] bg-[#1a1a1a] rounded-b-2xl">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Activity className="w-4 h-4 text-[#a3a3a3]" />
-            <span className="text-sm text-[#a3a3a3]">Activity Level:</span>
-            <span className="text-sm font-semibold text-[#e7e7e7]">{activityLabel}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            {[1, 2, 3, 4, 5].map(level => (
-              <div
-                key={level}
-                className={cn(
-                  "w-4 h-4 rounded",
-                  level <= Math.round(avgActivity) ? ACTIVITY_COLORS[level] : 'bg-zinc-500/10'
-                )}
-                title={`Level ${level}`}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   return (
-    <div className={cn("bg-[#1a1a1a] border border-[#2a2a2a] rounded-2xl overflow-hidden", className)}>
-      <div className="p-6">
-        {showHeader && renderHeader()}
-        
-        <div className={cn(showHeader && "mt-4")}>
-          {currentView === "month" && renderMonthView()}
-          {currentView === "week" && renderWeekView()}
-          {currentView === "day" && renderDayView()}
-        </div>
+    <div className={cn("bg-surface border border-border-subtle rounded-2xl p-6", className)}>
+      {showHeader && renderHeader()}
+      
+      <div className={cn(showHeader && "mt-4")}>
+        {currentView === "month" && renderMonthView()}
+        {currentView === "week" && renderWeekView()}
+        {currentView === "day" && renderDayView()}
       </div>
-      {renderActivitySummary()}
     </div>
   );
 }
@@ -1132,10 +1079,10 @@ export function Timeline({
   };
 
   return (
-    <div className={cn("bg-[#1a1a1a] border border-[#2a2a2a] rounded-2xl p-6", className)}>
+    <div className={cn("bg-surface border border-border-subtle rounded-2xl p-6", className)}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-[#e7e7e7]">
+        <h2 className="text-xl font-semibold text-foreground">
           {days[0].toLocaleDateString("en-US", { month: "short", day: "numeric" })} -{" "}
           {days[days.length - 1].toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
         </h2>
@@ -1145,7 +1092,7 @@ export function Timeline({
             variant="ghost"
             size="sm"
             onClick={goToToday}
-            className="text-[#a3a3a3] hover:text-[#e7e7e7] hover:bg-[#2a2a2a]"
+            className="text-muted-foreground hover:text-foreground hover:bg-accent"
           >
             Today
           </Button>
@@ -1154,7 +1101,7 @@ export function Timeline({
               variant="ghost"
               size="icon"
               onClick={navigatePrev}
-              className="h-8 w-8 text-[#a3a3a3] hover:text-[#e7e7e7] hover:bg-[#2a2a2a]"
+              className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-accent"
             >
               <ChevronLeft className="w-4 h-4" />
             </Button>
@@ -1162,7 +1109,7 @@ export function Timeline({
               variant="ghost"
               size="icon"
               onClick={navigateNext}
-              className="h-8 w-8 text-[#a3a3a3] hover:text-[#e7e7e7] hover:bg-[#2a2a2a]"
+              className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-accent"
             >
               <ChevronRight className="w-4 h-4" />
             </Button>
@@ -1183,16 +1130,16 @@ export function Timeline({
                   key={index}
                   className={cn(
                     "text-center py-2 rounded-lg",
-                    isToday ? "bg-zinc-500/20" : ""
+                    isToday ? "bg-primary/20" : ""
                   )}
                 >
-                  <div className="text-xs text-[#6b6b6b] uppercase">
+                  <div className="text-xs text-muted-foreground uppercase">
                     {WEEKDAYS[day.getDay()]}
                   </div>
                   <div
                     className={cn(
                       "text-lg font-medium",
-                      isToday ? "text-blue-400" : "text-[#e7e7e7]"
+                      isToday ? "text-primary" : "text-foreground"
                     )}
                   >
                     {day.getDate()}
@@ -1213,12 +1160,12 @@ export function Timeline({
                   key={dayIndex}
                   className={cn(
                     "grid grid-cols-[80px_repeat(14,1fr)] gap-1 py-1 rounded-lg",
-                    isToday && "bg-zinc-500/20"
+                    isToday && "bg-primary/5"
                   )}
                 >
                   {/* Day label */}
                   <div className="flex items-center">
-                    <span className="text-sm text-[#6b6b6b]">
+                    <span className="text-sm text-muted-foreground">
                       {day.toLocaleDateString("en-US", { weekday: "short" })}
                     </span>
                   </div>
@@ -1226,7 +1173,7 @@ export function Timeline({
                   {/* Events */}
                   <div className="col-span-14 flex gap-1 flex-wrap">
                     {dayEvents.length === 0 ? (
-                      <div className="text-xs text-[#3a3a3a] px-2 py-1">
+                      <div className="text-xs text-muted-foreground px-2 py-1">
                         No events
                       </div>
                     ) : (
@@ -1256,7 +1203,7 @@ export function Timeline({
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-6 w-6 p-0 text-[#6b6b6b] hover:text-[#e7e7e7]"
+                        className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
                         onClick={() => {
                           if (onEventCreate) onEventCreate(day);
                         }}
@@ -1336,27 +1283,27 @@ export function EventModal({
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative bg-[#1a1a1a] border border-[#2a2a2a] rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl">
-        <h3 className="text-xl font-semibold text-[#e7e7e7] mb-4">
+      <div className="relative bg-surface border border-border-subtle rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl">
+        <h3 className="text-xl font-semibold text-foreground mb-4">
           {mode === "create" ? "Create Event" : mode === "edit" ? "Edit Event" : "Event Details"}
         </h3>
 
         {mode === "view" ? (
           <div className="space-y-4">
             <div>
-              <h4 className="text-2xl font-bold text-[#e7e7e7]">{event?.title}</h4>
-              <div className="flex items-center gap-2 mt-2 text-[#a3a3a3]">
+              <h4 className="text-2xl font-bold text-foreground">{event?.title}</h4>
+              <div className="flex items-center gap-2 mt-2 text-muted-foreground">
                 <Clock className="w-4 h-4" />
                 {event?.start && formatTime(new Date(event.start))} - {event?.end && formatTime(new Date(event.end))}
               </div>
             </div>
             
             {event?.description && (
-              <div className="text-[#a3a3a3]">{event.description}</div>
+              <div className="text-muted-foreground">{event.description}</div>
             )}
             
             {event?.location && (
-              <div className="text-[#a3a3a3] flex items-center gap-2">
+              <div className="text-muted-foreground flex items-center gap-2">
                 📍 {event.location}
               </div>
             )}
@@ -1386,46 +1333,46 @@ export function EventModal({
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="text-sm text-[#a3a3a3] mb-1 block">Title</label>
+              <label className="text-sm text-muted-foreground mb-1 block">Title</label>
               <Input
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 placeholder="Event title"
-                className="bg-[#0a0a0a] border-[#2a2a2a]"
+                className="bg-input border-border"
                 required
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm text-[#a3a3a3] mb-1 block">Start</label>
+                <label className="text-sm text-muted-foreground mb-1 block">Start</label>
                 <Input
                   type="datetime-local"
                   value={formData.start}
                   onChange={(e) => setFormData({ ...formData, start: e.target.value })}
-                  className="bg-[#0a0a0a] border-[#2a2a2a]"
+                  className="bg-input border-border"
                   required
                 />
               </div>
               <div>
-                <label className="text-sm text-[#a3a3a3] mb-1 block">End</label>
+                <label className="text-sm text-muted-foreground mb-1 block">End</label>
                 <Input
                   type="datetime-local"
                   value={formData.end}
                   onChange={(e) => setFormData({ ...formData, end: e.target.value })}
-                  className="bg-[#0a0a0a] border-[#2a2a2a]"
+                  className="bg-input border-border"
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label className="text-sm text-[#a3a3a3] mb-1 block">Type</label>
+              <label className="text-sm text-muted-foreground mb-1 block">Type</label>
               <Select
                 value={formData.type}
                 onValueChange={(value) => setFormData({ ...formData, type: value })}
               >
-                <SelectTrigger className="bg-[#0a0a0a] border-[#2a2a2a]">
+                <SelectTrigger className="bg-input border-border">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -1440,22 +1387,22 @@ export function EventModal({
             </div>
 
             <div>
-              <label className="text-sm text-[#a3a3a3] mb-1 block">Location</label>
+              <label className="text-sm text-muted-foreground mb-1 block">Location</label>
               <Input
                 value={formData.location}
                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                 placeholder="Meeting room or video link"
-                className="bg-[#0a0a0a] border-[#2a2a2a]"
+                className="bg-input border-border"
               />
             </div>
 
             <div>
-              <label className="text-sm text-[#a3a3a3] mb-1 block">Description</label>
+              <label className="text-sm text-muted-foreground mb-1 block">Description</label>
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Event description"
-                className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg p-3 text-[#e7e7e7] placeholder:text-[#6b6b6b] focus:outline-none focus:border-[#474747]"
+                className="w-full bg-input border border-border rounded-lg p-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-ring"
                 rows={3}
               />
             </div>
@@ -1465,13 +1412,13 @@ export function EventModal({
                 type="button"
                 variant="outline"
                 onClick={onClose}
-                className="flex-1 border-[#2a2a2a] text-[#a3a3a3] hover:text-[#e7e7e7] hover:bg-[#2a2a2a]"
+                className="flex-1 border-border text-muted-foreground hover:text-foreground hover:bg-accent"
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
-                className="flex-1 bg-zinc-600 hover:bg-zinc-700"
+                className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 {mode === "create" ? "Create" : "Save"}
               </Button>

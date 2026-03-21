@@ -64,15 +64,15 @@ export function NotificationItem({
       {/* Content */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-3 mb-1">
-          <h3 className={`text-[13px] font-medium truncate ${isUnread ? "text-white" : "text-[#c0c0c0]"}`}>
+          <h3 className={`text-[13px] font-medium truncate ${isUnread ? "text-primary" : "text-text-secondary"}`}>
             {notification.title}
           </h3>
-          <span className="text-[11px] text-[#666666] whitespace-nowrap shrink-0">
+          <span className="text-[11px] text-text-muted whitespace-nowrap shrink-0">
             {formattedTime}
           </span>
         </div>
         
-        <p className={`text-[12px] leading-relaxed ${isUnread ? "text-[#a0a0a0]" : "text-[#707070]"} line-clamp-2`}>
+        <p className={`text-[12px] leading-relaxed ${isUnread ? "text-text-tertiary" : "text-zinc-500"} line-clamp-2`}>
           {notification.description}
         </p>
 
@@ -80,7 +80,7 @@ export function NotificationItem({
         {extraContent && (
           <div className="mt-3">
             {extraContent.type === "comment" && (
-              <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-3 text-[12px] text-[#909090] leading-relaxed">
+              <div className="bg-surface border border-subtle rounded-lg p-3 text-[12px] text-text-tertiary leading-relaxed">
                 {extraContent.text}
               </div>
             )}
@@ -88,15 +88,15 @@ export function NotificationItem({
             {extraContent.type === "file" && extraContent.files?.map((f, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between p-2.5 border border-[#2a2a2a] rounded-lg bg-[#1a1a1a] mt-2"
+                className="flex items-center justify-between p-2.5 border border-subtle rounded-lg bg-surface mt-2"
               >
                 <div className="flex items-center gap-2.5 overflow-hidden">
-                  <div className="w-7 h-7 rounded flex items-center justify-center bg-[#222222] text-[#808080] text-[10px] font-medium">
+                  <div className="w-7 h-7 rounded flex items-center justify-center bg-surface-active text-text-muted text-[10px] font-medium">
                     {f.name.split('.').pop().toUpperCase()}
                   </div>
                   <div className="min-w-0">
-                    <div className="text-[12px] text-[#c0c0c0] truncate">{f.name}</div>
-                    <div className="text-[10px] text-[#666666]">{f.size}</div>
+                    <div className="text-[12px] text-text-secondary truncate">{f.name}</div>
+                    <div className="text-[10px] text-text-muted">{f.size}</div>
                   </div>
                 </div>
               </div>
@@ -104,10 +104,10 @@ export function NotificationItem({
 
             {extraContent.type === "actions" && (
               <div className="flex items-center gap-2 mt-2.5">
-                <button className="px-3 py-1.5 rounded-lg border border-[#333333] text-[11px] font-medium text-[#909090] hover:bg-[#252525] hover:text-white transition-colors">
+                <button className="px-3 py-1.5 rounded-lg border border-border-default text-[11px] font-medium text-text-tertiary hover:bg-surface-hover hover:text-primary transition-colors">
                   {extraContent.options?.[0] || "Decline"}
                 </button>
-                <button className="px-3 py-1.5 rounded-lg bg-white text-[11px] font-medium text-black hover:bg-gray-200 transition-colors">
+                <button className="px-3 py-1.5 rounded-lg bg-primary text-[11px] font-medium text-primary-foreground hover:bg-primary/80 transition-colors">
                   {extraContent.options?.[1] || "Accept"}
                 </button>
               </div>
@@ -117,7 +117,7 @@ export function NotificationItem({
 
         {/* Type badge */}
         <div className="mt-3">
-          <span className="text-[9px] uppercase font-semibold tracking-wider text-[#666666] bg-[#1f1f1f] px-2 py-1 rounded-md border border-[#2a2a2a]">
+          <span className="text-[9px] uppercase font-semibold tracking-wider text-text-muted bg-surface-elevated px-2 py-1 rounded-md border border-subtle">
             {notification.type}
           </span>
         </div>
@@ -126,13 +126,13 @@ export function NotificationItem({
       {/* Actions menu */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-          <button className="p-1.5 rounded-lg text-[#666666] hover:text-white hover:bg-[#2a2a2a] transition-colors opacity-0 group-hover:opacity-100">
+          <button className="p-1.5 rounded-lg text-text-muted hover:text-primary hover:bg-surface-hover transition-colors opacity-0 group-hover:opacity-100">
             <MoreVertical className="w-4 h-4" />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="end"
-          className="w-[160px] bg-[#1a1a1a] border-[#2a2a2a] text-[#c0c0c0]"
+          className="w-[160px] bg-surface border-subtle text-text-secondary"
           onClick={(e) => e.stopPropagation()}
         >
           {isUnread && (

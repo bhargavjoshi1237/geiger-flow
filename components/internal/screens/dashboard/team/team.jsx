@@ -95,10 +95,10 @@ export function TeamScreen() {
                       {member.name.charAt(0)}
                     </div>
                     <div>
-                      <div className="text-sm font-medium text-[#e7e7e7]">
+                      <div className="text-sm font-medium text-primary">
                         {member.name}
                       </div>
-                      <div className="text-xs text-[#a3a3a3] flex items-center gap-1">
+                      <div className="text-xs text-secondary flex items-center gap-1">
                         <Mail className="w-3 h-3 opacity-50" />
                         {member.email}
                       </div>
@@ -106,7 +106,7 @@ export function TeamScreen() {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <span className="text-xs font-medium text-[#c0c0c0] bg-[#2a2a2a] px-2 py-1 rounded border border-[#333333]">
+                  <span className="text-xs font-medium text-secondary bg-surface-active px-2 py-1 rounded border border-border">
                     {member.role}
                   </span>
                 </TableCell>

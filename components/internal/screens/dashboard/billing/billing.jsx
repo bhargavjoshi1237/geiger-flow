@@ -36,15 +36,15 @@ export function BillingScreen() {
   ];
 
   return (
-    <div className="flex flex-col gap-10 w-full px-2 lg:px-0 lg:w-[75%] mx-auto my-3 text-[#e7e7e7]">
-      <h1 className="text-2xl mt-4 font-semibold text-[#e7e7e7] tracking-tight mb-2">
+    <div className="flex flex-col gap-10 w-full px-2 lg:px-0 lg:w-[75%] mx-auto my-3 text-foreground">
+      <h1 className="text-2xl mt-4 font-semibold text-primary tracking-tight mb-2">
         Billing
       </h1>
 
       {/* Subscription Plan */}
-      <div className="flex flex-col lg:flex-row gap-8 border-b border-[#2c2c2c] pb-10">
+      <div className="flex flex-col lg:flex-row gap-8 border-b border-border pb-10">
         <div className="lg:w-4/12 space-y-3 shrink-0">
-          <h3 className="text-[15px] font-medium text-[#e7e7e7]">
+          <h3 className="text-[15px] font-medium text-primary">
             Subscription Plan
           </h3>
           <p className="text-[14px] text-[#8b8b8b] leading-[1.6]">
@@ -63,18 +63,18 @@ export function BillingScreen() {
           </Button>
           <UpgradePlanDialogue open={isUpgradeOpen} onOpenChange={setIsUpgradeOpen} />
 
-          <Card className="bg-[#181818] border-[#2c2c2c] flex gap-4 p-5 rounded-xl text-left shadow-sm w-full mt-2">
-            <div className="bg-[#2c2c2c] text-[#a3a3a3] w-6 h-6 rounded flex items-center justify-center shrink-0 mt-0.5">
+            <Card className="bg-surface-elevated border-border flex gap-4 p-5 rounded-xl text-left shadow-sm w-full mt-2">
+            <div className="bg-surface-active text-secondary w-6 h-6 rounded flex items-center justify-center shrink-0 mt-0.5">
               <Info className="w-3.5 h-3.5" />
             </div>
             <div>
-              <div className="text-[14px] font-semibold text-[#e7e7e7] mb-1">
+              <div className="text-[14px] font-semibold text-primary mb-1">
                 This organization is limited by the included usage
               </div>
-              <div className="text-[13px] text-[#8b8b8b] leading-[1.6]">
+              <div className="text-[13px] text-muted leading-[1.6]">
                 Projects may become unresponsive when this organization exceeds
                 its{" "}
-                <strong className="font-semibold text-[#e7e7e7]">
+                <strong className="font-semibold text-primary">
                   included usage quota
                 </strong>
                 . To scale seamlessly, upgrade to a paid plan.

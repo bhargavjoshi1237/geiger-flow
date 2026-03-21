@@ -32,26 +32,26 @@ function MetricCard({ title, subtitle, value, data }) {
   };
 
   return (
-    <Card className="bg-[#1a1a1a] border-[#2a2a2a] text-[#e7e7e7] overflow-hidden group hover:border-[#474747] transition-all duration-300">
+    <Card className="bg-surface-elevated border-subtle text-primary overflow-hidden group hover:border-emphasis transition-all duration-300">
       <CardHeader className="pb-2 space-y-1">
-        <div className="flex items-center gap-2 text-[#a3a3a3]">
-          <div className="w-5 h-5 rounded bg-[#2a2a2a] flex items-center justify-center">
+        <div className="flex items-center gap-2 text-text-tertiary">
+          <div className="w-5 h-5 rounded bg-surface-active flex items-center justify-center">
             {title === "Productivity" && (
-              <Activity className="w-3 h-3 text-[#737373]" />
+              <Activity className="w-3 h-3 text-text-muted" />
             )}
             {title === "New Features" && (
-              <Sparkles className="w-3 h-3 text-[#737373]" />
+              <Sparkles className="w-3 h-3 text-text-muted" />
             )}
             {title === "Issues Solved" && (
-              <Bug className="w-3 h-3 text-[#737373]" />
+              <Bug className="w-3 h-3 text-text-muted" />
             )}
             {title === "PR Merged" && (
-              <GitMerge className="w-3 h-3 text-[#737373]" />
+              <GitMerge className="w-3 h-3 text-text-muted" />
             )}
           </div>
           <span className="text-sm font-medium">{title}</span>
         </div>
-        <p className="text-xs text-[#525252]">{subtitle}</p>
+        <p className="text-xs text-zinc-500">{subtitle}</p>
         <div className="text-2xl font-bold mt-1">{value}</div>
       </CardHeader>
       <CardContent className="p-0 h-32 relative transition-colors -mb-2">
@@ -78,7 +78,7 @@ function MetricCard({ title, subtitle, value, data }) {
             </LineChart>
           </ChartContainer>
         </div>
-        <div className="absolute bottom-2 left-4 text-[10px] text-[#404040] flex justify-between w-[calc(100%-32px)]">
+        <div className="absolute bottom-2 left-4 text-[10px] text-zinc-600 flex justify-between w-[calc(100%-32px)]">
           <span>Mar 1, 8:06pm</span>
           <span>Mar 1, 9:06pm</span>
         </div>
@@ -113,32 +113,32 @@ export function ProjectDetailsScreen() {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mt-2 gap-4">
         <div className="flex items-center justify-center md:justify-start gap-3 w-full md:w-auto text-center md:text-left">
-          <h1 className="text-2xl font-bold text-white tracking-tight">
+          <h1 className="text-2xl font-bold text-primary tracking-tight">
             {project?.name}
           </h1>
-          <span className="bg-[#1a1a1a] text-[#737373] text-[9px] px-1.5 py-0.5 rounded border border-[#2a2a2a] font-mono tracking-widest shrink-0">
+          <span className="bg-surface text-text-muted text-[9px] px-1.5 py-0.5 rounded border border-subtle font-mono tracking-widest shrink-0">
             NANO
           </span>
         </div>
         <div className="w-full md:w-auto">
           <div className="flex w-full md:w-auto md:gap-0">
             <div className="flex-1 md:flex-none flex flex-col items-center md:pr-8">
-              <span className="text-[#737373] text-[11px] uppercase tracking-wider font-medium">
+              <span className="text-text-muted text-[11px] uppercase tracking-wider font-medium">
                 Members
               </span>
-              <span className="text-white font-bold text-2xl mt-0.5">6</span>
+              <span className="text-primary font-bold text-2xl mt-0.5">6</span>
             </div>
-            <div className="flex-1 md:flex-none flex flex-col items-center border-l border-[#2a2a2a] md:px-8">
-              <span className="text-[#737373] text-[11px] uppercase tracking-wider font-medium">
+            <div className="flex-1 md:flex-none flex flex-col items-center border-l border-subtle md:px-8">
+              <span className="text-text-muted text-[11px] uppercase tracking-wider font-medium">
                 Goals
               </span>
-              <span className="text-white font-bold text-2xl mt-0.5">0</span>
+              <span className="text-primary font-bold text-2xl mt-0.5">0</span>
             </div>
-            <div className="flex-1 md:flex-none flex flex-col items-center border-l border-[#2a2a2a] md:pl-8">
-              <span className="text-[#737373] text-[11px] uppercase tracking-wider font-medium">
+            <div className="flex-1 md:flex-none flex flex-col items-center border-l border-subtle md:pl-8">
+              <span className="text-text-muted text-[11px] uppercase tracking-wider font-medium">
                 Milestones
               </span>
-              <span className="text-white font-bold text-2xl mt-0.5">0</span>
+              <span className="text-primary font-bold text-2xl mt-0.5">0</span>
             </div>
           </div>
         </div>
@@ -150,7 +150,7 @@ export function ProjectDetailsScreen() {
           Staging. Milestones. Comments/Discussions , Dropdown Stack of Nodes
         </p>
       </div>
-      <div className="pt-4 border-t border-[#242424]">
+      <div className="pt-4 border-t border-border-default">
         <FilterDropdown
           value={filterValue}
           onValueChange={setFilterValue}
@@ -191,14 +191,14 @@ export function ProjectDetailsScreen() {
       <div className="py-4 space-y-4">
         <div className="flex items-center justify-between">
           <div className="px-1">
-            <h2 className="text-lg font-semibold text-[#e7e7e7] tracking-tight leading-tight">
+            <h2 className="text-lg font-semibold text-primary tracking-tight leading-tight">
               Top Issues
             </h2>
-            <p className="text-xs text-[#737373]">
+            <p className="text-xs text-text-muted">
               Tasks requiring immediate attention
             </p>
           </div>
-          <button className="text-xs font-medium text-[#737373] hover:text-[#e7e7e7] px-3 py-1.5 rounded-lg transition-colors hover:border-[#474747] flex items-center gap-2">
+          <button className="text-xs font-medium text-text-muted hover:text-primary px-3 py-1.5 rounded-lg transition-colors hover:border-emphasis flex items-center gap-2">
           View Issues <ChevronRight className="w-3 h-3" />
         </button>
         </div>

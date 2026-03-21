@@ -142,25 +142,25 @@ export function ProjectsScreen() {
       <div className="flex items-center justify-between gap-4">
         <div className="flex-1 flex items-center gap-2">
           <div className="relative flex-1 max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#737373]" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
             <Input
               type="text"
               placeholder="Search for a project"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-[#1a1a1a] border border-[#2a2a2a] text-[#e7e7e7] text-sm rounded-sm pl-10 pr-4 py-1.5 focus:outline-none focus:border-[#474747] transition-colors placeholder:text-[#525252]"
+              className="w-full bg-surface border border-subtle text-primary text-sm rounded-sm pl-10 pr-4 py-1.5 focus:outline-none focus:border-emphasis transition-colors placeholder:text-zinc-500"
             />
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-2 bg-[#202020] border border-[#2a2a2a] text-[#a3a3a3] hover:text-[#e7e7e7] px-3 py-1.5 rounded-sm text-sm font-medium transition-colors group cursor-pointer">
-                <span className="text-[#a3a3a3] group-hover:text-[#e7e7e7] transition-colors capitalize">
+              <button className="flex items-center gap-2 bg-surface-elevated border border-subtle text-text-tertiary hover:text-primary px-3 py-1.5 rounded-sm text-sm font-medium transition-colors group cursor-pointer">
+                <span className="text-text-tertiary hover:text-primary transition-colors capitalize">
                   {statusFilter === "all" ? "Status" : statusFilter}
                 </span>
-                <ChevronDown className="w-4 h-4 text-[#525252] group-hover:text-[#e7e7e7] transition-colors" />
+                <ChevronDown className="w-4 h-4 text-zinc-500 group-hover:text-primary transition-colors" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-40 bg-[#1a1a1a] border-[#2a2a2a] text-[#e7e7e7]">
+            <DropdownMenuContent className="w-40 bg-surface border-subtle text-primary">
               <DropdownMenuRadioGroup
                 value={statusFilter}
                 onValueChange={setStatusFilter}
@@ -259,19 +259,19 @@ export function ProjectsScreen() {
                 filteredProjects.map((project, idx) => (
                   <TableRow
                     key={idx}
-                    className="border-[#2a2a2a] hover:bg-[#242424]"
+                    className="border-border hover:bg-surface-hover"
                   >
                     <TableCell>
                       <Link href={`/project/${project.id}`}>
                         <div className="flex items-center gap-3 cursor-pointer group/item">
-                          <div className="w-8 h-8 rounded-md bg-[#2a2a2a] border border-[#333333] flex items-center justify-center text-[#a3a3a3] group-hover/item:border-[#474747] transition-colors">
+                          <div className="w-8 h-8 rounded-md bg-surface-active border border-emphasis flex items-center justify-center text-secondary group-hover/item:border-ring transition-colors">
                             <Layers className="w-4 h-4" />
                           </div>
                           <div>
-                            <div className="text-sm font-semibold text-[#e7e7e7] group-hover/item:text-white transition-colors">
+                            <div className="text-sm font-semibold text-primary group-hover/item:text-foreground transition-colors">
                               {project.name}
                             </div>
-                            <div className="text-xs text-[#737373]">
+                            <div className="text-xs text-muted">
                               {project.provider} • {project.region}
                             </div>
                           </div>

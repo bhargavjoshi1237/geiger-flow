@@ -45,6 +45,22 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+  
+  /* Custom app colors for Tailwind */
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-surface-hover: var(--surface-hover);
+  --color-surface-active: var(--surface-active);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-text-muted: var(--text-muted);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-default: var(--border-default);
+  --color-border-emphasis: var(--border-emphasis);
+  --color-input-bg: var(--input-bg);
+  --color-input-border: var(--input-border);
+  --color-input-focus-border: var(--input-focus-border);
 }
 
 :root {
@@ -76,10 +92,39 @@
   --sidebar-foreground: hsl(240 5.3% 26.1%);
   --sidebar-primary: hsl(240 5.9% 10%);
   --sidebar-primary-foreground: hsl(0 0% 98%);
-  --sidebar-accent: hsl(240 4.8% 95.9%);
-  --sidebar-accent-foreground: hsl(240 5.9% 10%);
+  --sidebar-accent: hsl(220 30% 94%);
+  --sidebar-accent-foreground: hsl(220 15% 25%);
+  --sidebar-accent-hover: hsl(220 20% 96%);
+  --sidebar-text-active: hsl(220 15% 20%);
+  --sidebar-text-hover: hsl(220 10% 40%);
   --sidebar-border: hsl(220 13% 91%);
   --sidebar-ring: hsl(217.2 91.2% 59.8%);
+  
+  /* Custom App Colors - Light Theme */
+  /* Surface colors for layered UI elements */
+  --surface: #ffffff;
+  --surface-elevated: #fafafa;
+  --surface-hover: #f5f5f5;
+  --surface-active: #e5e5e5;
+  
+  /* Tab selected state - darker for light theme */
+  --tab-selected: #e5e5e5;
+  
+  /* Text colors with clear hierarchy */
+  --text-primary: #171717;
+  --text-secondary: #525252;
+  --text-tertiary: #737373;
+  --text-muted: #a3a3a3;
+  
+  /* Border colors with varying emphasis */
+  --border-subtle: #e5e5e5;
+  --border-default: #d4d4d4;
+  --border-emphasis: #a3a3a3;
+  
+  /* Input specific colors */
+  --input-bg: #ffffff;
+  --input-border: #d4d4d4;
+  --input-focus-border: #737373;
 }
 
 .dark {
@@ -112,8 +157,37 @@
   --sidebar-primary-foreground: #161616;
   --sidebar-accent: #2a2a2a;
   --sidebar-accent-foreground: #e7e7e7;
+  --sidebar-accent-hover: #3a3a3a;
+  --sidebar-text-active: #b9b9b9;
+  --sidebar-text-hover: #999999;
   --sidebar-border: #2a2a2a;
   --sidebar-ring: #474747;
+  
+  /* Custom App Colors - Dark Theme */
+  /* Surface colors for layered UI elements */
+  --surface: #1a1a1a;
+  --surface-elevated: #202020;
+  --surface-hover: #252525;
+  --surface-active: #2a2a2a;
+  
+  /* Tab selected state - similar to accent for dark theme */
+  --tab-selected: #2a2a2a;
+  
+  /* Text colors with clear hierarchy */
+  --text-primary: #e7e7e7;
+  --text-secondary: #c0c0c0;
+  --text-tertiary: #a3a3a3;
+  --text-muted: #737373;
+  
+  /* Border colors with varying emphasis */
+  --border-subtle: #2a2a2a;
+  --border-default: #333333;
+  --border-emphasis: #474747;
+  
+  /* Input specific colors */
+  --input-bg: #202020;
+  --input-border: #333333;
+  --input-focus-border: #474747;
 }
 
 @layer base {
@@ -122,5 +196,104 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Utility classes for common color patterns */
+@layer utilities {
+  /* Surface backgrounds */
+  .bg-surface {
+    background-color: var(--surface);
+  }
+  .bg-surface-elevated {
+    background-color: var(--surface-elevated);
+  }
+  .bg-surface-hover {
+    background-color: var(--surface-hover);
+  }
+  .bg-surface-active {
+    background-color: var(--surface-active);
+  }
+  
+  /* Text colors */
+  .text-primary {
+    color: var(--text-primary);
+  }
+  .text-secondary {
+    color: var(--text-secondary);
+  }
+  .text-tertiary {
+    color: var(--text-tertiary);
+  }
+  .text-muted {
+    color: var(--text-muted);
+  }
+  
+  /* Border colors */
+  .border-subtle {
+    border-color: var(--border-subtle);
+  }
+  .border-default {
+    border-color: var(--border-default);
+  }
+  .border-emphasis {
+    border-color: var(--border-emphasis);
+  }
+  
+  /* Input styling */
+  .input-bg {
+    background-color: var(--input-bg);
+  }
+  .input-border {
+    border-color: var(--input-border);
+  }
+  .input-focus-border:focus {
+    border-color: var(--input-focus-border);
+  }
+  
+  /* Interactive states */
+  .hover-bg-surface-hover:hover {
+    background-color: var(--surface-hover);
+  }
+  .active-bg-surface-active:active {
+    background-color: var(--surface-active);
+  }
+  
+  /* Overlay colors */
+  .overlay-dark {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  .overlay-darker {
+    background-color: rgba(0, 0, 0, 0.6);
+  }
+  
+  /* Status colors */
+  .text-amber {
+    color: #f59e0b;
+  }
+  .bg-amber {
+    background-color: #f59e0b;
+  }
+  .text-green {
+    color: #22c55e;
+  }
+  .bg-green {
+    background-color: #22c55e;
+  }
+  
+  /* Glow effects for status indicators */
+  .glow-green {
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
+  }
+  
+  /* Text color utility classes */
+  .text-text-primary {
+    color: var(--text-primary);
+  }
+  .text-text-secondary {
+    color: var(--text-secondary);
+  }
+  .text-text-tertiary {
+    color: var(--text-tertiary);
   }
 }

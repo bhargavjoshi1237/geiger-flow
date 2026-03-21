@@ -41,10 +41,10 @@ export default function Dashboard() {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-full bg-[#161616] text-[#ededed] font-sans overflow-hidden selection:bg-[#333333]">
+      <div className="flex h-screen w-full bg-background text-foreground font-sans overflow-hidden selection:bg-accent">
         <AppSidebar activeTab={activeTab} onTabChange={setActiveTab} />
         <SidebarInset className="flex-1 flex flex-col h-full bg-transparent overflow-hidden relative border-l-0">
-          <div className="absolute top-0 right-0 w-[500px] h-[300px] bg-white/[0.02] blur-[120px] pointer-events-none rounded-full"></div>
+          <div className="absolute top-0 right-0 w-[500px] h-[300px] bg-white/[0.02] dark:bg-white/[0.02] blur-[120px] pointer-events-none rounded-full"></div>
           <Topbar />
           <main className="flex-1 overflow-y-auto p-8 relative z-10 w-full min-w-0">
             {renderScreen()}

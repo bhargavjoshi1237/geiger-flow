@@ -27,26 +27,26 @@ export function ProjectItem({ id, name, provider, region, status, tags = [] }) {
   const isPaused = status?.toLowerCase() === "paused";
 
   return (
-    <div className="bg-[#202020] border border-[#2a2a2a] rounded-sm p-6 relative group hover:border-[#474747] transition-all duration-300 flex flex-col h-full min-h-[180px] text-[#e7e7e7]">
+    <div className="bg-surface-elevated border border-border rounded-sm p-6 relative group hover:border-emphasis transition-all duration-300 flex flex-col h-full min-h-[180px] text-foreground">
       <div className="absolute top-4 right-4 z-10">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="text-[#a3a3a3] hover:text-[#e7e7e7] p-1 rounded-md hover:bg-[#2a2a2a] transition-colors focus:outline-none shrink-0 cursor-pointer">
+            <button className="text-secondary hover:text-primary p-1 rounded-md hover:bg-surface-active transition-colors focus:outline-none shrink-0 cursor-pointer">
               <MoreVertical className="w-5 h-5" />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
-            className="w-[180px] bg-[#212121] border-[#2a2a2a] text-[#e7e7e7] p-1"
+            className="w-[180px] bg-popover border-border text-foreground p-1"
           >
-            <DropdownMenuItem className="cursor-pointer focus:bg-[#323232] focus:text-[#e7e7e7] flex items-center gap-2 px-2 py-2">
-              <Copy className="w-3 h-3 text-[#e7e7e7]" />
-              <span className="text-xs text-[#e7e7e7]">Copy Project Id</span>
+            <DropdownMenuItem className="cursor-pointer focus:bg-accent flex items-center gap-2 px-2 py-2">
+              <Copy className="w-3 h-3" />
+              <span className="text-xs">Copy Project Id</span>
             </DropdownMenuItem>
 
-            <DropdownMenuItem className="cursor-pointer focus:bg-[#323232] focus:text-[#e7e7e7] flex items-center gap-2 px-2 py-2">
-              <Settings className="w-3 h-3 text-[#e7e7e7]" />
-              <span className="text-xs text-[#e7e7e7]">Settings</span>
+            <DropdownMenuItem className="cursor-pointer focus:bg-accent flex items-center gap-2 px-2 py-2">
+              <Settings className="w-3 h-3" />
+              <span className="text-xs">Settings</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -55,10 +55,10 @@ export function ProjectItem({ id, name, provider, region, status, tags = [] }) {
       <Link href={`/project/${id}`} className="flex flex-col h-full">
         <div className="flex items-start justify-between mb-2">
           <div>
-            <h3 className="text-[#e7e7e7] text-lg font-semibold tracking-tight leading-none mb-2 group-hover:text-white">
+            <h3 className="text-primary text-lg font-semibold tracking-tight leading-none mb-2 group-hover:text-foreground">
               {name}
             </h3>
-            <p className="text-[#a3a3a3] text-xs  ">
+            <p className="text-secondary text-xs  ">
               {provider} | <span className="opacity-80">{region}</span>
             </p>
           </div>
@@ -95,7 +95,7 @@ export function ProjectItem({ id, name, provider, region, status, tags = [] }) {
             {tags.map((tag, i) => (
               <span
                 key={i}
-                className="text-[9px] font-bold text-[#a3a3a3] bg-[#2a2a2a] px-2 py-0.5 rounded uppercase tracking-wider"
+                className="text-[9px] font-bold text-secondary bg-surface-active px-2 py-0.5 rounded uppercase tracking-wider"
               >
                 {tag}
               </span>
