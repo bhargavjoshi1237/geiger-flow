@@ -15,6 +15,7 @@ import {
   Target,
   LucideSquareChevronRight,
   Key,
+  LucideMousePointer2,
   Calendar,
 } from "lucide-react";
 
@@ -38,4 +39,5 @@ export const settingsNav = [
   { title: "Connectivity", icon: Link },
   { title: "Usage", icon: BarChart3 },
   { title: "Advanced", icon: Sliders },
+  { title: "Enterprise", icon: LucideMousePointer2 },
 ];

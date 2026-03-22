@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
+import { AlertTriangle, Expand, Maximize2, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const ACTIVITY_TYPES = [
@@ -36,10 +37,10 @@ const ACTIVITY_TYPES = [
 ];
 
 const PRIORITY_LEVELS = [
-  { value: "critical", label: "Critical", color: "text-red-400" },
-  { value: "high", label: "High", color: "text-orange-400" },
-  { value: "medium", label: "Medium", color: "text-yellow-400" },
-  { value: "low", label: "Low", color: "text-green-400" },
+  { value: "critical", label: "Critical", color: "text-red-400", Icon: AlertTriangle },
+  { value: "high", label: "High", color: "text-orange-400", Icon: Expand },
+  { value: "medium", label: "Medium", color: "text-yellow-400", Icon: Maximize2 },
+  { value: "low", label: "Low", color: "text-green-400", Icon: ArrowUpRight },
 ];
 
 const STATUS_OPTIONS = [
@@ -135,6 +136,7 @@ export function DetailsTab({ formData, handleInputChange, handleToggleTag, handl
                   value={priority.value}
                   className="focus:bg-[#2a2a2a]"
                 >
+                  <priority.Icon className="w-3.5 h-3.5 mr-2" />
                   <span className={cn(priority.color, "font-medium")}>{priority.label}</span>
                 </SelectItem>
               ))}

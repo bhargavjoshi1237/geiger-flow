@@ -1,12 +1,30 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
+import {
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+} from "@/components/ui/sheet";
+import {
+  AlertTriangle,
+  Expand,
+  Maximize2,
+  ArrowUpRight,
+} from "lucide-react";
 
 const severityColors = {
   critical: "bg-red-500/10 text-red-400 border-red-500/20",
   high: "bg-orange-500/10 text-orange-400 border-orange-500/20",
   medium: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
   low: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+};
+
+const severityIcons = {
+  critical: <AlertTriangle className="w-3 h-3" />,
+  high: <Expand className="w-3 h-3" />,
+  medium: <Maximize2 className="w-3 h-3" />,
+  low: <ArrowUpRight className="w-3 h-3" />,
 };
 
 const statusIcons = {
@@ -37,54 +55,65 @@ const statusIcons = {
   ),
 };
 
-function IssueItem({ 
-  className, 
-  title, 
-  severity = "medium", 
+function IssueItem({
+  className,
+  title,
+  severity = "medium",
   status = "open",
   assignee,
   dueDate,
-  ...props 
+  children,
+  ...props
 }) {
   return (
-    <div
-      className={cn(
-        "flex items-center justify-between gap-4 p-3 rounded-lg bg-[#161616] border border-[#2a2a2a] hover:border-[#474747] transition-colors cursor-pointer",
-        className
-      )}
-      {...props}
-    >
-      <div className="flex items-center gap-3 min-w-0">
-        <div className="flex-shrink-0">
-          {statusIcons[status] || statusIcons.open}
-        </div>
-        <div className="min-w-0">
-          <p className="text-sm text-[#e7e7e7] font-medium truncate">
-            {title}
-          </p>
-          {assignee && (
-            <p className="text-xs text-[#737373] truncate">
-              {assignee}
-            </p>
-          )}
-        </div>
-      </div>
-      <div className="flex items-center gap-2 flex-shrink-0">
-        {dueDate && (
-          <span className="text-xs text-[#737373] hidden sm:inline">
-            {dueDate}
-          </span>
-        )}
-        <span
+    <Sheet>
+      <SheetTrigger asChild>
+        <div
           className={cn(
-            "text-xs px-2 min-w-[60px] items-center flex py-0.5 rounded-md border capitalize",
-            severityColors[severity] || severityColors.medium
+            "flex items-center justify-between gap-4 p-3 rounded-lg bg-[#161616] border border-[#2a2a2a] hover:border-[#474747] transition-colors cursor-pointer",
+            className
           )}
+          {...props}
         >
-          <p className="w-full text-center">{severity}</p>
-        </span>
-      </div>
-    </div>
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="flex-shrink-0">
+              {statusIcons[status] || statusIcons.open}
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm text-[#e7e7e7] font-medium truncate">
+                {title}
+              </p>
+              {assignee && (
+                <p className="text-xs text-[#737373] truncate">
+                  {assignee}
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {dueDate && (
+              <span className="text-xs text-[#737373] hidden sm:inline">
+                {dueDate}
+              </span>
+            )}
+            <span
+              className={cn(
+                "text-xs px-2 min-w-[60px] items-center justify-center gap-1.5 flex py-0.5 rounded-md border capitalize",
+                severityColors[severity] || severityColors.medium
+              )}
+            >
+              {severityIcons[severity]}
+              <p>{severity}</p>
+            </span>
+          </div>
+        </div>
+      </SheetTrigger>
+      {children && (
+        <SheetContent side="right">
+          {children}
+        </SheetContent>
+      )}
+    </Sheet>
   );
 }
 

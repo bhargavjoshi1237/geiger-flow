@@ -61,10 +61,10 @@ export function NewProjectDialog({ children, onCreate }) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto bg-[#161616] border-[#2a2a2a] text-[#ededed]">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto bg-[#161616] border-[#2a2a2a] text-white">
         <DialogHeader>
           <DialogTitle className="text-xl">Create New Project</DialogTitle>
-          <DialogDescription className="text-zinc-400">
+          <DialogDescription className="text-[#a3a3a3]">
             Enter the details for your new infrastructure project.
           </DialogDescription>
         </DialogHeader>
@@ -88,7 +88,7 @@ export function NewProjectDialog({ children, onCreate }) {
 
           <TabsContent value="details" className="space-y-6 py-4">
             <div className="flex flex-col space-y-2">
-              <Label htmlFor="name" className="text-sm font-medium text-zinc-300">
+              <Label htmlFor="name" className="text-sm font-medium text-[#a3a3a3]">
                 Project Name *
               </Label>
               <Input
@@ -97,12 +97,12 @@ export function NewProjectDialog({ children, onCreate }) {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="bg-[#202020] border-[#333333] text-white focus-visible:ring-zinc-600 focus-visible:ring-offset-0 focus-visible:ring-1"
+                className="bg-[#202020] border-[#333333] text-white focus-visible:ring-[#474747] focus-visible:ring-offset-0 focus-visible:ring-1"
               />
             </div>
 
             <div className="flex flex-col space-y-2">
-              <Label htmlFor="logo" className="text-sm font-medium text-zinc-300">
+              <Label htmlFor="logo" className="text-sm font-medium text-[#a3a3a3]">
                 Logo URL (Optional)
               </Label>
               <Input
@@ -110,12 +110,12 @@ export function NewProjectDialog({ children, onCreate }) {
                 placeholder="e.g. https://example.com/logo.png"
                 value={logo}
                 onChange={(e) => setLogo(e.target.value)}
-                className="bg-[#202020] border-[#333333] text-white focus-visible:ring-zinc-600 focus-visible:ring-offset-0 focus-visible:ring-1"
+                className="bg-[#202020] border-[#333333] text-white focus-visible:ring-[#474747] focus-visible:ring-offset-0 focus-visible:ring-1"
               />
             </div>
 
             <div className="flex flex-col space-y-3">
-              <Label className="text-sm font-medium text-zinc-300">
+              <Label className="text-sm font-medium text-[#a3a3a3]">
                 Cloud Provider
               </Label>
               <RadioGroup
@@ -127,11 +127,11 @@ export function NewProjectDialog({ children, onCreate }) {
                   <RadioGroupItem
                     value="AWS"
                     id="aws"
-                    className="border-zinc-500 text-[#ededed]"
+                    className="border-[#333333] text-white"
                   />
                   <Label
                     htmlFor="aws"
-                    className="text-sm font-medium text-[#ededed] cursor-pointer"
+                    className="text-sm font-medium text-white cursor-pointer"
                   >
                     AWS
                   </Label>
@@ -140,11 +140,11 @@ export function NewProjectDialog({ children, onCreate }) {
                   <RadioGroupItem
                     value="GCP"
                     id="gcp"
-                    className="border-zinc-500 text-[#ededed]"
+                    className="border-[#333333] text-white"
                   />
                   <Label
                     htmlFor="gcp"
-                    className="text-sm font-medium text-[#ededed] cursor-pointer"
+                    className="text-sm font-medium text-white cursor-pointer"
                   >
                     GCP
                   </Label>
@@ -153,11 +153,11 @@ export function NewProjectDialog({ children, onCreate }) {
                   <RadioGroupItem
                     value="Azure"
                     id="azure"
-                    className="border-zinc-500 text-[#ededed]"
+                    className="border-[#333333] text-white"
                   />
                   <Label
                     htmlFor="azure"
-                    className="text-sm font-medium text-[#ededed] cursor-pointer"
+                    className="text-sm font-medium text-white cursor-pointer"
                   >
                     Azure
                   </Label>
@@ -168,7 +168,7 @@ export function NewProjectDialog({ children, onCreate }) {
             <div className="flex flex-col space-y-2">
               <Label
                 htmlFor="region"
-                className="text-sm font-medium text-zinc-300"
+                className="text-sm font-medium text-[#a3a3a3]"
               >
                 Geographic Region
               </Label>
@@ -177,7 +177,7 @@ export function NewProjectDialog({ children, onCreate }) {
                 placeholder="e.g. us-east-1"
                 value={region}
                 onChange={(e) => setRegion(e.target.value)}
-                className="bg-[#202020] border-[#333333] text-white focus-visible:ring-zinc-600 focus-visible:ring-offset-0 focus-visible:ring-1"
+                className="bg-[#202020] border-[#333333] text-white focus-visible:ring-[#474747] focus-visible:ring-offset-0 focus-visible:ring-1"
               />
             </div>
           </TabsContent>
@@ -186,12 +186,12 @@ export function NewProjectDialog({ children, onCreate }) {
             <div className="flex items-center justify-between p-4 bg-[#202020] rounded-lg border border-[#333333]">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <Key className="w-5 h-5 text-amber-400" />
+                  <Key className="w-5 h-5 text-white" />
                   <Label className="text-sm font-medium text-white">
                     Enable Vault
                   </Label>
                 </div>
-                <p className="text-xs text-zinc-500">
+                <p className="text-xs text-[#737373]">
                   Create a secure vault for storing project credentials and secrets
                 </p>
               </div>
@@ -204,11 +204,11 @@ export function NewProjectDialog({ children, onCreate }) {
             {vaultEnabled && (
               <>
                 <div className="space-y-3">
-                  <Label className="text-sm font-medium text-zinc-300 flex items-center gap-2">
+                  <Label className="text-sm font-medium text-[#a3a3a3] flex items-center gap-2">
                     <Shield className="w-4 h-4" />
                     Default Access Control
                   </Label>
-                  <p className="text-xs text-zinc-500 mb-2">
+                  <p className="text-xs text-[#737373] mb-2">
                     This will be the default access setting for all secrets in the vault
                   </p>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -217,8 +217,8 @@ export function NewProjectDialog({ children, onCreate }) {
                       onClick={() => setVaultAccessType("team")}
                       className={`p-3 rounded-lg border text-center transition-all ${
                         vaultAccessType === "team"
-                          ? "border-blue-500 bg-blue-500/10 text-blue-400"
-                          : "border-[#333333] bg-[#202020] text-zinc-400 hover:border-[#444]"
+                          ? "border-[#474747] bg-[#202020] text-white"
+                          : "border-[#333333] bg-[#202020] text-[#737373] hover:border-[#474747]"
                       }`}
                     >
                       <Users className="w-5 h-5 mx-auto mb-1" />
@@ -229,8 +229,8 @@ export function NewProjectDialog({ children, onCreate }) {
                       onClick={() => setVaultAccessType("admin")}
                       className={`p-3 rounded-lg border text-center transition-all ${
                         vaultAccessType === "admin"
-                          ? "border-purple-500 bg-purple-500/10 text-purple-400"
-                          : "border-[#333333] bg-[#202020] text-zinc-400 hover:border-[#444]"
+                          ? "border-[#474747] bg-[#202020] text-white"
+                          : "border-[#333333] bg-[#202020] text-[#737373] hover:border-[#474747]"
                       }`}
                     >
                       <Shield className="w-5 h-5 mx-auto mb-1" />
@@ -241,8 +241,8 @@ export function NewProjectDialog({ children, onCreate }) {
                       onClick={() => setVaultAccessType("custom")}
                       className={`p-3 rounded-lg border text-center transition-all ${
                         vaultAccessType === "custom"
-                          ? "border-green-500 bg-green-500/10 text-green-400"
-                          : "border-[#333333] bg-[#202020] text-zinc-400 hover:border-[#444]"
+                          ? "border-[#474747] bg-[#202020] text-white"
+                          : "border-[#333333] bg-[#202020] text-[#737373] hover:border-[#474747]"
                       }`}
                     >
                       <Users className="w-5 h-5 mx-auto mb-1" />
@@ -255,15 +255,15 @@ export function NewProjectDialog({ children, onCreate }) {
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       {vaultKeylessEntry ? (
-                        <Unlock className="w-5 h-5 text-green-400" />
+                        <Unlock className="w-5 h-5 text-[#a3a3a3]" />
                       ) : (
-                        <Lock className="w-5 h-5 text-red-400" />
+                        <Lock className="w-5 h-5 text-[#a3a3a3]" />
                       )}
                       <Label className="text-sm font-medium text-white">
                         Keyless Entry
                       </Label>
                     </div>
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-xs text-[#737373]">
                       {vaultKeylessEntry
                         ? "Users can view secret values without password verification"
                         : "Viewing secret values requires user's account password"}
@@ -275,9 +275,9 @@ export function NewProjectDialog({ children, onCreate }) {
                   />
                 </div>
 
-                <div className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg flex items-start gap-2">
-                  <Info className="w-4 h-4 text-blue-400 mt-0.5 shrink-0" />
-                  <p className="text-xs text-blue-200">
+                <div className="p-3 bg-[#202020] border border-[#333333] rounded-lg flex items-start gap-2">
+                  <Info className="w-4 h-4 text-[#a3a3a3] mt-0.5 shrink-0" />
+                  <p className="text-xs text-[#a3a3a3]">
                     These settings will be applied as defaults when creating the project. 
                     You can customize access control for each secret individually after creation.
                   </p>
@@ -292,7 +292,7 @@ export function NewProjectDialog({ children, onCreate }) {
             type="button"
             variant="ghost"
             onClick={() => setIsOpen(false)}
-            className="text-zinc-400 hover:text-white hover:bg-[#202020] border border-transparent"
+            className="text-[#a3a3a3] hover:text-white hover:bg-[#202020]"
             disabled={loading}
           >
             Cancel
@@ -301,7 +301,7 @@ export function NewProjectDialog({ children, onCreate }) {
             type="button"
             onClick={handleCreate}
             disabled={!name || loading}
-            className="bg-[#ededed] text-black hover:bg-zinc-300"
+            className="bg-white text-black hover:bg-[#e5e5e5]"
           >
             {loading ? "Creating..." : "Create Project"}
           </Button>

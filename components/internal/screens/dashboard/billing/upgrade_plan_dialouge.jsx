@@ -230,10 +230,6 @@ export default function UpgradePlanDialogue({ open, onOpenChange }) {
             </div>
 
             <div className="mt-8 pt-6 border-t border-[#2a2a2a] flex items-center justify-between">
-              <Button variant="ghost" className="gap-2 text-[#737373] hover:text-white hover:bg-[#202020] h-9 text-sm font-medium transition-all duration-200">
-                <MessageCircle className="h-4 w-4" />
-                Chat to us
-              </Button>
               <div className="flex gap-3">
                 <Button variant="outline" className="flex-1 border-[#2a2a2a] text-[#737373] hover:text-white hover:bg-[#202020] hover:border-[#3a3a3a] h-9 text-sm font-medium transition-all duration-200 px-6" onClick={handleBack}>Cancel</Button>
                 <Button className="flex-1 bg-[#ededed] text-[#161616] hover:bg-white h-9 text-sm font-medium transition-all duration-200 px-6">Update details</Button>
@@ -292,10 +288,6 @@ export default function UpgradePlanDialogue({ open, onOpenChange }) {
             </div>
 
             <div className="mt-8 pt-6 border-t border-[#2a2a2a] flex items-center justify-between">
-              <Button variant="ghost" className="gap-2 text-[#737373] hover:text-white hover:bg-[#202020] h-9 text-sm font-medium transition-all duration-200">
-                <MessageCircle className="h-4 w-4" />
-                Chat to us
-              </Button>
               <div className="flex gap-3">
                 <Button variant="outline" className="flex-1 border-[#2a2a2a] text-[#737373] hover:text-white hover:bg-[#202020] hover:border-[#3a3a3a] h-9 text-sm font-medium transition-all duration-200 px-6" onClick={handleBack}>Cancel</Button>
                 <Button className="flex-1 bg-[#ededed] text-[#161616] hover:bg-white h-9 text-sm font-medium transition-all duration-200 px-6">Purchase seats</Button>
