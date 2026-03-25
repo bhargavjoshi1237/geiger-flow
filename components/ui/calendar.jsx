@@ -226,12 +226,16 @@ export function Calendar({
   showActivity = false, // Enable activity visualization
   activityViewMode = 'overlay', // 'overlay' | 'replace' - show activity as overlay or replace events
   activityColorScheme = 'zinc', // Color scheme for activity: 'zinc', 'blue', 'green', 'purple'
+  fadeKey = 0, // Changed externally each time events filter changes (e.g. tab switch)
 }) {
   const [currentDate, setCurrentDate] = useState(new Date(selectedDate));
   const [currentView, setCurrentView] = useState(view);
   const [selectedDay, setSelectedDay] = useState(new Date(selectedDate));
   const [dayStripOffset, setDayStripOffset] = useState(0);
   const [dayStripBaseDate, setDayStripBaseDate] = useState(new Date(selectedDate));
+
+  // Per-cell fade tracking: stores map of date-strings → events from previous fadeKey
+  const prevDayEventMapRef = React.useRef({});
 
   useEffect(() => {
     setCurrentDate(new Date(selectedDate));
@@ -413,8 +417,39 @@ export function Calendar({
     const MON_WEEKDAYS_SHORT = ["M", "T", "W", "T", "F", "S", "S"];
     const MAX_PILLS = 3;
 
+    // ── Per-cell fade tracking ────────────────────────────────────────────
+    // Build a map of date-strings → events for every day in the grid
+    const dayEventMap = {};
+    days.forEach(d => {
+      const key = d.date.toISOString().slice(0, 10);
+      dayEventMap[key] = getEventsForDate(d.date);
+    });
+
+    const currentDateKeys = new Set(Object.keys(dayEventMap).filter(k => dayEventMap[k].length > 0));
+    const prevEventMap   = prevDayEventMapRef.current;
+    const prevDateKeys   = new Set(Object.keys(prevEventMap).filter(k => prevEventMap[k].length > 0));
+    const enteringKeys   = new Set([...currentDateKeys].filter(k => !prevDateKeys.has(k)));
+    const leavingKeys    = new Set([...prevDateKeys].filter(k => !currentDateKeys.has(k)));
+    // Keep old ref alive so leaving cells can render ghost events, then replace after a tick
+    const ghostEventMap = { ...prevEventMap };
+    prevDayEventMapRef.current = { ...dayEventMap };
+
     return (
       <div className="overflow-hidden">
+        {/* Per-cell fade keyframes (injected once) */}
+        <style>{`
+          @keyframes cellFadeIn {
+            0%   { opacity: 0; transform: translateY(3px); }
+            100% { opacity: 1; transform: translateY(0); }
+          }
+          @keyframes cellFadeOut {
+            0%   { opacity: 0.6; }
+            100% { opacity: 0; }
+          }
+          .cell-enter { animation: cellFadeIn 350ms ease-out both; }
+          .cell-leave { animation: cellFadeOut 250ms ease-in both; }
+        `}</style>
+
         {/* Weekday headers */}
         <div className="grid grid-cols-7 border-b border-[#2a2a2a] bg-[#1a1a1a]">
           {MON_WEEKDAYS.map((day, idx) => (
@@ -431,11 +466,19 @@ export function Calendar({
         {/* Calendar days */}
         <div className="grid grid-cols-7">
           {days.map((day, index) => {
-            const dayEvents = getEventsForDate(day.date);
+            const dateKey = day.date.toISOString().slice(0, 10);
+            const dayEvents = dayEventMap[dateKey] || [];
             const isToday = isSameDay(day.date, today);
             const isCurrentMonth = day.isCurrentMonth;
-            const overflowCount = dayEvents.length - MAX_PILLS;
             const activityLevel = showActivity ? getActivityForDate(activities, day.date) : 0;
+            const isSelected = isSameDay(day.date, selectedDay);
+            const isEntering = enteringKeys.has(dateKey);
+            const isLeaving  = leavingKeys.has(dateKey);
+            const hasEvents  = dayEvents.length > 0;
+            const ghostEvents = (isLeaving && !hasEvents) ? (ghostEventMap[dateKey] || []) : [];
+            const showGhost  = isLeaving && !hasEvents && ghostEvents.length > 0;
+            const displayEvents = hasEvents ? dayEvents : (showGhost ? ghostEvents : []);
+            const overflowCount = displayEvents.length - MAX_PILLS;
 
             return (
               <ContextMenu key={index}>
@@ -449,7 +492,7 @@ export function Calendar({
                       if (onDateSelect) onDateSelect(day.date);
                     }}
                     className={cn(
-                      "min-h-[70px] sm:min-h-[120px] p-1 sm:p-1.5 border-b border-r border-[#2a2a2a] cursor-pointer relative overflow-hidden",
+                      "min-h-[92px] sm:min-h-[120px] p-1.5 sm:p-1.5 border-b border-r border-[#2a2a2a] cursor-pointer relative overflow-hidden",
                       "transition-colors hover:bg-[#202020]",
                       ACTIVITY_COLORS[activityLevel],
                       !isCurrentMonth && "opacity-35",
@@ -464,11 +507,13 @@ export function Calendar({
                           <span
                             onClick={(e) => e.stopPropagation()}
                             className={cn(
-                              "inline-flex items-center justify-center text-xs sm:text-sm font-medium rounded-full w-6 h-6 sm:w-7 sm:h-7 cursor-default select-none transition-colors",
-                              isToday
+                              "inline-flex items-center justify-center text-xs sm:text-sm font-medium w-6 h-6 sm:w-7 sm:h-7 cursor-default select-none transition-colors",
+                              isSelected
+                                ? "bg-[#111214] text-white rounded-md"
+                                : isToday
                                 ? "bg-white text-black font-semibold"
                                 : isCurrentMonth
-                                ? "text-[#a3a3a3] hover:bg-[#202020]"
+                                ? "text-[#a3a3a3] rounded-full hover:bg-[#202020]"
                                 : "text-[#474747]"
                             )}
                           >
@@ -514,39 +559,57 @@ export function Calendar({
                       </HoverCard>
                     </div>
 
-                    {/* Mobile: colored event dots */}
-                    <div className="flex flex-wrap items-center gap-[3px] sm:hidden">
-                      {dayEvents.slice(0, 3).map((event, i) => {
-                        const cs = EVENT_COLORS[event.type] || EVENT_COLORS.default;
-                        return (
-                          <span
-                            key={i}
-                            className="w-[6px] h-[6px] rounded-full flex-shrink-0"
-                            style={{ backgroundColor: cs.dot }}
-                          />
-                        );
-                      })}
-                      {dayEvents.length > 3 && (
-                        <span className="text-[9px] text-[#737373] leading-none">
-                          +{dayEvents.length - 3}
-                        </span>
-                      )}
-                    </div>
+                    {/* Mobile: bottom-left activity dots */}
+                    {displayEvents.length > 0 && (
+                      <div
+                        className={cn(
+                          "absolute left-2 bottom-1.5 sm:hidden pointer-events-none",
+                          isEntering && "cell-enter",
+                          showGhost && "cell-leave",
+                        )}
+                      >
+                        <div className="flex items-center gap-[5px]">
+                          {displayEvents.slice(0, 3).map((event, i) => {
+                            const cs = EVENT_COLORS[event.type] || EVENT_COLORS.default;
+                            return (
+                              <span
+                                key={i}
+                                className="w-[7px] h-[7px] rounded-full flex-shrink-0"
+                                style={{ backgroundColor: showGhost ? `${cs.dot}66` : cs.dot }}
+                              />
+                            );
+                          })}
+                        </div>
+                        {displayEvents.length > 3 && (
+                          <span className="block text-[10px] text-[#737373] leading-none mt-1">
+                            +{displayEvents.length - 3}
+                          </span>
+                        )}
+                      </div>
+                    )}
 
                     {/* Desktop: event pills */}
-                    <div className="hidden sm:block space-y-[3px]">
-                      {dayEvents.slice(0, MAX_PILLS).map((event, i) => {
+                    <div
+                      className={cn(
+                        "hidden sm:block space-y-[3px]",
+                        isEntering && "cell-enter",
+                        showGhost && "cell-leave",
+                      )}
+                    >
+                      {displayEvents.slice(0, MAX_PILLS).map((event, i) => {
                         const cs = EVENT_COLORS[event.type] || EVENT_COLORS.default;
                         return (
                           <div
                             key={i}
                             onClick={(e) => {
+                              if (showGhost) return;
                               e.stopPropagation();
                               if (onEventClick) onEventClick(event);
                             }}
                             className={cn(
-                              "flex items-center gap-1 px-1.5 py-[3px] rounded text-[11px] cursor-pointer",
-                              "hover:brightness-125 transition-all leading-tight",
+                              "flex items-center gap-1 px-1.5 py-[3px] rounded text-[11px]",
+                              "transition-all leading-tight",
+                              showGhost ? "cursor-default opacity-60" : "cursor-pointer hover:brightness-125",
                               cs.pill
                             )}
                           >
@@ -567,17 +630,86 @@ export function Calendar({
                         <button
                           type="button"
                           onClick={(e) => {
+                            if (showGhost) return;
                             e.stopPropagation();
                             setSelectedDay(day.date);
                             handleViewChange("day");
                             if (onDateSelect) onDateSelect(day.date);
                           }}
-                          className="text-[11px] text-[#737373] hover:text-[#a3a3a3] px-1.5 py-[2px] transition-colors"
+                          className={cn(
+                            "text-[11px] text-[#737373] px-1.5 py-[2px] transition-colors",
+                            showGhost ? "" : "hover:text-[#a3a3a3]"
+                          )}
                         >
                           {overflowCount} more...
                         </button>
                       )}
                     </div>
+
+                    {/* Avatar stack: show unique participants for the day */}
+                    {(() => {
+                      const dayParticipants = displayEvents
+                        .filter(e => e.participants && e.participants.length > 0)
+                        .flatMap(e => e.participants || []);
+                      const uniqueParticipants = dayParticipants.filter(
+                        (p, i, arr) => arr.findIndex(x => x.id === p.id) === i
+                      );
+                      const visibleCount = Math.min(uniqueParticipants.length, 3);
+                      if (visibleCount === 0) return null;
+
+                      return (
+                        <div
+                          className={cn(
+                            "absolute bottom-1 left-1.5 hidden sm:flex z-10",
+                            isEntering && "cell-enter",
+                            showGhost && "cell-leave",
+                          )}
+                        >
+                          <div className="flex -space-x-1.5">
+                            {uniqueParticipants.slice(0, 3).map((p, i) => (
+                              <HoverCard key={p.id} openDelay={200} closeDelay={50}>
+                                <HoverCardTrigger asChild>
+                                  <div
+                                    className={cn(
+                                      "relative flex items-center justify-center rounded-full",
+                                      "ring-1 ring-[#1a1a1a] cursor-default shrink-0 overflow-hidden",
+                                      i === 0 ? "w-[18px] h-[18px]" : "w-[16px] h-[16px]"
+                                    )}
+                                  >
+                                    {p.avatar ? (
+                                      <img
+                                        src={p.avatar}
+                                        alt={p.name}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    ) : (
+                                      <span className="text-[7px] font-semibold text-white leading-none select-none bg-gradient-to-br from-zinc-600 to-zinc-800 w-full h-full flex items-center justify-center rounded-full">
+                                        {(p.name || "?").charAt(0).toUpperCase()}
+                                      </span>
+                                    )}
+                                  </div>
+                                </HoverCardTrigger>
+                                <HoverCardContent
+                                  className="w-auto bg-[#161616] border-[#2a2a2a] p-2 shadow-xl"
+                                  side="top"
+                                  align="start"
+                                >
+                                  <p className="text-xs font-medium text-white">{p.name}</p>
+                                  {p.role && <p className="text-[10px] text-[#737373]">{p.role}</p>}
+                                </HoverCardContent>
+                              </HoverCard>
+                            ))}
+                            {uniqueParticipants.length > 3 && (
+                              <div
+                                className="relative z-10 flex items-center justify-center w-[16px] h-[16px] rounded-full ring-1 ring-[#1a1a1a] bg-zinc-700/80 text-[7px] font-medium text-zinc-300"
+                              >
+                                +{uniqueParticipants.length - 3}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
                 </ContextMenuTrigger>
 
