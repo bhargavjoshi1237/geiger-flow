@@ -49,6 +49,11 @@
 
 :root {
   --radius: 0.625rem;
+  --input-box-radius: 6px;
+  --input-box-padding-x: 14px;
+  --input-box-padding-y: 10px;
+  --input-box-icon-gap: 8px;
+  --input-box-label-gap: 10px;
   --background: oklch(1 0 0);
   --foreground: oklch(0.141 0.005 285.823);
   --card: oklch(1 0 0);

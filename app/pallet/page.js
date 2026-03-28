@@ -1,4 +1,5 @@
 import React from 'react';
+import { Input } from "@/components/ui/input";
 
 export default function Pallet() {
   const surfaceColors = [
@@ -117,10 +118,9 @@ export default function Pallet() {
                   <div className="p-5 space-y-5 bg-[#1a1a1a] grow">
                     <div className="space-y-1.5">
                       <label className="text-sm font-medium text-[#e5e5e5]">Framework Name</label>
-                      <input 
-                        type="text" 
+                      <Input 
                         defaultValue="geiger-flow"
-                        className="w-full bg-[#161616] border border-[#2a2a2a] text-white text-sm rounded-lg focus:outline-none focus:border-[#474747] px-3 py-2 transition-colors duration-200"
+                        className="bg-[#161616] border-[#2a2a2a] text-white placeholder:text-[#737373] focus-visible:ring-0 focus-visible:border-[#474747]"
                       />
                     </div>
                     

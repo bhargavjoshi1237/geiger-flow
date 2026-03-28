@@ -11,15 +11,15 @@ export function LogsScreen() {
     <MainScreenWrapper>
       <div className="flex items-center justify-between border-b border-[#2a2a2a] pb-6">
         <div>
-          <h1 className="text-3xl font-bold text-[#e7e7e7]">Logs</h1>
+          <h1 className="text-3xl font-bold text-[#e7e7e7]">Advisory</h1>
           <p className="text-[#a3a3a3] mt-1">
-            View and analyze your project activity logs.
+            View & analyze advisory logs about the project and members.
           </p>
         </div>
-        <Button className="bg-white text-black hover:bg-[#e7e7e7]">
+        {/* <Button className="bg-white text-black hover:bg-[#e7e7e7]">
             <Plus className="w-4 h-4 mr-2" />
             Export Logs
-          </Button>
+          </Button> */}
       </div>
 
       <div className="h-[400px] flex items-center justify-center border-2 border-dashed border-[#2a2a2a] rounded-lg text-[#a3a3a3]">

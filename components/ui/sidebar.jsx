@@ -498,7 +498,10 @@ function SidebarMenuBadge({ className, ...props }) {
       data-sidebar="menu-badge"
       className={cn(
         "text-sidebar-foreground pointer-events-none absolute right-1 flex h-5 min-w-5 items-center justify-center rounded-md px-1 text-xs font-medium tabular-nums select-none",
-        "peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[active=true]/menu-button:text-sidebar-accent-foreground",
+        "hover:text-sidebar-accent-foreground cursor-default",
+        "peer-hover/menu-button:text-sidebar-accent-foreground peer-hover/menu-button:[&>svg]:text-sidebar-accent-foreground",
+        "peer-data-[active=true]/menu-button:text-sidebar-accent-foreground peer-data-[active=true]/menu-button:[&>svg]:text-sidebar-accent-foreground",
+        "group-hover/menu-item:text-sidebar-accent-foreground group-hover/menu-item:[&>svg]:text-sidebar-accent-foreground",
         "peer-data-[size=sm]/menu-button:top-1",
         "peer-data-[size=default]/menu-button:top-1.5",
         "peer-data-[size=lg]/menu-button:top-2.5",

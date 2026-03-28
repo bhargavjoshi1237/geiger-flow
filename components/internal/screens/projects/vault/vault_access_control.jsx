@@ -255,7 +255,7 @@ export function VaultAccessControl({
                 <div 
                   data-slot="input-group" 
                   role="group" 
-                  className="group/input-group relative flex h-9 w-full min-w-0 items-center rounded-lg border border-[#2a2a2a] transition-colors outline-none hover:border-[#3a3a3a] has-[[data-slot=input-group-control]:focus-visible]:border-[#3a3a3a] has-[[data-slot=input-group-control]:focus-visible]:ring-1 has-[[data-slot=input-group-control]:focus-visible]:ring-[#3a3a3a]/50"
+                  className="group/input-group relative flex w-full min-w-0 items-center rounded-[var(--input-box-radius)] border border-[#2a2a2a] transition-colors outline-none hover:border-[#3a3a3a] has-[[data-slot=input-group-control]:focus-visible]:border-[#3a3a3a] has-[[data-slot=input-group-control]:focus-visible]:ring-1 has-[[data-slot=input-group-control]:focus-visible]:ring-[#3a3a3a]/50"
                 >
                   <input 
                     data-slot="input-group-control"
@@ -263,13 +263,13 @@ export function VaultAccessControl({
                     value={userInput}
                     onChange={(e) => setUserInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    className="h-9 flex-1 rounded-none border-0 bg-transparent px-3 text-sm text-[#ededed] outline-none ring-0 placeholder:text-[#525252] focus-visible:ring-0"
+                    className="flex-1 rounded-none border-0 bg-transparent px-[var(--input-box-padding-x)] py-[var(--input-box-padding-y)] text-sm leading-5 text-[#ededed] outline-none ring-0 placeholder:text-[#525252] focus-visible:ring-0"
                   />
                   <div 
                     role="group" 
                     data-slot="input-group-addon" 
                     data-align="inline-end"
-                    className="flex h-auto cursor-text items-center justify-center gap-2 py-1.5 text-sm font-medium text-[#737373] select-none order-last pr-2"
+                    className="flex h-auto cursor-text items-center justify-center gap-[var(--input-box-icon-gap)] py-[var(--input-box-padding-y)] pl-[var(--input-box-icon-gap)] text-sm font-medium text-[#737373] select-none order-last pr-[var(--input-box-padding-x)]"
                   >
                     <button
                       type="button"
