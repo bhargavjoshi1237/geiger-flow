@@ -30,22 +30,27 @@ const LEVEL_CONFIG = {
   info: {
     label: "Info",
     icon: Info,
+    className: "bg-zinc-500/10 border-zinc-500/20 text-zinc-400",
   },
   warning: {
     label: "Warning",
     icon: AlertTriangle,
+    className: "bg-zinc-500/10 border-zinc-500/20 text-zinc-400",
   },
   error: {
     label: "Error",
     icon: AlertCircle,
+    className: "bg-zinc-500/10 border-zinc-500/20 text-zinc-400",
   },
   debug: {
     label: "Debug",
     icon: Bug,
+    className: "bg-zinc-500/10 border-zinc-500/20 text-zinc-400",
   },
   system: {
     label: "System",
     icon: Terminal,
+    className: "bg-zinc-500/10 border-zinc-500/20 text-zinc-400",
   },
 };
 
@@ -298,11 +303,11 @@ function LevelBadge({ level }) {
 
 function MetadataRow({ label, value }) {
   return (
-    <div className="flex items-center justify-between py-2 border-b border-[#2a2a2a] last:border-b-0">
-      <span className="text-[11px] text-[#525252] uppercase tracking-wider font-medium">
+    <div className="flex items-center justify-between py-2 border-b border-[#333333] last:border-b-0">
+      <span className="text-[11px] text-[#737373] uppercase tracking-wider font-medium">
         {label}
       </span>
-      <span className="text-[13px] text-[#c0c0c0] font-mono">{value}</span>
+      <span className="text-[13px] text-[#a3a3a3] font-mono">{value}</span>
     </div>
   );
 }
@@ -327,9 +332,9 @@ function LogDetailSheet({ log, open, onOpenChange }) {
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="right"
-        className="w-full sm:max-w-lg bg-[#161616] border-l border-[#2a2a2a] p-0"
+        className="w-full sm:max-w-lg bg-[#1a1a1a] border-l border-[#333333] p-0"
       >
-        <SheetHeader className="p-6 pb-4 border-b border-[#2a2a2a] gap-3">
+        <SheetHeader className="p-6 pb-4 border-b border-[#333333] gap-3">
           <div className="flex items-center gap-3">
             <div
               className={cn(
@@ -343,7 +348,7 @@ function LogDetailSheet({ log, open, onOpenChange }) {
               <SheetTitle className="text-[15px] font-medium text-[#e7e7e7] leading-snug">
                 {log.title}
               </SheetTitle>
-              <SheetDescription className="text-[11px] text-[#525252] mt-0.5">
+              <SheetDescription className="text-[11px] text-[#737373] mt-0.5">
                 {formatExactTime(log.timestamp)}
               </SheetDescription>
             </div>
@@ -353,7 +358,7 @@ function LogDetailSheet({ log, open, onOpenChange }) {
             {log.tags?.map((tag) => (
               <span
                 key={tag}
-                className="text-[10px] font-medium text-[#525252] bg-[#1a1a1a] px-2 py-0.5 rounded-md border border-[#2a2a2a]"
+                className="text-[10px] font-medium text-[#737373] bg-[#202020] px-2 py-0.5 rounded-md border border-[#333333]"
               >
                 {tag}
               </span>
@@ -363,20 +368,20 @@ function LogDetailSheet({ log, open, onOpenChange }) {
 
         <div className="flex-1 overflow-y-auto">
           <div className="p-6 pb-4">
-            <h3 className="text-[11px] uppercase tracking-wider text-[#525252] font-semibold mb-3">
+            <h3 className="text-[11px] uppercase tracking-wider text-[#737373] font-semibold mb-3">
               Description
             </h3>
-            <p className="text-[13px] text-[#a0a0a0] leading-relaxed">
+            <p className="text-[13px] text-[#a3a3a3] leading-relaxed">
               {log.message}
             </p>
           </div>
 
           {log.metadata && (
             <div className="px-6 pb-4">
-              <h3 className="text-[11px] uppercase tracking-wider text-[#525252] font-semibold mb-3">
+              <h3 className="text-[11px] uppercase tracking-wider text-[#737373] font-semibold mb-3">
                 Metadata
               </h3>
-              <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-3 divide-y divide-[#2a2a2a]">
+              <div className="bg-[#202020] border border-[#333333] rounded-lg p-3 divide-y divide-[#333333]">
                 {Object.entries(log.metadata).map(([key, value]) => (
                   <MetadataRow key={key} label={key} value={String(value)} />
                 ))}
@@ -385,10 +390,10 @@ function LogDetailSheet({ log, open, onOpenChange }) {
           )}
 
           <div className="px-6 pb-4">
-            <h3 className="text-[11px] uppercase tracking-wider text-[#525252] font-semibold mb-3">
+            <h3 className="text-[11px] uppercase tracking-wider text-[#737373] font-semibold mb-3">
               Source
             </h3>
-            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-3 divide-y divide-[#2a2a2a]">
+            <div className="bg-[#202020] border border-[#333333] rounded-lg p-3 divide-y divide-[#333333]">
               <MetadataRow label="Actor" value={log.actor} />
               <MetadataRow label="Source" value={log.source} />
               <MetadataRow label="Log ID" value={log.id} />
@@ -396,11 +401,11 @@ function LogDetailSheet({ log, open, onOpenChange }) {
           </div>
 
           <div className="px-6 pb-6">
-            <h3 className="text-[11px] uppercase tracking-wider text-[#525252] font-semibold mb-3">
+            <h3 className="text-[11px] uppercase tracking-wider text-[#737373] font-semibold mb-3">
               Raw
             </h3>
             <div className="relative scrollbar-hidden">
-              <pre className="bg-[#0d0d0d] border border-[#2a2a2a] rounded-lg p-4 text-[11px] text-[#737373] font-mono overflow-x-auto leading-relaxed max-h-[240px]">
+              <pre className="bg-[#161616] border border-[#333333] rounded-lg p-4 text-[11px] text-[#737373] font-mono overflow-x-auto leading-relaxed max-h-[240px]">
                 {JSON.stringify(log, null, 2)}
               </pre>
               <button
@@ -409,7 +414,7 @@ function LogDetailSheet({ log, open, onOpenChange }) {
                   "absolute top-2 right-2 p-1.5 rounded-md border transition-colors",
                   copied
                     ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
-                    : "bg-[#1a1a1a] border-[#2a2a2a] text-[#525252] hover:text-[#a0a0a0] hover:border-[#474747]",
+                    : "bg-[#202020] border-[#333333] text-[#737373] hover:text-[#a3a3a3] hover:border-[#474747]",
                 )}
               >
                 {copied ? (
@@ -435,7 +440,7 @@ function LogEntry({ log, onClick }) {
       onClick={() => onClick(log)}
       className={cn(
         "group flex items-start gap-4 p-4 rounded-xl border transition-all duration-200 cursor-pointer",
-        "bg-[#161616] border-[#2a2a2a] hover:border-[#404040] hover:bg-[#1a1a1a]",
+        "bg-[#202020] border-[#333333] hover:border-[#474747] hover:bg-[#242424]",
       )}
     >
       <div className="flex-shrink-0 mt-0.5">
@@ -455,24 +460,24 @@ function LogEntry({ log, onClick }) {
             {log.title}
           </h3>
           <div className="flex items-center gap-2 flex-shrink-0">
-            <span className="text-[11px] text-[#404040] whitespace-nowrap">
+            <span className="text-[11px] text-[#737373] whitespace-nowrap">
               {formatRelativeTime(log.timestamp)}
             </span>
-            <ArrowRight className="w-3 h-3 text-[#404040] opacity-0 group-hover:opacity-100 transition-opacity" />
+            <ArrowRight className="w-3 h-3 text-[#737373] opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
         </div>
 
-        <p className="text-[12px] text-[#525252] leading-relaxed line-clamp-2 mb-2.5">
+        <p className="text-[12px] text-[#737373] leading-relaxed line-clamp-2 mb-2.5">
           {log.message}
         </p>
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 text-[11px] text-[#404040]">
+          <div className="flex items-center gap-1.5 text-[11px] text-[#737373]">
             <User className="w-3 h-3" />
             <span>{log.actor}</span>
           </div>
-          <span className="text-[#2a2a2a]">·</span>
-          <div className="flex items-center gap-1.5 text-[11px] text-[#404040]">
+          <span className="text-[#333333]">·</span>
+          <div className="flex items-center gap-1.5 text-[11px] text-[#737373]">
             <Clock className="w-3 h-3" />
             <span>{formatExactTime(log.timestamp)}</span>
           </div>
@@ -499,7 +504,7 @@ export function LogsScreen() {
 
   return (
     <MainScreenWrapper>
-      <div className="flex items-center justify-between border-b border-[#2a2a2a] pb-6">
+      <div className="flex items-center justify-between border-b border-[#333333] pb-6">
         <div>
           <h1 className="text-3xl font-bold text-[#e7e7e7]">Logs</h1>
           <p className="text-[#a3a3a3] mt-1">

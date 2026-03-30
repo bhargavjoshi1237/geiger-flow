@@ -45,7 +45,7 @@ export function MilestonesScreen() {
         <div>
           <h1 className="text-3xl font-bold text-[#e7e7e7]">Milestones</h1>
           <p className="text-[#a3a3a3] mt-1">
-            Track major project milestones and their progress.
+            Track key checkpoints in the project and their progress.
           </p>
         </div>
         <Button className="bg-white text-black hover:bg-[#e7e7e7]">

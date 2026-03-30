@@ -44,13 +44,10 @@ export function ProjectTopbar() {
             <span className="hidden sm:inline-block text-[#a3a3a3] group-hover:text-white transition-colors">
               Search project...
             </span>
-            <div className="absolute right-1.5 top-1.5 hidden sm:flex items-center gap-1">
+            <div className="flex items-center justify-end w-8 h-8 ml-auto hidden sm:flex">
               <KbdGroup>
                 <Kbd className="bg-[#1a1a1a] border-[#333333] text-[#a3a3a3] group-hover:bg-[#2a2a2a] group-hover:text-white transition-colors">
                   ⌘
-                </Kbd>
-                <Kbd className="bg-[#1a1a1a] border-[#333333] text-[#a3a3a3] group-hover:bg-[#2a2a2a] group-hover:text-white transition-colors">
-                  K
                 </Kbd>
               </KbdGroup>
             </div>

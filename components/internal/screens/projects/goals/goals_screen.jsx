@@ -13,7 +13,7 @@ export function GoalsScreen() {
         <div>
           <h1 className="text-3xl font-bold text-[#e7e7e7]">Goals</h1>
           <p className="text-[#a3a3a3] mt-1">
-            Define and track key business goals for this project.
+            Define messurable targets & key business goals for this project.
           </p>
         </div>
         <Button className="bg-white text-black hover:bg-[#e7e7e7]">

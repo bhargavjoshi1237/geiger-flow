@@ -1,13 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
-import { use } from "react";
+import React, { Suspense } from "react";
+import { use, useCallback, useMemo } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { ProjectSidebar } from "@/components/internal/sidebar/projects/project_sidebar";
 import { ProjectTopbar } from "@/components/internal/topbar/projects/topbar";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { ProjectDetailsScreen } from "@/components/internal/screens/projects/overview/project_details";
 import { WorkflowsScreen } from "@/components/internal/screens/projects/issues/workflows";
 import { DatasetsScreen } from "@/components/internal/screens/projects/datasets";
+import { ObjectivesScreen } from "@/components/internal/screens/projects/objectives/objectives_screen";
 import { TasksScreen } from "@/components/internal/screens/projects/tasks/tasks_screen";
 import { GoalsScreen } from "@/components/internal/screens/projects/goals/goals_screen";
 import { TeamScreen } from "@/components/internal/screens/projects/team/team";
@@ -17,19 +19,35 @@ import { SecurityScreen } from "@/components/internal/screens/projects/security/
 import { SettingsScreen } from "@/components/internal/screens/projects/settings/settings_screen";
 import { VaultScreen } from "@/components/internal/screens/projects/vault/vault_screen";
 import { LogsScreen } from "@/components/internal/screens/projects/logs/logs_screen";
+import { AssetsScreen } from "@/components/internal/screens/projects/assets/assets_screen";
 import { ProjectProvider, useProject } from "@/context/project-context";
 import { settingsNav } from "@/components/internal/sidebar/projects/sidebar_data";
 import { useEffect } from "react";
 
 function ProjectLayoutContent({ id }) {
   const { fetchProjectInfo, project, loading } = useProject();
-  const [currentTab, setCurrentTab] = useState("Overview");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     if (id) {
       fetchProjectInfo(id);
     }
   }, [id, fetchProjectInfo]);
+
+  const currentTab = searchParams.get("screen") || "Overview";
+
+  const setCurrentTab = useCallback(
+    (tab) => {
+      if (tab === "Overview") {
+        router.push(pathname, { scroll: false });
+      } else {
+        router.push(`${pathname}?screen=${encodeURIComponent(tab)}`, { scroll: false });
+      }
+    },
+    [router, pathname]
+  );
 
   const renderScreen = () => {
     const isSettingsTab = settingsNav.some((item) => item.title === currentTab);
@@ -47,7 +65,7 @@ function ProjectLayoutContent({ id }) {
       case "Goals":
         return <GoalsScreen />;
       case "Objectives":
-        return <DatasetsScreen />;
+        return <ObjectivesScreen />;
       case "Projections":
         return <ProjectionsScreen />;
       case "Milestones":
@@ -56,6 +74,8 @@ function ProjectLayoutContent({ id }) {
         return <TeamScreen />;
       case "Vault":
         return <VaultScreen />;
+      case "Assets":
+        return <AssetsScreen />;
       case "Logs":
         return <LogsScreen />;
       case "Security":
@@ -98,7 +118,16 @@ export default function ProjectPage({ params: paramsPromise }) {
 
   return (
     <ProjectProvider>
-      <ProjectLayoutContent id={id} />
+      <Suspense
+        fallback={
+          <div className="flex flex-col h-[100dvh] w-full bg-[#161616] items-center justify-center gap-3">
+            <div className="w-5 h-5 rounded-full border-2 border-[#474747] border-t-[#e7e7e7] animate-spin" />
+            <span className="text-[#525252] text-sm">Loading...</span>
+          </div>
+        }
+      >
+        <ProjectLayoutContent id={id} />
+      </Suspense>
     </ProjectProvider>
   );
 }

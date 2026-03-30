@@ -358,7 +358,7 @@ export function TasksScreen() {
         <div>
           <h1 className="text-3xl font-bold text-[#e7e7e7]">Tasks</h1>
           <p className="text-[#a3a3a3] mt-1">
-            Manage your task options, dependencies, inbox drafts, and delivery intelligence.
+            Create, track and manage project tasks.
           </p>
         </div>
        <div className="flex gap-2">

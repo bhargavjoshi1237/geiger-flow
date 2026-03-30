@@ -6,6 +6,8 @@ We are mainly focusing on using shadcn ui for the ui components
 We are using tailwind css for the styling
 We are using lucide icons for the icons
 When ever imlpementing any kind of UI make sure to take a good look at the other compnoents/screens/pages and try to implement the same style and structure. Its should be visualy simmiler and consistent.
+DO NOT LEAVE ANY COMMENTS IN ANY FILES
+Study and Follow the Existing File/Folder Structure, And Implement Followingly.
 
 Global Input Box Standard (Applied Project-Wide)
 - Use shared Input component from components/ui/input.jsx for all text-like input boxes.
