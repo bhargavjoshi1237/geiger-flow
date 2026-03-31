@@ -14,6 +14,9 @@ import {
 import { PanelLeft, ChevronLeft } from "lucide-react";
 import { SidebarOption } from "../sidebar_option";
 import { projectNav, settingsNav } from "./sidebar_data";
+import { useAddonRegistry } from "@/addons/registry";
+import { getAddonNavItems } from "@/addons/registry";
+import { Separator } from "@/components/ui/separator";
 
 export function ProjectSidebar({
   activeTab = "Overview",
@@ -21,8 +24,11 @@ export function ProjectSidebar({
   subMenuMode = "dropdown",
 }) {
   const { toggleSidebar } = useSidebar();
+  const { enabledAddons } = useAddonRegistry();
   const [activeMenu, setActiveMenu] = useState("main");
   const [expandedItems, setExpandedItems] = useState({});
+
+  const addonNavItems = getAddonNavItems(enabledAddons);
 
   const toggleExpand = (title) => {
     setExpandedItems((prev) => ({
@@ -65,23 +71,19 @@ export function ProjectSidebar({
                       onToggle={() => toggleExpand(item.title)}
                       activeSubTab={activeTab}
                       onClick={(tabTitle) => {
-                        // If clicking a subitem
                         if (tabTitle && typeof tabTitle === "string") {
                           onTabChange(tabTitle);
                         } else if (subMenuMode === "slide" && item.hasSubmenu) {
-                          // Collapse all other submenus when opening slide menu
                           setExpandedItems({});
                           setActiveMenu(item.title.toLowerCase());
                           if (item.title === "Settings") {
                             onTabChange("General");
                           }
                         } else if (item.hasSubmenu) {
-                          // Collapse all other submenus when toggling this one
                           setExpandedItems({
                             [item.title]: !expandedItems[item.title],
                           });
                         } else {
-                          // Collapse all submenus when clicking a main menu item
                           setExpandedItems({});
                           onTabChange(item.title);
                         }
@@ -89,6 +91,25 @@ export function ProjectSidebar({
                       badge={item.badge}
                     />
                   ))}
+                  {addonNavItems.length > 0 && (
+                    <>
+                      <Separator className="my-1 bg-sidebar-border" />
+                      {addonNavItems.map((item) => (
+                        <SidebarOption
+                          key={item.title}
+                          title={item.title}
+                          icon={item.icon}
+                          isActive={
+                            activeTab === item.title && activeMenu === "main"
+                          }
+                          onClick={() => {
+                            setExpandedItems({});
+                            onTabChange(item.title);
+                          }}
+                        />
+                      ))}
+                    </>
+                  )}
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>

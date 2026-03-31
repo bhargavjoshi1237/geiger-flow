@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card";
 import { GeneralSettingsScreen } from "./general/general_settings";
 import { ConnectivityScreen } from "./connectivity/connectivity_screen";
+import { AddonsSettingsScreen } from "./addons/addons_settings";
 import { SecondaryScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 
 export function SettingsScreen({ activeSettingsTab = "General" }) {
@@ -17,6 +18,8 @@ export function SettingsScreen({ activeSettingsTab = "General" }) {
         return <GeneralSettingsScreen />;
       case "Connectivity":
         return <ConnectivityScreen />;
+      case "Add-ons":
+        return <AddonsSettingsScreen />;
       default:
         return (
           <div className="h-[400px] flex items-center justify-center border-2 border-dashed border-[#2a2a2a] rounded-lg text-[#a3a3a3]">

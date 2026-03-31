@@ -20,12 +20,17 @@ import { SettingsScreen } from "@/components/internal/screens/projects/settings/
 import { VaultScreen } from "@/components/internal/screens/projects/vault/vault_screen";
 import { LogsScreen } from "@/components/internal/screens/projects/logs/logs_screen";
 import { AssetsScreen } from "@/components/internal/screens/projects/assets/assets_screen";
+import { PlanningScreen } from "@/components/internal/screens/projects/planning/planning_screen";
 import { ProjectProvider, useProject } from "@/context/project-context";
 import { settingsNav } from "@/components/internal/sidebar/projects/sidebar_data";
+import { AddonRegistryProvider, useAddonRegistry } from "@/addons/registry";
+import { getAddonScreens, getAddonNavItems } from "@/addons/registry";
+import "@/addons/sql";
 import { useEffect } from "react";
 
 function ProjectLayoutContent({ id }) {
   const { fetchProjectInfo, project, loading } = useProject();
+  const { enabledAddons } = useAddonRegistry();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -49,10 +54,17 @@ function ProjectLayoutContent({ id }) {
     [router, pathname]
   );
 
+  const addonScreens = getAddonScreens(enabledAddons);
+
   const renderScreen = () => {
     const isSettingsTab = settingsNav.some((item) => item.title === currentTab);
     if (isSettingsTab) {
       return <SettingsScreen activeSettingsTab={currentTab} />;
+    }
+
+    if (addonScreens[currentTab]) {
+      const AddonScreen = addonScreens[currentTab];
+      return <AddonScreen />;
     }
 
     switch (currentTab) {
@@ -68,6 +80,8 @@ function ProjectLayoutContent({ id }) {
         return <ObjectivesScreen />;
       case "Projections":
         return <ProjectionsScreen />;
+      case "Planning":
+        return <PlanningScreen />;
       case "Milestones":
         return <MilestonesScreen />;
       case "Team":
@@ -118,16 +132,18 @@ export default function ProjectPage({ params: paramsPromise }) {
 
   return (
     <ProjectProvider>
-      <Suspense
-        fallback={
-          <div className="flex flex-col h-[100dvh] w-full bg-[#161616] items-center justify-center gap-3">
-            <div className="w-5 h-5 rounded-full border-2 border-[#474747] border-t-[#e7e7e7] animate-spin" />
-            <span className="text-[#525252] text-sm">Loading...</span>
-          </div>
-        }
-      >
-        <ProjectLayoutContent id={id} />
-      </Suspense>
+      <AddonRegistryProvider>
+        <Suspense
+          fallback={
+            <div className="flex flex-col h-[100dvh] w-full bg-[#161616] items-center justify-center gap-3">
+              <div className="w-5 h-5 rounded-full border-2 border-[#474747] border-t-[#e7e7e7] animate-spin" />
+              <span className="text-[#525252] text-sm">Loading...</span>
+            </div>
+          }
+        >
+          <ProjectLayoutContent id={id} />
+        </Suspense>
+      </AddonRegistryProvider>
     </ProjectProvider>
   );
 }

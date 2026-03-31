@@ -18,12 +18,16 @@ import {
   Key,
   LucideMousePointer2,
   Calendar,
+  LucidePlus,
+  LucidePackagePlus,
+  Waypoints,
 } from "lucide-react";
 
 export const projectNav = [
   { title: "Overview", icon: LayoutDashboard },
   { title: "Issues", icon: GitBranch },
   { title: "Tasks", icon: CheckSquare },
+  { title: "Planning", icon: Waypoints },
   { title: "Projections", icon: LucideSquareChevronRight },
   { title: "Milestones", icon: Flag, badge: "3" },
   { title: "Goals", icon: Target },
@@ -39,6 +43,7 @@ export const projectNav = [
 export const settingsNav = [
   { title: "General", icon: Settings2 },
   { title: "Connectivity", icon: Link },
+  { title: "Add-ons", icon: LucidePackagePlus },
   { title: "Usage", icon: BarChart3 },
   { title: "Advanced", icon: Sliders },
   { title: "Enterprise", icon: LucideMousePointer2 },
