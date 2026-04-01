@@ -61,15 +61,6 @@ function FileActionsDropdown() {
 export function MediaTable() {
   return (
     <div className="border border-[#2a2a2a] rounded-lg overflow-hidden bg-[#1a1a1a]">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[#2a2a2a] bg-[#242424]">
-        <span className="text-sm font-medium text-[#e7e7e7]">Media Library</span>
-        <div className="flex items-center gap-1">
-          <span className="text-xs text-[#525252] mr-2">{mediaItems.length} Assets</span>
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-[#737373] hover:text-[#e7e7e7] hover:bg-[#2a2a2a]" title="Sort">
-            <ArrowUpDown className="w-4 h-4" />
-          </Button>
-        </div>
-      </div>
       <Table>
         <TableHeader className="bg-[#1e1e1e]">
           <TableRow className="border-[#2a2a2a] hover:bg-[#1e1e1e]">

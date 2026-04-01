@@ -22,30 +22,11 @@ import { LogsScreen } from "@/components/internal/screens/projects/logs/logs_scr
 import { AssetsScreen } from "@/components/internal/screens/projects/assets/assets_screen";
 import { PlanningScreen } from "@/components/internal/screens/projects/planning/planning_screen";
 import { ProjectProvider, useProject } from "@/context/project-context";
-import { projectNav, settingsNav } from "@/components/internal/sidebar/projects/sidebar_data";
+import { settingsNav } from "@/components/internal/sidebar/projects/sidebar_data";
 import { AddonRegistryProvider, useAddonRegistry } from "@/addons/registry";
 import { getAddonScreens, getAddonNavItems } from "@/addons/registry";
 import "@/addons/sql";
 import { useEffect } from "react";
-
-const tabToRouteSegment = (tab = "") =>
-  tab.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
-
-const resolveTabFromValue = (value, availableTabs) => {
-  if (!value) return null;
-
-  const decodedValue = decodeURIComponent(value);
-  if (availableTabs.includes(decodedValue)) {
-    return decodedValue;
-  }
-
-  const normalizedValue = tabToRouteSegment(decodedValue).toLowerCase();
-  return (
-    availableTabs.find(
-      (tab) => tabToRouteSegment(tab).toLowerCase() === normalizedValue,
-    ) || null
-  );
-};
 
 function ProjectLayoutContent({ id }) {
   const { fetchProjectInfo, project, loading } = useProject();
@@ -53,43 +34,6 @@ function ProjectLayoutContent({ id }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const addonScreens = getAddonScreens(enabledAddons);
-
-  const availableTabs = useMemo(() => {
-    const coreTabs = projectNav
-      .filter((item) => !item.hasSubmenu)
-      .map((item) => item.title);
-
-    return Array.from(
-      new Set([
-        ...coreTabs,
-        ...settingsNav.map((item) => item.title),
-        ...Object.keys(addonScreens),
-      ]),
-    );
-  }, [addonScreens]);
-
-  const basePath = useMemo(() => {
-    const segments = pathname.split("/").filter(Boolean);
-    const projectIndex = segments.indexOf("project");
-
-    if (projectIndex === -1 || segments.length <= projectIndex + 1) {
-      return pathname;
-    }
-
-    return `/${segments.slice(0, projectIndex + 2).join("/")}`;
-  }, [pathname]);
-
-  const currentPathSegment = useMemo(() => {
-    const segments = pathname.split("/").filter(Boolean);
-    const projectIndex = segments.indexOf("project");
-
-    if (projectIndex === -1 || segments.length <= projectIndex + 2) {
-      return null;
-    }
-
-    return segments[projectIndex + 2];
-  }, [pathname]);
 
   useEffect(() => {
     if (id) {
@@ -97,39 +41,25 @@ function ProjectLayoutContent({ id }) {
     }
   }, [id, fetchProjectInfo]);
 
-  const currentTab =
-    resolveTabFromValue(currentPathSegment, availableTabs) ||
-    resolveTabFromValue(searchParams.get("screen"), availableTabs) ||
-    "Overview";
-
-  useEffect(() => {
-    if (!currentPathSegment) {
-      return;
-    }
-
-    if (currentTab === "Overview") {
-      router.replace(basePath, { scroll: false });
-      return;
-    }
-
-    const canonicalSegment = tabToRouteSegment(currentTab);
-    const decodedSegment = decodeURIComponent(currentPathSegment);
-
-    if (decodedSegment !== canonicalSegment) {
-      router.replace(`${basePath}/${canonicalSegment}`, { scroll: false });
-    }
-  }, [currentPathSegment, currentTab, router, basePath]);
+  // Get all search param keys; the first non-"screen" key is the active tab
+  const screenParamKeys = [];
+  searchParams.forEach((_, key) => {
+    screenParamKeys.push(key);
+  });
+  const currentTab = screenParamKeys[0] || "Overview";
 
   const setCurrentTab = useCallback(
     (tab) => {
       if (tab === "Overview") {
-        router.push(basePath, { scroll: false });
+        router.push(pathname, { scroll: false });
       } else {
-        router.push(`${basePath}/${tabToRouteSegment(tab)}`, { scroll: false });
+        router.push(`${pathname}?${encodeURIComponent(tab)}`, { scroll: false });
       }
     },
-    [router, basePath]
+    [router, pathname]
   );
+
+  const addonScreens = getAddonScreens(enabledAddons);
 
   const renderScreen = () => {
     const isSettingsTab = settingsNav.some((item) => item.title === currentTab);

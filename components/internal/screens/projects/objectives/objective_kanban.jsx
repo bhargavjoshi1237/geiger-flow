@@ -44,6 +44,7 @@ import {
   Copy,
 } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
+import { NewGoalDialog } from "@/components/internal/dilouges/goals/new_goal_dilouge";
 import { cn } from "@/lib/utils";
 
 const STATUS_CONFIG = [
@@ -314,6 +315,10 @@ export function ObjectiveKanban({ objective, onBack }) {
   );
 
   const [activeId, setActiveId] = useState(null);
+  const [editGoal, setEditGoal] = useState(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [addDialogStatus, setAddDialogStatus] = useState(null);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -322,11 +327,16 @@ export function ObjectiveKanban({ objective, onBack }) {
   );
 
   function handleEditGoal(goal) {
-    const newTitle = window.prompt("Edit goal title:", goal.title);
-    if (newTitle === null || newTitle.trim() === "") return;
+    setEditGoal(goal);
+    setEditDialogOpen(true);
+  }
+
+  function handleSaveEditGoal(updated) {
     setGoals((prev) =>
-      prev.map((g) => g.id === goal.id ? { ...g, title: newTitle.trim() } : g)
+      prev.map((g) => (g.id === updated.id ? { ...updated, keyResults: updated.keyResults || g.keyResults } : g))
     );
+    setEditGoal(null);
+    setEditDialogOpen(false);
   }
 
   function handleDeleteGoal(goalId) {
@@ -343,18 +353,18 @@ export function ObjectiveKanban({ objective, onBack }) {
   }
 
   function handleAddGoal(statusKey) {
-    const title = window.prompt("New goal title:");
-    if (title === null || title.trim() === "") return;
-    const newGoal = {
-      id: `goal-${Date.now()}`,
-      title: title.trim(),
-      description: "",
-      status: statusKey,
-      owner: "You",
-      progress: 0,
-      keyResults: [],
+    setAddDialogStatus(statusKey);
+    setAddDialogOpen(true);
+  }
+
+  function handleCreateGoal(newGoal) {
+    const goal = {
+      ...newGoal,
+      status: addDialogStatus || newGoal.status,
     };
-    setGoals((prev) => [...prev, newGoal]);
+    setGoals((prev) => [...prev, goal]);
+    setAddDialogOpen(false);
+    setAddDialogStatus(null);
   }
 
   const goalsByColumn = useMemo(() => {
@@ -560,6 +570,25 @@ export function ObjectiveKanban({ objective, onBack }) {
           </DragOverlay>
         </DndContext>
       </div>
+
+      <NewGoalDialog
+        editGoal={editGoal}
+        onEdit={handleSaveEditGoal}
+        open={editDialogOpen}
+        onOpenChange={(open) => {
+          setEditDialogOpen(open);
+          if (!open) setEditGoal(null);
+        }}
+      />
+
+      <NewGoalDialog
+        onCreate={handleCreateGoal}
+        open={addDialogOpen}
+        onOpenChange={(open) => {
+          setAddDialogOpen(open);
+          if (!open) setAddDialogStatus(null);
+        }}
+      />
     </MainScreenWrapper>
   );
 }
