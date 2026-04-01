@@ -43,8 +43,28 @@ export function getAddonNavItems(enabledIds) {
   return items;
 }
 
+export function mergeNavWithAddons(baseNav, addonNavItems) {
+  if (!addonNavItems || addonNavItems.length === 0) return baseNav;
+  const merged = [...baseNav];
+  addonNavItems.forEach((addonItem) => {
+    const insertAfter = addonItem.insertAfter;
+    if (insertAfter) {
+      const idx = merged.findIndex((item) => item.title === insertAfter);
+      if (idx !== -1) {
+        merged.splice(idx + 1, 0, addonItem);
+      } else {
+        merged.push(addonItem);
+      }
+    } else {
+      merged.push(addonItem);
+    }
+  });
+  return merged;
+}
+
 export function AddonRegistryProvider({ children }) {
   const [enabledAddons, setEnabledAddons] = useState([]);
+  const [navPositions, setNavPositions] = useState({});
 
   const toggleAddon = useCallback((addonId) => {
     setEnabledAddons((prev) =>
@@ -59,9 +79,13 @@ export function AddonRegistryProvider({ children }) {
     [enabledAddons]
   );
 
+  const updateNavPosition = useCallback((addonId, position) => {
+    setNavPositions((prev) => ({ ...prev, [addonId]: position }));
+  }, []);
+
   return (
     <AddonRegistryContext.Provider
-      value={{ enabledAddons, toggleAddon, isAddonEnabled }}
+      value={{ enabledAddons, toggleAddon, isAddonEnabled, navPositions, updateNavPosition }}
     >
       {children}
     </AddonRegistryContext.Provider>

@@ -4,26 +4,42 @@ import React from "react";
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Separator } from "@/components/ui/separator";
 import {
-  ExternalLink,
-  Package,
   LucidePackagePlus,
-  Sparkles,
+  GripVertical,
 } from "lucide-react";
 import { useAddonRegistry } from "@/addons/registry";
 import { getInstalledAddons } from "@/addons/registry";
+import { projectNav } from "@/components/internal/sidebar/projects/sidebar_data";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export function AddonsSettingsScreen() {
-  const { isAddonEnabled, toggleAddon } = useAddonRegistry();
+  const { isAddonEnabled, toggleAddon, navPositions, setAddonNavPosition } =
+    useAddonRegistry();
   const installedAddons = getInstalledAddons();
+
+  // Build position options: "before <nav item>" for each core nav item + "end"
+  const positionOptions = projectNav.map((item, idx) => ({
+    value: String(idx),
+    label: `Before "${item.title}"`,
+  }));
+  positionOptions.push({
+    value: "end",
+    label: "At the end",
+  });
+  positionOptions.push({
+    value: "auto",
+    label: "Auto (default)",
+  });
 
   return (
     <div className="space-y-8">
@@ -34,7 +50,8 @@ export function AddonsSettingsScreen() {
           </h3>
           <p className="text-sm text-muted-foreground">
             Extend your project with add-ons. Enable or disable them to add or
-            remove functionality.
+            remove functionality. Choose where each add-on appears in the
+            sidebar navigation.
           </p>
         </div>
 
@@ -59,6 +76,12 @@ export function AddonsSettingsScreen() {
             {installedAddons.map((addon) => {
               const enabled = isAddonEnabled(addon.id);
               const Icon = addon.icon;
+              const currentPosition = navPositions[addon.id];
+              const selectValue =
+                currentPosition === undefined || currentPosition === null
+                  ? "auto"
+                  : String(currentPosition);
+
               return (
                 <Card
                   key={addon.id}
@@ -119,6 +142,52 @@ export function AddonsSettingsScreen() {
                               </span>
                             ))}
                           </div>
+
+                          {/* Nav Position Picker — shown when the addon is enabled */}
+                          {enabled && addon.navItem && (
+                            <div className="flex items-center gap-2 pt-2 mt-1">
+                              <GripVertical className="w-4 h-4 text-muted-foreground shrink-0" />
+                              <span className="text-xs text-muted-foreground whitespace-nowrap">
+                                Nav position:
+                              </span>
+                              <Select
+                                value={selectValue}
+                                onValueChange={(val) => {
+                                  if (val === "auto") {
+                                    setAddonNavPosition(addon.id, null);
+                                  } else if (val === "end") {
+                                    setAddonNavPosition(
+                                      addon.id,
+                                      projectNav.length
+                                    );
+                                  } else {
+                                    setAddonNavPosition(
+                                      addon.id,
+                                      Number(val)
+                                    );
+                                  }
+                                }}
+                              >
+                                <SelectTrigger
+                                  size="sm"
+                                  className="h-7 text-xs w-auto min-w-[160px]"
+                                >
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {positionOptions.map((opt) => (
+                                    <SelectItem
+                                      key={opt.value}
+                                      value={opt.value}
+                                      className="text-xs"
+                                    >
+                                      {opt.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          )}
                         </div>
                       </div>
 

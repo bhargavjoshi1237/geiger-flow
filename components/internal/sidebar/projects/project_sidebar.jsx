@@ -14,9 +14,7 @@ import {
 import { PanelLeft, ChevronLeft } from "lucide-react";
 import { SidebarOption } from "../sidebar_option";
 import { projectNav, settingsNav } from "./sidebar_data";
-import { useAddonRegistry } from "@/addons/registry";
-import { getAddonNavItems } from "@/addons/registry";
-import { Separator } from "@/components/ui/separator";
+import { useAddonRegistry, getAddonNavItems, mergeNavWithAddons } from "@/addons/registry";
 
 export function ProjectSidebar({
   activeTab = "Overview",
@@ -24,11 +22,12 @@ export function ProjectSidebar({
   subMenuMode = "dropdown",
 }) {
   const { toggleSidebar } = useSidebar();
-  const { enabledAddons } = useAddonRegistry();
+  const { enabledAddons, navPositions } = useAddonRegistry();
   const [activeMenu, setActiveMenu] = useState("main");
   const [expandedItems, setExpandedItems] = useState({});
 
-  const addonNavItems = getAddonNavItems(enabledAddons);
+  const addonNavItems = getAddonNavItems(enabledAddons, navPositions);
+  const mergedNav = mergeNavWithAddons(projectNav, addonNavItems);
 
   const toggleExpand = (title) => {
     setExpandedItems((prev) => ({
@@ -52,9 +51,9 @@ export function ProjectSidebar({
             <SidebarGroup>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {projectNav.map((item) => (
+                  {mergedNav.map((item) => (
                     <SidebarOption
-                      key={item.title}
+                      key={item.addonId ? `addon-${item.addonId}` : item.title}
                       title={item.title}
                       icon={item.icon}
                       isActive={
@@ -91,25 +90,6 @@ export function ProjectSidebar({
                       badge={item.badge}
                     />
                   ))}
-                  {addonNavItems.length > 0 && (
-                    <>
-                      <Separator className="my-1 bg-sidebar-border" />
-                      {addonNavItems.map((item) => (
-                        <SidebarOption
-                          key={item.title}
-                          title={item.title}
-                          icon={item.icon}
-                          isActive={
-                            activeTab === item.title && activeMenu === "main"
-                          }
-                          onClick={() => {
-                            setExpandedItems({});
-                            onTabChange(item.title);
-                          }}
-                        />
-                      ))}
-                    </>
-                  )}
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>

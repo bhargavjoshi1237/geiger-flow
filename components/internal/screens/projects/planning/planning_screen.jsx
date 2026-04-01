@@ -178,6 +178,8 @@ export function PlanningScreen() {
         onInit={setReactFlowInstance}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
+        zoomOnScroll={false}
+        
         fitView
         fitViewOptions={{ padding: 0.2 }}
         proOptions={proOptions}
