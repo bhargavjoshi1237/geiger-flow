@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Geiger Studio - Flow",
+  title: "Flow - Geiger Studio",
   description: "Geiger Studio - Flow",
 };
 
