@@ -7,14 +7,49 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarHeader,
   SidebarMenu,
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { PanelLeft, ChevronLeft } from "lucide-react";
+import { PanelLeft, ChevronLeft, Search, Bell, X } from "lucide-react";
 import { SidebarOption } from "../sidebar_option";
 import { projectNav, settingsNav } from "./sidebar_data";
 import { useAddonRegistry, getAddonNavItems, mergeNavWithAddons } from "@/addons/registry";
+import { useProject } from "@/context/project-context";
+
+function MobileSidebarHeader() {
+  const { isMobile, toggleSidebar } = useSidebar();
+  const { project } = useProject();
+
+  if (!isMobile) {
+    return null;
+  }
+
+  return (
+    <SidebarHeader className="p-0 border-b border-sidebar-border">
+      <div className="flex items-center justify-between px-4 h-14">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded flex items-center justify-center shrink-0">
+            <img
+              src="/logo1.svg"
+              alt=""
+              className="w-5 h-5"
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+                e.currentTarget.parentElement.innerHTML =
+                  '<div class="w-2 h-2 bg-white rounded-full"></div>';
+              }}
+            />
+          </div>
+          <span className="text-white font-semibold text-sm truncate max-w-full">
+            {project?.name || "Project"}
+          </span>
+        </div>
+      </div>
+    </SidebarHeader>
+  );
+}
 
 export function ProjectSidebar({
   activeTab = "Overview",
@@ -41,6 +76,7 @@ export function ProjectSidebar({
       collapsible="icon"
       className="bg-sidebar border-r border-sidebar-border text-sidebar-foreground"
     >
+      <MobileSidebarHeader />
       <SidebarContent className="space-y-2 relative flex-1 overflow-hidden bg-sidebar">
         <div
           className={`absolute inset-0 w-full h-full bg-sidebar transition-transform duration-300 ease-in-out ${

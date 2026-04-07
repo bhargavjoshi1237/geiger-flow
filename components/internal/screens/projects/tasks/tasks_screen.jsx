@@ -354,23 +354,22 @@ export function TasksScreen() {
 
   return (
     <MainScreenWrapper>
-      <div className="flex items-center justify-between border-b border-[#2a2a2a] pb-6">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-[#2a2a2a] pb-6">
         <div>
-          <h1 className="text-3xl font-bold text-[#e7e7e7]">Tasks</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-[#e7e7e7]">Tasks</h1>
           <p className="text-[#a3a3a3] mt-1">
             Create, track and manage project tasks.
           </p>
         </div>
-       <div className="flex gap-2">
-         <Button className="bg-white text-black hover:bg-[#e7e7e7]" onClick={handleCreate}>
-          <Plus className="w-4 h-4 mr-2" />
-          Create New Task
-        </Button>
-         <Button className="bg-white text-black hover:bg-[#e7e7e7]" onClick={handleCreate}>
-          <LucideGithub className="w-6 h-6" />
-        </Button>
-       </div>
-        
+        <div className="flex gap-2">
+          <Button className="bg-white text-black hover:bg-[#e7e7e7]" onClick={handleCreate}>
+            <Plus className="w-4 h-4 mr-2" />
+            Create New Task
+          </Button>
+          <Button className="bg-white text-black hover:bg-[#e7e7e7]" onClick={handleCreate}>
+            <LucideGithub className="w-6 h-6" />
+          </Button>
+        </div>
       </div>
 
           <div className="bg-[#202020] border border-[#2a2a2a] rounded-2xl overflow-hidden">
