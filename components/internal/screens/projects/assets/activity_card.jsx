@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle,CardDescription } from "@/components/ui/card";
 import { Clock } from "lucide-react";
 import { recentActivities } from "./data";
 
@@ -11,7 +11,10 @@ export function ActivityCard() {
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-base">Recent Activity</CardTitle>
-          <Clock className="w-4 h-4 text-[#525252]" />
+          <CardDescription className="text-xs text-[#525252] flex items-center gap-1">
+            <Clock className="w-4 h-4 text-[#525252]" />
+            In Last 24 hours
+          </CardDescription>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">

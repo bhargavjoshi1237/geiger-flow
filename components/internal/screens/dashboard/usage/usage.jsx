@@ -35,14 +35,14 @@ export function UsageScreen() {
 
   return (
     <div className="flex flex-col gap-10 w-full px-2 lg:px-0 lg:w-[75%] mx-auto my-3 text-[#e7e7e7]">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between mt-4">
-        <div>
-          <h1 className="text-2xl font-semibold text-[#e7e7e7] tracking-tight mb-4">
+      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between mt-4">
+        <div className="space-y-4">
+          <h1 className="text-2xl md:text-3xl font-semibold text-[#e7e7e7] tracking-tight">
             Usage
           </h1>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-3">
             <Select defaultValue="billing">
-              <SelectTrigger className="w-[180px] h-8 text-xs bg-[#181818] border-[#2c2c2c] text-[#a3a3a3]">
+              <SelectTrigger className="w-full sm:w-[180px] h-8 text-xs bg-[#181818] border-[#2c2c2c] text-[#a3a3a3]">
                 <SelectValue placeholder="Select period" />
               </SelectTrigger>
               <SelectContent className="bg-[#181818] border-[#2c2c2c] text-[#e7e7e7]">
@@ -52,7 +52,7 @@ export function UsageScreen() {
             </Select>
 
             <Select defaultValue="all">
-              <SelectTrigger className="w-[180px] h-8 text-xs bg-[#181818] border-[#2c2c2c] text-[#a3a3a3]">
+              <SelectTrigger className="w-full sm:w-[180px] h-8 text-xs bg-[#181818] border-[#2c2c2c] text-[#a3a3a3]">
                 <SelectValue placeholder="All projects" />
               </SelectTrigger>
               <SelectContent className="bg-[#181818] border-[#2c2c2c] text-[#e7e7e7]">
@@ -61,7 +61,7 @@ export function UsageScreen() {
             </Select>
           </div>
         </div>
-        <div className="mt-6 lg:mt-0 flex items-center gap-3 text-sm text-[#8b8b8b]">
+        <div className="mt-4 md:mt-0 flex items-center gap-3 text-sm text-[#8b8b8b]">
           Usage since Nov 8 (today is Dec 8)
           <div className="flex items-center gap-2">
             <div className="h-1.5 w-16 bg-[#2c2c2c] rounded-full overflow-hidden">

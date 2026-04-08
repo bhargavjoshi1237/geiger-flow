@@ -27,11 +27,11 @@ export function IntegrationsScreen() {
 
   return (
     <div className="flex flex-col gap-8 w-full px-2 lg:px-0 lg:w-[75%] mx-auto my-3 text-[#e7e7e7]">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-semibold text-[#e7e7e7] tracking-tight">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <h1 className="text-2xl md:text-3xl font-semibold text-[#e7e7e7] tracking-tight">
           Integrations
         </h1>
-        <div className="bg-[#202020] border border-[#2a2a2a] rounded-sm p-1 shrink-0 flex items-center gap-1">
+        <div className="bg-[#202020] border border-[#2a2a2a] rounded-sm p-1 shrink-0 flex items-center gap-1 w-fit">
           <button className="px-3 py-1.5 rounded-sm bg-[#2a2a2a] text-[#e7e7e7] text-sm font-medium">
             All
           </button>

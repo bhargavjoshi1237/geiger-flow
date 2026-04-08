@@ -145,9 +145,9 @@ export function InboxScreen() {
 
   return (
     <div className="flex flex-col gap-8 w-full px-2 lg:px-0 lg:w-[75%] my-3 mx-auto text-[#e7e7e7] h-full overflow-hidden relative">
-      <div className="flex items-center justify-between shrink-0">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between shrink-0">
         <div>
-          <h1 className="text-3xl font-semibold text-[#e7e7e7] tracking-tight flex items-center gap-3">
+          <h1 className="text-2xl md:text-3xl font-semibold text-[#e7e7e7] tracking-tight flex items-center gap-3">
             Inbox
           </h1>
           <p className="text-[#a3a3a3] text-sm mt-1.5 font-medium">
@@ -168,8 +168,8 @@ export function InboxScreen() {
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-4 shrink-0 z-10 sticky top-0 pb-2">
-        <div className="flex items-center gap-1 bg-[#1a1a1a] rounded-lg p-1 border border-[#2a2a2a]">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between shrink-0 z-10 sticky top-0 pb-2">
+        <div className="flex items-center gap-1 bg-[#1a1a1a] rounded-lg p-1 border border-[#2a2a2a] self-start">
           <button
             onClick={() => setActiveTab("all")}
             className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${
@@ -199,18 +199,18 @@ export function InboxScreen() {
           </button>
         </div>
 
-        <div className="flex-1 flex items-center justify-end gap-2">
-          <div className="relative w-full max-w-sm">
+        <div className="flex items-center gap-2 w-full md:w-auto md:flex-1 md:justify-end">
+          <div className="relative flex-1 md:max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#737373]" />
             <Input
               type="text"
               placeholder="Filter notifications..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-[#1a1a1a] border border-[#2a2a2a] text-[#e7e7e7] text-sm rounded-lg pl-9 pr-4 py-2 focus:outline-none focus:border-[#474747] transition-all focus:ring-1 focus:ring-[#474747] placeholder:text-[#525252]"
+              className="w-full !pl-9 !pr-4 !py-[7px] bg-[#1a1a1a] border border-[#2a2a2a] text-[#e7e7e7] text-sm rounded-lg focus:outline-none focus:border-[#474747] transition-all focus:ring-1 focus:ring-[#474747] placeholder:text-[#525252]"
             />
           </div>
-          <button className="flex items-center justify-center p-2 rounded-lg bg-[#1a1a1a] border border-[#2a2a2a] text-[#a3a3a3] hover:text-[#e7e7e7] hover:bg-[#202020] transition-colors">
+          <button className="flex items-center justify-center p-2 rounded-lg bg-[#1a1a1a] border border-[#2a2a2a] text-[#a3a3a3] hover:text-[#e7e7e7] hover:bg-[#202020] transition-colors shrink-0">
             <Filter className="w-[18px] h-[18px]" />
           </button>
         </div>

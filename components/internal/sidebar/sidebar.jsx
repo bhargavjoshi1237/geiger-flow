@@ -13,9 +13,40 @@ import {
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { ChevronDown, Search, MoreVertical, PanelLeft } from "lucide-react";
+import { ChevronDown, Search, MoreVertical, PanelLeft, Bell, HelpCircle, X } from "lucide-react";
 import { SidebarOption } from "./sidebar_option";
 import { workspaceNav } from "./sidebar_nav";
+import { NotificationsDropdown } from "../topbar/dialogue/notifications_dropdown";
+
+function MobileSidebarHeader() {
+  const { isMobile, toggleSidebar } = useSidebar();
+
+  if (!isMobile) {
+    return null;
+  }
+
+  return (
+    <SidebarHeader className="p-0 border-b border-sidebar-border">
+      <div className="flex items-center justify-between px-4 h-14">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded flex items-center justify-center shrink-0">
+            <img
+              src="/logo1.svg"
+              alt=""
+              className="w-5 h-5"
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+                e.currentTarget.parentElement.innerHTML =
+                  '<div class="w-2 h-2 bg-white rounded-full"></div>';
+              }}
+            />
+          </div>
+          <span className="text-white font-semibold text-sm">Flow</span>
+        </div>
+      </div>
+    </SidebarHeader>
+  );
+}
 
 export function AppSidebar({ activeTab = "Overview", onTabChange = () => {} }) {
   const { toggleSidebar } = useSidebar();
@@ -23,8 +54,9 @@ export function AppSidebar({ activeTab = "Overview", onTabChange = () => {} }) {
   return (
     <Sidebar
       collapsible="icon"
-      className="bg-sidebar border-r border-sidebar-border text-sidebar-foreground"
+      className="bg-sidebar border-r border-sidebar-border text-sidebar-foreground scrollbar-subtle"
     >
+      <MobileSidebarHeader />
       <SidebarContent className="px-1 py-1 space-y-2">
         <SidebarGroup>
           <SidebarGroupContent>

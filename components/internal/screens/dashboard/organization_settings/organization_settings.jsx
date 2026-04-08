@@ -18,11 +18,11 @@ export function OrganizationSettingsScreen() {
 
   return (
     <div className="space-y-6 w-full px-2 lg:px-0 max-w-5xl mx-auto py-4">
-      <div>
-        <h1 className="text-2xl mt-4 font-semibold text-[#e7e7e7] tracking-tight mb-2">
+      <div className="mt-4">
+        <h1 className="text-2xl md:text-3xl font-semibold text-[#e7e7e7] tracking-tight">
           Organization Settings
         </h1>
-        <p className="text-[#a3a3a3] text-sm">
+        <p className="text-[#a3a3a3] text-sm mt-1">
           General configuration, privacy, and lifecycle controls
         </p>
       </div>

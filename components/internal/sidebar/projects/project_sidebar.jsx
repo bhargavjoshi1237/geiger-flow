@@ -57,11 +57,11 @@ export function ProjectSidebar({
   subMenuMode = "dropdown",
 }) {
   const { toggleSidebar } = useSidebar();
-  const { enabledAddons, navPositions } = useAddonRegistry();
+  const { enabledAddons, navPositions, addonColors } = useAddonRegistry();
   const [activeMenu, setActiveMenu] = useState("main");
   const [expandedItems, setExpandedItems] = useState({});
 
-  const addonNavItems = getAddonNavItems(enabledAddons, navPositions);
+  const addonNavItems = getAddonNavItems(enabledAddons, navPositions, addonColors);
   const mergedNav = mergeNavWithAddons(projectNav, addonNavItems);
 
   const toggleExpand = (title) => {
@@ -92,6 +92,7 @@ export function ProjectSidebar({
                       key={item.addonId ? `addon-${item.addonId}` : item.title}
                       title={item.title}
                       icon={item.icon}
+                      iconColor={item.iconColor}
                       isActive={
                         activeTab === item.title && activeMenu === "main"
                       }
@@ -99,10 +100,10 @@ export function ProjectSidebar({
                         subMenuMode === "dropdown"
                           ? item.hasSubmenu
                             ? settingsNav
-                            : null
+                            : item.subItems || null
                           : null
                       }
-                      isExpanded={expandedItems[item.title]}
+                      isExpanded={expandedItems[item.title] !== undefined ? expandedItems[item.title] : !!item.subItems?.find((s) => s.title === activeTab)}
                       onToggle={() => toggleExpand(item.title)}
                       activeSubTab={activeTab}
                       onClick={(tabTitle) => {
@@ -118,6 +119,11 @@ export function ProjectSidebar({
                           setExpandedItems({
                             [item.title]: !expandedItems[item.title],
                           });
+                        } else if (item.subItems) {
+                          setExpandedItems((prev) => ({
+                            ...prev,
+                            [item.title]: !prev[item.title],
+                          }));
                         } else {
                           setExpandedItems({});
                           onTabChange(item.title);

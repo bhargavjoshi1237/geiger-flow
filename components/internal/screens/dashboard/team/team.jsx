@@ -36,17 +36,16 @@ export function TeamScreen() {
 
     return (
       <div className="flex flex-col gap-8 w-full px-2 lg:px-0 lg:w-[75%] mx-auto my-3 text-[#e7e7e7]">
-        <div className="flex items-center justify-between">
-        <div className="flex flex-col items-start gap-3">
-        <h1 className="text-3xl font-semibold text-[#e7e7e7]">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+        <h1 className="text-2xl md:text-3xl font-semibold text-[#e7e7e7] tracking-tight">
           Team Members
         </h1>
-        <p className="text-[#a3a3a3] text-sm mt-1.5 font-medium">
-            Stay updated with all notifications and alerts across your
-            workspace.
+        <p className="text-[#a3a3a3] text-sm mt-1 font-medium">
+            Manage your team and invite new members.
           </p>
         </div>
-        <button className="bg-[#e7e7e7] hover:bg-zinc-200 text-black px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors">
+        <button className="bg-[#e7e7e7] hover:bg-zinc-200 text-black px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors w-fit">
           <Plus className="w-4 h-4 text-black font-bold stroke-[3]" />
           Invite member
         </button>
@@ -65,11 +64,11 @@ export function TeamScreen() {
 
   return (
     <div className="flex flex-col gap-8 w-full px-2 lg:px-0 lg:w-[75%] mx-auto my-3 text-[#e7e7e7]">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-semibold text-[#e7e7e7] tracking-tight">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <h1 className="text-2xl md:text-3xl font-semibold text-[#e7e7e7] tracking-tight">
           Team Members
         </h1>
-        <button className="bg-[#e7e7e7] hover:bg-zinc-200 text-black px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors">
+        <button className="bg-[#e7e7e7] hover:bg-zinc-200 text-black px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors w-fit">
           <Plus className="w-4 h-4 text-black font-bold stroke-[3]" />
           Invite member
         </button>

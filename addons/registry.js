@@ -29,18 +29,43 @@ export function getAddonScreens(enabledIds) {
     addon.screens.forEach((screen) => {
       screens[screen.id] = screen.component;
     });
+    if (addon.navItem?.subItems) {
+      addon.screens.forEach((screen) => {
+        if (screen.navLabel) {
+          screens[screen.navLabel] = screen.component;
+        }
+      });
+    }
   });
   return screens;
 }
 
-export function getAddonNavItems(enabledIds) {
+export function getAddonNavItems(enabledIds, navPositions = {}, addonColors = {}) {
   const items = [];
   getEnabledAddons(enabledIds).forEach((addon) => {
     if (addon.navItem) {
-      items.push({ ...addon.navItem, addonId: addon.id });
+      const item = { ...addon.navItem, addonId: addon.id };
+      if (addon.navItem.subItems) {
+        item.subItems = addon.navItem.subItems;
+      }
+      if (addonColors[addon.id]) {
+        item.iconColor = addonColors[addon.id];
+      }
+      items.push(item);
     }
   });
-  return items;
+
+  if (Object.keys(navPositions).length === 0) return items;
+
+  const sorted = items.map((item) => {
+    const pos = navPositions[item.addonId];
+    return pos !== undefined && pos !== null
+      ? { ...item, _sortPos: pos }
+      : { ...item, _sortPos: 9999 };
+  });
+
+  sorted.sort((a, b) => a._sortPos - b._sortPos);
+  return sorted.map(({ _sortPos, ...item }) => item);
 }
 
 export function mergeNavWithAddons(baseNav, addonNavItems) {
@@ -65,6 +90,7 @@ export function mergeNavWithAddons(baseNav, addonNavItems) {
 export function AddonRegistryProvider({ children }) {
   const [enabledAddons, setEnabledAddons] = useState([]);
   const [navPositions, setNavPositions] = useState({});
+  const [addonColors, setAddonColors] = useState({});
 
   const toggleAddon = useCallback((addonId) => {
     setEnabledAddons((prev) =>
@@ -79,13 +105,17 @@ export function AddonRegistryProvider({ children }) {
     [enabledAddons]
   );
 
-  const updateNavPosition = useCallback((addonId, position) => {
+  const setAddonNavPosition = useCallback((addonId, position) => {
     setNavPositions((prev) => ({ ...prev, [addonId]: position }));
+  }, []);
+
+  const setAddonColor = useCallback((addonId, color) => {
+    setAddonColors((prev) => ({ ...prev, [addonId]: color }));
   }, []);
 
   return (
     <AddonRegistryContext.Provider
-      value={{ enabledAddons, toggleAddon, isAddonEnabled, navPositions, updateNavPosition }}
+      value={{ enabledAddons, toggleAddon, isAddonEnabled, navPositions, setAddonNavPosition, addonColors, setAddonColor }}
     >
       {children}
     </AddonRegistryContext.Provider>

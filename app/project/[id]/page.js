@@ -30,7 +30,7 @@ import { useEffect } from "react";
 
 function ProjectLayoutContent({ id }) {
   const { fetchProjectInfo, project, loading } = useProject();
-  const { enabledAddons } = useAddonRegistry();
+  const { enabledAddons, addonColors } = useAddonRegistry();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();

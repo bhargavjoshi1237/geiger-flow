@@ -5,6 +5,7 @@ import {
   Sheet,
   SheetTrigger,
   SheetContent,
+  SheetTitle,
 } from "@/components/ui/sheet";
 import {
   AlertTriangle,
@@ -110,6 +111,7 @@ function IssueItem({
       </SheetTrigger>
       {children && (
         <SheetContent side="right">
+          <SheetTitle className="sr-only">{title}</SheetTitle>
           {children}
         </SheetContent>
       )}

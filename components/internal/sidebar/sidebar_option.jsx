@@ -26,9 +26,13 @@ export function SidebarOption({
   isExpanded,
   onToggle,
   activeSubTab,
+  iconColor,
 }) {
   const { state, isMobile } = useSidebar();
   const isCollapsed = state === "collapsed" && !isMobile;
+
+  const activeIconColor = iconColor || "text-white";
+  const inactiveIconColor = iconColor || "text-sidebar-foreground/70";
 
   return (
     <SidebarMenuItem>
@@ -39,7 +43,6 @@ export function SidebarOption({
         tooltip={title}
         className={cn(
           "transition-all text-sm h-9",
-          // Highlight parent when its dropdown is open OR when it is directly active
           isExpanded || (isActive && !subItems)
             ? "bg-sidebar-accent text-white"
             : "text-sidebar-foreground",
@@ -51,8 +54,8 @@ export function SidebarOption({
             className={cn(
               "w-4 h-4 shrink-0 transition-colors",
               isExpanded || isActive
-                ? "text-white"
-                : "text-sidebar-foreground/70",
+                ? activeIconColor
+                : inactiveIconColor,
             )}
           />
         )}
@@ -94,8 +97,8 @@ export function SidebarOption({
                     className={cn(
                       "w-4 h-4 shrink-0 transition-colors",
                       activeSubTab === sub.title
-                        ? "text-white"
-                        : "text-sidebar-foreground/70",
+                        ? iconColor || "text-white"
+                        : iconColor || "text-sidebar-foreground/70",
                     )}
                   />
                 )}
@@ -131,8 +134,8 @@ export function SidebarOption({
                         className={cn(
                           "w-4 h-4 shrink-0 transition-colors",
                           activeSubTab === sub.title
-                            ? "text-white"
-                            : "text-sidebar-foreground/70",
+                            ? iconColor || "text-white"
+                            : iconColor || "text-sidebar-foreground/70",
                         )}
                       />
                     )}

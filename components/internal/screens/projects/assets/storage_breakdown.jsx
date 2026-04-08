@@ -14,7 +14,7 @@ export function StorageBreakdownCard() {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-base">Storage Breakdown</CardTitle>
+            <CardTitle className="text-base text-[#a3a3a3]">Storage Breakdown</CardTitle>
             <CardDescription className="text-[#525252] text-xs mt-1">
               6.83 GB of 10 GB used
             </CardDescription>
@@ -24,7 +24,7 @@ export function StorageBreakdownCard() {
       </CardHeader>
       <CardContent className="flex flex-col justify-between h-full">
        <div className="space-y-3">
-         <Progress value={68} className="h-2 bg-[#242424]" />
+         <Progress value={68} className="h-2 text-[#a3a3a3]" />
         {storageBreakdown.map((item) => (
           <div key={item.type} className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -40,7 +40,7 @@ export function StorageBreakdownCard() {
        </div>
 
         <div className="border-t border-[#2a2a2a]">
-          <div className=" pt-3 mt-1">
+          <div className="pt-3 mt-1 flex-col items-start justify-between gap-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Zap className="w-3.5 h-3.5 text-[#525252]" />
@@ -48,7 +48,7 @@ export function StorageBreakdownCard() {
               </div>
               <span className="text-xs text-[#e7e7e7] font-medium">42.6 GB / 100 GB</span>
             </div>
-            <Progress value={43} className="h-1.5 mt-2 bg-[#242424]" />
+            <Progress value={43} className="h-1.5 mt-2 bg-[#242424] text-[#a3a3a3]" />
           </div>
         </div>
       </CardContent>

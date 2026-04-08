@@ -6,6 +6,7 @@ import {
   DragOverlay,
   closestCorners,
   PointerSensor,
+  useDroppable,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
@@ -262,11 +263,15 @@ function GoalCard({ goal, isDragOverlay, onEdit, onDelete, onDuplicate }) {
 function KanbanColumn({ statusKey, goals, objective, onEdit, onDelete, onDuplicate, onAddGoal }) {
   const config = STATUS_CONFIG.find((s) => s.key === statusKey);
   const Icon = COLUMN_ICON[statusKey];
+  const { setNodeRef, isOver } = useDroppable({ id: statusKey });
 
   return (
     <div
+      ref={setNodeRef}
       className={cn(
-        "flex flex-col bg-[#131313] border border-[#2a2a2a] rounded-xl min-w-[280px] flex-1 min-h-0"
+        "flex flex-col bg-[#131313] border border-[#2a2a2a] border-t-2 rounded-xl min-w-[280px] flex-1 min-h-0 transition-colors",
+        COLUMN_ACCENT[statusKey],
+        isOver && "bg-[#171717] border-[#3a3a3a]"
       )}
     >
       <div className="flex items-center justify-between px-4 py-3 border-b border-[#222]">
@@ -404,11 +409,9 @@ export function ObjectiveKanban({ objective, onBack }) {
     if (!over) return;
 
     const activeCol = findColumnForGoal(active.id);
-    let overCol = findColumnForGoal(over.id);
-
-    if (!overCol && STATUS_CONFIG.some((s) => s.key === over.id)) {
-      overCol = over.id;
-    }
+    const overCol = STATUS_CONFIG.some((s) => s.key === over.id)
+      ? over.id
+      : findColumnForGoal(over.id);
 
     if (!activeCol || !overCol || activeCol === overCol) return;
 
@@ -426,11 +429,9 @@ export function ObjectiveKanban({ objective, onBack }) {
     if (!over) return;
 
     const activeCol = findColumnForGoal(active.id);
-    let overCol = findColumnForGoal(over.id);
-
-    if (!overCol && STATUS_CONFIG.some((s) => s.key === over.id)) {
-      overCol = over.id;
-    }
+    const overCol = STATUS_CONFIG.some((s) => s.key === over.id)
+      ? over.id
+      : findColumnForGoal(over.id);
 
     if (overCol && activeCol !== overCol) {
       setGoals((prev) =>

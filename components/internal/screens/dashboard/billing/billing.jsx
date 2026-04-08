@@ -37,9 +37,11 @@ export function BillingScreen() {
 
   return (
     <div className="flex flex-col gap-10 w-full px-2 lg:px-0 lg:w-[75%] mx-auto my-3 text-[#e7e7e7]">
-      <h1 className="text-2xl mt-4 font-semibold text-[#e7e7e7] tracking-tight mb-2">
-        Billing
-      </h1>
+      <div className="mt-4">
+        <h1 className="text-2xl md:text-3xl font-semibold text-[#e7e7e7] tracking-tight">
+          Billing
+        </h1>
+      </div>
 
       {/* Subscription Plan */}
       <div className="flex flex-col lg:flex-row gap-8 border-b border-[#2c2c2c] pb-10">

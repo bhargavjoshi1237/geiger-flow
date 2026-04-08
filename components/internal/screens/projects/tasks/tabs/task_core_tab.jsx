@@ -367,7 +367,7 @@ function AssigneeDropdown({ selected, onToggle }) {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search members…"
-              className="pl-8 bg-[#202020] border-[#2a2a2a] text-white h-8 text-xs placeholder:text-[#474747] focus-visible:ring-1 focus-visible:ring-zinc-600 focus-visible:ring-offset-0"
+              className="!pl-8 !pr-3 !py-1 !h-8 bg-[#202020] border-[#2a2a2a] text-white text-xs placeholder:text-[#474747] focus-visible:ring-1 focus-visible:ring-zinc-600 focus-visible:ring-offset-0"
             />
           </div>
         </div>

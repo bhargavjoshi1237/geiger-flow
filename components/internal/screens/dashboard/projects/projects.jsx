@@ -127,28 +127,28 @@ export function ProjectsScreen() {
 
   return (
     <div className="flex flex-col gap-8 w-full px-2 lg:px-0 lg:w-[75%] my-3 mx-auto text-[#e7e7e7]">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-semibold text-[#e7e7e7] tracking-tight">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <h1 className="text-2xl md:text-3xl font-semibold text-[#e7e7e7] tracking-tight">
           Projects
         </h1>
         <NewProjectDialog onCreate={handleCreateProject}>
-          <button className="bg-[#e7e7e7] hover:bg-zinc-200 text-black px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors">
+          <button className="bg-[#e7e7e7] hover:bg-zinc-200 text-black px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors w-fit">
             <Plus className="w-4 h-4 text-black font-bold stroke-[3]" />
             New project
           </button>
         </NewProjectDialog>
       </div>
 
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex-1 flex items-center gap-2">
-          <div className="relative flex-1 max-w-sm">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+          <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#737373]" />
             <Input
               type="text"
               placeholder="Search for a project"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-[#1a1a1a] border border-[#2a2a2a] text-[#e7e7e7] text-sm rounded-sm pl-10 pr-4 py-1.5 focus:outline-none focus:border-[#474747] transition-colors placeholder:text-[#525252]"
+              className="w-full !pl-10 !pr-4 !py-[7px] bg-[#1a1a1a] border border-[#2a2a2a] text-[#e7e7e7] text-sm rounded-sm focus:outline-none focus:border-[#474747] transition-colors placeholder:text-[#525252]"
             />
           </div>
           <DropdownMenu>

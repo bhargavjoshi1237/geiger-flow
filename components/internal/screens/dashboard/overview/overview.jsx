@@ -26,7 +26,7 @@ export function OverviewScreen() {
   
   console.log("Current filter value:", filterValue);
   return (
-    <div className="w-full px-2 lg:px-0 lg:w-[75%] mx-auto my-3 space-y-8 text-[#e7e7e7]">
+    <div className="flex flex-col gap-8 w-full px-2 lg:px-0 lg:w-[75%] mx-auto my-3 text-[#e7e7e7]">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg">
         {[
           {

@@ -8,21 +8,20 @@ import {
   RectangleHorizontal,
   StickyNote,
   Diamond,
-  Triangle,
-  Circle,
+  Layers3,
+  Copy,
+  Trash2,
   ZoomIn,
   ZoomOut,
-  Maximize,
-  Undo2,
-  Redo2,
+  Maximize2,
 } from "lucide-react";
 
-const NODE_TYPES = [
+export const NODE_TYPES = [
   {
     type: "custom",
-    label: "Node",
+    label: "Title",
     icon: Square,
-    defaultData: { label: "New Node" },
+    defaultData: { label: "New title" },
   },
   {
     type: "taskNode",
@@ -46,64 +45,112 @@ const NODE_TYPES = [
 
 export function PlanningToolbar({
   onAddNode,
+  onCreateFile,
+  onDuplicateFile,
+  onDeleteFile,
+  canDeleteFile = false,
   onZoomIn,
   onZoomOut,
   onFitView,
   zoomLevel,
+  activeFileName = "Planning file",
 }) {
   return (
-    <div className="flex items-center gap-1 bg-[#1e1e1e] border border-[#2a2a2a] rounded-lg p-1">
-      <div className="flex items-center gap-0.5 px-1 border-r border-[#2a2a2a]">
+    <div className="inline-flex max-w-full flex-wrap items-center gap-1 rounded-2xl border border-[#2a2a2a] bg-[#1b1b1b]/95 p-1.5 shadow-2xl shadow-black/20 backdrop-blur">
+      <div className="hidden xl:flex items-center gap-2 border-r border-[#2a2a2a] px-3 pr-4">
+        <div className="flex size-8 items-center justify-center rounded-xl border border-[#2a2a2a] bg-[#161616]">
+          <Layers3 className="size-4 text-[#a3a3a3]" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-[10px] uppercase tracking-[0.24em] text-[#737373]">
+            Active file
+          </p>
+          <p className="max-w-[220px] truncate text-sm font-medium text-[#ededed]">
+            {activeFileName}
+          </p>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-0.5 px-1">
         {NODE_TYPES.map((nodeType) => {
           const Icon = nodeType.icon;
+
           return (
             <Button
               key={nodeType.type}
               variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0 text-[#737373] hover:text-[#e7e7e7] hover:bg-[#2a2a2a]"
+              size="icon-sm"
+              className="h-8 w-8 border border-transparent p-0 text-[#737373] hover:border-[#2f2f2f] hover:bg-[#242424] hover:text-[#ededed]"
               onClick={() => onAddNode(nodeType)}
               title={`Add ${nodeType.label}`}
             >
-              <Icon className="w-4 h-4" />
+              <Icon className="size-4" />
             </Button>
           );
         })}
       </div>
 
-      <div className="flex items-center gap-0.5 px-1 border-r border-[#2a2a2a]">
+      <div className="flex items-center gap-0.5 border-l border-[#2a2a2a] px-1 pl-2">
         <Button
           variant="ghost"
-          size="sm"
-          className="h-8 w-8 p-0 text-[#737373] hover:text-[#e7e7e7] hover:bg-[#2a2a2a]"
-          onClick={onZoomOut}
-          title="Zoom Out"
+          size="icon-sm"
+          className="h-8 w-8 border border-transparent p-0 text-[#737373] hover:border-[#2f2f2f] hover:bg-[#242424] hover:text-[#ededed]"
+          onClick={onCreateFile}
+          title="Create new file"
         >
-          <ZoomOut className="w-4 h-4" />
+          <Plus className="size-4" />
         </Button>
-        <span className="text-[11px] text-[#525252] w-12 text-center font-mono select-none">
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          className="h-8 w-8 border border-transparent p-0 text-[#737373] hover:border-[#2f2f2f] hover:bg-[#242424] hover:text-[#ededed]"
+          onClick={onDuplicateFile}
+          title="Duplicate active file"
+        >
+          <Copy className="size-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          className="h-8 w-8 border border-transparent p-0 text-[#737373] hover:border-[#2f2f2f] hover:bg-[#242424] hover:text-[#ededed] disabled:opacity-40"
+          onClick={onDeleteFile}
+          title="Delete active file"
+          disabled={!canDeleteFile}
+        >
+          <Trash2 className="size-4" />
+        </Button>
+      </div>
+
+      <div className="flex items-center gap-0.5 border-l border-[#2a2a2a] px-1 pl-2">
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          className="h-8 w-8 border border-transparent p-0 text-[#737373] hover:border-[#2f2f2f] hover:bg-[#242424] hover:text-[#ededed]"
+          onClick={onZoomOut}
+          title="Zoom out"
+        >
+          <ZoomOut className="size-4" />
+        </Button>
+        <span className="w-12 select-none text-center font-mono text-[11px] text-[#737373]">
           {Math.round(zoomLevel * 100)}%
         </span>
         <Button
           variant="ghost"
-          size="sm"
-          className="h-8 w-8 p-0 text-[#737373] hover:text-[#e7e7e7] hover:bg-[#2a2a2a]"
+          size="icon-sm"
+          className="h-8 w-8 border border-transparent p-0 text-[#737373] hover:border-[#2f2f2f] hover:bg-[#242424] hover:text-[#ededed]"
           onClick={onZoomIn}
-          title="Zoom In"
+          title="Zoom in"
         >
-          <ZoomIn className="w-4 h-4" />
+          <ZoomIn className="size-4" />
         </Button>
-      </div>
-
-      <div className="flex items-center gap-0.5 px-1">
         <Button
           variant="ghost"
-          size="sm"
-          className="h-8 w-8 p-0 text-[#737373] hover:text-[#e7e7e7] hover:bg-[#2a2a2a]"
+          size="icon-sm"
+          className="h-8 w-8 border border-transparent p-0 text-[#737373] hover:border-[#2f2f2f] hover:bg-[#242424] hover:text-[#ededed]"
           onClick={onFitView}
-          title="Fit View"
+          title="Fit to view"
         >
-          <Maximize className="w-4 h-4" />
+          <Maximize2 className="size-4" />
         </Button>
       </div>
     </div>

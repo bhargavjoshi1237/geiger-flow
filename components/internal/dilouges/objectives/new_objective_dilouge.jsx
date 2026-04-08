@@ -156,7 +156,7 @@ function SearchableKeyResultSelect({ value, onChange, selectedLabels }) {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search suggestions..."
-                className="bg-[#202020] border-[#2a2a2a] pl-7 h-8 text-xs text-[#ededed] placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-zinc-700"
+                className="!pl-7 !pr-3 !py-1 !h-8 bg-[#202020] border-[#2a2a2a] text-xs text-[#ededed] placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-zinc-700"
                 autoFocus
               />
             </div>

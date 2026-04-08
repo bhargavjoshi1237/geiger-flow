@@ -1,15 +1,15 @@
 "use client";
 
-import React from "react";
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
+import React, { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import {
   LucidePackagePlus,
   GripVertical,
+  ChevronDown,
+  ChevronRight,
+  LayoutGrid,
+  LayoutList,
 } from "lucide-react";
 import { useAddonRegistry } from "@/addons/registry";
 import { getInstalledAddons } from "@/addons/registry";
@@ -21,13 +21,178 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
+
+function AddonCard({ addon, enabled, positionOptions, selectValue, currentColor, onToggle, onPositionChange, onColorChange }) {
+  const [expanded, setExpanded] = useState(false);
+  const Icon = addon.icon;
+  const effectiveColor = currentColor || addon.color;
+
+  return (
+    <div
+      className={cn(
+        "rounded-xl border transition-all duration-300",
+        enabled
+          ? "border-[#2c2c2c] bg-[#181818] hover:border-[#3c3c3c] shadow-sm"
+          : "border-[#222] bg-[#161616] opacity-60 hover:opacity-75"
+      )}
+    >
+      <div className="flex items-center gap-4 p-5">
+        <div
+          className={cn(
+            "w-11 h-11 rounded-lg flex items-center justify-center shrink-0 border transition-all duration-300",
+            enabled
+              ? ""
+              : "border-[#2c2c2c] bg-[#1a1a1a]"
+          )}
+          style={
+            enabled
+              ? {
+                  backgroundColor: `${effectiveColor}10`,
+                  borderColor: `${effectiveColor}30`,
+                }
+              : undefined
+          }
+        >
+          {Icon && (
+            <Icon
+              className="w-5 h-5 transition-colors duration-300"
+              style={{ color: enabled ? effectiveColor : "#666" }}
+            />
+          )}
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="font-medium text-[#e7e7e7] text-[15px]">
+              {addon.name}
+            </span>
+            <Badge className="text-[9px] h-4 px-1.5 font-medium border-[#2c2c2c] text-[#666] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+              v{addon.version}
+            </Badge>
+            <Badge className="text-[9px] h-4 px-1.5 font-medium border-[#2c2c2c] text-[#666] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+              {addon.category}
+            </Badge>
+          </div>
+          <p className="text-sm text-[#666] mt-0.5 leading-relaxed truncate">
+            {addon.description}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          {enabled && (
+            <div className="flex items-center gap-1.5 text-green-400 text-[10px] font-semibold tracking-wider uppercase mr-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
+              Active
+            </div>
+          )}
+          <Switch checked={enabled} onCheckedChange={onToggle} />
+        </div>
+      </div>
+
+      <button
+        type="button"
+        onClick={() => setExpanded(!expanded)}
+        className="w-full flex items-center justify-center gap-1.5 py-2.5 border-t border-[#222] hover:bg-[#1a1a1a] transition-colors duration-200"
+      >
+        {expanded ? (
+          <ChevronDown className="w-3.5 h-3.5 text-[#555]" />
+        ) : (
+          <ChevronRight className="w-3.5 h-3.5 text-[#555]" />
+        )}
+        <span className="text-[11px] text-[#555] font-medium">
+          {expanded ? "Less details" : "More details"}
+        </span>
+      </button>
+
+      {expanded && (
+        <div className="border-t border-[#222] p-5 space-y-5">
+          <div>
+            <span className="text-[11px] font-semibold text-[#555] uppercase tracking-wider">
+              Features
+            </span>
+            <p className="text-[13px] text-[#999] leading-relaxed mt-3">
+              {addon.features.join(". ") + "."}
+            </p>
+          </div>
+
+          {enabled && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-4 h-4 rounded-full border-2 border-[#444] shrink-0 overflow-hidden">
+                  <div
+                    className="w-full h-full"
+                    style={{ backgroundColor: effectiveColor }}
+                  />
+                </div>
+                <div className="flex-1">
+                  <span className="text-[12px] text-[#e7e7e7]">Accent color</span>
+                  <p className="text-[11px] text-[#555] mt-0.5">
+                    Custom color for the sidebar icon and UI accents
+                  </p>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  {["#3b82f6", "#8b5cf6", "#ec4899", "#f59e0b", "#10b981", "#ef4444", "#06b6d4", "#f97316"].map((color) => (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() => onColorChange(color)}
+                      className={cn(
+                        "w-6 h-6 rounded-full border-2 transition-all hover:scale-110",
+                        effectiveColor === color
+                          ? "border-white scale-110 shadow-lg"
+                          : "border-[#333] hover:border-[#555]"
+                      )}
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {addon.navItem && (
+                <div className="flex items-center gap-3">
+                  <GripVertical className="w-4 h-4 text-[#444] shrink-0" />
+                  <div className="flex-1">
+                    <span className="text-[12px] text-[#e7e7e7]">Sidebar position</span>
+                    <p className="text-[11px] text-[#555] mt-0.5">
+                      Choose where this add-on appears in the navigation sidebar
+                    </p>
+                  </div>
+                  <Select value={selectValue} onValueChange={onPositionChange}>
+                    <SelectTrigger className="h-8 text-xs w-auto min-w-[180px] bg-[#1e1e1e] border-[#2c2c2c] text-[#e7e7e7] focus:ring-[#333] focus:border-[#444]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#1e1e1e] border-[#2c2c2c]">
+                      {positionOptions.map((opt) => (
+                        <SelectItem
+                          key={opt.value}
+                          value={opt.value}
+                          className="text-xs text-[#ccc] focus:bg-[#2c2c2c] focus:text-white"
+                        >
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function AddonsSettingsScreen() {
-  const { isAddonEnabled, toggleAddon, navPositions, setAddonNavPosition } =
+  const { isAddonEnabled, toggleAddon, navPositions, setAddonNavPosition, addonColors, setAddonColor } =
     useAddonRegistry();
   const installedAddons = getInstalledAddons();
 
-  // Build position options: "before <nav item>" for each core nav item + "end"
+  const [compactView, setCompactView] = useState(false);
+  const enabledCount = installedAddons.filter((a) => isAddonEnabled(a.id)).length;
+  const totalCount = installedAddons.length;
+
   const positionOptions = projectNav.map((item, idx) => ({
     value: String(idx),
     label: `Before "${item.title}"`,
@@ -43,173 +208,100 @@ export function AddonsSettingsScreen() {
 
   return (
     <div className="space-y-8">
-      <div className="space-y-4">
+      <div className="flex items-start justify-between gap-4 pb-6 border-b border-[#2a2a2a]">
         <div className="space-y-1.5">
-          <h3 className="text-xl font-medium text-foreground">
-            Installed Add-ons
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            Extend your project with add-ons. Enable or disable them to add or
-            remove functionality. Choose where each add-on appears in the
-            sidebar navigation.
-          </p>
-        </div>
-
-        {installedAddons.length === 0 ? (
-          <Card className="bg-card text-card-foreground border-dashed">
-            <CardContent className="flex flex-col items-center justify-center py-12 gap-3">
-              <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center">
-                <LucidePackagePlus className="w-6 h-6 text-muted-foreground" />
-              </div>
-              <div className="text-center">
-                <p className="text-sm font-medium text-foreground">
-                  No add-ons available
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Add-ons will appear here when installed.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-3">
-            {installedAddons.map((addon) => {
-              const enabled = isAddonEnabled(addon.id);
-              const Icon = addon.icon;
-              const currentPosition = navPositions[addon.id];
-              const selectValue =
-                currentPosition === undefined || currentPosition === null
-                  ? "auto"
-                  : String(currentPosition);
-
-              return (
-                <Card
-                  key={addon.id}
-                  className={`bg-card text-card-foreground transition-all duration-200 ${enabled ? "border-border" : "border-border opacity-70"}`}
-                >
-                  <CardContent className="p-5">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex items-start gap-4 flex-1 min-w-0">
-                        <div
-                          className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 border"
-                          style={{
-                            backgroundColor: enabled
-                              ? `${addon.color}10`
-                              : undefined,
-                            borderColor: enabled
-                              ? `${addon.color}30`
-                              : undefined,
-                          }}
-                        >
-                          {Icon && (
-                            <Icon
-                              className="w-5 h-5"
-                              style={{
-                                color: enabled ? addon.color : undefined,
-                              }}
-                            />
-                          )}
-                        </div>
-
-                        <div className="flex-1 min-w-0 space-y-1.5">
-                          <div className="flex items-center gap-2">
-                            <h4 className="font-medium text-foreground text-base">
-                              {addon.name}
-                            </h4>
-                            <Badge
-                              variant="outline"
-                              className="text-[10px] font-medium border-border text-muted-foreground bg-transparent"
-                            >
-                              v{addon.version}
-                            </Badge>
-                            <Badge
-                              variant="outline"
-                              className="text-[10px] font-medium border-border text-muted-foreground bg-transparent"
-                            >
-                              {addon.category}
-                            </Badge>
-                          </div>
-                          <p className="text-sm text-muted-foreground leading-relaxed">
-                            {addon.description}
-                          </p>
-                          <div className="flex flex-wrap gap-1.5 pt-1">
-                            {addon.features.map((feature, i) => (
-                              <span
-                                key={i}
-                                className="text-[10px] font-medium text-muted-foreground bg-secondary px-2 py-0.5 rounded border border-border"
-                              >
-                                {feature}
-                              </span>
-                            ))}
-                          </div>
-
-                          {/* Nav Position Picker — shown when the addon is enabled */}
-                          {enabled && addon.navItem && (
-                            <div className="flex items-center gap-2 pt-2 mt-1">
-                              <GripVertical className="w-4 h-4 text-muted-foreground shrink-0" />
-                              <span className="text-xs text-muted-foreground whitespace-nowrap">
-                                Nav position:
-                              </span>
-                              <Select
-                                value={selectValue}
-                                onValueChange={(val) => {
-                                  if (val === "auto") {
-                                    setAddonNavPosition(addon.id, null);
-                                  } else if (val === "end") {
-                                    setAddonNavPosition(
-                                      addon.id,
-                                      projectNav.length
-                                    );
-                                  } else {
-                                    setAddonNavPosition(
-                                      addon.id,
-                                      Number(val)
-                                    );
-                                  }
-                                }}
-                              >
-                                <SelectTrigger
-                                  size="sm"
-                                  className="h-7 text-xs w-auto min-w-[160px]"
-                                >
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {positionOptions.map((opt) => (
-                                    <SelectItem
-                                      key={opt.value}
-                                      value={opt.value}
-                                      className="text-xs"
-                                    >
-                                      {opt.label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-3 shrink-0 pt-1">
-                        {enabled && (
-                          <Badge className="bg-green-500/10 text-green-400 border-green-500/20 text-[10px] font-bold tracking-wide uppercase">
-                            Active
-                          </Badge>
-                        )}
-                        <Switch
-                          checked={enabled}
-                          onCheckedChange={() => toggleAddon(addon.id)}
-                        />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-[#1e1e1e] border border-[#2c2c2c] flex items-center justify-center">
+              <LucidePackagePlus className="w-4.5 h-4.5 text-[#a3a3a3]" strokeWidth={1.8} />
+            </div>
+            <div>
+              <h3 className="text-lg font-medium text-[#e7e7e7]">
+                Add-ons
+              </h3>
+              <p className="text-xs text-[#666]">
+                {totalCount} installed · {enabledCount} active
+              </p>
+            </div>
           </div>
-        )}
+        </div>
+        <button
+          type="button"
+          onClick={() => setCompactView(!compactView)}
+          className={cn(
+            "w-8 h-8 rounded-lg border flex items-center justify-center transition-all duration-200",
+            compactView
+              ? "border-[#2c2c2c] bg-[#e7e7e7] text-[#111]"
+              : "border-[#2c2c2c] bg-[#1e1e1e] text-[#666] hover:text-[#999] hover:bg-[#222]"
+          )}
+          title={compactView ? "Switch to list view" : "Switch to grid view"}
+        >
+          {compactView ? (
+            <LayoutList className="w-4 h-4" />
+          ) : (
+            <LayoutGrid className="w-4 h-4" />
+          )}
+        </button>
       </div>
+
+      {installedAddons.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-[#2c2c2c] bg-[#161616] p-12 flex flex-col items-center justify-center gap-3">
+          <div className="w-12 h-12 rounded-full bg-[#1e1e1e] border border-[#2c2c2c] flex items-center justify-center">
+            <LucidePackagePlus className="w-6 h-6 text-[#555]" />
+          </div>
+          <div className="text-center">
+            <p className="text-sm font-medium text-[#999]">
+              No add-ons available
+            </p>
+            <p className="text-xs text-[#555] mt-1">
+              Add-ons will appear here when installed.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div
+          className={cn(
+            "grid gap-3 transition-all duration-300",
+            compactView
+              ? "grid-cols-2"
+              : "grid-cols-1"
+          )}
+        >
+          {installedAddons.map((addon) => {
+            const enabled = isAddonEnabled(addon.id);
+            const currentPosition = navPositions[addon.id];
+            const selectValue =
+              currentPosition === undefined || currentPosition === null
+                ? "auto"
+                : String(currentPosition);
+            const currentColor = addonColors[addon.id];
+
+            return (
+              <AddonCard
+                key={addon.id}
+                addon={addon}
+                enabled={enabled}
+                positionOptions={positionOptions}
+                selectValue={selectValue}
+                currentColor={currentColor}
+                onToggle={() => toggleAddon(addon.id)}
+                onPositionChange={(val) => {
+                  if (val === "auto") {
+                    setAddonNavPosition(addon.id, null);
+                  } else if (val === "end") {
+                    setAddonNavPosition(addon.id, projectNav.length);
+                  } else {
+                    setAddonNavPosition(addon.id, Number(val));
+                  }
+                }}
+                onColorChange={(color) => {
+                  const newColor = color === addon.color ? null : color;
+                  setAddonColor(addon.id, newColor);
+                }}
+              />
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

@@ -9,6 +9,9 @@ import {
 import { GeneralSettingsScreen } from "./general/general_settings";
 import { ConnectivityScreen } from "./connectivity/connectivity_screen";
 import { AddonsSettingsScreen } from "./addons/addons_settings";
+import { UsageSettingsScreen } from "./usage/usage_screen";
+import { AdvancedSettingsScreen } from "./advanced/advanced_settings";
+import { EnterpriseSettingsScreen } from "./enterprise/enterprise_settings";
 import { SecondaryScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 
 export function SettingsScreen({ activeSettingsTab = "General" }) {
@@ -20,6 +23,12 @@ export function SettingsScreen({ activeSettingsTab = "General" }) {
         return <ConnectivityScreen />;
       case "Add-ons":
         return <AddonsSettingsScreen />;
+      case "Usage":
+        return <UsageSettingsScreen />;
+      case "Advanced":
+        return <AdvancedSettingsScreen />;
+      case "Enterprise":
+        return <EnterpriseSettingsScreen />;
       default:
         return (
           <div className="h-[400px] flex items-center justify-center border-2 border-dashed border-[#2a2a2a] rounded-lg text-[#a3a3a3]">
