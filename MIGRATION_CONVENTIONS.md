@@ -107,7 +107,7 @@ DDL, so they are **validated** against `^[a-z_][a-z0-9_]*$` rather than escaped.
 
 ```jsonc
 {
-  "dependencies": { "@geiger/orm": "github:bhargavjoshi1237/geiger-orm#main" },
+  "dependencies": { "@geiger/orm": "github:bhargavjoshi1237/geiger-orm#master" },
   "scripts": {
     "db:push":     "geiger-orm push",
     "db:status":   "geiger-orm status",
