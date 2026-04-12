@@ -261,14 +261,7 @@ function SecurityScoreRing({ score, label }) {
   const radius = 46;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (score / 100) * circumference;
-  const color =
-    score >= 80
-      ? "#34d399"
-      : score >= 60
-        ? "#fbbf24"
-        : score >= 40
-          ? "#f97316"
-          : "#ef4444";
+  const color = "#e7e7e7";
 
   return (
     <div className="flex flex-col items-center">
@@ -279,7 +272,7 @@ function SecurityScoreRing({ score, label }) {
             cy="60"
             r={radius}
             fill="none"
-            stroke="#222"
+            stroke="#2a2a2a"
             strokeWidth="6"
           />
           <circle
@@ -302,7 +295,7 @@ function SecurityScoreRing({ score, label }) {
           >
             {score}
           </span>
-          <span className="text-[9px] text-[#555] uppercase tracking-wider font-medium">
+          <span className="text-[9px] text-[#737373] uppercase tracking-wider font-medium">
             of 100
           </span>
         </div>
@@ -313,7 +306,7 @@ function SecurityScoreRing({ score, label }) {
 
 function StatCard({ icon: Icon, label, value, sub, color }) {
   return (
-    <div className="bg-[#181818] border border-[#2c2c2c] rounded-xl p-5 hover:border-[#3c3c3c] transition-all duration-300 group">
+    <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-5 hover:border-[#474747] transition-all duration-300 group">
       <div className="flex items-center gap-3 mb-3">
         <div
           className="w-9 h-9 rounded-lg flex items-center justify-center border"
@@ -325,14 +318,14 @@ function StatCard({ icon: Icon, label, value, sub, color }) {
         >
           <Icon className="w-[18px] h-[18px]" strokeWidth={1.7} />
         </div>
-        <span className="text-[13px] font-medium text-[#777]">
+        <span className="text-[13px] font-medium text-[#a3a3a3]">
           {label}
         </span>
       </div>
-      <div className="text-[22px] font-semibold text-[#e7e7e7] tracking-tight">
+      <div className="text-[22px] font-semibold text-white tracking-tight">
         {value}
       </div>
-      {sub && <p className="text-[11px] text-[#555] mt-1.5">{sub}</p>}
+      {sub && <p className="text-[11px] text-[#737373] mt-1.5">{sub}</p>}
     </div>
   );
 }
@@ -341,9 +334,9 @@ function SecurityEventRow({ event }) {
   const statusConfig = {
     success: {
       icon: CheckCircle2,
-      color: "text-green-400",
-      bg: "bg-green-400/10",
-      border: "border-green-400/20",
+      color: "text-[#e7e7e7]",
+      bg: "bg-[#e7e7e7]/10",
+      border: "border-[#e7e7e7]/20",
       label: "Success",
     },
     blocked: {
@@ -358,7 +351,7 @@ function SecurityEventRow({ event }) {
   const StatusIcon = cfg.icon;
 
   return (
-    <div className="flex items-center gap-3.5 py-3 px-5 border-b border-[#222] last:border-0 hover:bg-[#1a1a1a] transition-colors">
+    <div className="flex items-center gap-3.5 py-3 px-5 border-b border-[#2a2a2a] last:border-0 hover:bg-[#242424] transition-colors">
       <div
         className={cn(
           "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border",
@@ -370,27 +363,27 @@ function SecurityEventRow({ event }) {
       </div>
       <div className="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-[1.5fr_80px_110px_110px_80px] gap-1 md:gap-4 items-center">
         <div className="min-w-0">
-          <div className="text-[13px] font-medium text-[#e7e7e7] truncate">
+          <div className="text-[13px] font-medium text-white truncate">
             <span className={event.user === "Unknown" ? "text-red-400" : ""}>
               {event.user}
             </span>
-            <span className="text-[#444] mx-1.5">·</span>
-            <span className="text-[#777] font-normal">
+            <span className="text-[#737373] mx-1.5">·</span>
+            <span className="text-[#a3a3a3] font-normal">
               {event.action}
             </span>
           </div>
-          <div className="text-[11px] text-[#444] truncate">
+          <div className="text-[11px] text-[#737373] truncate">
             {event.device}
           </div>
         </div>
-        <div className="text-[11px] text-[#555] font-medium">{event.method}</div>
-        <div className="text-[11px] text-[#555] font-mono truncate">
+        <div className="text-[11px] text-[#737373] font-medium">{event.method}</div>
+        <div className="text-[11px] text-[#737373] font-mono truncate">
           {event.ip}
         </div>
-        <div className="text-[11px] text-[#555] truncate">
+        <div className="text-[11px] text-[#737373] truncate">
           {event.location}
         </div>
-        <div className="text-[11px] text-[#444]">{event.time}</div>
+        <div className="text-[11px] text-[#737373]">{event.time}</div>
       </div>
       <Badge
         className={cn(
@@ -420,9 +413,9 @@ function VulnerabilityRow({ vuln }) {
       border: "border-orange-400/20",
     },
     medium: {
-      color: "text-yellow-400",
-      bg: "bg-yellow-400/10",
-      border: "border-yellow-400/20",
+      color: "text-[#e7e7e7]",
+      bg: "bg-[#e7e7e7]/10",
+      border: "border-[#e7e7e7]/20",
     },
     low: {
       color: "text-blue-400",
@@ -433,20 +426,20 @@ function VulnerabilityRow({ vuln }) {
   const cfg = severityConfig[vuln.severity] || severityConfig.low;
 
   const statusConfig = {
-    open: { label: "Open", className: "bg-[#2c2c2c] text-[#a3a3a3] border-[#3c3c3c]" },
+    open: { label: "Open", className: "bg-[#2a2a2a] text-[#a3a3a3] border-[#474747]" },
     fixing: {
       label: "Fixing",
-      className: "bg-yellow-400/10 text-yellow-400 border-yellow-400/20",
+      className: "bg-[#e7e7e7]/10 text-[#e7e7e7] border-[#e7e7e7]/20",
     },
     resolved: {
       label: "Resolved",
-      className: "bg-green-400/10 text-green-400 border-green-400/20",
+      className: "bg-white/10 text-white border-white/20",
     },
   };
   const statusCfg = statusConfig[vuln.status] || statusConfig.open;
 
   return (
-    <div className="flex items-center gap-3.5 py-3.5 px-5 border-b border-[#222] last:border-0 hover:bg-[#1a1a1a] transition-colors">
+    <div className="flex items-center gap-3.5 py-3.5 px-5 border-b border-[#2a2a2a] last:border-0 hover:bg-[#242424] transition-colors">
       <div
         className={cn(
           "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border",
@@ -457,17 +450,17 @@ function VulnerabilityRow({ vuln }) {
         <Bug className={cn("w-3.5 h-3.5", cfg.color)} />
       </div>
       <div className="flex-1 min-w-0">
-        <div className="text-[13px] font-medium text-[#e7e7e7] truncate">
+        <div className="text-[13px] font-medium text-white truncate">
           {vuln.title}
         </div>
         <div className="flex items-center gap-1.5 mt-1">
-          <span className="text-[10px] text-[#555] font-mono">
+          <span className="text-[10px] text-[#737373] font-mono">
             {vuln.id}
           </span>
-          <span className="text-[10px] text-[#333]">·</span>
-          <span className="text-[10px] text-[#555]">{vuln.package}</span>
-          <span className="text-[10px] text-[#333]">·</span>
-          <span className="text-[10px] text-[#555]">{vuln.found}</span>
+          <span className="text-[10px] text-[#737373]">·</span>
+          <span className="text-[10px] text-[#737373]">{vuln.package}</span>
+          <span className="text-[10px] text-[#737373]">·</span>
+          <span className="text-[10px] text-[#737373]">{vuln.found}</span>
         </div>
       </div>
       <Badge
@@ -492,13 +485,13 @@ function VulnerabilityRow({ vuln }) {
 
 function PolicyRow({ policy }) {
   return (
-    <div className="flex items-center justify-between py-3.5 px-5 border-b border-[#222] last:border-0 hover:bg-[#1a1a1a] transition-colors">
+    <div className="flex items-center justify-between py-3.5 px-5 border-b border-[#2a2a2a] last:border-0 hover:bg-[#242424] transition-colors">
       <div className="flex items-center gap-3.5">
         <div className={cn(
           "w-9 h-9 rounded-lg flex items-center justify-center shrink-0 border",
           policy.enabled
-            ? "bg-emerald-500/10 border-emerald-500/15 text-emerald-400"
-            : "bg-[#222] border-[#2a2a2a] text-[#555]"
+            ? "bg-[#e7e7e7]/10 border-[#e7e7e7]/15 text-[#e7e7e7]"
+            : "bg-[#2a2a2a] border-[#2a2a2a] text-[#737373]"
         )}>
           <Shield
             className="w-4 h-4"
@@ -507,16 +500,16 @@ function PolicyRow({ policy }) {
         </div>
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-[13px] font-medium text-[#e7e7e7]">
+            <span className="text-[13px] font-medium text-white">
               {policy.name}
             </span>
             {policy.enforced && (
-              <Badge className="text-[9px] h-[18px] px-1.5 bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
+              <Badge className="text-[9px] h-[18px] px-1.5 bg-[#e7e7e7]/10 text-[#e7e7e7] border-[#e7e7e7]/20">
                 Enforced
               </Badge>
             )}
           </div>
-          <p className="text-[11px] text-[#555] mt-0.5">
+          <p className="text-[11px] text-[#737373] mt-0.5">
             {policy.description}
           </p>
         </div>
@@ -528,15 +521,15 @@ function PolicyRow({ policy }) {
 
 function ApiKeyRow({ apiKey }) {
   return (
-    <div className="flex items-center gap-3.5 py-3.5 px-5 border-b border-[#222] last:border-0 hover:bg-[#1a1a1a] transition-colors">
-      <div className="w-9 h-9 rounded-lg bg-[#222] border border-[#2a2a2a] flex items-center justify-center shrink-0">
-        <Key className="w-4 h-4 text-[#888]" strokeWidth={1.7} />
+    <div className="flex items-center gap-3.5 py-3.5 px-5 border-b border-[#2a2a2a] last:border-0 hover:bg-[#242424] transition-colors">
+      <div className="w-9 h-9 rounded-lg bg-[#2a2a2a] border border-[#2a2a2a] flex items-center justify-center shrink-0">
+        <Key className="w-4 h-4 text-[#a3a3a3]" strokeWidth={1.7} />
       </div>
       <div className="flex-1 min-w-0">
-        <div className="text-[13px] font-medium text-[#e7e7e7]">
+        <div className="text-[13px] font-medium text-white">
           {apiKey.name}
         </div>
-        <div className="text-[11px] text-[#444] font-mono mt-0.5">
+        <div className="text-[11px] text-[#737373] font-mono mt-0.5">
           {apiKey.key}
         </div>
       </div>
@@ -544,22 +537,22 @@ function ApiKeyRow({ apiKey }) {
         {apiKey.scopes.map((scope) => (
           <Badge
             key={scope}
-            className="text-[10px] h-[18px] px-1.5 bg-[#222] text-[#666] border-[#2a2a2a] rounded-md"
+            className="text-[10px] h-[18px] px-1.5 bg-[#2a2a2a] text-[#737373] border-[#2a2a2a] rounded-md"
           >
             {scope}
           </Badge>
         ))}
       </div>
       <div className="text-right shrink-0 ml-2">
-        <div className="text-[10px] text-[#444]">Last used</div>
-        <div className="text-[11px] text-[#777]">{apiKey.lastUsed}</div>
+        <div className="text-[10px] text-[#737373]">Last used</div>
+        <div className="text-[11px] text-[#a3a3a3]">{apiKey.lastUsed}</div>
       </div>
       <Badge
         className={cn(
           "text-[10px] h-[20px] px-2 shrink-0 border rounded-md",
           apiKey.status === "active"
-            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-            : "bg-[#222] text-[#555] border-[#2a2a2a]"
+            ? "bg-[#e7e7e7]/10 text-[#e7e7e7] border-[#e7e7e7]/20"
+            : "bg-[#2a2a2a] text-[#737373] border-[#2a2a2a]"
         )}
       >
         {apiKey.status}
@@ -571,8 +564,8 @@ function ApiKeyRow({ apiKey }) {
 function SectionHeader({ title, subtitle }) {
   return (
     <div className="space-y-1.5">
-      <h3 className="text-lg font-semibold text-[#e7e7e7]">{title}</h3>
-      <p className="text-[13px] text-[#666] leading-relaxed">{subtitle}</p>
+      <h3 className="text-lg font-semibold text-white">{title}</h3>
+      <p className="text-[13px] text-[#a3a3a3] leading-relaxed">{subtitle}</p>
     </div>
   );
 }
@@ -590,7 +583,7 @@ export function SecurityScreen() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-[#2a2a2a]">
         <div className="flex items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-[#e7e7e7]">Security</h1>
+            <h1 className="text-3xl font-bold text-white">Security</h1>
             <p className="text-[#a3a3a3] mt-1">
              Monitor Security and secure access to your project.
             </p>
@@ -608,62 +601,62 @@ export function SecurityScreen() {
               label="Policies Active"
               value="3 / 5"
               sub="60% policy coverage"
-              color="#34d399"
+              color="#e7e7e7"
             />
             <StatCard
               icon={Bug}
               label="Vulnerabilities"
               value={vulnerabilities.length}
               sub={`${openVulns} open · ${criticalVulns} critical`}
-              color={criticalVulns > 0 ? "#ef4444" : "#fbbf24"}
+              color="#e7e7e7"
             />
             <StatCard
               icon={Key}
               label="API Keys"
               value={activeKeys}
               sub={`${apiKeys.length} total · 1 inactive`}
-              color="#818cf8"
+              color="#e7e7e7"
             />
             <StatCard
               icon={Users}
               label="Active Sessions"
               value="8"
               sub="Across 5 team members"
-              color="#38bdf8"
+              color="#e7e7e7"
             />
           </div>
         </div>
 
-        <div className="bg-[#181818] border border-[#2c2c2c] rounded-xl p-5">
+        <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-5">
           <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-[#e7e7e7]/10 border border-[#e7e7e7]/15 text-[#e7e7e7] flex items-center justify-center shrink-0">
               <ShieldCheck className="w-5 h-5" strokeWidth={1.7} />
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1.5">
-                <span className="text-[14px] font-semibold text-[#e7e7e7]">
+                <span className="text-[14px] font-semibold text-white">
                   Security Status: Healthy
                 </span>
-                <Badge className="text-[9px] h-[18px] px-1.5 bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
+                <Badge className="text-[9px] h-[18px] px-1.5 bg-[#e7e7e7]/10 text-[#e7e7e7] border-[#e7e7e7]/20">
                   LIVE
                 </Badge>
               </div>
-              <p className="text-[12px] text-[#777] leading-relaxed mb-4">
+              <p className="text-[12px] text-[#a3a3a3] leading-relaxed mb-4">
                 Your project meets{" "}
-                <span className="text-emerald-400 font-semibold">
+                <span className="text-[#e7e7e7] font-semibold">
                   12 of 15
                 </span>{" "}
                 security benchmarks. {openVulns} open vulnerabilities require attention. Last threat blocked{" "}
                 <span className="text-[#a3a3a3] font-medium">32 min ago</span>.
               </p>
               <div className="flex items-center gap-3">
-                <div className="flex-1 h-1.5 bg-[#222] rounded-full overflow-hidden">
+                <div className="flex-1 h-1.5 bg-[#2a2a2a] rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full transition-all"
+                    className="h-full bg-gradient-to-r from-[#e7e7e7] to-[#ffffff] rounded-full transition-all"
                     style={{ width: "80%" }}
                   />
                 </div>
-                <span className="text-[11px] text-[#888] font-medium whitespace-nowrap">
+                <span className="text-[11px] text-[#a3a3a3] font-medium whitespace-nowrap">
                   12/15
                 </span>
               </div>
@@ -677,56 +670,56 @@ export function SecurityScreen() {
             subtitle="Detailed breakdown of your project's security posture across key areas."
           />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-            <div className="bg-[#181818] border border-[#222] rounded-xl p-5 pb-6 flex-shrink-0 hover:border-[#333] transition-colors">
+            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-5 pb-6 flex-shrink-0 hover:border-[#474747] transition-colors">
               <div className="text-center mb-2">
-                <div className="text-[12px] font-medium text-[#999] mb-0.5">
+                <div className="text-[12px] font-medium text-[#a3a3a3] mb-0.5">
                   Authentication
                 </div>
-                <div className="text-[10px] text-[#444]">
+                <div className="text-[10px] text-[#737373]">
                   2FA · SSO · Tokens
                 </div>
               </div>
               <SecurityScoreRing score={90} label="Auth" />
             </div>
-            <div className="bg-[#181818] border border-[#222] rounded-xl p-5 pb-6 flex-shrink-0 hover:border-[#333] transition-colors">
+            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-5 pb-6 flex-shrink-0 hover:border-[#474747] transition-colors">
               <div className="text-center mb-2">
-                <div className="text-[12px] font-medium text-[#999] mb-0.5">
+                <div className="text-[12px] font-medium text-[#a3a3a3] mb-0.5">
                   Authorization
                 </div>
-                <div className="text-[10px] text-[#444]">
+                <div className="text-[10px] text-[#737373]">
                   RBAC · Policies
                 </div>
               </div>
               <SecurityScoreRing score={75} label="Access" />
             </div>
-            <div className="bg-[#181818] border border-[#222] rounded-xl p-5 pb-6 flex-shrink-0 hover:border-[#333] transition-colors">
+            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-5 pb-6 flex-shrink-0 hover:border-[#474747] transition-colors">
               <div className="text-center mb-2">
-                <div className="text-[12px] font-medium text-[#999] mb-0.5">
+                <div className="text-[12px] font-medium text-[#a3a3a3] mb-0.5">
                   Data Protection
                 </div>
-                <div className="text-[10px] text-[#444]">
+                <div className="text-[10px] text-[#737373]">
                   AES · TLS · Masking
                 </div>
               </div>
               <SecurityScoreRing score={85} label="Encrypt" />
             </div>
-            <div className="bg-[#181818] border border-[#222] rounded-xl p-5 pb-6 flex-shrink-0 hover:border-[#333] transition-colors">
+            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-5 pb-6 flex-shrink-0 hover:border-[#474747] transition-colors">
               <div className="text-center mb-2">
-                <div className="text-[12px] font-medium text-[#999] mb-0.5">
+                <div className="text-[12px] font-medium text-[#a3a3a3] mb-0.5">
                   Infrastructure
                 </div>
-                <div className="text-[10px] text-[#444]">
+                <div className="text-[10px] text-[#737373]">
                   WAF · CDN · Firewall
                 </div>
               </div>
               <SecurityScoreRing score={68} label="Network" />
             </div>
-            <div className="bg-[#181818] border border-[#222] rounded-xl p-5 pb-6 flex-shrink-0 hover:border-[#333] transition-colors">
+            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-5 pb-6 flex-shrink-0 hover:border-[#474747] transition-colors">
               <div className="text-center mb-2">
-                <div className="text-[12px] font-medium text-[#999] mb-0.5">
+                <div className="text-[12px] font-medium text-[#a3a3a3] mb-0.5">
                   App Security
                 </div>
-                <div className="text-[10px] text-[#444]">
+                <div className="text-[10px] text-[#737373]">
                   CSP · CORS · Headers
                 </div>
               </div>
@@ -740,15 +733,15 @@ export function SecurityScreen() {
             title="Recent Auth Events"
             subtitle="Latest authentication events and access activity across the project."
           />
-          <div className="bg-[#181818] border border-[#222] rounded-xl overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-3 border-b border-[#222]">
-              <span className="text-[11px] text-[#555] uppercase tracking-wider font-medium">
+          <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-3 border-b border-[#2a2a2a]">
+              <span className="text-[11px] text-[#737373] uppercase tracking-wider font-medium">
                 Event Log
               </span>
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-[11px] text-[#555] hover:text-[#a3a3a3] h-7"
+                className="text-[11px] text-[#737373] hover:text-[#a3a3a3] h-7"
               >
                 View All
                 <ChevronRight className="w-3 h-3 ml-1" />
@@ -767,9 +760,9 @@ export function SecurityScreen() {
             title="Vulnerabilities"
             subtitle={`Found ${vulnerabilities.length} vulnerabilities — ${openVulns} still open, ${vulnerabilities.filter((v) => v.status === "fixing").length} being fixed.`}
           />
-          <div className="bg-[#181818] border border-[#222] rounded-xl overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-3 border-b border-[#222]">
-              <span className="text-[11px] text-[#555] uppercase tracking-wider font-medium">
+          <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-3 border-b border-[#2a2a2a]">
+              <span className="text-[11px] text-[#737373] uppercase tracking-wider font-medium">
                 Vulnerability Report
               </span>
               <div className="flex items-center gap-3">
@@ -781,7 +774,7 @@ export function SecurityScreen() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-[11px] text-[#555] hover:text-[#a3a3a3] h-7"
+                  className="text-[11px] text-[#737373] hover:text-[#a3a3a3] h-7"
                 >
                   Export
                   <ExternalLink className="w-3 h-3 ml-1" />
@@ -801,9 +794,9 @@ export function SecurityScreen() {
             title="Security Policies"
             subtitle="Configure authentication, access control, and protection policies."
           />
-          <div className="bg-[#181818] border border-[#222] rounded-xl overflow-hidden">
-            <div className="px-5 py-3 border-b border-[#222]">
-              <span className="text-[11px] text-[#555] uppercase tracking-wider font-medium">
+          <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl overflow-hidden">
+            <div className="px-5 py-3 border-b border-[#2a2a2a]">
+              <span className="text-[11px] text-[#737373] uppercase tracking-wider font-medium">
                 Active Policies
               </span>
             </div>
@@ -818,9 +811,9 @@ export function SecurityScreen() {
             title="API Keys & Tokens"
             subtitle={`Manage API keys with access to your project. ${activeKeys} active, 1 inactive.`}
           />
-          <div className="bg-[#181818] border border-[#222] rounded-xl overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-3 border-b border-[#222]">
-              <span className="text-[11px] text-[#555] uppercase tracking-wider font-medium">
+          <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-3 border-b border-[#2a2a2a]">
+              <span className="text-[11px] text-[#737373] uppercase tracking-wider font-medium">
                 Keys
               </span>
               <Button
@@ -844,151 +837,151 @@ export function SecurityScreen() {
             subtitle="Overview of data protection standards and encryption status."
           />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            <div className="bg-[#181818] border border-[#222] rounded-xl p-5 hover:border-[#333] transition-colors">
+            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-5 hover:border-[#474747] transition-colors">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/15 text-emerald-400 flex items-center justify-center">
+                <div className="w-9 h-9 rounded-lg bg-[#e7e7e7]/10 border border-[#e7e7e7]/15 text-[#e7e7e7] flex items-center justify-center">
                   <Lock className="w-[18px] h-[18px]" strokeWidth={1.7} />
                 </div>
                 <div>
-                  <span className="text-[13px] font-medium text-[#ccc]">
+                  <span className="text-[13px] font-medium text-[#a3a3a3]">
                     Encryption at Rest
                   </span>
                 </div>
               </div>
-              <div className="text-[15px] font-semibold text-[#e7e7e7] mb-1">
+              <div className="text-[15px] font-semibold text-white mb-1">
                 AES-256
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                <span className="text-[11px] text-emerald-400">Active</span>
+                <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                <span className="text-[11px] text-[#e7e7e7]">Active</span>
               </div>
-              <div className="mt-4 pt-3 border-t border-[#222]">
-                <div className="text-[10px] text-[#444]">
+              <div className="mt-4 pt-3 border-t border-[#2a2a2a]">
+                <div className="text-[10px] text-[#737373]">
                   Last key rotation: 14 days ago
                 </div>
               </div>
             </div>
 
-            <div className="bg-[#181818] border border-[#222] rounded-xl p-5 hover:border-[#333] transition-colors">
+            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-5 hover:border-[#474747] transition-colors">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/15 text-emerald-400 flex items-center justify-center">
+                <div className="w-9 h-9 rounded-lg bg-[#e7e7e7]/10 border border-[#e7e7e7]/15 text-[#e7e7e7] flex items-center justify-center">
                   <Globe className="w-[18px] h-[18px]" strokeWidth={1.7} />
                 </div>
                 <div>
-                  <span className="text-[13px] font-medium text-[#ccc]">
+                  <span className="text-[13px] font-medium text-[#a3a3a3]">
                     TLS / SSL
                   </span>
                 </div>
               </div>
-              <div className="text-[15px] font-semibold text-[#e7e7e7] mb-1">
+              <div className="text-[15px] font-semibold text-white mb-1">
                 TLS 1.3
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                <span className="text-[11px] text-emerald-400">Active</span>
+                <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                <span className="text-[11px] text-[#e7e7e7]">Active</span>
               </div>
-              <div className="mt-4 pt-3 border-t border-[#222]">
-                <div className="text-[10px] text-[#444]">
+              <div className="mt-4 pt-3 border-t border-[#2a2a2a]">
+                <div className="text-[10px] text-[#737373]">
                   Certificate expires: Aug 15, 2026
                 </div>
               </div>
             </div>
 
-            <div className="bg-[#181818] border border-[#222] rounded-xl p-5 hover:border-[#333] transition-colors">
+            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-5 hover:border-[#474747] transition-colors">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/15 text-amber-400 flex items-center justify-center">
+                <div className="w-9 h-9 rounded-lg bg-[#e7e7e7]/10 border border-[#e7e7e7]/15 text-[#e7e7e7] flex items-center justify-center">
                   <Fingerprint className="w-[18px] h-[18px]" strokeWidth={1.7} />
                 </div>
                 <div>
-                  <span className="text-[13px] font-medium text-[#ccc]">
+                  <span className="text-[13px] font-medium text-[#a3a3a3]">
                     Data Masking
                   </span>
                 </div>
               </div>
-              <div className="text-[15px] font-semibold text-[#e7e7e7] mb-1">
+              <div className="text-[15px] font-semibold text-white mb-1">
                 Partial
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                <span className="text-[11px] text-amber-400">Needs Configuration</span>
+                <div className="w-1.5 h-1.5 rounded-full bg-[#e7e7e7]" />
+                <span className="text-[11px] text-[#e7e7e7]">Needs Configuration</span>
               </div>
-              <div className="mt-4 pt-3 border-t border-[#222]">
-                <div className="text-[10px] text-[#444]">
+              <div className="mt-4 pt-3 border-t border-[#2a2a2a]">
+                <div className="text-[10px] text-[#737373]">
                   3 of 7 sensitive fields masked
                 </div>
               </div>
             </div>
 
-            <div className="bg-[#181818] border border-[#222] rounded-xl p-5 hover:border-[#333] transition-colors">
+            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-5 hover:border-[#474747] transition-colors">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/15 text-emerald-400 flex items-center justify-center">
+                <div className="w-9 h-9 rounded-lg bg-[#e7e7e7]/10 border border-[#e7e7e7]/15 text-[#e7e7e7] flex items-center justify-center">
                   <Scan className="w-[18px] h-[18px]" strokeWidth={1.7} />
                 </div>
                 <div>
-                  <span className="text-[13px] font-medium text-[#ccc]">
+                  <span className="text-[13px] font-medium text-[#a3a3a3]">
                     SOC 2 Compliance
                   </span>
                 </div>
               </div>
-              <div className="text-[15px] font-semibold text-[#e7e7e7] mb-1">
+              <div className="text-[15px] font-semibold text-white mb-1">
                 Type II
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                <span className="text-[11px] text-emerald-400">Compliant</span>
+                <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                <span className="text-[11px] text-[#e7e7e7]">Compliant</span>
               </div>
-              <div className="mt-4 pt-3 border-t border-[#222]">
-                <div className="text-[10px] text-[#444]">
+              <div className="mt-4 pt-3 border-t border-[#2a2a2a]">
+                <div className="text-[10px] text-[#737373]">
                   Next audit: Sep 2026
                 </div>
               </div>
             </div>
 
-            <div className="bg-[#181818] border border-[#222] rounded-xl p-5 hover:border-[#333] transition-colors">
+            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-5 hover:border-[#474747] transition-colors">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/15 text-emerald-400 flex items-center justify-center">
+                <div className="w-9 h-9 rounded-lg bg-[#e7e7e7]/10 border border-[#e7e7e7]/15 text-[#e7e7e7] flex items-center justify-center">
                   <Shield className="w-[18px] h-[18px]" strokeWidth={1.7} />
                 </div>
                 <div>
-                  <span className="text-[13px] font-medium text-[#ccc]">
+                  <span className="text-[13px] font-medium text-[#a3a3a3]">
                     GDPR
                   </span>
                 </div>
               </div>
-              <div className="text-[15px] font-semibold text-[#e7e7e7] mb-1">
+              <div className="text-[15px] font-semibold text-white mb-1">
                 Compliant
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                <span className="text-[11px] text-emerald-400">Active</span>
+                <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                <span className="text-[11px] text-[#e7e7e7]">Active</span>
               </div>
-              <div className="mt-4 pt-3 border-t border-[#222]">
-                <div className="text-[10px] text-[#444]">
+              <div className="mt-4 pt-3 border-t border-[#2a2a2a]">
+                <div className="text-[10px] text-[#737373]">
                   DPIA completed: Jan 2026
                 </div>
               </div>
             </div>
 
-            <div className="bg-[#181818] border border-[#222] rounded-xl p-5 hover:border-[#333] transition-colors">
+            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-5 hover:border-[#474747] transition-colors">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-9 h-9 rounded-lg bg-[#222] border border-[#2a2a2a] text-[#888] flex items-center justify-center">
+                <div className="w-9 h-9 rounded-lg bg-[#2a2a2a] border border-[#2a2a2a] text-[#a3a3a3] flex items-center justify-center">
                   <Activity className="w-[18px] h-[18px]" strokeWidth={1.7} />
                 </div>
                 <div>
-                  <span className="text-[13px] font-medium text-[#ccc]">
+                  <span className="text-[13px] font-medium text-[#a3a3a3]">
                     Audit Logging
                   </span>
                 </div>
               </div>
-              <div className="text-[15px] font-semibold text-[#e7e7e7] mb-1">
+              <div className="text-[15px] font-semibold text-white mb-1">
                 90-Day Retention
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#888]" />
-                <span className="text-[11px] text-[#888]">Logging Active</span>
+                <div className="w-1.5 h-1.5 rounded-full bg-[#a3a3a3]" />
+                <span className="text-[11px] text-[#a3a3a3]">Logging Active</span>
               </div>
-              <div className="mt-4 pt-3 border-t border-[#222]">
-                <div className="text-[10px] text-[#444]">
+              <div className="mt-4 pt-3 border-t border-[#2a2a2a]">
+                <div className="text-[10px] text-[#737373]">
                   12,847 events this month
                 </div>
               </div>

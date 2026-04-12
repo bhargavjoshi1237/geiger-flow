@@ -498,26 +498,24 @@ export function ProjectionsScreen() {
                 ))}
               </div>
 
-              {/* Row 2: month title + date range */}
-              <div>
+              <div className="flex items-center gap-2 justify-between">
                 <p className="text-[15px] font-semibold text-white leading-tight">
                   {getViewTitle(currentDate, viewMode)}
                 </p>
-                <p className="text-xs text-[#737373] leading-tight mt-0.5">
+                <p className="text-xs text-[#737373] leading-tight">
                   {getViewSubtitle(currentDate, viewMode)}
                 </p>
               </div>
 
-              {/* Row 3: view selector + add event */}
               <div className="flex items-center gap-2">
                 <Select value={viewMode} onValueChange={handleViewModeChange}>
                   <SelectTrigger className="h-9 w-[136px] bg-[#202020] border-[#333333] text-[#a3a3a3] text-sm rounded-lg focus:ring-0 focus:border-[#474747]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-[#202020] border-[#2a2a2a]">
-                    <SelectItem value="month" className="text-[#a3a3a3] focus:bg-[#2a2a2a]">Month view</SelectItem>
-                    <SelectItem value="week"  className="text-[#a3a3a3] focus:bg-[#2a2a2a]">Week view</SelectItem>
-                    <SelectItem value="day"   className="text-[#a3a3a3] focus:bg-[#2a2a2a]">Day view</SelectItem>
+                    <SelectItem value="month" className="text-[#a3a3a3] focus:bg-[#2a2a2a]">Month</SelectItem>
+                    <SelectItem value="week"  className="text-[#a3a3a3] focus:bg-[#2a2a2a]">Week</SelectItem>
+                    <SelectItem value="day"   className="text-[#a3a3a3] focus:bg-[#2a2a2a]">Day</SelectItem>
                   </SelectContent>
                 </Select>
                 <AddActivityDialog onSave={handleSaveActivity}>

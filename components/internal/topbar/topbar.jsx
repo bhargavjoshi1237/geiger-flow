@@ -13,6 +13,7 @@ import Image from "next/image";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { NotificationsDropdown } from "./dialogue/notifications_dropdown";
+import { ProfileDropdown } from "./dialogue/profile_dropdown";
 
 export function Topbar() {
   return (
@@ -65,9 +66,7 @@ export function Topbar() {
                 <div className="absolute top-[6px] right-[7px] w-2 h-2 rounded-full bg-[#3b82f6] border border-[#161616]"></div>
               </button>
             </NotificationsDropdown>
-            <button className="w-8 h-8 rounded-full border border-[#333333] hover:border-[#474747] overflow-hidden ml-1 transition-colors">
-              <div className="w-full h-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500"></div>
-            </button>
+            <ProfileDropdown />
           </div>
         </div>
       </div>
