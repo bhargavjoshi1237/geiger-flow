@@ -63,8 +63,7 @@ export function Topbar() {
             <NotificationsDropdown>
               <button className="w-8 h-8 rounded-full border border-transparent hover:bg-[#2a2a2a] flex items-center justify-center transition-colors text-[#a3a3a3] hover:text-white relative">
                 <Bell className="w-[18px] h-[18px]" strokeWidth={2} />
-                <div className="absolute top-[6px] right-[7px] w-2 h-2 rounded-full bg-[#3b82f6] border border-[#161616]"></div>
-              </button>
+                </button>
             </NotificationsDropdown>
             <ProfileDropdown />
           </div>

@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Bell, Download, FileText, Image as ImageIcon } from "lucide-react";
 import * as LucideIcons from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { getUser } from "@/lib/supabase/user";
 import { formatDistanceToNow } from "date-fns";
 
 export function NotificationsDropdown({ children }) {
@@ -15,14 +15,15 @@ export function NotificationsDropdown({ children }) {
 
   useEffect(() => {
     const fetchNotifications = async () => {
-      const supabase = createClient();
-      const { data: userData } = await supabase.auth.getUser();
+      const userData = await getUser();
 
-      if (userData?.user) {
+      if (userData) {
+        const { createClient } = await import("@/lib/supabase/client");
+        const supabase = createClient();
         const { data, error } = await supabase
           .from("flow_notifications")
           .select("*")
-          .eq("user_id", userData.user.id)
+          .eq("user_id", userData.id)
           .order("time", { ascending: false });
 
         if (error) {
@@ -47,9 +48,6 @@ export function NotificationsDropdown({ children }) {
         {children || (
           <button className="w-8 h-8 rounded-full border border-transparent hover:bg-[#2a2a2a] flex items-center justify-center transition-colors text-[#a3a3a3] hover:text-white relative">
             <Bell className="w-[18px] h-[18px]" strokeWidth={2} />
-            {notifications.some((n) => !n.read) && (
-              <div className="absolute top-[6px] right-[7px] w-2 h-2 rounded-full bg-[#3b82f6] border border-[#161616]"></div>
-            )}
           </button>
         )}
       </DropdownMenuTrigger>

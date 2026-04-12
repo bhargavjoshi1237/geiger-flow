@@ -14,7 +14,6 @@ export const workspaceNav = [
   { title: "Projects", icon: Box },
   { title: "Inbox", icon: Inbox },
   { title: "Team", icon: Users2 },
-  { title: "Integrations", icon: Plug },
   { title: "Usage", icon: BarChart3 },
   { title: "Billing", icon: CreditCard },
   { title: "Organization settings", icon: Settings },
