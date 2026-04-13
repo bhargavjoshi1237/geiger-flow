@@ -99,7 +99,6 @@ Open [http://localhost:3000](http://localhost:3000) in your browser. In producti
 ```
 app/                     Next.js App Router routes
   project/[id]/          Project workspace and builder canvas
-  dashboard/             Organisation dashboard
   api/notifications/     Assignment notification endpoints
 features/                Per-feature data layer (issues, tasks, milestones, objectives, goals)
   <feature>/actions.js   CRUD + normalize/toRow against the `flow` schema
