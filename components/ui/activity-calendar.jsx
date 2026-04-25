@@ -6,20 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./car
 import { Button } from "./button";
 import { Activity, Calendar as CalendarIcon, TrendingUp, Zap } from "lucide-react";
 
-/**
- * Activity Calendar Component
- * A specialized calendar that shows activity patterns and intensity
- * 
- * Activity Data Structure:
- * {
- *   timestamp: Date | string,
- *   intensity?: number (1-5, default 1),
- *   count?: number (alternative to intensity),
- *   type?: string (for categorization),
- *   metadata?: object (additional data)
- * }
- */
-
 export function ActivityCalendar({
   activities = [],
   onDateSelect,
@@ -32,7 +18,6 @@ export function ActivityCalendar({
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [view, setView] = useState("month");
 
-  // Calculate statistics
   const stats = useMemo(() => {
     if (!showStats || activities.length === 0) return null;
 
@@ -114,7 +99,6 @@ export function ActivityCalendar({
         </div>
       )}
 
-      {/* Calendar */}
       <Calendar
         activities={activities}
         showActivity={true}
@@ -128,7 +112,6 @@ export function ActivityCalendar({
         className=""
       />
 
-      {/* Activity Legend */}
       <div className="mt-4 flex items-center justify-between px-4 py-3 bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl">
         <span className="text-sm text-[#737373]">Activity Intensity</span>
         <div className="flex items-center gap-2">
