@@ -56,7 +56,7 @@ addons/
 
 ## How It Works
 
-1. `app/project/[id]/page.js` imports each addon's index.js (e.g. `import "@/addons/sql"`)
+1. `addons/index.js` imports each addon's index.js (e.g. `import "./sql"`); `app/project/[id]/page.js` and the landing playground both `import "@/addons"`
 2. Each addon's index.js calls `loadAddon(addonDefinition)` from the registry
 3. `AddonRegistryProvider` wraps the project layout and manages enabled state
 4. The sidebar reads `getAddonNavItems(enabledAddons)` and renders them after main nav
@@ -83,7 +83,7 @@ Follow these steps to create a new add-on:
 3. **Create `screens/`** — add the main screen component for the addon
 4. **Create `components/`** — add sub-components used by the screens
 5. **Create `index.js`** — import manifest and call `loadAddon()`
-6. **Register in page.js** — add `import "@/addons/<addon-id>"` in `app/project/[id]/page.js`
+6. **Register in addons/index.js** — add `import "./<addon-id>"` to `addons/index.js` (not to a page)
 7. **Add to settings nav** — the addon appears automatically in Settings > Add-ons if registered
 
 Key rules:
