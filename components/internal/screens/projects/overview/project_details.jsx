@@ -612,118 +612,6 @@ function ResourcePerformanceWidget() {
   );
 }
 
-function OpenTasksWidget() {
-  return (
-    <WidgetShell>
-      <div className="space-y-3">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex w-full items-start gap-2">
-            <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-[#333333] bg-[#202020]">
-              <ListTodo className="h-3.5 w-3.5 text-[#a3a3a3]" />
-            </span>
-            <div className="min-w-0 flex-1">
-              <h3 className="text-base font-semibold text-[#ededed]">Tasks</h3>
-              <p className="text-sm text-[#a3a3a3]">Assigned work currently moving through the project.</p>
-            </div>
-          </div>
-        </div>
-        {DASHBOARD_TASKS.map((task) => (
-          <div key={task.id} className="rounded-lg border border-[#2a2a2a] bg-[#202020] p-3">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="w-4 h-4 rounded border border-[#525252] flex items-center justify-center">
-                    <CheckCircle2 className="w-3 h-3 text-[#737373]" />
-                  </span>
-                  <p className="text-sm font-medium text-[#ededed] truncate">{task.title}</p>
-                </div>
-                <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                  <Badge className="bg-[#2a2a2a] text-[#ededed] border-[#333333] text-[10px]">{task.id}</Badge>
-                  <TaskPriorityBadge priority={task.priority} />
-                  <span className="text-[11px] text-[#737373] flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    {task.due}
-                  </span>
-                </div>
-              </div>
-              <span className="text-[11px] text-[#a3a3a3] rounded bg-[#2a2a2a] px-2 py-1">{task.status}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </WidgetShell>
-  );
-}
-
-function MilestonesWidget() {
-  return (
-    <WidgetShell>
-      <div className="space-y-3">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex w-full items-start gap-2">
-            <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-[#333333] bg-[#202020]">
-              <Milestone className="h-3.5 w-3.5 text-[#a3a3a3]" />
-            </span>
-            <div className="min-w-0 flex-1">
-              <h3 className="text-base font-semibold text-[#ededed]">Milestones</h3>
-              <p className="text-sm text-[#a3a3a3]">Key checkpoints and delivery progress.</p>
-            </div>
-          </div>
-        </div>
-        {DASHBOARD_MILESTONES.map((milestone) => (
-          <div key={milestone.title} className="rounded-lg border border-[#2a2a2a] bg-[#202020] p-4">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-sm font-medium text-[#ededed]">{milestone.title}</p>
-                <p className="text-xs text-[#737373] mt-2">{milestone.date}</p>
-              </div>
-              <span className="text-xs font-semibold text-[#ededed] bg-[#2a2a2a] px-2 py-1 rounded-full">
-                {milestone.progress}%
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </WidgetShell>
-  );
-}
-
-function ActivityWidget() {
-  return (
-    <WidgetShell className="h-[420px]" contentClassName="h-full">
-      <div className="flex h-full flex-col space-y-4">
-        <div className="flex w-full items-start gap-2">
-          <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-[#333333] bg-[#202020]">
-            <Activity className="h-3.5 w-3.5 text-[#a3a3a3]" />
-          </span>
-          <div className="min-w-0 flex-1">
-            <h3 className="text-base font-semibold text-[#ededed]">Activity</h3>
-            <p className="text-sm text-[#a3a3a3]">Recent project events and member updates.</p>
-          </div>
-        </div>
-        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-2 [&::-webkit-scrollbar]:hidden [&]:-ms-overflow-style:none [&]:scrollbar-width:none">
-          {DASHBOARD_ACTIVITY.map((entry, index) => (
-            <div key={entry} className="flex gap-3">
-              <div className="relative">
-                <span className="w-7 h-7 rounded-full bg-[#202020] border border-[#2a2a2a] flex items-center justify-center">
-                  {index === 3 ? <Users className="w-3.5 h-3.5 text-[#a3a3a3]" /> : <Flag className="w-3.5 h-3.5 text-[#a3a3a3]" />}
-                </span>
-                {index !== DASHBOARD_ACTIVITY.length - 1 ? (
-                  <span className="absolute top-8 left-1/2 -translate-x-1/2 w-px h-5 bg-[#2a2a2a]" />
-                ) : null}
-              </div>
-              <div>
-                <p className="text-sm font-medium text-[#d4d4d4]">{entry}</p>
-                <p className="text-xs text-[#737373]">May 10, 2026 at 1:24 AM</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </WidgetShell>
-  );
-}
-
 export function ProjectDetailsScreen() {
   const { project } = useProject();
   const { showBanner } = useBanner();
@@ -974,11 +862,6 @@ export function ProjectDetailsScreen() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-        <OpenTasksWidget />
-        <MilestonesWidget />
-        <ActivityWidget />
-      </div>
     </MainScreenWrapper>
   );
 }
