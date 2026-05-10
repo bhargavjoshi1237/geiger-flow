@@ -12,6 +12,7 @@ import { UsageScreen } from '@/components/internal/screens/dashboard/usage/usage
 import { BillingScreen } from '@/components/internal/screens/dashboard/billing/billing';
 import { OrganizationSettingsScreen } from '@/components/internal/screens/dashboard/organization_settings/organization_settings';
 import { InboxScreen } from '@/components/internal/screens/dashboard/inbox/inbox';
+import { ReportingScreen } from '@/components/internal/screens/reporting/reporting_screen';
 
 export default function Home() {
   const [currentTab, setCurrentTab] = useState("Overview");
@@ -22,6 +23,8 @@ export default function Home() {
         return <OverviewScreen />;
       case "Projects":
         return <ProjectsScreen />;
+      case "Reporting":
+        return <ReportingScreen />;
       case "Inbox":
         return <InboxScreen />;
       case "Team":

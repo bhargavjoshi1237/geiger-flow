@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card";
 import { GeneralSettingsScreen } from "./general/general_settings";
 import { ConnectivityScreen } from "./connectivity/connectivity_screen";
+import { CustomsSettingsScreen } from "./customs/customs_settings";
 import { AddonsSettingsScreen } from "./addons/addons_settings";
 import { UsageSettingsScreen } from "./usage/usage_screen";
 import { AdvancedSettingsScreen } from "./advanced/advanced_settings";
@@ -21,6 +22,8 @@ export function SettingsScreen({ activeSettingsTab = "General" }) {
         return <GeneralSettingsScreen />;
       case "Connectivity":
         return <ConnectivityScreen />;
+      case "Customs":
+        return <CustomsSettingsScreen />;
       case "Add-ons":
         return <AddonsSettingsScreen />;
       case "Usage":

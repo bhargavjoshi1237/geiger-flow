@@ -12,6 +12,7 @@ import {
 export const workspaceNav = [
   { title: "Overview", icon: LayoutDashboard },
   { title: "Projects", icon: Box },
+  { title: "Reporting", icon: BarChart3 },
   { title: "Inbox", icon: Inbox },
   { title: "Team", icon: Users2 },
   { title: "Usage", icon: BarChart3 },

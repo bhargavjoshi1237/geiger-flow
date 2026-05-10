@@ -3,13 +3,12 @@
 import React, { useState, useCallback, useRef, useMemo, useEffect } from "react";
 import {
   ReactFlow,
-  Controls,
   Background,
+  SelectionMode,
   addEdge,
   applyNodeChanges,
   applyEdgeChanges,
   MarkerType,
-  Panel,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import {
@@ -18,25 +17,37 @@ import {
   FileText,
   Layers3,
   Pencil,
+  PanelLeft,
   Plus,
   Trash2,
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import CustomNode from "./nodes/custom_node";
-import TaskNode from "./nodes/task_node";
-import NoteNode from "./nodes/note_node";
-import GroupNode from "./nodes/group_node";
-import CenterEdge from "./edges/center_edge";
-import { PlanningToolbar } from "./planning_toolbar";
+import NotesSidebar from "./notes/layout/Sidebar";
+import CustomNode from "./notes/nodes/CustomNode";
+import CommentNode from "./notes/nodes/CommentNode";
+import LinkNode from "./notes/nodes/LinkNode";
+import BoardNode from "./notes/nodes/BoardNode";
+import DocumentNode from "./notes/nodes/DocumentNode";
+import ImageNode from "./notes/nodes/ImageNode";
+import FileNode from "./notes/nodes/FileNode";
+import CalendarNode from "./notes/nodes/calendar/CalendarNode";
+import ClockNode from "./notes/nodes/clock/ClockNode";
+import CenterEdge from "./notes/edges/CenterEdge";
 
 const nodeTypes = {
   custom: CustomNode,
-  taskNode: TaskNode,
-  noteNode: NoteNode,
-  groupNode: GroupNode,
+  comment: CommentNode,
+  link: LinkNode,
+  board: BoardNode,
+  document: DocumentNode,
+  image: ImageNode,
+  file: FileNode,
+  calendar: CalendarNode,
+  clock: ClockNode,
 };
 
 const edgeTypes = {
@@ -96,43 +107,60 @@ const INITIAL_NODES = [
     id: "node-1",
     type: "custom",
     position: { x: 250, y: 50 },
-    data: { label: "Project Planning Board", textAlign: "center", bold: true },
+    data: {
+      label: "Project Planning Board",
+      textAlign: "center",
+      bold: true,
+      backgroundColor: "#333333",
+    },
     style: { width: 338, height: 68 },
   },
   {
     id: "node-2",
-    type: "taskNode",
+    type: "custom",
     position: { x: 100, y: 220 },
-    data: { label: "Design System Setup", nodeType: "task", status: "progress" },
-    style: { width: 260, height: 80 },
+    data: { label: "Design System Setup", backgroundColor: "#1e1e1e" },
+    style: { width: 300, height: 90 },
   },
   {
     id: "node-3",
-    type: "taskNode",
+    type: "custom",
     position: { x: 450, y: 220 },
-    data: { label: "API Integration", nodeType: "task", status: "todo" },
-    style: { width: 260, height: 80 },
+    data: { label: "API Integration", backgroundColor: "#1e1e1e" },
+    style: { width: 300, height: 90 },
   },
   {
     id: "node-4",
-    type: "groupNode",
-    position: { x: 80, y: 400 },
-    data: { label: "Phase 1" },
-    style: { width: 600, height: 300 },
+    type: "board",
+    position: { x: 80, y: 410 },
+    data: {
+      label: "Phase 1",
+      name: "Phase 1",
+      caption: "Delivery checkpoint",
+      backgroundColor: "#1e1e1e",
+    },
+    style: { width: 328, height: 70 },
   },
   {
     id: "node-5",
-    type: "noteNode",
-    position: { x: 120, y: 460 },
-    data: { label: "Remember to sync milestones with the project timeline", color: "#f59e0b" },
-    style: { width: 220, height: 100 },
+    type: "comment",
+    position: { x: 460, y: 410 },
+    data: {
+      label: "Remember to sync milestones with the project timeline",
+      backgroundColor: "#2a2a2a",
+    },
+    style: { width: 260, height: 120 },
   },
   {
     id: "node-6",
-    type: "noteNode",
-    position: { x: 400, y: 460 },
-    data: { label: "Review security requirements before deployment", color: "#3b82f6" },
-    style: { width: 220, height: 100 },
+    type: "link",
+    position: { x: 780, y: 410 },
+    data: {
+      label: "Review security requirements",
+      url: "https://example.com/security",
+      backgroundColor: "#1e1e1e",
+    },
+    style: { width: 260, height: 88 },
   },
 ];
 
@@ -178,9 +206,75 @@ const INITIAL_FILES = [
   },
 ];
 
+function getDefaultNodeStyle(type) {
+  switch (type) {
+    case "board":
+      return { width: 328, height: 68 };
+    case "document":
+      return { width: 240, height: 68 };
+    case "image":
+      return { width: 200, height: 250 };
+    case "file":
+      return { width: 220, height: 80 };
+    case "calendar":
+      return { width: 220, height: 220 };
+    case "comment":
+      return { width: 260, height: 120 };
+    case "link":
+      return { width: 240, height: 80 };
+    default:
+      return { width: 338, height: 68 };
+  }
+}
+
+function getDefaultNodeData(type, defaultData = {}) {
+  if (type === "board") {
+    const boardId = `planning-board-${Date.now()}`;
+    return {
+      label: "Untitled Board",
+      boardId,
+      name: "Untitled Board",
+      backgroundColor: "#1e1e1e",
+      ...defaultData,
+    };
+  }
+
+  if (type === "image") {
+    return {
+      label: "Image",
+      src: "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?q=80&w=1000&auto=format&fit=crop",
+      alt: "Placeholder Image",
+      ...defaultData,
+    };
+  }
+
+  if (type === "calendar") {
+    return {
+      calendarTheme: "light",
+      calendarStyle: "default",
+      backgroundColor: "#2a2a2a",
+      ...defaultData,
+    };
+  }
+
+  if (type === "file") {
+    return {
+      label: "File",
+      fileName: "No file selected",
+      fileSize: 0,
+      fileType: "",
+      src: null,
+      ...defaultData,
+    };
+  }
+
+  return defaultData;
+}
+
 export function PlanningScreen() {
   const [planningFiles, setPlanningFiles] = useState(INITIAL_FILES);
   const [activeFileId, setActiveFileId] = useState(INITIAL_FILES[0].id);
+  const [filesOpen, setFilesOpen] = useState(true);
 
   const [nodes, setNodes] = useState(() => cloneNodes(INITIAL_FILES[0].nodes));
   const [edges, setEdges] = useState(() => cloneEdges(INITIAL_FILES[0].edges));
@@ -445,7 +539,8 @@ export function PlanningScreen() {
         id: `node-${Date.now()}`,
         type: nodeType.type,
         position: { x, y },
-        data: { ...nodeType.defaultData },
+        data: getDefaultNodeData(nodeType.type, nodeType.defaultData),
+        style: getDefaultNodeStyle(nodeType.type),
       };
 
       setNodes((prev) => {
@@ -455,6 +550,62 @@ export function PlanningScreen() {
       });
     },
     [reactFlowInstance, persistGraphForFile]
+  );
+
+  const onDragOver = useCallback((event) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+  }, []);
+
+  const onDrop = useCallback(
+    (event) => {
+      event.preventDefault();
+
+      const type = event.dataTransfer.getData("application/reactflow");
+      if (!type || !reactFlowInstance) return;
+
+      const position = reactFlowInstance.screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+
+      const newNode = {
+        id: `node-${Date.now()}`,
+        type,
+        position,
+        data: getDefaultNodeData(type, {}),
+        style: getDefaultNodeStyle(type),
+      };
+
+      setNodes((prev) => {
+        const next = [...prev, newNode];
+        persistGraphForFile(activeFileIdRef.current, next, edgesRef.current);
+        return next;
+      });
+    },
+    [reactFlowInstance, persistGraphForFile],
+  );
+
+  const onNodeDragStop = useCallback(
+    (_, node) => {
+      setNodes((prev) => {
+        const next = prev.map((item) => {
+          if (item.id !== node.id) return item;
+
+          return {
+            ...item,
+            position: {
+              x: Math.round(item.position.x / 15) * 15,
+              y: Math.round(item.position.y / 15) * 15,
+            },
+          };
+        });
+
+        persistGraphForFile(activeFileIdRef.current, next, edgesRef.current);
+        return next;
+      });
+    },
+    [persistGraphForFile],
   );
 
   const onZoomIn = useCallback(() => {
@@ -469,47 +620,161 @@ export function PlanningScreen() {
     reactFlowInstance?.fitView({ padding: 0.2 });
   }, [reactFlowInstance]);
 
-  const activeSummary = useMemo(
-    () => ({
-      nodes: nodes.length,
-      edges: edges.length,
-      files: planningFiles.length,
-    }),
-    [nodes.length, edges.length, planningFiles.length]
-  );
+  const selectedEdge = useMemo(() => edges.find((edge) => edge.selected), [edges]);
+  const selectedNode = useMemo(() => nodes.find((node) => node.selected), [nodes]);
+
+  const updateEdge = useCallback((edgeId, updates) => {
+    setEdges((prev) => {
+      const next = prev.map((edge) => (edge.id === edgeId ? { ...edge, ...updates } : edge));
+      persistGraphForFile(activeFileIdRef.current, nodesRef.current, next);
+      return next;
+    });
+  }, [persistGraphForFile]);
+
+  const updateNode = useCallback((nodeId, updates) => {
+    setNodes((prev) => {
+      const next = prev.map((node) => (node.id === nodeId ? { ...node, ...updates } : node));
+      persistGraphForFile(activeFileIdRef.current, next, edgesRef.current);
+      return next;
+    });
+  }, [persistGraphForFile]);
+
+  const deselectEdges = useCallback(() => {
+    setEdges((prev) => prev.map((edge) => ({ ...edge, selected: false })));
+  }, []);
+
+  const deselectNodes = useCallback(() => {
+    setNodes((prev) => prev.map((node) => ({ ...node, selected: false })));
+  }, []);
 
   const proOptions = { hideAttribution: true };
+  const collaborators = [
+    { name: "Aadit Joshi", initials: "AJ", color: "bg-emerald-300 text-emerald-950" },
+    { name: "Priya Shah", initials: "PS", color: "bg-sky-300 text-sky-950" },
+    { name: "Sam Lee", initials: "SL", color: "bg-violet-300 text-violet-950" },
+  ];
 
   return (
-    <MainScreenWrapper className="max-w-none space-y-5">
-      <div className="border-b border-[#2a2a2a] pb-6">
-        <h1 className="text-3xl font-bold text-[#e7e7e7]">Planning</h1>
-        <p className="mt-1 text-[#a3a3a3]">
-          Build multiple planning files, switch context instantly, and map dependencies on a shared canvas.
-        </p>
-      </div>
+    <MainScreenWrapper className="max-w-none space-y-0 px-0 py-0 lg:max-w-none">
+      <div className="relative h-[calc(100dvh-8rem)] min-h-[640px] overflow-hidden rounded-xl border border-[#2a2a2a] bg-[#161616] text-[#e7e7e7]">
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          onDragOver={onDragOver}
+          onDrop={onDrop}
+          onNodeDragStop={onNodeDragStop}
+          onInit={(instance) => {
+            setReactFlowInstance(instance);
+            setZoomLevel(instance.getViewport().zoom);
+          }}
+          onMove={(_, viewport) => setZoomLevel(viewport.zoom)}
+          nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
+          zoomOnScroll={false}
+          fitView
+          fitViewOptions={{ padding: 0.18, maxZoom: 0.8 }}
+          proOptions={proOptions}
+          minZoom={0.1}
+          maxZoom={2}
+          deleteKeyCode={["Backspace", "Delete"]}
+          multiSelectionKeyCode="Shift"
+          selectionMode={SelectionMode.Partial}
+          zoomOnDoubleClick={false}
+          className="planning-notes-canvas bg-[#161616]"
+          defaultEdgeOptions={{
+            type: "center",
+            markerEnd: { type: MarkerType.ArrowClosed, width: 20, height: 20 },
+          }}
+        >
+          <Background color="#373737" gap={14} size={1} variant="dots" />
+        </ReactFlow>
 
-      <div className="grid min-h-[calc(100dvh-250px)] grid-cols-1 gap-4 xl:grid-cols-[300px_minmax(0,1fr)]">
-        <aside className="flex min-h-0 flex-col rounded-2xl border border-[#2a2a2a] bg-[#131313] p-4">
-          <div className="mb-4 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#737373]">
-                Planning files
+        <header className="absolute left-0 right-0 top-0 z-40 flex h-14 items-center justify-between border-b border-[#2a2a2a]/60 bg-[#161616]/70 px-4 backdrop-blur-md">
+          <div className="flex min-w-0 items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setFilesOpen((value) => !value)}
+              className="h-8 w-8 text-[#a3a3a3] hover:bg-[#2a2a2a] hover:text-white"
+              title="Toggle planning files"
+            >
+              <PanelLeft className="h-4 w-4" />
+            </Button>
+            <div className="min-w-0 border-l border-[#333333] pl-3">
+              <div className="flex items-center gap-2">
+                <h1 className="text-sm font-semibold text-white">Planning</h1>
+                <span className="hidden text-xs text-[#525252] sm:inline">/</span>
+                <span className="hidden max-w-[260px] truncate text-sm text-[#a3a3a3] sm:inline">
+                  {activeFile?.name || "Planning file"}
+                </span>
+              </div>
+              <p className="hidden text-xs text-[#737373] md:block">
+                Map project dependencies on a clean shared canvas.
               </p>
-              <p className="text-xs text-[#525252]">{planningFiles.length} total</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="flex -space-x-2">
+              {collaborators.map((user) => (
+                <Avatar
+                  key={user.initials}
+                  title={user.name}
+                  className="h-8 w-8 border-2 border-[#161616] shadow-sm"
+                >
+                  <AvatarFallback className={cn("text-[11px] font-bold", user.color)}>
+                    {user.initials}
+                  </AvatarFallback>
+                </Avatar>
+              ))}
+            </div>
+          </div>
+        </header>
+
+        <style jsx global>{`
+          .planning-notes-canvas .react-flow__node {
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) !important;
+          }
+        `}</style>
+
+        <div className="absolute bottom-0 left-0 top-14 z-40">
+          <NotesSidebar
+            selectedEdge={selectedEdge}
+            onUpdateEdge={updateEdge}
+            onDeselect={deselectEdges}
+            selectedNode={selectedNode}
+            onUpdateNode={updateNode}
+            onDeselectNode={deselectNodes}
+          />
+        </div>
+
+        <aside
+          className={cn(
+            "absolute bottom-4 left-20 top-[4.5rem] z-40 flex w-[292px] flex-col overflow-hidden rounded-xl border border-[#2a2a2a]/70 bg-[#161616]/70 backdrop-blur-md transition-transform duration-300",
+            filesOpen ? "translate-x-0" : "-translate-x-[calc(100%+5rem)]",
+          )}
+        >
+          <div className="flex h-11 shrink-0 items-center justify-between border-b border-[#2a2a2a]/70 px-3">
+            <div className="flex items-center gap-2">
+              <Layers3 className="h-4 w-4 text-[#a3a3a3]" />
+              <span className="text-sm font-semibold text-[#ededed]">Files</span>
+              <span className="text-xs text-[#525252]">{planningFiles.length}</span>
             </div>
             <Button
               variant="ghost"
               size="icon"
               onClick={handleCreateFile}
-              className="h-8 w-8 border border-[#2a2a2a] text-[#737373] hover:bg-[#202020] hover:text-[#ededed]"
+              className="h-7 w-7 text-[#737373] hover:bg-[#242424] hover:text-white"
               title="Create file"
             >
               <Plus className="h-4 w-4" />
             </Button>
           </div>
 
-          <div className="flex-1 space-y-2 overflow-y-auto pr-1">
+          <div className="min-h-0 flex-1 space-y-1 overflow-y-auto p-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {planningFiles.map((file) => {
               const isActive = file.id === activeFileId;
               const isRenaming = renameFileId === file.id;
@@ -527,71 +792,73 @@ export function PlanningScreen() {
                     }
                   }}
                   className={cn(
-                    "rounded-xl border p-3 transition-all",
+                    "rounded-lg border px-3 py-2 transition-colors",
                     isActive
-                      ? "border-[#3a3a3a] bg-[#1b1b1b]"
-                      : "border-[#222] bg-[#171717] hover:border-[#2e2e2e] hover:bg-[#1a1a1a]"
+                      ? "border-[#3a3a3a] bg-[#242424]"
+                      : "border-transparent bg-transparent hover:border-[#2a2a2a] hover:bg-[#202020]",
                   )}
                 >
-                  <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-4 w-4 shrink-0 text-[#737373]" />
                     <div className="min-w-0 flex-1">
                       {isRenaming ? (
-                        <div className="flex items-center gap-1">
-                          <input
-                            value={renameValue}
-                            onChange={(event) => setRenameValue(event.target.value)}
-                            onClick={(event) => event.stopPropagation()}
-                            onBlur={() => handleCommitRename(file.id)}
-                            onKeyDown={(event) => {
-                              if (event.key === "Enter") {
-                                event.preventDefault();
-                                handleCommitRename(file.id);
-                              }
-                              if (event.key === "Escape") {
-                                event.preventDefault();
-                                handleCancelRename();
-                              }
-                            }}
-                            autoFocus
-                            className="h-7 w-full rounded-md border border-[#2f2f2f] bg-[#101010] px-2 text-sm text-[#ededed] outline-none focus:border-[#3f3f3f]"
-                          />
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onMouseDown={(event) => event.preventDefault()}
-                            onClick={(event) => {
-                              event.stopPropagation();
+                        <input
+                          value={renameValue}
+                          onChange={(event) => setRenameValue(event.target.value)}
+                          onClick={(event) => event.stopPropagation()}
+                          onBlur={() => handleCommitRename(file.id)}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter") {
+                              event.preventDefault();
                               handleCommitRename(file.id);
-                            }}
-                            className="h-7 w-7 text-[#737373] hover:bg-[#242424] hover:text-[#ededed]"
-                          >
-                            <Check className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onMouseDown={(event) => event.preventDefault()}
-                            onClick={(event) => {
-                              event.stopPropagation();
+                            }
+                            if (event.key === "Escape") {
+                              event.preventDefault();
                               handleCancelRename();
-                            }}
-                            className="h-7 w-7 text-[#737373] hover:bg-[#242424] hover:text-[#ededed]"
-                          >
-                            <X className="h-3.5 w-3.5" />
-                          </Button>
-                        </div>
+                            }
+                          }}
+                          autoFocus
+                          className="h-7 w-full rounded-md border border-[#333333] bg-[#111111] px-2 text-sm text-[#ededed] outline-none focus:border-[#474747]"
+                        />
                       ) : (
                         <>
-                          <p className="truncate text-sm font-medium text-[#e7e7e7]">{file.name}</p>
-                          <p className="mt-0.5 text-[11px] text-[#525252]">
-                            {file.nodes.length} nodes / {file.edges.length} links
+                          <p className="truncate text-sm font-medium text-[#ededed]">{file.name}</p>
+                          <p className="truncate text-[11px] text-[#525252]">
+                            {file.nodes.length} nodes | {file.edges.length} links | {dateFormatter.format(new Date(file.updatedAt))}
                           </p>
                         </>
                       )}
                     </div>
 
-                    {!isRenaming && (
-                      <div className="flex items-center gap-0.5">
+                    {isRenaming ? (
+                      <div className="flex shrink-0 items-center gap-0.5">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onMouseDown={(event) => event.preventDefault()}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            handleCommitRename(file.id);
+                          }}
+                          className="h-7 w-7 text-[#737373] hover:bg-[#242424] hover:text-[#ededed]"
+                        >
+                          <Check className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onMouseDown={(event) => event.preventDefault()}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            handleCancelRename();
+                          }}
+                          className="h-7 w-7 text-[#737373] hover:bg-[#242424] hover:text-[#ededed]"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex shrink-0 items-center gap-0.5 opacity-70">
                         <Button
                           variant="ghost"
                           size="icon"
@@ -599,7 +866,7 @@ export function PlanningScreen() {
                             event.stopPropagation();
                             handleStartRename(file);
                           }}
-                          className="h-7 w-7 text-[#525252] hover:bg-[#242424] hover:text-[#a3a3a3]"
+                          className="h-7 w-7 text-[#525252] hover:bg-[#2a2a2a] hover:text-[#ededed]"
                           title="Rename file"
                         >
                           <Pencil className="h-3.5 w-3.5" />
@@ -611,7 +878,7 @@ export function PlanningScreen() {
                             event.stopPropagation();
                             handleDuplicateFile(file.id);
                           }}
-                          className="h-7 w-7 text-[#525252] hover:bg-[#242424] hover:text-[#a3a3a3]"
+                          className="h-7 w-7 text-[#525252] hover:bg-[#2a2a2a] hover:text-[#ededed]"
                           title="Duplicate file"
                         >
                           <Copy className="h-3.5 w-3.5" />
@@ -632,90 +899,44 @@ export function PlanningScreen() {
                       </div>
                     )}
                   </div>
-
-                  {!isRenaming && (
-                    <div className="mt-2 flex items-center gap-1 text-[10px] text-[#444]">
-                      <FileText className="h-3 w-3" />
-                      Updated {dateFormatter.format(new Date(file.updatedAt))}
-                    </div>
-                  )}
                 </div>
               );
             })}
           </div>
-
-          <div className="mt-4 rounded-xl border border-[#242424] bg-[#171717] p-3">
-            <div className="inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.14em] text-[#737373]">
-              <Layers3 className="h-3.5 w-3.5" />
-              Active summary
-            </div>
-            <div className="mt-3 grid grid-cols-3 gap-2 text-center">
-              <div className="rounded-lg border border-[#242424] bg-[#151515] py-2">
-                <p className="text-[10px] uppercase tracking-widest text-[#525252]">Files</p>
-                <p className="mt-1 text-sm font-semibold text-[#e7e7e7]">{activeSummary.files}</p>
-              </div>
-              <div className="rounded-lg border border-[#242424] bg-[#151515] py-2">
-                <p className="text-[10px] uppercase tracking-widest text-[#525252]">Nodes</p>
-                <p className="mt-1 text-sm font-semibold text-[#e7e7e7]">{activeSummary.nodes}</p>
-              </div>
-              <div className="rounded-lg border border-[#242424] bg-[#151515] py-2">
-                <p className="text-[10px] uppercase tracking-widest text-[#525252]">Links</p>
-                <p className="mt-1 text-sm font-semibold text-[#e7e7e7]">{activeSummary.edges}</p>
-              </div>
-            </div>
-          </div>
         </aside>
 
-        <div className="relative min-h-0 overflow-hidden rounded-2xl border border-[#2a2a2a] bg-[#141414]">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_12%,rgba(148,163,184,0.15),transparent_38%),radial-gradient(circle_at_95%_100%,rgba(59,130,246,0.12),transparent_42%)]" />
-
-          <div className="relative h-full min-h-[560px]">
-            <ReactFlow
-              nodes={nodes}
-              edges={edges}
-              onNodesChange={onNodesChange}
-              onEdgesChange={onEdgesChange}
-              onConnect={onConnect}
-              onInit={(instance) => {
-                setReactFlowInstance(instance);
-                setZoomLevel(instance.getViewport().zoom);
-              }}
-              onMove={(_, viewport) => setZoomLevel(viewport.zoom)}
-              nodeTypes={nodeTypes}
-              edgeTypes={edgeTypes}
-              zoomOnScroll={false}
-              fitView
-              fitViewOptions={{ padding: 0.2 }}
-              proOptions={proOptions}
-              deleteKeyCode={["Backspace", "Delete"]}
-              multiSelectionKeyCode="Shift"
-              className="bg-[#161616]"
-              defaultEdgeOptions={{
-                type: "center",
-                markerEnd: { type: MarkerType.ArrowClosed, width: 20, height: 20 },
-              }}
-            >
-              <Background color="#2a2a2a" gap={24} size={1} />
-              <Controls
-                showInteractive={false}
-                className="!bg-[#1e1e1e] !border-[#2a2a2a] !rounded-lg [&>button]:!bg-[#1e1e1e] [&>button]:!border-[#2a2a2a] [&>button]:!text-[#737373] [&>button:hover]:!bg-[#2a2a2a] [&>button:hover]:!text-[#e7e7e7] [&>button]:!border-b [&>button:last-child]:!border-b-0"
-              />
-              <Panel position="top-center" className="!m-0 !p-0 pt-3">
-                <PlanningToolbar
-                  onAddNode={onAddNode}
-                  onCreateFile={handleCreateFile}
-                  onDuplicateFile={() => handleDuplicateFile()}
-                  onDeleteFile={() => handleDeleteFile()}
-                  canDeleteFile={planningFiles.length > 1}
-                  onZoomIn={onZoomIn}
-                  onZoomOut={onZoomOut}
-                  onFitView={onFitView}
-                  zoomLevel={zoomLevel}
-                  activeFileName={activeFile?.name || "Planning file"}
-                />
-              </Panel>
-            </ReactFlow>
-          </div>
+        <div
+          className={cn(
+            "absolute bottom-4 z-40 flex overflow-hidden rounded-lg border border-[#2a2a2a]/70 bg-[#333333]/60 shadow-xl backdrop-blur-md transition-all duration-300",
+            filesOpen ? "left-[384px]" : "left-20",
+          )}
+        >
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onZoomOut}
+            className="h-9 w-9 rounded-none border-r border-[#2a2a2a]/70 text-[#a3a3a3] hover:bg-[#444444]/60 hover:text-white"
+            title="Zoom out"
+          >
+            <span className="text-lg leading-none">-</span>
+          </Button>
+          <button
+            type="button"
+            onClick={onFitView}
+            className="h-9 min-w-14 border-r border-[#2a2a2a]/70 px-3 font-mono text-[11px] text-[#d4d4d4] hover:bg-[#444444]/60"
+            title="Fit to view"
+          >
+            {Math.round(zoomLevel * 100)}%
+          </button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onZoomIn}
+            className="h-9 w-9 rounded-none text-[#a3a3a3] hover:bg-[#444444]/60 hover:text-white"
+            title="Zoom in"
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
         </div>
       </div>
     </MainScreenWrapper>

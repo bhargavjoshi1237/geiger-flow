@@ -11,7 +11,10 @@ import { WorkflowsScreen } from "@/components/internal/screens/projects/issues/w
 import { DatasetsScreen } from "@/components/internal/screens/projects/datasets";
 import { ObjectivesScreen } from "@/components/internal/screens/projects/objectives/objectives_screen";
 import { TasksScreen } from "@/components/internal/screens/projects/tasks/tasks_screen";
+import { WorkQueueScreen } from "@/components/internal/screens/projects/work_queue/work_queue_screen";
+import { GroundingScreen } from "@/components/internal/screens/projects/grounding/grounding_screen";
 import { GoalsScreen } from "@/components/internal/screens/projects/goals/goals_screen";
+import { ReportingScreen } from "@/components/internal/screens/reporting/reporting_screen";
 import { TeamScreen } from "@/components/internal/screens/projects/team/team";
 import { MilestonesScreen } from "@/components/internal/screens/projects/milestones/milestones_screen";
 import { ProjectionsScreen } from "@/components/internal/screens/projects/projections/projections_screen";
@@ -79,8 +82,14 @@ function ProjectLayoutContent({ id }) {
         return <WorkflowsScreen />;
       case "Tasks":
         return <TasksScreen />;
+      case "Work Queue":
+        return <WorkQueueScreen />;
+      case "Grounding":
+        return <GroundingScreen />;
       case "Goals":
         return <GoalsScreen />;
+      case "Reporting":
+        return <ReportingScreen />;
       case "Objectives":
         return <ObjectivesScreen />;
       case "Projections":
@@ -121,7 +130,7 @@ function ProjectLayoutContent({ id }) {
           <ProjectSidebar activeTab={currentTab} onTabChange={setCurrentTab} />
           <SidebarInset className="flex-1 flex flex-col h-full bg-transparent overflow-hidden relative border-none">
             <div className="absolute top-0 right-0 w-[500px] h-[300px] bg-white/[0.02] blur-[120px] pointer-events-none rounded-full"></div>
-            <main className="flex-1 overflow-y-auto p-4 md:p-8 relative z-10 w-full min-w-0">
+            <main className="flex-1 overflow-y-auto p-4 md:p-8 relative z-10 w-full min-w-0 [&::-webkit-scrollbar]:hidden [&]:-ms-overflow-style:none [&]:scrollbar-width:none">
               {renderScreen()}
             </main>
           </SidebarInset>

@@ -4,10 +4,32 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Bell, Download, FileText, Image as ImageIcon } from "lucide-react";
+import { Bell, Download, MessageSquare } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import { getUser } from "@/lib/supabase/user";
 import { formatDistanceToNow } from "date-fns";
+
+const DISCUSSION_NOTIFICATIONS = [
+  {
+    id: "discussion_seed_1",
+    title: "New thread in Grounding",
+    description: "Aadit opened a delivery risk discussion for this project.",
+    type: "discussion",
+    read: false,
+    time: new Date().toISOString(),
+    icon: "MessageSquare",
+    bg_color: "bg-emerald-500/10",
+    icon_color: "text-emerald-300",
+    extra: {
+      type: "discussion",
+      channel: "Grounding",
+      author: "Aadit Joshi",
+      message: "We need a decision on the release checklist before the afternoon sync.",
+      replies: 4,
+      participants: ["AJ", "PM", "TL"],
+    },
+  },
+];
 
 export function NotificationsDropdown({ children }) {
   const [activeTab, setActiveTab] = useState("all");
@@ -38,8 +60,15 @@ export function NotificationsDropdown({ children }) {
     fetchNotifications();
   }, []);
 
-  const filteredNotifications = notifications.filter((n) => {
-    return activeTab === "all" ? true : activeTab === "unread" ? !n.read : true;
+  const visibleNotifications =
+    notifications.length > 0 ? notifications : DISCUSSION_NOTIFICATIONS;
+
+  const filteredNotifications = visibleNotifications.filter((n) => {
+    if (activeTab === "all") return true;
+    if (activeTab === "unread") return !n.read;
+    if (activeTab === "discussions") return n.type === "discussion";
+    if (activeTab === "mentions") return n.type === "mention";
+    return true;
   });
 
   return (
@@ -74,24 +103,7 @@ export function NotificationsDropdown({ children }) {
               >
                 All
               </button>
-              <button
-                onClick={() => setActiveTab("unread")}
-                className={`px-4 py-1.5 text-sm w-full font-medium rounded-md transition-all flex items-center gap-2 ${
-                  activeTab === "unread"
-                    ? "bg-[#2a2a2a] text-[#e7e7e7] shadow-sm"
-                    : "text-[#737373] hover:text-[#e7e7e7] hover:bg-[#202020]"
-                }`}
-              >
-                Unread
-                {notifications.some((n) => !n.read) && (
-                  <span
-                    className={`w-2 h-2 rounded-full ${
-                      activeTab === "unread" ? "bg-blue-500" : "bg-blue-500/60"
-                    }`}
-                  ></span>
-                )}
-              </button>
-              {["General", "Mentions"].map((tab) => (
+              {["Discussions", "Mentions"].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab.toLowerCase())}
@@ -188,9 +200,39 @@ export function NotificationsDropdown({ children }) {
 
                       {extraContent && (
                         <div className="mt-3">
-                          {extraContent.type === "comment" && (
+                      {extraContent.type === "comment" && (
                             <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-3 text-[12px] text-[#909090] leading-relaxed">
                               {extraContent.text}
+                            </div>
+                          )}
+
+                          {extraContent.type === "discussion" && (
+                            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-3 text-[12px] text-[#a3a3a3] leading-relaxed">
+                              <div className="flex items-center justify-between gap-2 mb-2">
+                                <span className="inline-flex items-center gap-1.5 text-[#ededed] font-medium">
+                                  <MessageSquare className="w-3.5 h-3.5 text-emerald-300" />
+                                  {extraContent.channel}
+                                </span>
+                                <span className="text-[10px] text-[#737373]">
+                                  {extraContent.replies} replies
+                                </span>
+                              </div>
+                              <p className="text-[#d4d4d4]">{extraContent.message}</p>
+                              <div className="mt-3 flex items-center justify-between gap-3">
+                                <span className="text-[11px] text-[#737373]">
+                                  Started by {extraContent.author}
+                                </span>
+                                <div className="flex -space-x-1">
+                                  {extraContent.participants?.map((person) => (
+                                    <span
+                                      key={person}
+                                      className="flex h-5 w-5 items-center justify-center rounded-full border border-[#1a1a1a] bg-[#2a2a2a] text-[9px] font-semibold text-[#ededed]"
+                                    >
+                                      {person}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
                             </div>
                           )}
 

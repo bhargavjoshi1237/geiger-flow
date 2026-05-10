@@ -68,7 +68,12 @@ const TEAM_MEMBERS = [
   { id: "user_5", name: "Jordan" },
 ];
 
-export function TaskCoreTab({ formData, handleInputChange, handleToggleAssignee }) {
+export function TaskCoreTab({
+  formData,
+  handleInputChange,
+  handleToggleAssignee,
+  goalOptions = [],
+}) {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-[1fr_160px] gap-3">
@@ -193,6 +198,32 @@ export function TaskCoreTab({ formData, handleInputChange, handleToggleAssignee 
           placeholder="frontend, release, urgent"
           className="bg-[#202020] border-[#333333] text-white h-9 focus-visible:ring-zinc-600 focus-visible:ring-offset-0 focus-visible:ring-1"
         />
+      </div>
+
+      <div className="space-y-1.5">
+        <Label className="text-sm font-medium text-zinc-300">Linked Goal</Label>
+        <Select
+          value={formData.parentLink || "none"}
+          onValueChange={(value) => handleInputChange("parentLink", value)}
+        >
+          <SelectTrigger className="w-full bg-[#202020] border-[#333333] text-white h-9 focus-visible:ring-zinc-600 focus-visible:ring-offset-0 focus-visible:ring-1">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="!bg-[#1a1a1a] !border-[#2a2a2a] !text-[#ededed]">
+            <SelectItem value="none" className="!focus:bg-[#2a2a2a]">
+              No linked goal
+            </SelectItem>
+            {goalOptions.map((goal) => (
+              <SelectItem
+                key={goal.value}
+                value={goal.value}
+                className="!focus:bg-[#2a2a2a]"
+              >
+                {goal.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );

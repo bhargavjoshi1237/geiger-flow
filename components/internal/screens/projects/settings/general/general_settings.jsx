@@ -47,17 +47,8 @@ export function GeneralSettingsScreen() {
 
   return (
     <div className="space-y-12">
-      {/* Project details section */}
-      <div className="space-y-6">
-        <Card className="bg-card text-card-foreground">
-          <CardHeader>
-            <CardTitle className="text-xl">Project Details</CardTitle>
-            <CardDescription className="text-muted-foreground">
-              Update your project's basic information.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-2 max-w-xl">
+      <div className="space-y-6 my-10">
+       <div className="space-y-2 max-w-xl">
               <Label htmlFor="project-name" className="text-foreground">
                 Project Name
               </Label>
@@ -82,17 +73,17 @@ export function GeneralSettingsScreen() {
                   id="project-id"
                   value={project?.id || ""}
                   readOnly
-                  className="bg-background border-border text-muted-foreground focus-visible:ring-0 font-mono text-sm"
+                  className="h-10 bg-background border-border text-muted-foreground focus-visible:ring-0 font-mono text-sm"
                 />
                 <Button
                   variant="outline"
                   size="icon"
                   onClick={handleCopyId}
-                  className="bg-card border-border hover:bg-accent hover:text-accent-foreground shrink-0"
+                  className="h-10 bg-card border-border hover:bg-accent hover:text-accent-foreground shrink-0"
                   title="Copy Project ID"
                 >
                   {copied ? (
-                    <Check className="h-4 w-4 text-green-500" />
+                    <Check className="h-4 w-4 text-muted-foreground" />
                   ) : (
                     <Copy className="h-4 w-4 text-muted-foreground" />
                   )}
@@ -102,13 +93,9 @@ export function GeneralSettingsScreen() {
                 Used when interacting with the Geiger API.
               </p>
             </div>
-          </CardContent>
-          <CardFooter className="rounded-b-xl flex justify-end items-center mt-0 border-t border-border">
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+               <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
               Save Changes
             </Button>
-          </CardFooter>
-        </Card>
       </div>
 
       <div className="space-y-4">

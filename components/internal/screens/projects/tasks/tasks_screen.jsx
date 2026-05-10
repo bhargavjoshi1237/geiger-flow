@@ -245,6 +245,14 @@ const MOCK_TASKS = [
   },
 ];
 
+const GOAL_OPTIONS = [
+  { value: "goal:predictable-delivery", label: "Predictable delivery" },
+  { value: "goal:clean-inbox", label: "Clean inbox" },
+  { value: "goal:onboarding-conversion", label: "Improve onboarding conversion rate" },
+  { value: "goal:platform-uptime", label: "Achieve 99.9% platform uptime SLA" },
+  { value: "goal:collaborative-editing", label: "Launch collaborative editing feature" },
+];
+
 const STATUS_META = {
   todo: {
     label: "To Do",
@@ -271,6 +279,11 @@ const PRIORITY_META = {
   critical: { className: "text-rose-300", Icon: AlertTriangle },
 };
 
+const GOAL_LABELS = GOAL_OPTIONS.reduce((labels, goal) => {
+  labels[goal.value] = goal.label;
+  return labels;
+}, {});
+
 const dateFormatter = new Intl.DateTimeFormat("en", {
   month: "short",
   day: "numeric",
@@ -287,6 +300,14 @@ function formatDate(value) {
   }
 
   return dateFormatter.format(parsedDate);
+}
+
+function formatLinkedGoal(parentLink) {
+  if (!parentLink?.startsWith("goal:")) {
+    return "-";
+  }
+
+  return GOAL_LABELS[parentLink] || parentLink.replace(/^goal:/, "").replaceAll("-", " ");
 }
 
 function isOverdue(task) {
@@ -379,6 +400,7 @@ export function TasksScreen() {
                   <TableHead>Task</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Priority</TableHead>
+                  <TableHead>Goal</TableHead>
                   <TableHead>Due</TableHead>
                   <TableHead>Progress</TableHead>
                   <TableHead className="text-right"></TableHead>
@@ -416,6 +438,16 @@ export function TasksScreen() {
                       })()}
                     </TableCell>
                     <TableCell>
+                      {task.parentLink?.startsWith("goal:") ? (
+                        <span className="inline-flex max-w-[180px] items-center gap-1.5 text-xs text-[#a3a3a3]">
+                          <Link2 className="w-3.5 h-3.5 shrink-0 text-[#737373]" />
+                          <span className="truncate">{formatLinkedGoal(task.parentLink)}</span>
+                        </span>
+                      ) : (
+                        <span className="text-xs text-[#525252]">-</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
                       <div className="text-sm text-[#a3a3a3]">
                         {formatDate(task.dueDate)}
                         {isOverdue(task) ? <span className="text-red-300 ml-1">(Overdue)</span> : null}
@@ -448,6 +480,7 @@ export function TasksScreen() {
         onOpenChange={handleDialogToggle}
         task={editingTask}
         onSave={handleSaveTask}
+        goalOptions={GOAL_OPTIONS}
       />
     </MainScreenWrapper>
   );

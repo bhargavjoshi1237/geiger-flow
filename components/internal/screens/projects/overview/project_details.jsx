@@ -1,14 +1,43 @@
 "use client";
 
 import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, Activity, Sparkles, Bug, GitMerge, ChevronRight } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import {
+  Activity,
+  AlertTriangle,
+  ArrowUpRight,
+  Bug,
+  CheckCircle2,
+  ChevronDown,
+  ChevronRight,
+  Clock,
+  Expand,
+  Flag,
+  GitMerge,
+  ListTodo,
+  Maximize2,
+  Milestone,
+  Sparkles,
+  Users,
+} from "lucide-react";
 import { useProject } from "@/context/project-context";
 import { DeadlinesSection } from "@/components/internal/shared/deadlines";
 import { useBanner } from "@/context/banner-context";
 import { useEffect } from "react";
-import { LineChart, Line } from "recharts";
+import {
+  Area,
+  AreaChart,
+  Pie,
+  PieChart,
+  PolarAngleAxis,
+  PolarGrid,
+  Radar,
+  RadarChart,
+  RadialBar,
+  RadialBarChart,
+} from "recharts";
 import {
   ChartContainer,
   ChartTooltip,
@@ -16,7 +45,30 @@ import {
 } from "@/components/ui/chart";
 import FilterDropdown from "./filter_dropdown";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { IssueItem } from "@/components/ui/issue-item";
+import { IssueItem, severityColors } from "@/components/ui/issue-item";
+import { cn } from "@/lib/utils";
+
+const CHART_COLORS = {
+  primary: "#ffffff",
+  secondary: "#a3a3a3",
+  muted: "#737373",
+  borderStrong: "#474747",
+  borderSubtle: "#333333",
+  grid: "#2a2a2a",
+  surface2: "#242424",
+  ringBackground: "#333333",
+  appBackground: "#161616",
+};
+
+const CHART_SERIES_COLORS = [
+  CHART_COLORS.primary,
+  "#e5e5e5",
+  CHART_COLORS.secondary,
+  CHART_COLORS.muted,
+  CHART_COLORS.borderStrong,
+];
+
+const METRIC_CARD_CHART_COLOR = "#10b981";
 
 function MetricCard({ title, subtitle, value, data }) {
   const chartData =
@@ -27,7 +79,7 @@ function MetricCard({ title, subtitle, value, data }) {
   const chartConfig = {
     value: {
       label: title,
-      color: "#10b981",
+      color: METRIC_CARD_CHART_COLOR,
     },
   };
 
@@ -60,22 +112,30 @@ function MetricCard({ title, subtitle, value, data }) {
             config={chartConfig}
             className="w-[90%] mx-auto mb-6 h-full"
           >
-            <LineChart
+            <AreaChart
               data={chartData}
               margin={{ top: 10, right: 0, left: 0, bottom: 0 }}
             >
+              <defs>
+                <linearGradient id={`metric-fill-${title.replace(/\s+/g, "-").toLowerCase()}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="var(--color-value)" stopOpacity={0.22} />
+                  <stop offset="100%" stopColor="var(--color-value)" stopOpacity={0.02} />
+                </linearGradient>
+              </defs>
               <ChartTooltip
                 cursor={false}
                 content={<ChartTooltipContent hideLabel />}
               />
-              <Line
+              <Area
                 type="monotone"
                 dataKey="value"
                 stroke="var(--color-value)"
+                fill={`url(#metric-fill-${title.replace(/\s+/g, "-").toLowerCase()})`}
+                fillOpacity={1}
                 strokeWidth={2}
                 dot={false}
               />
-            </LineChart>
+            </AreaChart>
           </ChartContainer>
         </div>
         <div className="absolute bottom-2 left-4 text-[10px] text-[#404040] flex justify-between w-[calc(100%-32px)]">
@@ -84,6 +144,583 @@ function MetricCard({ title, subtitle, value, data }) {
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+const STATUS_SHOWCASE = [
+  { key: "todo", label: "To Do", value: 3, color: CHART_COLORS.primary },
+  { key: "inProgress", label: "In Progress", value: 2, color: CHART_COLORS.secondary },
+  { key: "completed", label: "Completed", value: 2, color: CHART_COLORS.borderStrong },
+];
+
+const PLACEHOLDER_COUNT = 0;
+
+function getCount(value) {
+  return Number.isFinite(value) ? value : PLACEHOLDER_COUNT;
+}
+
+const RADAR_METRICS = {
+  prs: {
+    label: "PRs",
+    description: "Pull request throughput across alternating months",
+    trend: "+5.2%",
+    data: [
+      { month: "Jan", value: 42 },
+      { month: "Mar", value: 48 },
+      { month: "May", value: 54 },
+      { month: "Jul", value: 70 },
+      { month: "Sep", value: 64 },
+      { month: "Nov", value: 52 },
+    ],
+  },
+  tasks: {
+    label: "Tasks",
+    description: "Task completions and progress events across alternating months",
+    trend: "+12.4%",
+    data: [
+      { month: "Jan", value: 68 },
+      { month: "Mar", value: 72 },
+      { month: "May", value: 77 },
+      { month: "Jul", value: 91 },
+      { month: "Sep", value: 76 },
+      { month: "Nov", value: 69 },
+    ],
+  },
+  issues: {
+    label: "Issues",
+    description: "Resolved issue count and remediation volume",
+    trend: "+8.1%",
+    data: [
+      { month: "Jan", value: 37 },
+      { month: "Mar", value: 57 },
+      { month: "May", value: 61 },
+      { month: "Jul", value: 63 },
+      { month: "Sep", value: 59 },
+      { month: "Nov", value: 52 },
+    ],
+  },
+  milestones: {
+    label: "Milestones",
+    description: "Milestones completed, reviewed, or moved forward across alternating months",
+    trend: "+3.8%",
+    data: [
+      { month: "Jan", value: 28 },
+      { month: "Mar", value: 39 },
+      { month: "May", value: 41 },
+      { month: "Jul", value: 48 },
+      { month: "Sep", value: 44 },
+      { month: "Nov", value: 46 },
+    ],
+  },
+};
+
+const RADAR_METRIC_OPTIONS = Object.entries(RADAR_METRICS).map(([value, item]) => ({
+  value,
+  label: item.label,
+}));
+
+const RESOURCE_METRICS = {
+  prs: {
+    label: "PRs",
+    unit: "merged",
+    maxLabel: "22 PRs",
+    trend: "+6.4%",
+    people: [
+      { name: "Aadit", initials: "AJ", value: 22, color: CHART_SERIES_COLORS[0] },
+      { name: "Priya", initials: "PS", value: 18, color: CHART_SERIES_COLORS[1] },
+      { name: "Sam", initials: "SL", value: 15, color: CHART_SERIES_COLORS[2] },
+      { name: "Riley", initials: "RK", value: 11, color: CHART_SERIES_COLORS[3] },
+      { name: "Jordan", initials: "JM", value: 8, color: CHART_SERIES_COLORS[4] },
+    ],
+  },
+  tasks: {
+    label: "Tasks",
+    unit: "completed",
+    maxLabel: "34 tasks",
+    trend: "+11.8%",
+    people: [
+      { name: "Aadit", initials: "AJ", value: 31, color: CHART_SERIES_COLORS[0] },
+      { name: "Priya", initials: "PS", value: 34, color: CHART_SERIES_COLORS[1] },
+      { name: "Sam", initials: "SL", value: 25, color: CHART_SERIES_COLORS[2] },
+      { name: "Riley", initials: "RK", value: 19, color: CHART_SERIES_COLORS[3] },
+      { name: "Jordan", initials: "JM", value: 14, color: CHART_SERIES_COLORS[4] },
+    ],
+  },
+  issues: {
+    label: "Issues",
+    unit: "resolved",
+    maxLabel: "16 issues",
+    trend: "+4.7%",
+    people: [
+      { name: "Aadit", initials: "AJ", value: 12, color: CHART_SERIES_COLORS[0] },
+      { name: "Priya", initials: "PS", value: 16, color: CHART_SERIES_COLORS[1] },
+      { name: "Sam", initials: "SL", value: 13, color: CHART_SERIES_COLORS[2] },
+      { name: "Riley", initials: "RK", value: 8, color: CHART_SERIES_COLORS[3] },
+      { name: "Jordan", initials: "JM", value: 7, color: CHART_SERIES_COLORS[4] },
+    ],
+  },
+  milestones: {
+    label: "Milestones",
+    unit: "moved",
+    maxLabel: "9 milestones",
+    trend: "+3.1%",
+    people: [
+      { name: "Aadit", initials: "AJ", value: 9, color: CHART_SERIES_COLORS[0] },
+      { name: "Priya", initials: "PS", value: 7, color: CHART_SERIES_COLORS[1] },
+      { name: "Sam", initials: "SL", value: 6, color: CHART_SERIES_COLORS[2] },
+      { name: "Riley", initials: "RK", value: 5, color: CHART_SERIES_COLORS[3] },
+      { name: "Jordan", initials: "JM", value: 3, color: CHART_SERIES_COLORS[4] },
+    ],
+  },
+  time: {
+    label: "Time",
+    unit: "logged",
+    maxLabel: "38h",
+    trend: "+9.6%",
+    people: [
+      { name: "Aadit", initials: "AJ", value: 38, color: CHART_SERIES_COLORS[0] },
+      { name: "Priya", initials: "PS", value: 32, color: CHART_SERIES_COLORS[1] },
+      { name: "Sam", initials: "SL", value: 29, color: CHART_SERIES_COLORS[2] },
+      { name: "Riley", initials: "RK", value: 24, color: CHART_SERIES_COLORS[3] },
+      { name: "Jordan", initials: "JM", value: 17, color: CHART_SERIES_COLORS[4] },
+    ],
+  },
+};
+
+const RESOURCE_METRIC_OPTIONS = Object.entries(RESOURCE_METRICS).map(([value, item]) => ({
+  value,
+  label: item.label,
+}));
+
+const DASHBOARD_TASKS = [
+  {
+    title: "Create a New Project",
+    id: "DEM-1",
+    priority: "High Priority",
+    due: "May 8, 1:24 AM",
+    status: "In Progress",
+  },
+  {
+    title: "Test",
+    id: "DEM-17",
+    priority: "High Priority",
+    due: "May 9, 12:00 AM",
+    status: "To Do",
+  },
+  {
+    title: "View Help Guides in Docs",
+    id: "DEM-8",
+    priority: "Low Priority",
+    due: "May 10, 1:24 AM",
+    status: "To Do",
+  },
+];
+
+const taskPriorityIcons = {
+  critical: <AlertTriangle className="h-3 w-3" />,
+  high: <Expand className="h-3 w-3" />,
+  medium: <Maximize2 className="h-3 w-3" />,
+  low: <ArrowUpRight className="h-3 w-3" />,
+};
+
+function getTaskPriorityKey(priority) {
+  return priority?.toLowerCase().replace(" priority", "") || "medium";
+}
+
+function TaskPriorityBadge({ priority }) {
+  const priorityKey = getTaskPriorityKey(priority);
+
+  return (
+    <span
+      className={cn(
+        "flex items-center justify-center gap-1.5 rounded-md border px-2 py-0.5 text-[10px] font-medium capitalize",
+        severityColors[priorityKey] || severityColors.medium,
+      )}
+    >
+      {taskPriorityIcons[priorityKey] || taskPriorityIcons.medium}
+      {priorityKey}
+    </span>
+  );
+}
+
+const DASHBOARD_MILESTONES = [
+  { title: "Onboarding", date: "May 8-May 10", progress: 100 },
+  { title: "Exploring Nifty", date: "May 9-May 11", progress: 33 },
+  { title: "Getting Started", date: "May 10-May 14", progress: 18 },
+];
+
+const DASHBOARD_ACTIVITY = [
+  "Aadit Joshi created milestone Exploring Nifty",
+  "Aadit Joshi created milestone Getting Started",
+  "Aadit Joshi created milestone Onboarding",
+  "Aadit Joshi member joined",
+  "Project Created",
+  "Priya Shah completed View Help Guides in Docs",
+  "Sam Lee moved Test to To Do",
+  "Riley King updated Getting Started progress",
+  "Jordan Miller commented on API Documentation",
+  "Aadit Joshi assigned Create a New Project",
+  "Priya Shah reviewed milestone dates",
+  "Sam Lee updated task priority",
+];
+
+function WidgetShell({ children, className, contentClassName }) {
+  return (
+    <Card className={cn("bg-[#1a1a1a] border-[#2a2a2a] text-[#e7e7e7] rounded-xl py-0 gap-0 overflow-hidden", className)}>
+      <CardContent className={cn("p-4", contentClassName)}>{children}</CardContent>
+    </Card>
+  );
+}
+
+function TaskStatusShowcaseWidget() {
+  const [selectedStatus, setSelectedStatus] = useState("inProgress");
+  const total = STATUS_SHOWCASE.reduce((sum, item) => sum + getCount(item.value), 0);
+  const chartData = STATUS_SHOWCASE.map((item) => ({
+    ...item,
+    value: getCount(item.value),
+    fill: `var(--color-${item.key})`,
+  }));
+  const selectedIndex = Math.max(
+    chartData.findIndex((item) => item.key === selectedStatus),
+    0,
+  );
+  const selectedItem = chartData[selectedIndex] || chartData[0];
+  const statusOptions = STATUS_SHOWCASE.map((item) => ({
+    value: item.key,
+    label: item.label,
+  }));
+  const chartConfig = STATUS_SHOWCASE.reduce(
+    (config, item) => ({
+      ...config,
+      [item.key]: {
+        label: item.label,
+        color: item.color,
+      },
+    }),
+    {},
+  );
+
+  return (
+    <WidgetShell className="h-[420px]" contentClassName="h-full">
+      <div className="flex h-full flex-col">
+        <div className="flex w-full items-start justify-between gap-3">
+          <div className="flex min-w-0 flex-1 flex-col">
+            <h3 className="text-base font-semibold text-[#ededed]">Task Breakout by Status</h3>
+            <p className="text-sm text-[#a3a3a3]">Current task distribution across active statuses.</p>
+          </div>
+          <FilterDropdown
+            value={selectedStatus}
+            onValueChange={setSelectedStatus}
+            options={statusOptions}
+            height="h-9"
+          />
+        </div>
+        <div className="relative mt-4 flex min-h-0 w-full flex-1 items-center justify-center">
+          <ChartContainer config={chartConfig} className="mx-auto h-[260px] w-[260px]">
+            <PieChart>
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent hideLabel nameKey="key" />}
+              />
+              <Pie
+                data={chartData}
+                dataKey="value"
+                nameKey="key"
+                cx="50%"
+                cy="50%"
+                innerRadius={48}
+                outerRadius={84}
+                activeIndex={selectedIndex}
+                activeShape={{ outerRadius: 94 }}
+                onMouseEnter={(_, index) => {
+                  setSelectedStatus(chartData[index]?.key || selectedStatus);
+                }}
+                stroke={CHART_COLORS.appBackground}
+                strokeWidth={2}
+              />
+            </PieChart>
+          </ChartContainer>
+          <div className="pointer-events-none absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center">
+            <span className="text-3xl font-bold leading-none text-[#ffffff]">{selectedItem?.value ?? total}</span>
+            <span className="mt-1 text-xs font-medium text-[#a3a3a3]">{selectedItem?.label || "Total Tasks"}</span>
+          </div>
+        </div>
+        <div className="mt-2 min-h-[44px] text-center">
+          <p className="text-sm font-semibold text-[#ededed]">
+            {selectedItem?.label || "Tasks"} accounts for {total ? Math.round(((selectedItem?.value || 0) / total) * 100) : PLACEHOLDER_COUNT}% of tasks
+          </p>
+          <p className="mt-1 text-sm text-[#737373]">Current project status mix</p>
+        </div>
+      </div>
+    </WidgetShell>
+  );
+}
+
+function YearlyRadarWidget() {
+  const [metric, setMetric] = useState("prs");
+  const selected = RADAR_METRICS[metric];
+
+  return (
+    <WidgetShell className="h-[420px]" contentClassName="h-full">
+      <div className="flex h-full flex-col">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex items-center gap-2 justify-between w-full">
+            <div className="flex flex-col w-full">
+              <h3 className="text-base font-semibold text-[#ededed]">Radar Chart</h3>
+              <p className="text-sm text-[#a3a3a3]">{selected.description}</p>
+            </div>
+
+            <FilterDropdown
+              value={metric}
+              onValueChange={setMetric}
+              options={RADAR_METRIC_OPTIONS}
+              height="h-9"
+            />
+          </div>
+        </div>
+
+        <div className="mt-4 flex min-h-0 flex-1 items-center justify-center">
+          <ChartContainer
+            config={{
+              value: {
+                label: selected.label,
+                color: CHART_COLORS.primary,
+              },
+            }}
+            className="mx-auto h-[260px] w-full"
+          >
+            <RadarChart data={selected.data} margin={{ top: 12, right: 30, bottom: 12, left: 30 }}>
+              <PolarGrid stroke={CHART_COLORS.grid} />
+              <PolarAngleAxis dataKey="month" tick={{ fill: CHART_COLORS.muted, fontSize: 12 }} />
+              <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+              <Radar
+                dataKey="value"
+                stroke={CHART_COLORS.primary}
+                fill={CHART_COLORS.primary}
+                fillOpacity={0.18}
+                strokeWidth={2}
+              />
+            </RadarChart>
+          </ChartContainer>
+        </div>
+
+        <div className="mt-2 min-h-[44px] text-center">
+          <p className="text-sm font-semibold text-[#ededed]">
+            Trending up by {selected.trend} this year
+          </p>
+          <p className="mt-1 text-sm text-[#737373]">January - November 2026</p>
+        </div>
+      </div>
+    </WidgetShell>
+  );
+}
+
+function ResourcePerformanceWidget() {
+  const [metric, setMetric] = useState("tasks");
+  const selected = RESOURCE_METRICS[metric];
+  const values = selected.people.map((person) => getCount(person.value));
+  const max = Math.max(PLACEHOLDER_COUNT, ...values);
+  const chartMax = max || 1;
+  const rings = [...selected.people]
+    .sort((a, b) => getCount(b.value) - getCount(a.value))
+    .map((person, index) => ({
+      ...person,
+      key: `resource${index}`,
+      value: getCount(person.value),
+      fill: `var(--color-resource${index})`,
+    }));
+  const chartConfig = rings.reduce(
+    (config, ring, index) => ({
+      ...config,
+      [ring.key]: {
+        label: ring.name,
+        color: CHART_SERIES_COLORS[index % CHART_SERIES_COLORS.length],
+      },
+    }),
+    {
+      value: {
+        label: selected.label,
+      },
+    },
+  );
+
+  return (
+    <WidgetShell className="h-[420px]" contentClassName="h-full">
+      <div className="flex h-full flex-col">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex items-center gap-2 justify-between w-full">
+            <div className="flex flex-col w-full">
+              <h3 className="text-base font-semibold text-[#ededed]">Resource Performance</h3>
+              <p className="text-sm text-[#a3a3a3]">
+                Weekly team performance.
+              </p>
+            </div>
+            <FilterDropdown
+              value={metric}
+              onValueChange={setMetric}
+              options={RESOURCE_METRIC_OPTIONS}
+              height="h-9"
+            />
+          </div>
+        </div>
+
+        <div className="mt-4 flex flex-1 items-center justify-center">
+          <div className="relative h-[260px] w-[260px] shrink-0">
+            <ChartContainer
+              config={chartConfig}
+              className="h-full w-full [&_.recharts-radial-bar-background-sector]:fill-[#333333]"
+            >
+              <RadialBarChart
+                data={rings}
+                startAngle={90}
+                endAngle={-270}
+                innerRadius={38}
+                outerRadius={112}
+              >
+                <PolarAngleAxis
+                  type="number"
+                  domain={[0, chartMax]}
+                  tick={false}
+                />
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent hideLabel nameKey="key" />}
+                />
+                <RadialBar
+                  dataKey="value"
+                  background
+                  cornerRadius={8}
+                />
+              </RadialBarChart>
+            </ChartContainer>
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+              <span className="text-[28px] font-extrabold leading-none text-[#ffffff]">
+                {max}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-2 min-h-[44px] text-center">
+          <p className="text-sm font-semibold text-[#ededed]">
+            Trending up by {selected.trend} this week
+          </p>
+          <p className="mt-1 text-sm text-[#737373]">Compared with last week across active resources</p>
+        </div>
+      </div>
+    </WidgetShell>
+  );
+}
+
+function OpenTasksWidget() {
+  return (
+    <WidgetShell>
+      <div className="space-y-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex w-full items-start gap-2">
+            <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-[#333333] bg-[#202020]">
+              <ListTodo className="h-3.5 w-3.5 text-[#a3a3a3]" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <h3 className="text-base font-semibold text-[#ededed]">Tasks</h3>
+              <p className="text-sm text-[#a3a3a3]">Assigned work currently moving through the project.</p>
+            </div>
+          </div>
+        </div>
+        {DASHBOARD_TASKS.map((task) => (
+          <div key={task.id} className="rounded-lg border border-[#2a2a2a] bg-[#202020] p-3">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="w-4 h-4 rounded border border-[#525252] flex items-center justify-center">
+                    <CheckCircle2 className="w-3 h-3 text-[#737373]" />
+                  </span>
+                  <p className="text-sm font-medium text-[#ededed] truncate">{task.title}</p>
+                </div>
+                <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                  <Badge className="bg-[#2a2a2a] text-[#ededed] border-[#333333] text-[10px]">{task.id}</Badge>
+                  <TaskPriorityBadge priority={task.priority} />
+                  <span className="text-[11px] text-[#737373] flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    {task.due}
+                  </span>
+                </div>
+              </div>
+              <span className="text-[11px] text-[#a3a3a3] rounded bg-[#2a2a2a] px-2 py-1">{task.status}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </WidgetShell>
+  );
+}
+
+function MilestonesWidget() {
+  return (
+    <WidgetShell>
+      <div className="space-y-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex w-full items-start gap-2">
+            <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-[#333333] bg-[#202020]">
+              <Milestone className="h-3.5 w-3.5 text-[#a3a3a3]" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <h3 className="text-base font-semibold text-[#ededed]">Milestones</h3>
+              <p className="text-sm text-[#a3a3a3]">Key checkpoints and delivery progress.</p>
+            </div>
+          </div>
+        </div>
+        {DASHBOARD_MILESTONES.map((milestone) => (
+          <div key={milestone.title} className="rounded-lg border border-[#2a2a2a] bg-[#202020] p-4">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-sm font-medium text-[#ededed]">{milestone.title}</p>
+                <p className="text-xs text-[#737373] mt-2">{milestone.date}</p>
+              </div>
+              <span className="text-xs font-semibold text-[#ededed] bg-[#2a2a2a] px-2 py-1 rounded-full">
+                {milestone.progress}%
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </WidgetShell>
+  );
+}
+
+function ActivityWidget() {
+  return (
+    <WidgetShell className="h-[420px]" contentClassName="h-full">
+      <div className="flex h-full flex-col space-y-4">
+        <div className="flex w-full items-start gap-2">
+          <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-[#333333] bg-[#202020]">
+            <Activity className="h-3.5 w-3.5 text-[#a3a3a3]" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <h3 className="text-base font-semibold text-[#ededed]">Activity</h3>
+            <p className="text-sm text-[#a3a3a3]">Recent project events and member updates.</p>
+          </div>
+        </div>
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-2 [&::-webkit-scrollbar]:hidden [&]:-ms-overflow-style:none [&]:scrollbar-width:none">
+          {DASHBOARD_ACTIVITY.map((entry, index) => (
+            <div key={entry} className="flex gap-3">
+              <div className="relative">
+                <span className="w-7 h-7 rounded-full bg-[#202020] border border-[#2a2a2a] flex items-center justify-center">
+                  {index === 3 ? <Users className="w-3.5 h-3.5 text-[#a3a3a3]" /> : <Flag className="w-3.5 h-3.5 text-[#a3a3a3]" />}
+                </span>
+                {index !== DASHBOARD_ACTIVITY.length - 1 ? (
+                  <span className="absolute top-8 left-1/2 -translate-x-1/2 w-px h-5 bg-[#2a2a2a]" />
+                ) : null}
+              </div>
+              <div>
+                <p className="text-sm font-medium text-[#d4d4d4]">{entry}</p>
+                <p className="text-xs text-[#737373]">May 10, 2026 at 1:24 AM</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </WidgetShell>
   );
 }
 
@@ -186,6 +823,18 @@ export function ProjectDetailsScreen() {
 
       {/* Deadlines Section */}
       <DeadlinesSection />
+
+      <div className="flex flex-col gap-4 xl:flex-row">
+        <div className="min-w-0 flex-1">
+          <ResourcePerformanceWidget />
+        </div>
+        <div className="min-w-0 flex-1">
+          <YearlyRadarWidget />
+        </div>
+        <div className="min-w-0 flex-1">
+          <TaskStatusShowcaseWidget />
+        </div>
+      </div>
 
       {/* Top Issues Section */}
       <div className="py-4 space-y-4">
@@ -323,6 +972,12 @@ export function ProjectDetailsScreen() {
             </div>
           </IssueItem>
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+        <OpenTasksWidget />
+        <MilestonesWidget />
+        <ActivityWidget />
       </div>
     </MainScreenWrapper>
   );

@@ -1,0 +1,164 @@
+"use client";
+
+import React, { useState } from "react";
+import { SidebarShell } from "./SidebarPrimitives";
+import { ColorPlug } from "./plugs/ColorPlug";
+import { EditBoardNamePlug } from "./plugs/EditBoardNamePlug";
+import { BoardIconPlug } from "./plugs/BoardIconPlug";
+import { EditClockThemePlug } from "./plugs/clock/EditClockThemePlug";
+import { EditCalendarThemePlug } from "./plugs/calendar/EditCalendarThemePlug";
+import { TextFormattingPlug } from "./plugs/TextFormattingPlug";
+import { DownloadBoardPlug } from "./plugs/DownloadBoardPlug";
+import EditBoardNameDialog from "./dialogs/EditBoardNameDialog";
+import EditBoardIconDialog from "./dialogs/EditBoardIconDialog";
+import EditClockThemeDialog from "./dialogs/clock/EditClockThemeDialog";
+import EditCalendarThemeDialog from "./dialogs/calendar/EditCalendarThemeDialog";
+import DownloadBoardDialog from "./dialogs/DownloadBoardDialog";
+import { toast } from "../../toast";
+
+export default function NodeSettingsSidebar({
+  selectedNode,
+  onUpdateNode,
+  onBack,
+}) {
+  const [isEditNameOpen, setIsEditNameOpen] = useState(false);
+  const [isEditIconOpen, setIsEditIconOpen] = useState(false);
+  const [isEditClockThemeOpen, setIsEditClockThemeOpen] = useState(false);
+  const [isEditCalendarThemeOpen, setIsEditCalendarThemeOpen] = useState(false);
+  const [isDownloadOpen, setIsDownloadOpen] = useState(false);
+
+  if (!selectedNode) return null;
+
+  const updateData = (newData) => {
+    onUpdateNode(selectedNode.id, {
+      data: { ...selectedNode.data, ...newData },
+    });
+  };
+
+  const currentColor = selectedNode.data?.backgroundColor || "#333333";
+
+  const handleAddReaction = (emoji) => {
+    const currentReactions = selectedNode.data?.reactions || {};
+    const newCount = (currentReactions[emoji] || 0) + 1;
+    updateData({ reactions: { ...currentReactions, [emoji]: newCount } });
+  };
+
+  const handleSaveBoardName = async (newName, newCaption) => {
+    updateData({ label: newName, name: newName, caption: newCaption });
+
+    if (selectedNode.type === "board" && selectedNode.data.boardId) {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_PATH || ""}/api/update-board`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              boardId: selectedNode.data.boardId,
+              name: newName,
+            }),
+          },
+        );
+        if (!response.ok) throw new Error("Failed to update board name");
+        toast.success("Board name updated successfully");
+      } catch (error) {
+        console.error(error);
+        toast.error("Failed to save board name to server");
+      }
+    }
+  };
+
+  const handleSaveBoardIcon = (iconData) => {
+    updateData({
+      iconName: iconData.iconName,
+      iconLightAccent: iconData.iconLightAccent,
+      iconDarkAccent: iconData.iconDarkAccent,
+    });
+  };
+
+  const handleSaveClockTheme = (themeData) => {
+    updateData({ ...themeData });
+  };
+
+  return (
+    <>
+      <SidebarShell onBack={onBack} title="Node Settings">
+        {selectedNode.type === "board" && (
+          <EditBoardNamePlug
+            currentName={selectedNode.data.label}
+            onEdit={() => setIsEditNameOpen(true)}
+          />
+        )}
+        {selectedNode.type === "board" && (
+          <BoardIconPlug onEdit={() => setIsEditIconOpen(true)} />
+        )}
+        {selectedNode.type === "board" && (
+          <DownloadBoardPlug onDownload={() => setIsDownloadOpen(true)} />
+        )}
+
+        {selectedNode.type === "clock" ? (
+          <EditClockThemePlug onEdit={() => setIsEditClockThemeOpen(true)} />
+        ) : selectedNode.type === "calendar" ? (
+          <EditCalendarThemePlug onEdit={() => setIsEditCalendarThemeOpen(true)} />
+        ) : (
+          <ColorPlug
+            value={currentColor}
+            onChange={(color) => updateData({ backgroundColor: color })}
+            label="Card Color"
+          />
+        )}
+
+        {selectedNode.type === "custom" && (
+          <TextFormattingPlug
+            data={selectedNode.data}
+            onChange={(updates) => updateData(updates)}
+          />
+        )}
+      </SidebarShell>
+
+      {selectedNode.type === "board" && (
+        <>
+          <EditBoardNameDialog
+            open={isEditNameOpen}
+            onOpenChange={setIsEditNameOpen}
+            initialName={selectedNode.data.label}
+            initialCaption={selectedNode.data.caption}
+            onSave={handleSaveBoardName}
+          />
+          <EditBoardIconDialog
+            open={isEditIconOpen}
+            onOpenChange={setIsEditIconOpen}
+            initialIcon={selectedNode.data.iconName}
+            initialLightAccent={selectedNode.data.iconLightAccent}
+            initialDarkAccent={selectedNode.data.iconDarkAccent}
+            onSave={handleSaveBoardIcon}
+          />
+          <DownloadBoardDialog
+            open={isDownloadOpen}
+            onOpenChange={setIsDownloadOpen}
+            boardId={selectedNode.data.boardId}
+            boardName={selectedNode.data.label || selectedNode.data.name}
+          />
+        </>
+      )}
+
+      {selectedNode.type === "clock" && (
+        <EditClockThemeDialog
+          open={isEditClockThemeOpen}
+          onOpenChange={setIsEditClockThemeOpen}
+          initialData={selectedNode.data}
+          onSave={handleSaveClockTheme}
+        />
+      )}
+
+      {selectedNode.type === "calendar" && (
+        <EditCalendarThemeDialog
+          open={isEditCalendarThemeOpen}
+          onOpenChange={setIsEditCalendarThemeOpen}
+          initialData={selectedNode.data}
+          onSave={handleSaveClockTheme}
+        />
+      )}
+    </>
+  );
+}

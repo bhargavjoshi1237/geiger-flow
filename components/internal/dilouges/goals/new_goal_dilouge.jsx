@@ -31,6 +31,34 @@ const STATUS_OPTIONS = [
   { value: "completed", label: "Completed" },
 ];
 
+const PROGRESS_SOURCE_OPTIONS = [
+  { value: "tasks_lists", label: "Tasks and Lists" },
+  { value: "tasks_custom_field", label: "Tasks with Custom Field" },
+  { value: "tasks_tag", label: "Tasks with Tag" },
+  { value: "tasks_user_tag", label: "Tasks with User Tag" },
+  { value: "tasks_assignee", label: "Tasks with Assignee" },
+];
+
+const TRACK_METRIC_OPTIONS = [
+  { value: "tasks_count", label: "Tasks count" },
+  { value: "tracked_time", label: "Tracked time" },
+  { value: "story_points", label: "Story points" },
+  { value: "custom_field_value", label: "Custom Field value" },
+];
+
+const TARGET_OPTIONS = [
+  {
+    value: "dynamic",
+    label: "Dynamic",
+    description: "Updates as tasks are added to the goal",
+  },
+  {
+    value: "static",
+    label: "Static",
+    description: "Fixed goal value",
+  },
+];
+
 const TEAM_MEMBERS = [
   "You",
   "Amélie",
@@ -47,6 +75,11 @@ const INITIAL_FORM = {
   status: "not_started",
   owner: "You",
   progress: 0,
+  targetDate: "",
+  progressSource: "tasks_lists",
+  trackMetric: "tasks_count",
+  target: "dynamic",
+  targetValue: "",
   keyResults: [{ label: "", progress: 0, done: false }],
 };
 
@@ -74,6 +107,11 @@ export function NewGoalDialog({
         status: editGoal.status || "not_started",
         owner: editGoal.owner || "You",
         progress: editGoal.progress || 0,
+        targetDate: editGoal.targetDate || "",
+        progressSource: editGoal.progressSource || "tasks_lists",
+        trackMetric: editGoal.trackMetric || "tasks_count",
+        target: editGoal.target || "dynamic",
+        targetValue: editGoal.targetValue || "",
         keyResults:
           editGoal.keyResults && editGoal.keyResults.length > 0
             ? editGoal.keyResults.map((kr) => ({ ...kr }))
@@ -229,6 +267,19 @@ export function NewGoalDialog({
                 className="bg-[#202020] border-[#2a2a2a] text-[#ededed] placeholder:text-zinc-600 text-sm resize-none focus-visible:ring-1 focus-visible:ring-zinc-700"
               />
             </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="goal-target-date" className="text-xs text-zinc-300">
+                Target Date
+              </Label>
+              <Input
+                id="goal-target-date"
+                type="date"
+                value={formData.targetDate}
+                onChange={(e) => set("targetDate", e.target.value)}
+                className="bg-[#202020] border-[#2a2a2a] focus-visible:ring-1 focus-visible:ring-zinc-700 text-[#ededed] h-10 text-sm"
+              />
+            </div>
           </div>
 
           <Separator className="bg-[#2a2a2a]" />
@@ -237,6 +288,100 @@ export function NewGoalDialog({
             <h4 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
               Ownership & Progress
             </h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-1.5">
+                <Label className="text-xs text-zinc-300">Progress Source</Label>
+                <Select
+                  value={formData.progressSource}
+                  onValueChange={(v) => set("progressSource", v)}
+                >
+                  <SelectTrigger className="bg-[#202020] border-[#2a2a2a] text-[#ededed] h-10 text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#1e1e1e] border-[#2a2a2a]">
+                    {PROGRESS_SOURCE_OPTIONS.map((option) => (
+                      <SelectItem
+                        key={option.value}
+                        value={option.value}
+                        textValue={option.label}
+                        className="text-sm cursor-pointer"
+                      >
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs text-zinc-300">Track Metric</Label>
+                <Select
+                  value={formData.trackMetric}
+                  onValueChange={(v) => set("trackMetric", v)}
+                >
+                  <SelectTrigger className="bg-[#202020] border-[#2a2a2a] text-[#ededed] h-10 text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#1e1e1e] border-[#2a2a2a]">
+                    {TRACK_METRIC_OPTIONS.map((option) => (
+                      <SelectItem
+                        key={option.value}
+                        value={option.value}
+                        textValue={option.label}
+                        className="text-sm cursor-pointer"
+                      >
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs text-zinc-300">Target</Label>
+                <Select
+                  value={formData.target}
+                  onValueChange={(v) => set("target", v)}
+                >
+                  <SelectTrigger className="bg-[#202020] border-[#2a2a2a] text-[#ededed] h-10 text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#1e1e1e] border-[#2a2a2a]">
+                    {TARGET_OPTIONS.map((option) => (
+                      <SelectItem
+                        key={option.value}
+                        value={option.value}
+                        textValue={option.label}
+                        className="text-sm cursor-pointer"
+                      >
+                        <span className="font-medium">{option.label}</span>
+                        <span className="block text-[11px] text-zinc-500">
+                          {option.description}
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {formData.target === "static" && (
+              <div className="space-y-1.5">
+                <Label htmlFor="goal-target-value" className="text-xs text-zinc-300">
+                  Static Target Value
+                </Label>
+                <Input
+                  id="goal-target-value"
+                  type="number"
+                  min={0}
+                  value={formData.targetValue}
+                  onChange={(e) => set("targetValue", e.target.value)}
+                  placeholder="Enter the fixed goal value"
+                  className="bg-[#202020] border-[#2a2a2a] focus-visible:ring-1 focus-visible:ring-zinc-700 text-[#ededed] placeholder:text-zinc-600 h-10 text-sm"
+                />
+              </div>
+            )}
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label className="text-xs text-zinc-300">Owner</Label>

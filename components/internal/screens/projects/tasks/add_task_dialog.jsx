@@ -25,6 +25,7 @@ const INITIAL_FORM_STATE = {
   labels: "",
   type: "task",
   progress: 0,
+  parentLink: "none",
 };
 
 const toCsvString = (value) => {
@@ -56,6 +57,7 @@ const buildFormDataFromTask = (task) => ({
   labels: toCsvString(task.labels),
   type: task.type || "task",
   progress: typeof task.progress === "number" ? task.progress : 0,
+  parentLink: task.parentLink || "none",
 });
 
 export function AddTaskDialog({
@@ -64,6 +66,7 @@ export function AddTaskDialog({
   open,
   onOpenChange,
   onSave = () => {},
+  goalOptions = [],
 }) {
   const [internalOpen, setInternalOpen] = useState(false);
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
@@ -130,6 +133,7 @@ export function AddTaskDialog({
       labels: parseList(formData.labels),
       type: formData.type,
       progress: formData.progress,
+      parentLink: formData.parentLink === "none" ? "" : formData.parentLink,
       activityLog: [
         ...(Array.isArray(task?.activityLog) ? task.activityLog : []),
         {
@@ -166,6 +170,7 @@ export function AddTaskDialog({
             formData={formData}
             handleInputChange={handleInputChange}
             handleToggleAssignee={handleToggleAssignee}
+            goalOptions={goalOptions}
           />
         </div>
 

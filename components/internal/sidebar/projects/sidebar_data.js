@@ -11,6 +11,8 @@ import {
   BarChart3,
   Sliders,
   CheckSquare,
+  BriefcaseBusiness,
+  SlidersHorizontal,
   Flag,
   LucideFileImage,
   Target,
@@ -21,16 +23,20 @@ import {
   LucidePlus,
   LucidePackagePlus,
   Waypoints,
+  Radio,
 } from "lucide-react";
 
 export const projectNav = [
   { title: "Overview", icon: LayoutDashboard },
   { title: "Issues", icon: GitBranch },
   { title: "Tasks", icon: CheckSquare },
+  { title: "Work Queue", icon: BriefcaseBusiness },
+  { title: "Grounding", icon: Radio },
   { title: "Planning", icon: Waypoints },
   { title: "Projections", icon: LucideSquareChevronRight },
   { title: "Milestones", icon: Flag, badge: "3" },
   { title: "Goals", icon: Target },
+  { title: "Reporting", icon: BarChart3 },
   { title: "Objectives", icon: Database },
   { title: "Assets", icon: LucideFileImage },
   { title: "Logs", icon: Activity },
@@ -43,6 +49,7 @@ export const projectNav = [
 export const settingsNav = [
   { title: "General", icon: Settings2 },
   { title: "Connectivity", icon: Link },
+  { title: "Customs", icon: SlidersHorizontal },
   { title: "Add-ons", icon: LucidePackagePlus },
   { title: "Usage", icon: BarChart3 },
   { title: "Advanced", icon: Sliders },
