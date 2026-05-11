@@ -83,7 +83,7 @@ export function ProjectSidebar({
             activeMenu === "main" ? "translate-x-0" : "-translate-x-full"
           }`}
         >
-          <div className="h-full overflow-y-auto  overflow-x-hidden">
+          <div className="h-full overflow-y-auto overflow-x-hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <SidebarGroup>
               <SidebarGroupContent>
                 <SidebarMenu>
@@ -167,7 +167,7 @@ export function ProjectSidebar({
                 <ChevronLeft className="w-5 h-5" />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto px-1 py-1 overflow-x-hidden bg-sidebar">
+            <div className="flex-1 overflow-y-auto px-1 py-1 overflow-x-hidden bg-sidebar [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               <SidebarGroup>
                 <SidebarGroupContent>
                   <SidebarMenu>

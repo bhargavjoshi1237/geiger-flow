@@ -420,8 +420,8 @@ export function TasksScreen() {
                         <p className="text-xs text-[#737373] line-clamp-1">{task.description}</p>
                       </div>
                     </TableCell>
-                    <TableCell>
-                      <Badge className={cn("border", STATUS_META[task.status]?.className)}>
+                    <TableCell className="whitespace-nowrap">
+                      <Badge className={cn("min-w-[86px] justify-center whitespace-nowrap border px-2", STATUS_META[task.status]?.className)}>
                         {STATUS_META[task.status]?.label || task.status}
                       </Badge>
                     </TableCell>

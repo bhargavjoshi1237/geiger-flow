@@ -1,517 +1,248 @@
 "use client";
 
-import React from "react";
+import React, { useMemo, useState } from "react";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { useProject } from "@/context/project-context";
-import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { Button } from "@/components/ui/button";
-import {
+  AlertTriangle,
+  CheckCircle2,
+  ChevronRight,
+  ExternalLink,
+  Eye,
+  Fingerprint,
+  KeyRound,
+  Lock,
+  Search,
   Shield,
   ShieldCheck,
   ShieldAlert,
-  ShieldX,
-  Lock,
-  Unlock,
-  Key,
-  KeyRound,
-  Eye,
-  EyeOff,
-  Fingerprint,
-  Scan,
-  Globe,
-  Server,
-  Clock,
-  AlertTriangle,
-  CheckCircle2,
-  XCircle,
-  Info,
-  ArrowUpRight,
-  ExternalLink,
-  RefreshCw,
-  Copy,
-  User,
-  Users,
-  Monitor,
-  Smartphone,
   Terminal,
-  FileWarning,
-  Bug,
-  Wifi,
-  WifiOff,
-  Ban,
-  TriangleAlert,
-  Activity,
-  TrendingUp,
-  TrendingDown,
-  ChevronRight,
+  UserRound,
 } from "lucide-react";
-import {
-  BarChart,
-  Bar,
-  AreaChart,
-  Area,
-  ResponsiveContainer,
-} from "recharts";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { cn } from "@/lib/utils";
 
-const securityEventsTimeline = Array.from({ length: 14 }, (_, i) => ({
-  day: i + 1,
-  threats: Math.floor(Math.random() * 5),
-  blocked: Math.floor(Math.random() * 8) + 2,
-  resolved: Math.floor(4 + Math.random() * 6),
-}));
+const SECURITY_VIEWS = ["Overview", "Access", "Vulnerabilities", "Keys"];
 
-const authAttempts = Array.from({ length: 7 }, (_, i) => {
-  const names = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  return {
-    day: names[i],
-    successful: Math.floor(40 + Math.random() * 30),
-    failed: Math.floor(2 + Math.random() * 8),
-  };
-});
-
-const recentAuthEvents = [
+const POLICIES = [
   {
-    user: "Sarah Chen",
-    action: "Logged in",
-    method: "SSO",
-    ip: "192.168.1.42",
-    location: "San Francisco, US",
-    time: "2 min ago",
-    status: "success",
-    device: "Chrome / macOS",
+    name: "Two-factor authentication",
+    description: "Require MFA for every project member before they can access protected areas.",
+    enabled: true,
+    state: "Enforced",
   },
   {
-    user: "James Rivera",
-    action: "API key created",
-    method: "MFA",
-    ip: "10.0.0.118",
-    location: "New York, US",
-    time: "15 min ago",
-    status: "success",
-    device: "CLI / Linux",
+    name: "Branch protection",
+    description: "Require approvals and passing checks before merging protected branches.",
+    enabled: true,
+    state: "Enforced",
   },
   {
-    user: "Unknown",
-    action: "Login failed",
-    method: "Password",
-    ip: "203.45.67.89",
-    location: "Lagos, NG",
-    time: "32 min ago",
-    status: "blocked",
-    device: "Firefox / Windows",
+    name: "Session timeout",
+    description: "Expire inactive sessions after 30 minutes on shared or unknown devices.",
+    enabled: true,
+    state: "Recommended",
   },
   {
-    user: "Aiko Tanaka",
-    action: "Logged in",
-    method: "SSO",
-    ip: "172.16.0.55",
-    location: "Tokyo, JP",
-    time: "1 hr ago",
-    status: "success",
-    device: "Safari / iOS",
-  },
-  {
-    user: "Marcus Brown",
-    action: "Password changed",
-    method: "MFA",
-    ip: "192.168.1.87",
-    location: "London, UK",
-    time: "2 hrs ago",
-    status: "success",
-    device: "Edge / Windows",
-  },
-  {
-    user: "Unknown",
-    action: "Brute force attempt",
-    method: "Password",
-    ip: "185.220.101.33",
-    location: "Berlin, DE",
-    time: "3 hrs ago",
-    status: "blocked",
-    device: "Unknown",
+    name: "IP allowlisting",
+    description: "Limit project access to approved office, VPN, and build-system ranges.",
+    enabled: false,
+    state: "Optional",
   },
 ];
 
-const vulnerabilities = [
+const VULNERABILITIES = [
   {
     id: "VUL-0042",
     title: "Outdated dependency: lodash@4.17.19",
-    severity: "high",
-    package: "lodash",
-    status: "open",
-    found: "2 days ago",
+    area: "Frontend package",
+    severity: "High",
+    status: "Open",
+    owner: "Alex",
+    due: "Today",
   },
   {
     id: "VUL-0039",
     title: "CORS misconfiguration on /api/v2/*",
-    severity: "medium",
-    package: "API Layer",
-    status: "fixing",
-    found: "5 days ago",
+    area: "API Layer",
+    severity: "Medium",
+    status: "Fixing",
+    owner: "Sam",
+    due: "May 14",
   },
   {
     id: "VUL-0037",
     title: "Missing Content-Security-Policy header",
-    severity: "medium",
-    package: "Server Config",
-    status: "resolved",
-    found: "1 week ago",
-  },
-  {
-    id: "VUL-0035",
-    title: "Weak hashing algorithm for session tokens",
-    severity: "low",
-    package: "Auth Module",
-    status: "resolved",
-    found: "2 weeks ago",
-  },
-  {
-    id: "VUL-0031",
-    title: "SQL injection risk in search endpoint",
-    severity: "critical",
-    package: "API Layer",
-    status: "resolved",
-    found: "3 weeks ago",
+    area: "Server Config",
+    severity: "Medium",
+    status: "Resolved",
+    owner: "Priya",
+    due: "Done",
   },
 ];
 
-const securityPolicies = [
+const ACCESS_EVENTS = [
   {
-    name: "Two-Factor Authentication",
-    description: "Require MFA for all team members",
-    enabled: true,
-    enforced: true,
+    actor: "Sarah Chen",
+    action: "Logged in with SSO",
+    device: "Chrome / macOS",
+    location: "San Francisco, US",
+    time: "2 min ago",
+    state: "Allowed",
   },
   {
-    name: "Session Timeout",
-    description: "Auto-logout after inactivity",
-    enabled: true,
-    enforced: false,
+    actor: "James Rivera",
+    action: "Created API key",
+    device: "CLI / Linux",
+    location: "New York, US",
+    time: "15 min ago",
+    state: "Allowed",
   },
   {
-    name: "IP Allowlisting",
-    description: "Restrict access to trusted IPs",
-    enabled: false,
-    enforced: false,
+    actor: "Unknown",
+    action: "Login failed",
+    device: "Firefox / Windows",
+    location: "Lagos, NG",
+    time: "32 min ago",
+    state: "Blocked",
   },
   {
-    name: "SSO Only Mode",
-    description: "Disable password-based login",
-    enabled: false,
-    enforced: false,
-  },
-  {
-    name: "Branch Protection",
-    description: "Require approval before merge",
-    enabled: true,
-    enforced: true,
+    actor: "Aiko Tanaka",
+    action: "Changed password",
+    device: "Safari / iOS",
+    location: "Tokyo, JP",
+    time: "1 hr ago",
+    state: "Allowed",
   },
 ];
 
-const apiKeys = [
+const API_KEYS = [
   {
     name: "Production API",
     key: "gpr_live_a4f8...x2k1",
-    created: "Jan 15, 2026",
-    lastUsed: "2 min ago",
     scopes: ["read", "write"],
-    status: "active",
+    lastUsed: "2 min ago",
+    state: "Active",
   },
   {
     name: "CI/CD Pipeline",
     key: "gpr_ci_b7e2...m9p4",
-    created: "Feb 3, 2026",
-    lastUsed: "15 min ago",
     scopes: ["read", "write", "deploy"],
-    status: "active",
-  },
-  {
-    name: "Staging Environment",
-    key: "gpr_stg_d3c6...q1w8",
-    created: "Mar 8, 2026",
-    lastUsed: "3 days ago",
-    scopes: ["read"],
-    status: "active",
+    lastUsed: "15 min ago",
+    state: "Active",
   },
   {
     name: "Old Integration",
     key: "gpr_old_f1a9...z5t3",
-    created: "Nov 20, 2025",
-    lastUsed: "45 days ago",
     scopes: ["read"],
-    status: "inactive",
+    lastUsed: "45 days ago",
+    state: "Rotate",
   },
 ];
 
-function SecurityScoreRing({ score, label }) {
-  const radius = 46;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (score / 100) * circumference;
-  const color = "#e7e7e7";
+const SEVERITY_CLASS = {
+  High: "border-orange-500/25 bg-orange-500/10 text-orange-300",
+  Medium: "border-amber-500/25 bg-amber-500/10 text-amber-300",
+  Low: "border-blue-500/25 bg-blue-500/10 text-blue-300",
+};
 
-  return (
-    <div className="flex flex-col items-center">
-      <div className="relative w-[120px] h-[120px]">
-        <svg className="w-full h-full -rotate-90" viewBox="0 0 120 120">
-          <circle
-            cx="60"
-            cy="60"
-            r={radius}
-            fill="none"
-            stroke="#2a2a2a"
-            strokeWidth="6"
-          />
-          <circle
-            cx="60"
-            cy="60"
-            r={radius}
-            fill="none"
-            stroke={color}
-            strokeWidth="6"
-            strokeLinecap="round"
-            strokeDasharray={circumference}
-            strokeDashoffset={offset}
-            className="transition-all duration-1000"
-          />
-        </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span
-            className="text-2xl font-bold tracking-tight"
-            style={{ color }}
-          >
-            {score}
-          </span>
-          <span className="text-[9px] text-[#737373] uppercase tracking-wider font-medium">
-            of 100
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-}
+const STATUS_CLASS = {
+  Open: "border-red-500/25 bg-red-500/10 text-red-300",
+  Fixing: "border-blue-500/25 bg-blue-500/10 text-blue-300",
+  Resolved: "border-emerald-500/25 bg-emerald-500/10 text-emerald-300",
+  Allowed: "border-emerald-500/25 bg-emerald-500/10 text-emerald-300",
+  Blocked: "border-red-500/25 bg-red-500/10 text-red-300",
+  Active: "border-emerald-500/25 bg-emerald-500/10 text-emerald-300",
+  Rotate: "border-amber-500/25 bg-amber-500/10 text-amber-300",
+};
 
-function StatCard({ icon: Icon, label, value, sub, color }) {
+function ViewSwitch({ activeView, onChange }) {
   return (
-    <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-5 hover:border-[#474747] transition-all duration-300 group">
-      <div className="flex items-center gap-3 mb-3">
-        <div
-          className="w-9 h-9 rounded-lg flex items-center justify-center border"
-          style={{
-            backgroundColor: `${color}12`,
-            borderColor: `${color}20`,
-            color: color,
-          }}
+    <div className="flex w-full items-center overflow-x-auto rounded-lg border border-[#2a2a2a] bg-[#202020] p-0.5 xl:w-auto">
+      {SECURITY_VIEWS.map((view) => (
+        <Button
+          key={view}
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => onChange(view)}
+          className={cn(
+            "h-7 rounded-md px-3 text-xs",
+            activeView === view
+              ? "bg-[#2a2a2a] text-white"
+              : "text-[#737373] hover:bg-transparent hover:text-[#a3a3a3]",
+          )}
         >
-          <Icon className="w-[18px] h-[18px]" strokeWidth={1.7} />
-        </div>
-        <span className="text-[13px] font-medium text-[#a3a3a3]">
-          {label}
-        </span>
-      </div>
-      <div className="text-[22px] font-semibold text-white tracking-tight">
-        {value}
-      </div>
-      {sub && <p className="text-[11px] text-[#737373] mt-1.5">{sub}</p>}
+          {view}
+        </Button>
+      ))}
     </div>
   );
 }
 
-function SecurityEventRow({ event }) {
-  const statusConfig = {
-    success: {
-      icon: CheckCircle2,
-      color: "text-[#e7e7e7]",
-      bg: "bg-[#e7e7e7]/10",
-      border: "border-[#e7e7e7]/20",
-      label: "Success",
-    },
-    blocked: {
-      icon: XCircle,
-      color: "text-red-400",
-      bg: "bg-red-400/10",
-      border: "border-red-400/20",
-      label: "Blocked",
-    },
-  };
-  const cfg = statusConfig[event.status] || statusConfig.success;
-  const StatusIcon = cfg.icon;
-
+function SecuritySummary() {
   return (
-    <div className="flex items-center gap-3.5 py-3 px-5 border-b border-[#2a2a2a] last:border-0 hover:bg-[#242424] transition-colors">
-      <div
-        className={cn(
-          "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border",
-          cfg.bg,
-          cfg.border
-        )}
-      >
-        <StatusIcon className={cn("w-3.5 h-3.5", cfg.color)} />
+    <section className="rounded-2xl border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+      <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+        <div className="flex items-start gap-4">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-300">
+            <ShieldCheck className="h-5 w-5" />
+          </div>
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="text-base font-semibold text-[#ededed]">Security posture is healthy</h2>
+              <span className="text-xs font-medium text-emerald-300">
+                Live
+              </span>
+            </div>
+            <p className="mt-1 max-w-3xl text-sm leading-6 text-[#a3a3a3]">
+              Core protections are enabled. Two vulnerabilities still need owners, and one stale API key should be rotated.
+            </p>
+          </div>
+        </div>
+        <div className="grid grid-cols-3 gap-3 text-center">
+          <div className="rounded-xl border border-[#2a2a2a] bg-[#202020] px-4 py-3">
+            <p className="text-lg font-semibold text-[#ededed]">3/4</p>
+            <p className="text-[11px] text-[#737373]">Policies on</p>
+          </div>
+          <div className="rounded-xl border border-[#2a2a2a] bg-[#202020] px-4 py-3">
+            <p className="text-lg font-semibold text-[#ededed]">2</p>
+            <p className="text-[11px] text-[#737373]">Open risks</p>
+          </div>
+          <div className="rounded-xl border border-[#2a2a2a] bg-[#202020] px-4 py-3">
+            <p className="text-lg font-semibold text-[#ededed]">1</p>
+            <p className="text-[11px] text-[#737373]">Key to rotate</p>
+          </div>
+        </div>
       </div>
-      <div className="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-[1.5fr_80px_110px_110px_80px] gap-1 md:gap-4 items-center">
+    </section>
+  );
+}
+
+function PolicyCard({ policy }) {
+  return (
+    <div className="flex items-center justify-between gap-4 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-4">
+      <div className="flex min-w-0 items-start gap-3">
+        <div
+          className={cn(
+            "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border",
+            policy.enabled
+              ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-300"
+              : "border-[#333333] bg-[#202020] text-[#737373]",
+          )}
+        >
+          {policy.enabled ? <ShieldCheck className="h-4 w-4" /> : <Shield className="h-4 w-4" />}
+        </div>
         <div className="min-w-0">
-          <div className="text-[13px] font-medium text-white truncate">
-            <span className={event.user === "Unknown" ? "text-red-400" : ""}>
-              {event.user}
-            </span>
-            <span className="text-[#737373] mx-1.5">·</span>
-            <span className="text-[#a3a3a3] font-normal">
-              {event.action}
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="text-sm font-semibold text-[#ededed]">{policy.name}</h3>
+            <span className="text-xs text-[#a3a3a3]">
+              {policy.state}
             </span>
           </div>
-          <div className="text-[11px] text-[#737373] truncate">
-            {event.device}
-          </div>
-        </div>
-        <div className="text-[11px] text-[#737373] font-medium">{event.method}</div>
-        <div className="text-[11px] text-[#737373] font-mono truncate">
-          {event.ip}
-        </div>
-        <div className="text-[11px] text-[#737373] truncate">
-          {event.location}
-        </div>
-        <div className="text-[11px] text-[#737373]">{event.time}</div>
-      </div>
-      <Badge
-        className={cn(
-          "text-[10px] h-[20px] px-2 shrink-0 ml-1",
-          cfg.bg,
-          cfg.color,
-          cfg.border,
-          "border rounded-md"
-        )}
-      >
-        {cfg.label}
-      </Badge>
-    </div>
-  );
-}
-
-function VulnerabilityRow({ vuln }) {
-  const severityConfig = {
-    critical: {
-      color: "text-red-400",
-      bg: "bg-red-400/10",
-      border: "border-red-400/20",
-    },
-    high: {
-      color: "text-orange-400",
-      bg: "bg-orange-400/10",
-      border: "border-orange-400/20",
-    },
-    medium: {
-      color: "text-[#e7e7e7]",
-      bg: "bg-[#e7e7e7]/10",
-      border: "border-[#e7e7e7]/20",
-    },
-    low: {
-      color: "text-blue-400",
-      bg: "bg-blue-400/10",
-      border: "border-blue-400/20",
-    },
-  };
-  const cfg = severityConfig[vuln.severity] || severityConfig.low;
-
-  const statusConfig = {
-    open: { label: "Open", className: "bg-[#2a2a2a] text-[#a3a3a3] border-[#474747]" },
-    fixing: {
-      label: "Fixing",
-      className: "bg-[#e7e7e7]/10 text-[#e7e7e7] border-[#e7e7e7]/20",
-    },
-    resolved: {
-      label: "Resolved",
-      className: "bg-white/10 text-white border-white/20",
-    },
-  };
-  const statusCfg = statusConfig[vuln.status] || statusConfig.open;
-
-  return (
-    <div className="flex items-center gap-3.5 py-3.5 px-5 border-b border-[#2a2a2a] last:border-0 hover:bg-[#242424] transition-colors">
-      <div
-        className={cn(
-          "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border",
-          cfg.bg,
-          cfg.border
-        )}
-      >
-        <Bug className={cn("w-3.5 h-3.5", cfg.color)} />
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="text-[13px] font-medium text-white truncate">
-          {vuln.title}
-        </div>
-        <div className="flex items-center gap-1.5 mt-1">
-          <span className="text-[10px] text-[#737373] font-mono">
-            {vuln.id}
-          </span>
-          <span className="text-[10px] text-[#737373]">·</span>
-          <span className="text-[10px] text-[#737373]">{vuln.package}</span>
-          <span className="text-[10px] text-[#737373]">·</span>
-          <span className="text-[10px] text-[#737373]">{vuln.found}</span>
-        </div>
-      </div>
-      <Badge
-        className={cn(
-          "text-[10px] h-[20px] px-2 shrink-0 rounded-md",
-          cfg.bg,
-          cfg.color,
-          cfg.border,
-          "border"
-        )}
-      >
-        {vuln.severity}
-      </Badge>
-      <Badge
-        className={cn("text-[10px] h-[20px] px-2 shrink-0 border rounded-md", statusCfg.className)}
-      >
-        {statusCfg.label}
-      </Badge>
-    </div>
-  );
-}
-
-function PolicyRow({ policy }) {
-  return (
-    <div className="flex items-center justify-between py-3.5 px-5 border-b border-[#2a2a2a] last:border-0 hover:bg-[#242424] transition-colors">
-      <div className="flex items-center gap-3.5">
-        <div className={cn(
-          "w-9 h-9 rounded-lg flex items-center justify-center shrink-0 border",
-          policy.enabled
-            ? "bg-[#e7e7e7]/10 border-[#e7e7e7]/15 text-[#e7e7e7]"
-            : "bg-[#2a2a2a] border-[#2a2a2a] text-[#737373]"
-        )}>
-          <Shield
-            className="w-4 h-4"
-            strokeWidth={1.7}
-          />
-        </div>
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="text-[13px] font-medium text-white">
-              {policy.name}
-            </span>
-            {policy.enforced && (
-              <Badge className="text-[9px] h-[18px] px-1.5 bg-[#e7e7e7]/10 text-[#e7e7e7] border-[#e7e7e7]/20">
-                Enforced
-              </Badge>
-            )}
-          </div>
-          <p className="text-[11px] text-[#737373] mt-0.5">
-            {policy.description}
-          </p>
+          <p className="mt-1 text-xs leading-5 text-[#737373]">{policy.description}</p>
         </div>
       </div>
       <Switch checked={policy.enabled} />
@@ -519,476 +250,236 @@ function PolicyRow({ policy }) {
   );
 }
 
-function ApiKeyRow({ apiKey }) {
+function VulnerabilityItem({ item }) {
   return (
-    <div className="flex items-center gap-3.5 py-3.5 px-5 border-b border-[#2a2a2a] last:border-0 hover:bg-[#242424] transition-colors">
-      <div className="w-9 h-9 rounded-lg bg-[#2a2a2a] border border-[#2a2a2a] flex items-center justify-center shrink-0">
-        <Key className="w-4 h-4 text-[#a3a3a3]" strokeWidth={1.7} />
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="text-[13px] font-medium text-white">
-          {apiKey.name}
+    <article className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-4 transition-colors hover:border-[#3a3a3a]">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="truncate text-sm font-semibold text-[#ededed]">{item.title}</h3>
+            <span className="font-mono text-[10px] text-[#737373]">{item.id}</span>
+          </div>
+          <p className="mt-1 text-xs text-[#737373]">{item.area}</p>
         </div>
-        <div className="text-[11px] text-[#737373] font-mono mt-0.5">
-          {apiKey.key}
-        </div>
-      </div>
-      <div className="hidden md:flex items-center gap-1.5">
-        {apiKey.scopes.map((scope) => (
-          <Badge
-            key={scope}
-            className="text-[10px] h-[18px] px-1.5 bg-[#2a2a2a] text-[#737373] border-[#2a2a2a] rounded-md"
-          >
-            {scope}
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge className={cn("border px-2 py-0.5 text-[10px]", SEVERITY_CLASS[item.severity])}>
+            {item.severity}
           </Badge>
-        ))}
+          <Badge className={cn("border px-2 py-0.5 text-[10px]", STATUS_CLASS[item.status])}>
+            {item.status}
+          </Badge>
+          <span className="inline-flex items-center gap-1.5 text-xs text-[#a3a3a3]">
+            <UserRound className="h-3.5 w-3.5 text-[#737373]" />
+            {item.owner}
+          </span>
+          <span className="text-xs text-[#737373]">{item.due}</span>
+          <Button variant="ghost" size="icon" className="h-7 w-7 text-[#737373] hover:bg-[#242424] hover:text-white">
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
-      <div className="text-right shrink-0 ml-2">
-        <div className="text-[10px] text-[#737373]">Last used</div>
-        <div className="text-[11px] text-[#a3a3a3]">{apiKey.lastUsed}</div>
+    </article>
+  );
+}
+
+function AccessEvent({ event }) {
+  const blocked = event.state === "Blocked";
+
+  return (
+    <div className="grid grid-cols-1 gap-2 border-b border-[#2a2a2a] px-4 py-3 last:border-b-0 md:grid-cols-[1.2fr_1fr_1fr_0.7fr_auto] md:items-center">
+      <div className="min-w-0">
+        <p className={cn("truncate text-sm font-medium", blocked ? "text-red-300" : "text-[#ededed]")}>{event.actor}</p>
+        <p className="mt-0.5 truncate text-xs text-[#737373]">{event.action}</p>
       </div>
-      <Badge
-        className={cn(
-          "text-[10px] h-[20px] px-2 shrink-0 border rounded-md",
-          apiKey.status === "active"
-            ? "bg-[#e7e7e7]/10 text-[#e7e7e7] border-[#e7e7e7]/20"
-            : "bg-[#2a2a2a] text-[#737373] border-[#2a2a2a]"
-        )}
-      >
-        {apiKey.status}
-      </Badge>
+      <span className="text-xs text-[#a3a3a3]">{event.device}</span>
+      <span className="text-xs text-[#737373]">{event.location}</span>
+      <span className="text-xs text-[#737373]">{event.time}</span>
+      <span className={cn("text-xs font-medium", blocked ? "text-red-300" : "text-emerald-300")}>
+        {event.state}
+      </span>
     </div>
   );
 }
 
-function SectionHeader({ title, subtitle }) {
+function KeyItem({ apiKey }) {
   return (
-    <div className="space-y-1.5">
-      <h3 className="text-lg font-semibold text-white">{title}</h3>
-      <p className="text-[13px] text-[#a3a3a3] leading-relaxed">{subtitle}</p>
-    </div>
+    <article className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-4 transition-colors hover:border-[#3a3a3a]">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#333333] bg-[#202020] text-[#a3a3a3]">
+            <KeyRound className="h-4 w-4" />
+          </div>
+          <div className="min-w-0">
+            <h3 className="truncate text-sm font-semibold text-[#ededed]">{apiKey.name}</h3>
+            <p className="mt-0.5 font-mono text-xs text-[#737373]">{apiKey.key}</p>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs text-[#a3a3a3]">{apiKey.scopes.join(", ")}</span>
+          <span className="text-xs text-[#737373]">Last used {apiKey.lastUsed}</span>
+          <Badge className={cn("border px-2 py-0.5 text-[10px]", STATUS_CLASS[apiKey.state])}>
+            {apiKey.state}
+          </Badge>
+        </div>
+      </div>
+    </article>
   );
 }
 
 export function SecurityScreen() {
-  const { project } = useProject();
+  const [activeView, setActiveView] = useState("Overview");
+  const [query, setQuery] = useState("");
 
-  const criticalVulns = vulnerabilities.filter((v) => v.severity === "critical")
-    .length;
-  const openVulns = vulnerabilities.filter((v) => v.status === "open").length;
-  const activeKeys = apiKeys.filter((k) => k.status === "active").length;
+  const filteredVulnerabilities = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+    if (!normalizedQuery) return VULNERABILITIES;
+
+    return VULNERABILITIES.filter((item) =>
+      [item.id, item.title, item.area, item.owner, item.severity, item.status]
+        .join(" ")
+        .toLowerCase()
+        .includes(normalizedQuery),
+    );
+  }, [query]);
+
+  const showOverview = activeView === "Overview";
+  const showAccess = activeView === "Access" || showOverview;
+  const showVulnerabilities = activeView === "Vulnerabilities" || showOverview;
+  const showKeys = activeView === "Keys" || showOverview;
 
   return (
-    <MainScreenWrapper>
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-[#2a2a2a]">
-        <div className="flex items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-white">Security</h1>
-            <p className="text-[#a3a3a3] mt-1">
-             Monitor Security and secure access to your project.
-            </p>
-          </div>
+    <MainScreenWrapper className="text-[#e7e7e7]">
+      <div className="flex flex-col gap-4 border-b border-[#2a2a2a] pb-6 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-[#e7e7e7] md:text-3xl">Security</h1>
+          <p className="mt-1 text-[#a3a3a3]">
+            Review access, fix risks, and manage project credentials.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="outline" className="border-[#2a2a2a] bg-transparent text-[#a3a3a3] hover:bg-[#242424] hover:text-[#e7e7e7]">
+            <Eye className="mr-2 h-4 w-4" />
+            Audit log
+          </Button>
+          <Button className="bg-white text-black hover:bg-[#e7e7e7]">
+            <Lock className="mr-2 h-4 w-4" />
+            Create key
+          </Button>
         </div>
       </div>
 
-      <div className="space-y-12">
-        <div className="flex flex-col lg:flex-row gap-8 items-start">
-        
+      <SecuritySummary />
 
-          <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4">
-            <StatCard
-              icon={ShieldCheck}
-              label="Policies Active"
-              value="3 / 5"
-              sub="60% policy coverage"
-              color="#e7e7e7"
-            />
-            <StatCard
-              icon={Bug}
-              label="Vulnerabilities"
-              value={vulnerabilities.length}
-              sub={`${openVulns} open · ${criticalVulns} critical`}
-              color="#e7e7e7"
-            />
-            <StatCard
-              icon={Key}
-              label="API Keys"
-              value={activeKeys}
-              sub={`${apiKeys.length} total · 1 inactive`}
-              color="#e7e7e7"
-            />
-            <StatCard
-              icon={Users}
-              label="Active Sessions"
-              value="8"
-              sub="Across 5 team members"
-              color="#e7e7e7"
-            />
-          </div>
-        </div>
-
-        <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-5">
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-xl bg-[#e7e7e7]/10 border border-[#e7e7e7]/15 text-[#e7e7e7] flex items-center justify-center shrink-0">
-              <ShieldCheck className="w-5 h-5" strokeWidth={1.7} />
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1.5">
-                <span className="text-[14px] font-semibold text-white">
-                  Security Status: Healthy
-                </span>
-                <Badge className="text-[9px] h-[18px] px-1.5 bg-[#e7e7e7]/10 text-[#e7e7e7] border-[#e7e7e7]/20">
-                  LIVE
-                </Badge>
-              </div>
-              <p className="text-[12px] text-[#a3a3a3] leading-relaxed mb-4">
-                Your project meets{" "}
-                <span className="text-[#e7e7e7] font-semibold">
-                  12 of 15
-                </span>{" "}
-                security benchmarks. {openVulns} open vulnerabilities require attention. Last threat blocked{" "}
-                <span className="text-[#a3a3a3] font-medium">32 min ago</span>.
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="flex-1 h-1.5 bg-[#2a2a2a] rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-[#e7e7e7] to-[#ffffff] rounded-full transition-all"
-                    style={{ width: "80%" }}
-                  />
-                </div>
-                <span className="text-[11px] text-[#a3a3a3] font-medium whitespace-nowrap">
-                  12/15
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-8">
-          <SectionHeader
-            title="Security Posture"
-            subtitle="Detailed breakdown of your project's security posture across key areas."
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <ViewSwitch activeView={activeView} onChange={setActiveView} />
+        <div className="relative w-full lg:w-[320px]">
+          <Search className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-[#737373]" />
+          <Input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search security items"
+            className="!h-10 border-[#2a2a2a] bg-[#1a1a1a] !pl-10 !pr-3 text-sm text-[#ededed] placeholder:text-[#737373]"
           />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-5 pb-6 flex-shrink-0 hover:border-[#474747] transition-colors">
-              <div className="text-center mb-2">
-                <div className="text-[12px] font-medium text-[#a3a3a3] mb-0.5">
-                  Authentication
-                </div>
-                <div className="text-[10px] text-[#737373]">
-                  2FA · SSO · Tokens
-                </div>
-              </div>
-              <SecurityScoreRing score={90} label="Auth" />
-            </div>
-            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-5 pb-6 flex-shrink-0 hover:border-[#474747] transition-colors">
-              <div className="text-center mb-2">
-                <div className="text-[12px] font-medium text-[#a3a3a3] mb-0.5">
-                  Authorization
-                </div>
-                <div className="text-[10px] text-[#737373]">
-                  RBAC · Policies
-                </div>
-              </div>
-              <SecurityScoreRing score={75} label="Access" />
-            </div>
-            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-5 pb-6 flex-shrink-0 hover:border-[#474747] transition-colors">
-              <div className="text-center mb-2">
-                <div className="text-[12px] font-medium text-[#a3a3a3] mb-0.5">
-                  Data Protection
-                </div>
-                <div className="text-[10px] text-[#737373]">
-                  AES · TLS · Masking
-                </div>
-              </div>
-              <SecurityScoreRing score={85} label="Encrypt" />
-            </div>
-            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-5 pb-6 flex-shrink-0 hover:border-[#474747] transition-colors">
-              <div className="text-center mb-2">
-                <div className="text-[12px] font-medium text-[#a3a3a3] mb-0.5">
-                  Infrastructure
-                </div>
-                <div className="text-[10px] text-[#737373]">
-                  WAF · CDN · Firewall
-                </div>
-              </div>
-              <SecurityScoreRing score={68} label="Network" />
-            </div>
-            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-5 pb-6 flex-shrink-0 hover:border-[#474747] transition-colors">
-              <div className="text-center mb-2">
-                <div className="text-[12px] font-medium text-[#a3a3a3] mb-0.5">
-                  App Security
-                </div>
-                <div className="text-[10px] text-[#737373]">
-                  CSP · CORS · Headers
-                </div>
-              </div>
-              <SecurityScoreRing score={72} label="Hardening" />
-            </div>
-          </div>
         </div>
+      </div>
 
-        <div className="space-y-8">
-          <SectionHeader
-            title="Recent Auth Events"
-            subtitle="Latest authentication events and access activity across the project."
-          />
-          <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-3 border-b border-[#2a2a2a]">
-              <span className="text-[11px] text-[#737373] uppercase tracking-wider font-medium">
-                Event Log
-              </span>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-[11px] text-[#737373] hover:text-[#a3a3a3] h-7"
-              >
-                View All
-                <ChevronRight className="w-3 h-3 ml-1" />
-              </Button>
+      {showAccess ? (
+        <section className="space-y-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-semibold text-[#ededed]">Access Controls</h2>
+              <p className="mt-1 text-sm text-[#737373]">Policies that decide who can enter, merge, and act.</p>
             </div>
-            <div className="divide-y-0">
-              {recentAuthEvents.map((event, i) => (
-                <SecurityEventRow key={i} event={event} />
-              ))}
-            </div>
+            <span className="text-sm font-medium text-emerald-300">
+              3 enabled
+            </span>
           </div>
-        </div>
-
-        <div className="space-y-8">
-          <SectionHeader
-            title="Vulnerabilities"
-            subtitle={`Found ${vulnerabilities.length} vulnerabilities — ${openVulns} still open, ${vulnerabilities.filter((v) => v.status === "fixing").length} being fixed.`}
-          />
-          <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-3 border-b border-[#2a2a2a]">
-              <span className="text-[11px] text-[#737373] uppercase tracking-wider font-medium">
-                Vulnerability Report
-              </span>
-              <div className="flex items-center gap-3">
-                {openVulns > 0 && (
-                  <Badge className="text-[10px] h-[20px] px-2 bg-red-500/10 text-red-400 border border-red-500/20 rounded-md">
-                    {openVulns} Open
-                  </Badge>
-                )}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-[11px] text-[#737373] hover:text-[#a3a3a3] h-7"
-                >
-                  Export
-                  <ExternalLink className="w-3 h-3 ml-1" />
-                </Button>
-              </div>
-            </div>
-            <div className="divide-y-0">
-              {vulnerabilities.map((vuln) => (
-                <VulnerabilityRow key={vuln.id} vuln={vuln} />
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-8">
-          <SectionHeader
-            title="Security Policies"
-            subtitle="Configure authentication, access control, and protection policies."
-          />
-          <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl overflow-hidden">
-            <div className="px-5 py-3 border-b border-[#2a2a2a]">
-              <span className="text-[11px] text-[#737373] uppercase tracking-wider font-medium">
-                Active Policies
-              </span>
-            </div>
-            {securityPolicies.map((policy) => (
-              <PolicyRow key={policy.name} policy={policy} />
+          <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
+            {POLICIES.map((policy) => (
+              <PolicyCard key={policy.name} policy={policy} />
             ))}
           </div>
-        </div>
+        </section>
+      ) : null}
 
-        <div className="space-y-8">
-          <SectionHeader
-            title="API Keys & Tokens"
-            subtitle={`Manage API keys with access to your project. ${activeKeys} active, 1 inactive.`}
-          />
-          <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-3 border-b border-[#2a2a2a]">
-              <span className="text-[11px] text-[#737373] uppercase tracking-wider font-medium">
-                Keys
-              </span>
-              <Button
-                size="sm"
-                className="bg-primary text-primary-foreground hover:bg-primary/90 h-7 text-[11px] rounded-md"
-              >
-                + Create Key
-              </Button>
+      {showVulnerabilities ? (
+        <section className="space-y-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-semibold text-[#ededed]">Risk Queue</h2>
+              <p className="mt-1 text-sm text-[#737373]">Actionable findings with owner, status, and next due date.</p>
             </div>
-            <div className="divide-y-0">
-              {apiKeys.map((apiKey) => (
-                <ApiKeyRow key={apiKey.name} apiKey={apiKey} />
-              ))}
-            </div>
+            <Button variant="ghost" size="sm" className="text-[#737373] hover:bg-[#242424] hover:text-white">
+              Export
+              <ExternalLink className="ml-2 h-3.5 w-3.5" />
+            </Button>
           </div>
-        </div>
-
-        <div className="space-y-8">
-          <SectionHeader
-            title="Compliance & Encryption"
-            subtitle="Overview of data protection standards and encryption status."
-          />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-5 hover:border-[#474747] transition-colors">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-9 h-9 rounded-lg bg-[#e7e7e7]/10 border border-[#e7e7e7]/15 text-[#e7e7e7] flex items-center justify-center">
-                  <Lock className="w-[18px] h-[18px]" strokeWidth={1.7} />
-                </div>
-                <div>
-                  <span className="text-[13px] font-medium text-[#a3a3a3]">
-                    Encryption at Rest
-                  </span>
-                </div>
-              </div>
-              <div className="text-[15px] font-semibold text-white mb-1">
-                AES-256
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-white" />
-                <span className="text-[11px] text-[#e7e7e7]">Active</span>
-              </div>
-              <div className="mt-4 pt-3 border-t border-[#2a2a2a]">
-                <div className="text-[10px] text-[#737373]">
-                  Last key rotation: 14 days ago
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-5 hover:border-[#474747] transition-colors">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-9 h-9 rounded-lg bg-[#e7e7e7]/10 border border-[#e7e7e7]/15 text-[#e7e7e7] flex items-center justify-center">
-                  <Globe className="w-[18px] h-[18px]" strokeWidth={1.7} />
-                </div>
-                <div>
-                  <span className="text-[13px] font-medium text-[#a3a3a3]">
-                    TLS / SSL
-                  </span>
-                </div>
-              </div>
-              <div className="text-[15px] font-semibold text-white mb-1">
-                TLS 1.3
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-white" />
-                <span className="text-[11px] text-[#e7e7e7]">Active</span>
-              </div>
-              <div className="mt-4 pt-3 border-t border-[#2a2a2a]">
-                <div className="text-[10px] text-[#737373]">
-                  Certificate expires: Aug 15, 2026
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-5 hover:border-[#474747] transition-colors">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-9 h-9 rounded-lg bg-[#e7e7e7]/10 border border-[#e7e7e7]/15 text-[#e7e7e7] flex items-center justify-center">
-                  <Fingerprint className="w-[18px] h-[18px]" strokeWidth={1.7} />
-                </div>
-                <div>
-                  <span className="text-[13px] font-medium text-[#a3a3a3]">
-                    Data Masking
-                  </span>
-                </div>
-              </div>
-              <div className="text-[15px] font-semibold text-white mb-1">
-                Partial
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#e7e7e7]" />
-                <span className="text-[11px] text-[#e7e7e7]">Needs Configuration</span>
-              </div>
-              <div className="mt-4 pt-3 border-t border-[#2a2a2a]">
-                <div className="text-[10px] text-[#737373]">
-                  3 of 7 sensitive fields masked
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-5 hover:border-[#474747] transition-colors">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-9 h-9 rounded-lg bg-[#e7e7e7]/10 border border-[#e7e7e7]/15 text-[#e7e7e7] flex items-center justify-center">
-                  <Scan className="w-[18px] h-[18px]" strokeWidth={1.7} />
-                </div>
-                <div>
-                  <span className="text-[13px] font-medium text-[#a3a3a3]">
-                    SOC 2 Compliance
-                  </span>
-                </div>
-              </div>
-              <div className="text-[15px] font-semibold text-white mb-1">
-                Type II
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-white" />
-                <span className="text-[11px] text-[#e7e7e7]">Compliant</span>
-              </div>
-              <div className="mt-4 pt-3 border-t border-[#2a2a2a]">
-                <div className="text-[10px] text-[#737373]">
-                  Next audit: Sep 2026
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-5 hover:border-[#474747] transition-colors">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-9 h-9 rounded-lg bg-[#e7e7e7]/10 border border-[#e7e7e7]/15 text-[#e7e7e7] flex items-center justify-center">
-                  <Shield className="w-[18px] h-[18px]" strokeWidth={1.7} />
-                </div>
-                <div>
-                  <span className="text-[13px] font-medium text-[#a3a3a3]">
-                    GDPR
-                  </span>
-                </div>
-              </div>
-              <div className="text-[15px] font-semibold text-white mb-1">
-                Compliant
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-white" />
-                <span className="text-[11px] text-[#e7e7e7]">Active</span>
-              </div>
-              <div className="mt-4 pt-3 border-t border-[#2a2a2a]">
-                <div className="text-[10px] text-[#737373]">
-                  DPIA completed: Jan 2026
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-5 hover:border-[#474747] transition-colors">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-9 h-9 rounded-lg bg-[#2a2a2a] border border-[#2a2a2a] text-[#a3a3a3] flex items-center justify-center">
-                  <Activity className="w-[18px] h-[18px]" strokeWidth={1.7} />
-                </div>
-                <div>
-                  <span className="text-[13px] font-medium text-[#a3a3a3]">
-                    Audit Logging
-                  </span>
-                </div>
-              </div>
-              <div className="text-[15px] font-semibold text-white mb-1">
-                90-Day Retention
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#a3a3a3]" />
-                <span className="text-[11px] text-[#a3a3a3]">Logging Active</span>
-              </div>
-              <div className="mt-4 pt-3 border-t border-[#2a2a2a]">
-                <div className="text-[10px] text-[#737373]">
-                  12,847 events this month
-                </div>
-              </div>
-            </div>
+          <div className="space-y-2">
+            {filteredVulnerabilities.map((item) => (
+              <VulnerabilityItem key={item.id} item={item} />
+            ))}
           </div>
-        </div>
-      </div>
+        </section>
+      ) : null}
+
+      {showAccess ? (
+        <section className="space-y-4">
+          <div>
+            <h2 className="text-lg font-semibold text-[#ededed]">Recent Access</h2>
+            <p className="mt-1 text-sm text-[#737373]">Recent authentication and sensitive project actions.</p>
+          </div>
+          <div className="overflow-hidden rounded-xl border border-[#2a2a2a] bg-[#1a1a1a]">
+            {ACCESS_EVENTS.map((event) => (
+              <AccessEvent key={`${event.actor}-${event.time}`} event={event} />
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {showKeys ? (
+        <section className="space-y-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-semibold text-[#ededed]">Keys & Tokens</h2>
+              <p className="mt-1 text-sm text-[#737373]">Project credentials and automation tokens that need periodic review.</p>
+            </div>
+            <span className="text-sm font-medium text-amber-300">
+              1 rotate
+            </span>
+          </div>
+          <div className="space-y-2">
+            {API_KEYS.map((apiKey) => (
+              <KeyItem key={apiKey.name} apiKey={apiKey} />
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {showOverview ? (
+        <section className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-4">
+            <div className="flex items-center gap-2 text-sm font-medium text-[#ededed]">
+              <Fingerprint className="h-4 w-4 text-[#737373]" />
+              Data protection
+            </div>
+            <p className="mt-2 text-xs leading-5 text-[#737373]">AES-256 at rest, TLS 1.3 in transit, partial masking on sensitive fields.</p>
+          </div>
+          <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-4">
+            <div className="flex items-center gap-2 text-sm font-medium text-[#ededed]">
+              <ShieldAlert className="h-4 w-4 text-[#737373]" />
+              Compliance
+            </div>
+            <p className="mt-2 text-xs leading-5 text-[#737373]">SOC 2 Type II and GDPR controls are active. Next audit window opens in September.</p>
+          </div>
+          <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-4">
+            <div className="flex items-center gap-2 text-sm font-medium text-[#ededed]">
+              <Terminal className="h-4 w-4 text-[#737373]" />
+              Automation
+            </div>
+            <p className="mt-2 text-xs leading-5 text-[#737373]">CI/CD keys are scoped to deploy actions and should be reviewed every 30 days.</p>
+          </div>
+        </section>
+      ) : null}
     </MainScreenWrapper>
   );
 }

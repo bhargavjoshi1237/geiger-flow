@@ -29,6 +29,7 @@ import { settingsNav } from "@/components/internal/sidebar/projects/sidebar_data
 import { AddonRegistryProvider, useAddonRegistry } from "@/addons/registry";
 import { getAddonScreens, getAddonNavItems } from "@/addons/registry";
 import "@/addons/sql";
+import "@/addons/project-plus";
 import { useEffect } from "react";
 
 function ProjectLayoutContent({ id }) {

@@ -308,7 +308,7 @@ function SidebarContent({ className, ...props }) {
       data-slot="sidebar-content"
       data-sidebar="content"
       className={cn(
-        "flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
+        "flex min-h-0 flex-1 flex-col gap-2 overflow-auto [-ms-overflow-style:none] [scrollbar-width:none] group-data-[collapsible=icon]:overflow-hidden [&::-webkit-scrollbar]:hidden",
         className,
       )}
       {...props}
@@ -514,9 +514,7 @@ function SidebarMenuBadge({ className, ...props }) {
 }
 
 function SidebarMenuSkeleton({ className, showIcon = false, ...props }) {
-  const width = React.useMemo(() => {
-    return `${Math.floor(Math.random() * 40) + 50}%`;
-  }, []);
+  const width = showIcon ? "72%" : "64%";
 
   return (
     <div

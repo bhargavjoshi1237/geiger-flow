@@ -10,6 +10,8 @@ import {
   Megaphone,
   MessageSquare,
   MoreHorizontal,
+  PanelLeftClose,
+  PanelLeftOpen,
   Pin,
   Plus,
   Reply,
@@ -163,7 +165,32 @@ const toneClasses = {
   violet: "bg-violet-300 text-violet-950",
 };
 
-function ChannelButton({ channel, active, onClick }) {
+function ChannelButton({ channel, active, collapsed, onClick }) {
+  const ChannelIcon = channel.locked ? Lock : Hash;
+
+  if (collapsed) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        title={channel.name}
+        className={cn(
+          "relative flex h-10 w-10 items-center justify-center rounded-lg border transition-colors",
+          active
+            ? "border-[#3a3a3a] bg-[#242424] text-[#ededed]"
+            : "border-transparent text-[#a3a3a3] hover:border-[#2a2a2a] hover:bg-[#202020] hover:text-[#ededed]",
+        )}
+      >
+        <ChannelIcon className="h-4 w-4" />
+        {channel.unread > 0 ? (
+          <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-400 px-1 text-[9px] font-bold text-emerald-950">
+            {channel.unread}
+          </span>
+        ) : null}
+      </button>
+    );
+  }
+
   return (
     <button
       type="button"
@@ -176,7 +203,7 @@ function ChannelButton({ channel, active, onClick }) {
       )}
     >
       <div className="flex items-center gap-2.5">
-        {channel.locked ? <Lock className="h-3.5 w-3.5 shrink-0 text-[#737373]" /> : <Hash className="h-3.5 w-3.5 shrink-0 text-[#737373]" />}
+        <ChannelIcon className="h-3.5 w-3.5 shrink-0 text-[#737373]" />
         <span className="min-w-0 flex-1 truncate text-sm font-medium">{channel.name}</span>
         {channel.unread > 0 ? (
           <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-emerald-400 px-1.5 text-[10px] font-bold text-emerald-950">
@@ -191,37 +218,67 @@ function ChannelButton({ channel, active, onClick }) {
   );
 }
 
-function ChannelRail({ selectedChannel, onSelectChannel }) {
+function ChannelRail({ selectedChannel, collapsed, onToggleCollapsed, onSelectChannel }) {
   return (
-    <aside className="hidden h-full w-[286px] shrink-0 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] xl:flex xl:flex-col">
-      <div className="shrink-0 border-b border-[#2a2a2a] p-4">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <h2 className="text-sm font-semibold text-[#ededed]">Channels</h2>
-            <p className="mt-0.5 text-xs text-[#737373]">Project-wide context</p>
-          </div>
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-[#737373] hover:bg-[#242424] hover:text-white">
-            <Plus className="h-4 w-4" />
+    <aside
+      className={cn(
+        "hidden h-full shrink-0 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] transition-[width] duration-200 xl:flex xl:flex-col",
+        collapsed ? "w-[64px]" : "w-[286px]",
+      )}
+    >
+      <div className={cn("shrink-0 border-b border-[#2a2a2a]", collapsed ? "p-2" : "p-4")}>
+        <div className={cn("flex items-center gap-3", collapsed ? "justify-center" : "justify-between")}>
+          {!collapsed ? (
+            <div>
+              <h2 className="text-sm font-semibold text-[#ededed]">Channels</h2>
+              <p className="mt-0.5 text-xs text-[#737373]">Project-wide context</p>
+            </div>
+          ) : null}
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={onToggleCollapsed}
+            className="h-8 w-8 text-[#737373] hover:bg-[#242424] hover:text-white"
+            title={collapsed ? "Expand channels" : "Collapse channels"}
+          >
+            {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
           </Button>
         </div>
-        <div className="relative mt-4">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#737373]" />
-          <input
-            placeholder="Search channels..."
-            className="h-9 w-full rounded-md border border-[#333333] bg-[#202020] py-2 pl-9 pr-3 text-sm text-[#ededed] outline-none placeholder:text-[#737373] focus:border-[#474747] focus:ring-2 focus:ring-[#333333]/50"
-          />
-        </div>
+        {!collapsed ? (
+          <div className="relative mt-4">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#737373]" />
+            <input
+              placeholder="Search channels..."
+              className="h-9 w-full rounded-md border border-[#333333] bg-[#202020] py-2 pl-9 pr-3 text-sm text-[#ededed] outline-none placeholder:text-[#737373] focus:border-[#474747] focus:ring-2 focus:ring-[#333333]/50"
+            />
+          </div>
+        ) : null}
       </div>
-      <div className="min-h-0 flex-1 space-y-1 overflow-y-auto p-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div
+        className={cn(
+          "min-h-0 flex-1 space-y-1 overflow-y-auto p-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+          collapsed && "flex flex-col items-center",
+        )}
+      >
         {CHANNELS.map((channel) => (
           <ChannelButton
             key={channel.id}
             channel={channel}
             active={selectedChannel === channel.id}
+            collapsed={collapsed}
             onClick={() => onSelectChannel(channel.id)}
           />
         ))}
       </div>
+      {!collapsed ? (
+        <div className="border-t border-[#2a2a2a] p-2">
+          <Button variant="ghost" className="h-8 w-full justify-start gap-2 text-xs text-[#737373] hover:bg-[#242424] hover:text-white">
+            <Plus className="h-3.5 w-3.5" />
+            Add channel
+          </Button>
+        </div>
+      ) : null}
     </aside>
   );
 }
@@ -338,6 +395,7 @@ function MessageItem({ message }) {
 export function GroundingScreen() {
   const [message, setMessage] = useState("");
   const [selectedChannel, setSelectedChannel] = useState(CHANNELS[0].id);
+  const [channelsCollapsed, setChannelsCollapsed] = useState(false);
   const [mode, setMode] = useState("message");
 
   const activeChannel = CHANNELS.find((channel) => channel.id === selectedChannel) ?? CHANNELS[0];
@@ -373,7 +431,12 @@ export function GroundingScreen() {
       </div>
 
       <div className="flex h-[calc(100dvh-250px)] min-h-[500px] gap-4">
-        <ChannelRail selectedChannel={selectedChannel} onSelectChannel={setSelectedChannel} />
+        <ChannelRail
+          selectedChannel={selectedChannel}
+          collapsed={channelsCollapsed}
+          onToggleCollapsed={() => setChannelsCollapsed((current) => !current)}
+          onSelectChannel={setSelectedChannel}
+        />
 
         <main className="flex min-h-0 min-w-0 flex-1 flex-col">
           <MobileChannelPicker selectedChannel={selectedChannel} onSelectChannel={setSelectedChannel} />

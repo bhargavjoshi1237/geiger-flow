@@ -5,6 +5,15 @@ import React, { createContext, useContext, useState, useCallback } from "react";
 const AddonRegistryContext = createContext();
 
 const INSTALLED_ADDONS = [];
+const DEFAULT_ENABLED_ADDONS = [
+  "risk-register",
+  "decision-log",
+  "release-readiness",
+  "feedback-hub",
+  "experiments",
+  "incident-center",
+  "budget-tracker",
+];
 
 export function loadAddon(addonModule) {
   const existing = INSTALLED_ADDONS.findIndex((a) => a.id === addonModule.id);
@@ -88,7 +97,7 @@ export function mergeNavWithAddons(baseNav, addonNavItems) {
 }
 
 export function AddonRegistryProvider({ children }) {
-  const [enabledAddons, setEnabledAddons] = useState([]);
+  const [enabledAddons, setEnabledAddons] = useState(DEFAULT_ENABLED_ADDONS);
   const [navPositions, setNavPositions] = useState({});
   const [addonColors, setAddonColors] = useState({});
 

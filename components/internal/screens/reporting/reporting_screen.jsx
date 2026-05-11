@@ -2,28 +2,24 @@
 
 import React, { useMemo, useState } from "react";
 import {
-  Archive,
   BarChart3,
-  Bell,
-  Bookmark,
-  CalendarDays,
-  Check,
-  CheckSquare,
-  ChevronDown,
+  CheckCircle2,
   Clock3,
-  Filter,
-  FolderKanban,
-  LayoutList,
-  ListFilter,
-  Plus,
+  Download,
+  ArrowUpRight,
+  AlertTriangle,
+  Expand,
+  LoaderCircle,
+  Maximize2,
+  Circle,
   Search,
-  Settings,
-  Share2,
   Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import {
   Table,
   TableBody,
@@ -32,494 +28,361 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
+import FilterDropdown from "@/components/internal/screens/projects/overview/filter_dropdown";
+import { severityColors } from "@/components/ui/issue-item";
 import { cn } from "@/lib/utils";
 
-const REPORT_TABS = [
-  "All Tasks",
-  "Projects Overview",
-  "Workloads",
-  "Members Report",
-  "Timesheets",
-  "Check-Ins",
+const REPORT_VIEWS = ["Tasks", "Projects", "Workload", "Time"];
+
+const PROJECT_OPTIONS = [
+  { value: "all", label: "All projects" },
+  { value: "demo-project", label: "Demo Project" },
+  { value: "product-roadmap", label: "Product Roadmap" },
+  { value: "launch-playbook", label: "Launch Playbook" },
 ];
 
-const PROJECTS = [
-  { id: "demo", name: "Demo Project", color: "bg-orange-400", selected: true },
-  { id: "roadmap", name: "Product Roadmap - My Team", color: "bg-amber-400", selected: false },
-  { id: "launch", name: "Launch Playbook", color: "bg-fuchsia-500", selected: false },
-  { id: "features", name: "Feature Requests", color: "bg-sky-400", selected: false },
+const METRICS = [
+  { label: "Open tasks", value: "12", detail: "3 due this week", Icon: CheckCircle2 },
+  { label: "Projects", value: "4", detail: "1 at risk", Icon: BarChart3 },
+  { label: "Capacity", value: "74%", detail: "Team average", Icon: Users },
+  { label: "Tracked", value: "28h", detail: "This week", Icon: Clock3 },
 ];
 
-const TASK_GROUPS = [
+const REPORT_ROWS = [
   {
-    title: "Overdue",
-    count: 2,
-    tasks: [
-      {
-        id: "DEM-1",
-        title: "Create a New Project",
-        project: "Demo Project",
-        status: "In Progress",
-        list: "Getting Started",
-        assignee: "AJ",
-        subscribers: "Add",
-        dueDate: "May 8, 1:24 AM",
-        tag: "High Priority",
-        tagTone: "danger",
-        checklist: "0/1",
-      },
-      {
-        id: "DEM-8",
-        title: "View Help Guides in Docs",
-        project: "Demo Project",
-        status: "To Do",
-        list: "Exploring Nifty",
-        assignee: "AJ",
-        subscribers: "Add",
-        dueDate: "May 10, 1:24 AM",
-        tag: "Low Priority",
-        tagTone: "success",
-        checklist: "0/3",
-      },
-    ],
+    id: "DEM-1",
+    task: "Create a New Project",
+    project: "Demo Project",
+    owner: "AJ",
+    status: "In Progress",
+    priority: "High",
+    due: "May 8",
+    progress: 44,
+    view: "Tasks",
   },
   {
-    title: "Due Today",
-    count: 1,
-    tasks: [
-      {
-        id: "DEM-8",
-        title: "View Help Guides in Docs",
-        project: "Demo Project",
-        status: "To Do",
-        list: "Exploring Nifty",
-        assignee: "AJ",
-        subscribers: "Add",
-        dueDate: "May 10, 1:24 AM",
-        tag: "Low Priority",
-        tagTone: "success",
-        checklist: "0/3",
-      },
-    ],
+    id: "DEM-8",
+    task: "View Help Guides in Docs",
+    project: "Demo Project",
+    owner: "AJ",
+    status: "To Do",
+    priority: "Low",
+    due: "May 10",
+    progress: 12,
+    view: "Tasks",
   },
-  { title: "Due This Month", count: 2, tasks: [] },
-  { title: "Unscheduled", count: 7, tasks: [] },
+  {
+    id: "PRD-4",
+    task: "Finalize roadmap checkpoints",
+    project: "Product Roadmap",
+    owner: "Priya",
+    status: "At Risk",
+    priority: "High",
+    due: "May 14",
+    progress: 68,
+    view: "Projects",
+  },
+  {
+    id: "LCH-2",
+    task: "Draft launch checklist",
+    project: "Launch Playbook",
+    owner: "Sam",
+    status: "Planning",
+    priority: "Medium",
+    due: "May 21",
+    progress: 27,
+    view: "Projects",
+  },
+  {
+    id: "WRK-1",
+    task: "Review team allocation",
+    project: "All Projects",
+    owner: "Priya",
+    status: "High Load",
+    priority: "Medium",
+    due: "This week",
+    progress: 82,
+    view: "Workload",
+  },
+  {
+    id: "TIM-1",
+    task: "Weekly time summary",
+    project: "Demo Project",
+    owner: "AJ",
+    status: "Logged",
+    priority: "Low",
+    due: "28h",
+    progress: 100,
+    view: "Time",
+  },
 ];
 
-const INSIGHT_CARDS = [
-  { label: "Active projects", value: "4", detail: "1 selected", Icon: FolderKanban },
-  { label: "Open tasks", value: "12", detail: "3 due soon", Icon: CheckSquare },
-  { label: "Tracked time", value: "28h", detail: "This week", Icon: Clock3 },
-  { label: "Team load", value: "74%", detail: "Balanced", Icon: Users },
-];
-
-const SECONDARY_REPORTS = {
-  "Projects Overview": [
-    ["Demo Project", "42%", "3 milestones", "On Track"],
-    ["Product Roadmap - My Team", "68%", "6 milestones", "At Risk"],
-    ["Launch Playbook", "21%", "2 milestones", "Planning"],
-  ],
-  Workloads: [
-    ["AJ", "8 tasks", "32h capacity", "Healthy"],
-    ["Priya", "11 tasks", "40h capacity", "High load"],
-    ["Sam", "4 tasks", "24h capacity", "Available"],
-  ],
-  "Members Report": [
-    ["AJ", "5 completed", "7 open", "18h tracked"],
-    ["Priya", "8 completed", "11 open", "26h tracked"],
-    ["Sam", "3 completed", "4 open", "9h tracked"],
-  ],
-  Timesheets: [
-    ["Demo Project", "Create a New Project", "AJ", "02:45"],
-    ["Demo Project", "View Help Guides in Docs", "AJ", "01:20"],
-    ["Launch Playbook", "Draft launch checklist", "Priya", "03:10"],
-  ],
-  "Check-Ins": [
-    ["Weekly delivery pulse", "3 responses", "Due today", "Open"],
-    ["Blocker report", "1 response", "Every Friday", "Open"],
-    ["Launch readiness", "8 responses", "Closed", "Archived"],
-  ],
+const OWNER_META = {
+  AJ: {
+    name: "Aadit Joshi",
+    avatarClass: "bg-sky-300 text-sky-950",
+  },
+  Priya: {
+    name: "Priya Shah",
+    avatarClass: "bg-violet-300 text-violet-950",
+  },
+  Sam: {
+    name: "Sam Lee",
+    avatarClass: "bg-emerald-300 text-emerald-950",
+  },
 };
 
-function ReportTabButton({ tab, activeTab, onClick }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "h-8 whitespace-nowrap border-b-2 px-1 text-sm font-medium transition-colors",
-        activeTab === tab
-          ? "border-emerald-400 text-emerald-300"
-          : "border-transparent text-[#a3a3a3] hover:text-[#ededed]",
-      )}
-    >
-      {tab}
-    </button>
-  );
-}
+const STATUS_META = {
+  "In Progress": {
+    Icon: LoaderCircle,
+    className: "border-blue-500/25 bg-blue-500/10 text-blue-300",
+  },
+  "To Do": {
+    Icon: Circle,
+    className: "border-zinc-500/25 bg-zinc-500/10 text-zinc-300",
+  },
+  "At Risk": {
+    Icon: AlertTriangle,
+    className: "border-amber-500/25 bg-amber-500/10 text-amber-300",
+  },
+  Planning: {
+    Icon: Clock3,
+    className: "border-violet-500/25 bg-violet-500/10 text-violet-300",
+  },
+  "High Load": {
+    Icon: AlertTriangle,
+    className: "border-rose-500/25 bg-rose-500/10 text-rose-300",
+  },
+  Logged: {
+    Icon: CheckCircle2,
+    className: "border-emerald-500/25 bg-emerald-500/10 text-emerald-300",
+  },
+};
 
-function ProjectSelector() {
-  return (
-    <aside className="hidden w-[290px] shrink-0 flex-col rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] lg:flex">
-      <div className="flex h-12 items-center justify-between border-b border-[#2a2a2a] px-4">
-        <span className="text-sm font-semibold text-[#ededed]">Select Projects: 1 of 4</span>
-        <ChevronDown className="h-4 w-4 text-[#a3a3a3]" />
-      </div>
-      <div className="p-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#737373]" />
-          <Input
-            placeholder="Type to search..."
-            className="h-10 border-[#333333] bg-[#202020] pl-10 text-sm text-[#ededed] placeholder:text-[#737373]"
-          />
-        </div>
-        <div className="mt-4 space-y-2">
-          <div className="flex items-center gap-2 text-xs font-medium text-[#a3a3a3]">
-            <span>General</span>
-            <ChevronDown className="h-3.5 w-3.5" />
-          </div>
-          {PROJECTS.map((project) => (
-            <button
-              key={project.id}
-              type="button"
-              className="flex h-8 w-full items-center gap-2 rounded-md px-1.5 text-left text-sm text-[#d4d4d4] hover:bg-[#242424]"
-            >
-              <span
-                className={cn(
-                  "flex h-4 w-4 items-center justify-center rounded border border-[#4a4a4a]",
-                  project.selected && "border-emerald-400 bg-emerald-500",
-                )}
-              >
-                {project.selected ? <Check className="h-3 w-3 text-white" /> : null}
-              </span>
-              <span className={cn("h-4 w-4 rounded-[4px]", project.color)} />
-              <span className="truncate">{project.name}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-    </aside>
-  );
-}
+const PRIORITY_STYLES = {
+  High: "high",
+  Medium: "medium",
+  Low: "low",
+};
 
-function TaskMeta({ task }) {
+const PRIORITY_ICONS = {
+  high: <Expand className="h-3 w-3" />,
+  medium: <Maximize2 className="h-3 w-3" />,
+  low: <ArrowUpRight className="h-3 w-3" />,
+};
+
+function MetricCard({ metric }) {
   return (
-    <div className="mt-1 flex items-center gap-2 text-[11px] text-[#737373]">
-      <Archive className="h-3 w-3" />
-      <span>{task.project}</span>
-      <span className="ml-auto font-mono text-[#a3a3a3]">{task.checklist}</span>
+    <div className="rounded-2xl border border-[#2a2a2a] bg-[#1a1a1a] p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-sm text-[#a3a3a3]">{metric.label}</p>
+          <p className="mt-2 text-2xl font-semibold tracking-tight text-[#e7e7e7]">
+            {metric.value}
+          </p>
+          <p className="mt-1 text-xs text-[#737373]">{metric.detail}</p>
+        </div>
+        <metric.Icon className="h-4 w-4 shrink-0 text-[#737373]" />
+      </div>
     </div>
   );
 }
 
-function PriorityBadge({ task }) {
+function PriorityBadge({ priority }) {
+  const priorityKey = PRIORITY_STYLES[priority] || "medium";
+
   return (
-    <Badge
+    <span
       className={cn(
-        "border-0 px-2 py-0.5 text-[11px] font-semibold",
-        task.tagTone === "danger"
-          ? "bg-red-500/90 text-white"
-          : "bg-emerald-500/90 text-white",
+        "inline-flex items-center justify-center gap-1.5 rounded-md border px-2 py-0.5 text-xs font-medium capitalize",
+        severityColors[priorityKey] || severityColors.medium,
       )}
     >
-      {task.tag}
-    </Badge>
+      {PRIORITY_ICONS[priorityKey] || PRIORITY_ICONS.medium}
+      {priorityKey}
+    </span>
   );
 }
 
-function AssigneePill({ label }) {
+function OwnerWidget({ owner }) {
+  const meta = OWNER_META[owner] || {
+    name: owner,
+    avatarClass: "bg-zinc-300 text-zinc-950",
+  };
+
   return (
-    <div className="flex items-center gap-1">
-      <span className="flex h-6 w-6 items-center justify-center rounded-md bg-sky-300 text-[11px] font-bold text-sky-950">
-        {label}
+    <span className="inline-flex min-w-[116px] items-center gap-2">
+      <Avatar size="sm">
+        <AvatarFallback className={cn("text-[10px] font-bold", meta.avatarClass)}>
+          {owner.slice(0, 2)}
+        </AvatarFallback>
+      </Avatar>
+      <span className="truncate text-xs font-medium text-[#ededed]">{meta.name}</span>
+    </span>
+  );
+}
+
+function StatusWidget({ status }) {
+  const meta = STATUS_META[status] || STATUS_META["To Do"];
+  const Icon = meta.Icon;
+
+  return (
+    <span
+      className={cn(
+        "inline-flex min-w-[86px] items-center gap-1.5 rounded-md border px-2 py-1 text-[11px] font-medium",
+        meta.className,
+      )}
+    >
+      <span className="inline-flex min-w-0 items-center gap-1.5">
+        <Icon className="h-3 w-3 shrink-0" />
+        <span className="truncate">{status}</span>
       </span>
-      <button
-        type="button"
-        className="flex h-6 w-6 items-center justify-center rounded-md border border-dashed border-[#525252] text-[#a3a3a3] hover:border-[#737373] hover:text-[#ededed]"
-      >
-        <Plus className="h-3.5 w-3.5" />
-      </button>
-    </div>
-  );
-}
-
-function AddTaskRow() {
-  return (
-    <TableRow className="border-[#2a2a2a] bg-[#202020]/50 hover:bg-[#242424]">
-      <TableCell>
-        <button type="button" className="flex items-center gap-2 text-sm text-[#a3a3a3] hover:text-[#ededed]">
-          <Plus className="h-4 w-4" />
-          Add a Task
-        </button>
-      </TableCell>
-      <TableCell>
-        <button type="button" className="flex items-center gap-1 text-sm text-[#a3a3a3]">
-          Select status...
-          <ChevronDown className="h-3.5 w-3.5" />
-        </button>
-      </TableCell>
-      <TableCell>
-        <button type="button" className="flex items-center gap-1 text-sm text-[#a3a3a3]">
-          Select list...
-          <ChevronDown className="h-3.5 w-3.5" />
-        </button>
-      </TableCell>
-      <TableCell />
-      <TableCell />
-      <TableCell />
-      <TableCell />
-    </TableRow>
-  );
-}
-
-function TaskGroup({ group }) {
-  return (
-    <section className="space-y-0">
-      <button
-        type="button"
-        className="mb-0 flex h-9 min-w-[180px] items-center gap-2 rounded-t-lg border border-[#2a2a2a] bg-[#1a1a1a] px-4 text-left text-sm font-semibold text-[#ededed]"
-      >
-        {group.title}
-        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#a3a3a3] px-1.5 text-[11px] font-bold text-[#161616]">
-          {group.count}
-        </span>
-      </button>
-      {group.tasks.length > 0 ? (
-        <div className="overflow-hidden rounded-b-lg rounded-tr-lg border border-[#2a2a2a] bg-[#1a1a1a]">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-[#2a2a2a] bg-[#202020] hover:bg-[#202020]">
-                <TableHead className="w-[38%] text-[#a3a3a3]">Task</TableHead>
-                <TableHead className="text-[#a3a3a3]">Status</TableHead>
-                <TableHead className="text-[#a3a3a3]">List</TableHead>
-                <TableHead className="text-[#a3a3a3]">Assignees</TableHead>
-                <TableHead className="text-[#a3a3a3]">Subscribers</TableHead>
-                <TableHead className="text-[#a3a3a3]">Due Date</TableHead>
-                <TableHead className="text-[#a3a3a3]">Tags</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {group.tasks.map((task) => (
-                <TableRow key={`${group.title}-${task.id}-${task.title}`} className="border-[#2a2a2a] hover:bg-[#222222]">
-                  <TableCell>
-                    <div className="flex items-start gap-3">
-                      <span className="mt-0.5 flex h-4 w-4 shrink-0 rounded border border-[#525252]" />
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="truncate text-sm font-medium text-[#ededed]">{task.title}</span>
-                          <Badge className="border-[#58607a] bg-[#263047] px-1.5 py-0 text-[10px] text-[#aab4d8]">
-                            {task.id}
-                          </Badge>
-                        </div>
-                        <TaskMeta task={task} />
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <button type="button" className="flex items-center gap-1 text-sm text-[#d4d4d4]">
-                      {task.status}
-                      <ChevronDown className="h-3.5 w-3.5 text-[#737373]" />
-                    </button>
-                  </TableCell>
-                  <TableCell>
-                    <button type="button" className="flex items-center gap-1 text-sm text-[#d4d4d4]">
-                      {task.list}
-                      <ChevronDown className="h-3.5 w-3.5 text-[#737373]" />
-                    </button>
-                  </TableCell>
-                  <TableCell>
-                    <AssigneePill label={task.assignee} />
-                  </TableCell>
-                  <TableCell>
-                    <button type="button" className="text-sm text-[#a3a3a3] hover:text-[#ededed]">
-                      {task.subscribers}
-                    </button>
-                  </TableCell>
-                  <TableCell className="text-sm font-medium text-red-400">{task.dueDate}</TableCell>
-                  <TableCell>
-                    <PriorityBadge task={task} />
-                  </TableCell>
-                </TableRow>
-              ))}
-              <AddTaskRow />
-            </TableBody>
-          </Table>
-        </div>
-      ) : (
-        <div className="h-10 rounded-b-lg rounded-tr-lg border border-[#2a2a2a] bg-[#1a1a1a]" />
-      )}
-    </section>
-  );
-}
-
-function SecondaryReport({ activeTab }) {
-  const rows = SECONDARY_REPORTS[activeTab] || [];
-
-  return (
-    <div className="rounded-lg border border-[#2a2a2a] bg-[#1a1a1a]">
-      <Table>
-        <TableHeader>
-          <TableRow className="border-[#2a2a2a] bg-[#202020] hover:bg-[#202020]">
-            <TableHead className="text-[#a3a3a3]">{activeTab}</TableHead>
-            <TableHead className="text-[#a3a3a3]">Metric</TableHead>
-            <TableHead className="text-[#a3a3a3]">Scope</TableHead>
-            <TableHead className="text-[#a3a3a3]">State</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {rows.map((row) => (
-            <TableRow key={row.join("-")} className="border-[#2a2a2a] hover:bg-[#222222]">
-              {row.map((cell, index) => (
-                <TableCell key={cell} className={cn(index === 0 ? "font-medium text-[#ededed]" : "text-[#a3a3a3]")}>
-                  {cell}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+    </span>
   );
 }
 
 export function ReportingScreen() {
-  const [activeTab, setActiveTab] = useState("All Tasks");
-  const selectedProjectCount = useMemo(
-    () => PROJECTS.filter((project) => project.selected).length,
-    [],
-  );
+  const [activeView, setActiveView] = useState("Tasks");
+  const [dateRange, setDateRange] = useState("1w");
+  const [projectFilter, setProjectFilter] = useState("all");
+  const [search, setSearch] = useState("");
+
+  const rows = useMemo(() => {
+    const query = search.trim().toLowerCase();
+
+    return REPORT_ROWS.filter((row) => {
+      const matchesView = activeView === "Tasks" ? true : row.view === activeView;
+      const matchesProject =
+        projectFilter === "all" ||
+        row.project.toLowerCase().replaceAll(" ", "-") === projectFilter;
+      const matchesSearch =
+        !query ||
+        [row.task, row.project, row.owner, row.status, row.id].some((value) =>
+          value.toLowerCase().includes(query),
+        );
+
+      return matchesView && matchesProject && matchesSearch;
+    });
+  }, [activeView, projectFilter, search]);
 
   return (
-    <div className="flex h-full min-h-[calc(100dvh-8rem)] flex-col gap-4 text-[#ededed]">
-      <div className="flex flex-col gap-4 border-b border-[#2a2a2a] pb-4">
-        <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-500 text-white">
-              <BarChart3 className="h-5 w-5" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-[#ededed]">Reporting</h1>
-              <p className="text-sm text-[#737373]">
-                Cross-project task, workload, member, and time reporting.
-              </p>
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Button variant="outline" className="h-9 border-[#3a3a3a] bg-[#202020] text-[#d4d4d4] hover:bg-[#282828] hover:text-white">
-              <LayoutList className="mr-2 h-4 w-4" />
-              List
-              <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="icon" className="h-9 w-9 border-[#3a3a3a] bg-[#202020] text-[#d4d4d4] hover:bg-[#282828] hover:text-white">
-              <Settings className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="icon" className="h-9 w-9 border-[#3a3a3a] bg-[#202020] text-[#d4d4d4] hover:bg-[#282828] hover:text-white">
-              <Share2 className="h-4 w-4" />
-            </Button>
-          </div>
+    <MainScreenWrapper className="flex h-full min-h-0 flex-col text-[#e7e7e7]">
+      <div className="flex flex-col gap-4 border-b border-[#2a2a2a] pb-6 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-[#e7e7e7] md:text-3xl">Reporting</h1>
+          <p className="mt-1 text-[#a3a3a3]">
+            Track project progress, workload, deadlines and time in one place.
+          </p>
         </div>
-
-        <div className="flex gap-5 overflow-x-auto">
-          {REPORT_TABS.map((tab) => (
-            <ReportTabButton
-              key={tab}
-              tab={tab}
-              activeTab={activeTab}
-              onClick={() => setActiveTab(tab)}
-            />
-          ))}
+        <div className="flex items-center gap-2">
+          <FilterDropdown value={dateRange} onValueChange={setDateRange} height="h-9" />
+          <Button className="bg-white text-black hover:bg-[#e7e7e7]">
+            <Download className="mr-2 h-4 w-4" />
+            Export
+          </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
-        {INSIGHT_CARDS.map((card) => (
-          <div key={card.label} className="rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] p-4">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-xs uppercase tracking-wider text-[#737373]">{card.label}</p>
-                <p className="mt-2 text-2xl font-semibold text-[#ededed]">{card.value}</p>
-                <p className="mt-1 text-xs text-[#737373]">{card.detail}</p>
-              </div>
-              <card.Icon className="h-5 w-5 text-[#737373]" />
-            </div>
-          </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {METRICS.map((metric) => (
+          <MetricCard key={metric.label} metric={metric} />
         ))}
       </div>
 
-      <div className="flex flex-1 min-h-0 gap-4">
-        <ProjectSelector />
-        <div className="flex min-w-0 flex-1 flex-col gap-4">
-          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-            <div className="flex flex-1 flex-col gap-2 md:flex-row">
-              <Button variant="outline" className="h-10 justify-start border-[#3a3a3a] bg-[#202020] text-[#d4d4d4] hover:bg-[#282828] hover:text-white">
-                <Filter className="mr-2 h-4 w-4" />
-                Filter by
-                <ChevronDown className="ml-2 h-4 w-4" />
+      <div className="flex min-h-0 flex-1 flex-col rounded-2xl border border-[#2a2a2a] bg-[#202020]">
+        <div className="flex flex-col gap-3 border-b border-[#2a2a2a] p-4 xl:flex-row xl:items-center xl:justify-between">
+          <div className="flex w-full items-center overflow-x-auto rounded-lg border border-[#2a2a2a] bg-[#202020] p-0.5 xl:w-auto">
+            {REPORT_VIEWS.map((view) => (
+              <Button
+                key={view}
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setActiveView(view)}
+                className={cn(
+                  "h-7 rounded-md px-3 text-xs",
+                  activeView === view
+                    ? "bg-[#2a2a2a] text-white"
+                    : "text-[#737373] hover:bg-transparent hover:text-[#a3a3a3]",
+                )}
+              >
+                {view}
               </Button>
-              <div className="relative min-w-[240px] flex-1">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#737373]" />
-                <Input
-                  placeholder="Search..."
-                  className="h-10 border-[#3a3a3a] bg-[#202020] pl-10 text-sm text-[#ededed] placeholder:text-[#737373]"
-                />
-              </div>
-              <Button variant="outline" className="h-10 justify-start border-[#3a3a3a] bg-[#202020] text-[#d4d4d4] hover:bg-[#282828] hover:text-white">
-                <ListFilter className="mr-2 h-4 w-4" />
-                Group by: Due Date
-                <ChevronDown className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
-            <button type="button" className="flex items-center gap-2 text-sm font-medium text-emerald-400 hover:text-emerald-300">
-              <Bookmark className="h-4 w-4" />
-              Save view
-            </button>
+            ))}
           </div>
 
-          <div className="flex items-center justify-between rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] px-4 py-3 lg:hidden">
-            <span className="text-sm font-medium text-[#ededed]">
-              {selectedProjectCount} of {PROJECTS.length} projects selected
-            </span>
-            <Button variant="outline" size="sm" className="h-8 border-[#333333] bg-[#202020] text-[#d4d4d4]">
-              Projects
-              <ChevronDown className="ml-2 h-3.5 w-3.5" />
-            </Button>
-          </div>
-
-          {activeTab === "All Tasks" ? (
-            <div className="space-y-5">
-              {TASK_GROUPS.map((group) => (
-                <TaskGroup key={group.title} group={group} />
-              ))}
-            </div>
-          ) : (
-            <SecondaryReport activeTab={activeTab} />
-          )}
-
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-            <div className="rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] p-4">
-              <div className="flex items-center gap-2 text-sm font-medium text-[#ededed]">
-                <CalendarDays className="h-4 w-4 text-[#737373]" />
-                Date range
-              </div>
-              <p className="mt-2 text-sm text-[#737373]">This week, this month, custom range</p>
-            </div>
-            <div className="rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] p-4">
-              <div className="flex items-center gap-2 text-sm font-medium text-[#ededed]">
-                <Bell className="h-4 w-4 text-[#737373]" />
-                Check-ins
-              </div>
-              <p className="mt-2 text-sm text-[#737373]">Team status prompts and response rollups</p>
-            </div>
-            <div className="rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] p-4">
-              <div className="flex items-center gap-2 text-sm font-medium text-[#ededed]">
-                <Clock3 className="h-4 w-4 text-[#737373]" />
-                Exports
-              </div>
-              <p className="mt-2 text-sm text-[#737373]">CSV, PDF, and printable reports</p>
+          <div className="flex flex-col gap-2 md:flex-row md:items-center">
+            <FilterDropdown
+              value={projectFilter}
+              onValueChange={setProjectFilter}
+              options={PROJECT_OPTIONS}
+              placeholder="All projects"
+              height="h-10"
+            />
+            <div className="relative w-full md:w-[280px]">
+              <Search className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-[#737373]" />
+              <Input
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Search reports"
+                className="!h-10 w-full border-[#2a2a2a] bg-[#1a1a1a] !pl-10 !pr-3 text-sm text-[#ededed] placeholder:text-[#737373]"
+              />
             </div>
           </div>
         </div>
+
+        <ScrollArea className="min-h-0 flex-1">
+          <div className="min-w-[920px]">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+                  <TableHead>Item</TableHead>
+                  <TableHead>Project</TableHead>
+                  <TableHead>Owner</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Priority</TableHead>
+                  <TableHead>Due / Hours</TableHead>
+                  <TableHead className="min-w-[160px]">Progress</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {rows.map((row) => (
+                  <TableRow key={row.id} className="border-[#2a2a2a] hover:bg-[#242424]">
+                    <TableCell>
+                      <div className="min-w-[220px]">
+                        <p className="font-medium text-[#ededed]">{row.task}</p>
+                        <p className="mt-1 font-mono text-xs text-[#737373]">{row.id}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-sm text-[#a3a3a3]">{row.project}</TableCell>
+                    <TableCell>
+                      <OwnerWidget owner={row.owner} />
+                    </TableCell>
+                    <TableCell>
+                      <StatusWidget status={row.status} />
+                    </TableCell>
+                    <TableCell>
+                      <PriorityBadge priority={row.priority} />
+                    </TableCell>
+                    <TableCell className="text-sm text-[#a3a3a3]">{row.due}</TableCell>
+                    <TableCell>
+                      <div className="w-[150px] space-y-1.5">
+                        <Progress
+                          value={row.progress}
+                          className="h-1.5 bg-[#2a2a2a] [&_[data-slot=progress-indicator]]:bg-[#ededed]"
+                        />
+                        <p className="text-xs text-[#737373]">{row.progress}%</p>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
       </div>
-    </div>
+    </MainScreenWrapper>
   );
 }
