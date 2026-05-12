@@ -30,6 +30,7 @@ import { AddonRegistryProvider, useAddonRegistry } from "@/addons/registry";
 import { getAddonScreens, getAddonNavItems } from "@/addons/registry";
 import "@/addons/sql";
 import "@/addons/project-plus";
+import "@/addons/forms";
 import { useEffect } from "react";
 
 function ProjectLayoutContent({ id }) {
