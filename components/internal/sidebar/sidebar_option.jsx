@@ -42,7 +42,7 @@ export function SidebarOption({
         isActive={isActive}
         tooltip={title}
         className={cn(
-          "transition-all text-sm h-9",
+          "transition-all text-sm h-9 group-data-[collapsible=icon]:justify-center",
           isExpanded || (isActive && !subItems)
             ? "bg-sidebar-accent text-white"
             : "text-sidebar-foreground",
@@ -59,8 +59,8 @@ export function SidebarOption({
             )}
           />
         )}
-        <span>{title}</span>
-        {subItems && (
+        {!isCollapsed && <span>{title}</span>}
+        {subItems && !isCollapsed && (
           <ChevronDown
             className={cn(
               "ml-auto w-4 h-4 transition-transform duration-200",
@@ -68,7 +68,7 @@ export function SidebarOption({
             )}
           />
         )}
-        {badge && !subItems && (
+        {badge && !subItems && !isCollapsed && (
           <SidebarMenuBadge className="mr-2 text-[#a3a3a3] text-[10px] px-1.5 py-0.5 rounded border border-[#333333] ml-auto">
             {badge}
           </SidebarMenuBadge>

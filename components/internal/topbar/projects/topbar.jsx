@@ -13,7 +13,7 @@ export function ProjectTopbar() {
   return (
     <header className="h-14 px-4 flex items-center justify-between border-b border-[#2a2a2a] bg-[#161616] text-white z-20 w-full shrink-0">
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <SidebarTrigger className="md:hidden -ml-2 text-white" />
           <div className="w-8 h-8 rounded flex items-center justify-center shrink-0 md:-ml-1.5">
             <img

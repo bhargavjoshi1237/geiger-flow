@@ -57,7 +57,7 @@ export function AppSidebar({ activeTab = "Overview", onTabChange = () => {} }) {
       className="bg-sidebar border-r border-sidebar-border text-sidebar-foreground"
     >
       <MobileSidebarHeader />
-      <SidebarContent className="px-1 py-1 space-y-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <SidebarContent className="py-1 space-y-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
