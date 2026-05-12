@@ -199,7 +199,7 @@ export function AddonsSettingsScreen() {
   }));
   positionOptions.push({
     value: "end",
-    label: "At the end",
+    label: 'At the end (before "Settings")',
   });
   positionOptions.push({
     value: "auto",
@@ -288,7 +288,7 @@ export function AddonsSettingsScreen() {
                   if (val === "auto") {
                     setAddonNavPosition(addon.id, null);
                   } else if (val === "end") {
-                    setAddonNavPosition(addon.id, projectNav.length);
+                    setAddonNavPosition(addon.id, projectNav.length - 1);
                   } else {
                     setAddonNavPosition(addon.id, Number(val));
                   }

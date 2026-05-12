@@ -5,15 +5,7 @@ import React, { createContext, useContext, useState, useCallback } from "react";
 const AddonRegistryContext = createContext();
 
 const INSTALLED_ADDONS = [];
-const DEFAULT_ENABLED_ADDONS = [
-  "risk-register",
-  "decision-log",
-  "release-readiness",
-  "feedback-hub",
-  "experiments",
-  "incident-center",
-  "budget-tracker",
-];
+const DEFAULT_ENABLED_ADDONS = [];
 
 export function loadAddon(addonModule) {
   const existing = INSTALLED_ADDONS.findIndex((a) => a.id === addonModule.id);
@@ -80,17 +72,29 @@ export function getAddonNavItems(enabledIds, navPositions = {}, addonColors = {}
 export function mergeNavWithAddons(baseNav, addonNavItems) {
   if (!addonNavItems || addonNavItems.length === 0) return baseNav;
   const merged = [...baseNav];
+  const getSettingsIndex = () => merged.findIndex((item) => item.title === "Settings");
+  const insertBeforeSettings = (addonItem) => {
+    const settingsIndex = getSettingsIndex();
+    if (settingsIndex === -1) {
+      merged.push(addonItem);
+    } else {
+      merged.splice(settingsIndex, 0, addonItem);
+    }
+  };
+
   addonNavItems.forEach((addonItem) => {
     const insertAfter = addonItem.insertAfter;
+    const settingsIndex = getSettingsIndex();
+
     if (insertAfter) {
       const idx = merged.findIndex((item) => item.title === insertAfter);
-      if (idx !== -1) {
+      if (idx !== -1 && (settingsIndex === -1 || idx < settingsIndex)) {
         merged.splice(idx + 1, 0, addonItem);
       } else {
-        merged.push(addonItem);
+        insertBeforeSettings(addonItem);
       }
     } else {
-      merged.push(addonItem);
+      insertBeforeSettings(addonItem);
     }
   });
   return merged;

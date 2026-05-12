@@ -2,10 +2,8 @@
 
 import React, { useMemo, useState } from "react";
 import {
-  BarChart3,
   CheckCircle2,
   Clock3,
-  Download,
   ArrowUpRight,
   AlertTriangle,
   Expand,
@@ -13,7 +11,6 @@ import {
   Maximize2,
   Circle,
   Search,
-  Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -40,13 +37,6 @@ const PROJECT_OPTIONS = [
   { value: "demo-project", label: "Demo Project" },
   { value: "product-roadmap", label: "Product Roadmap" },
   { value: "launch-playbook", label: "Launch Playbook" },
-];
-
-const METRICS = [
-  { label: "Open tasks", value: "12", detail: "3 due this week", Icon: CheckCircle2 },
-  { label: "Projects", value: "4", detail: "1 at risk", Icon: BarChart3 },
-  { label: "Capacity", value: "74%", detail: "Team average", Icon: Users },
-  { label: "Tracked", value: "28h", detail: "This week", Icon: Clock3 },
 ];
 
 const REPORT_ROWS = [
@@ -172,19 +162,21 @@ const PRIORITY_ICONS = {
   low: <ArrowUpRight className="h-3 w-3" />,
 };
 
-function MetricCard({ metric }) {
+function ReportPulse() {
   return (
-    <div className="rounded-2xl border border-[#2a2a2a] bg-[#1a1a1a] p-4">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-sm text-[#a3a3a3]">{metric.label}</p>
-          <p className="mt-2 text-2xl font-semibold tracking-tight text-[#e7e7e7]">
-            {metric.value}
-          </p>
-          <p className="mt-1 text-xs text-[#737373]">{metric.detail}</p>
-        </div>
-        <metric.Icon className="h-4 w-4 shrink-0 text-[#737373]" />
-      </div>
+    <div className="flex h-9 items-center gap-2 rounded-md border border-[#2a2a2a] bg-[#202020] px-3 text-xs text-[#a3a3a3]">
+      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-300" />
+      <span>
+        <span className="font-semibold text-[#ededed]">12</span> open
+      </span>
+      <span className="h-3.5 w-px bg-[#333]" />
+      <span>
+        <span className="font-semibold text-[#ededed]">3</span> due
+      </span>
+      <span className="h-3.5 w-px bg-[#333]" />
+      <span>
+        <span className="font-semibold text-[#ededed]">74%</span> cap
+      </span>
     </div>
   );
 }
@@ -275,19 +267,10 @@ export function ReportingScreen() {
             Track project progress, workload, deadlines and time in one place.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <ReportPulse />
           <FilterDropdown value={dateRange} onValueChange={setDateRange} height="h-9" />
-          <Button className="bg-white text-black hover:bg-[#e7e7e7]">
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {METRICS.map((metric) => (
-          <MetricCard key={metric.label} metric={metric} />
-        ))}
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col rounded-2xl border border-[#2a2a2a] bg-[#202020]">
@@ -318,15 +301,15 @@ export function ReportingScreen() {
               onValueChange={setProjectFilter}
               options={PROJECT_OPTIONS}
               placeholder="All projects"
-              height="h-10"
+              height="h-9"
             />
             <div className="relative w-full md:w-[280px]">
-              <Search className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-[#737373]" />
+              <Search className="pointer-events-none absolute left-3 top-1/2 z-10 w-4 -translate-y-1/2 text-[#737373]" />
               <Input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="Search reports"
-                className="!h-10 w-full border-[#2a2a2a] bg-[#1a1a1a] !pl-10 !pr-3 text-sm text-[#ededed] placeholder:text-[#737373]"
+                className="!h-9 w-full border-[#2a2a2a] bg-[#1a1a1a] !pl-10 !pr-3 text-sm text-[#ededed] placeholder:text-[#737373]"
               />
             </div>
           </div>

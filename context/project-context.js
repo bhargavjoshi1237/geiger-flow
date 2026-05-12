@@ -38,6 +38,9 @@ export const projectsData = [
 
 import { createClient } from "@/lib/supabase/client";
 
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 export function ProjectProvider({ children }) {
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -45,15 +48,21 @@ export function ProjectProvider({ children }) {
   const fetchProjectInfo = useCallback(async (id) => {
     console.log("[project-context] fetchProjectInfo triggered for:", id);
     setLoading(true);
-    const supabase = createClient();
-    const { data: foundProject, error } = await supabase
-      .from("flow_projects")
-      .select("*")
-      .eq("id", id)
-      .maybeSingle();
+    let foundProject = null;
 
-    if (error) {
-      console.error("[project-context] fetch error:", error.message || error, error.code);
+    if (UUID_PATTERN.test(id)) {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from("flow_projects")
+        .select("*")
+        .eq("id", id)
+        .maybeSingle();
+
+      foundProject = data;
+
+      if (error) {
+        console.error("[project-context] fetch error:", error.message || error, error.code);
+      }
     }
 
     if (foundProject) {
