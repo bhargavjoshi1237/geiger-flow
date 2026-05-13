@@ -5,7 +5,16 @@ import React, { createContext, useContext, useState, useCallback } from "react";
 const AddonRegistryContext = createContext();
 
 const INSTALLED_ADDONS = [];
-const DEFAULT_ENABLED_ADDONS = [];
+const DEFAULT_ENABLED_ADDONS = [
+  "forms",
+  "risk-register",
+  "decision-log",
+  "release-readiness",
+  "feedback-hub",
+  "experiments",
+  "incident-center",
+  "budget-tracker",
+];
 
 export function loadAddon(addonModule) {
   const existing = INSTALLED_ADDONS.findIndex((a) => a.id === addonModule.id);

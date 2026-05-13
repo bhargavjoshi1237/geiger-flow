@@ -8,7 +8,15 @@ import {
   MessageSquareQuote,
   Siren,
 } from "lucide-react";
-import { AddonWorkspaceScreen } from "./screens/addon_workspace_screen";
+import {
+  BudgetTrackerScreen,
+  DecisionLogScreen,
+  ExperimentsScreen,
+  FeedbackHubScreen,
+  IncidentCenterScreen,
+  ReleaseReadinessScreen,
+  RiskRegisterScreen,
+} from "./screens/product_addon_screens";
 
 const addonConfigs = [
   {
@@ -19,6 +27,7 @@ const addonConfigs = [
     icon: Flame,
     color: "#ef4444",
     insertAfter: "Security",
+    component: RiskRegisterScreen,
     description: "Track delivery, security, vendor, and scope risks with owners and mitigation progress.",
     features: ["Risk ownership", "Mitigation tracking", "Status filters", "Escalation visibility"],
     actionLabel: "Add risk",
@@ -80,6 +89,7 @@ const addonConfigs = [
     icon: Lightbulb,
     color: "#f59e0b",
     insertAfter: "Grounding",
+    component: DecisionLogScreen,
     description: "Record important product, engineering, and process decisions with context and owners.",
     features: ["Decision history", "Owner assignment", "Review cadence", "Status snapshots"],
     actionLabel: "Add decision",
@@ -141,6 +151,7 @@ const addonConfigs = [
     icon: ClipboardCheck,
     color: "#10b981",
     insertAfter: "Milestones",
+    component: ReleaseReadinessScreen,
     description: "Coordinate launch gates, owners, sign-offs, and outstanding release blockers.",
     features: ["Launch gates", "Sign-off tracking", "Blocker ownership", "Release readiness score"],
     actionLabel: "Add gate",
@@ -202,6 +213,7 @@ const addonConfigs = [
     icon: MessageSquareQuote,
     color: "#06b6d4",
     insertAfter: "Reporting",
+    component: FeedbackHubScreen,
     description: "Centralize customer requests, pain points, and feature signals tied to project work.",
     features: ["Feedback triage", "Theme tracking", "Customer impact", "Roadmap links"],
     actionLabel: "Add feedback",
@@ -263,6 +275,7 @@ const addonConfigs = [
     icon: Beaker,
     color: "#8b5cf6",
     insertAfter: "Goals",
+    component: ExperimentsScreen,
     description: "Plan, run, and evaluate product experiments connected to goals and milestones.",
     features: ["Hypothesis tracking", "Experiment status", "Outcome summaries", "Goal linkage"],
     actionLabel: "Add experiment",
@@ -324,6 +337,7 @@ const addonConfigs = [
     icon: Siren,
     color: "#ef4444",
     insertAfter: "Logs",
+    component: IncidentCenterScreen,
     description: "Manage incidents, response owners, timelines, severity, and postmortem completion.",
     features: ["Incident response", "Severity tracking", "Postmortem status", "Response owners"],
     actionLabel: "Add incident",
@@ -385,6 +399,7 @@ const addonConfigs = [
     icon: Banknote,
     color: "#10b981",
     insertAfter: "Usage",
+    component: BudgetTrackerScreen,
     description: "Track project spend, forecasts, vendor costs, and budget variance before it surprises the team.",
     features: ["Budget rollups", "Spend forecasting", "Vendor line items", "Variance tracking"],
     actionLabel: "Add cost",
@@ -441,9 +456,7 @@ const addonConfigs = [
 ];
 
 function makeAddon(config) {
-  function AddonScreen() {
-    return <AddonWorkspaceScreen config={config} />;
-  }
+  const AddonScreen = config.component;
 
   return {
     id: config.id,
