@@ -681,7 +681,6 @@ export function ObjectivesScreen() {
         </div>
       )}
 
-      {/* Edit Dialog (controlled) */}
       <NewObjectiveDialog
         editObjective={editObjective}
         onEdit={handleSaveEdit}

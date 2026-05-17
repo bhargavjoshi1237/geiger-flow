@@ -35,7 +35,6 @@ export default function NotificationDialog({
         }
       });
     }
-    // Sort by timestamp descending
     return list.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
   }, [sessionData, role]);
 

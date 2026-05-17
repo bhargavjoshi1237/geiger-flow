@@ -229,7 +229,6 @@ export function TaskCoreTab({
   );
 }
 
-/* ── Stage Select with Hover Sub-Options ─────────────────────────────────── */
 function StageSelect({ value, onValueChange, triggerClassName }) {
   const [open, setOpen] = useState(false);
   const [hoveredGroup, setHoveredGroup] = useState(null);
@@ -284,7 +283,6 @@ function StageSelect({ value, onValueChange, triggerClassName }) {
         className="w-52 p-1 border border-[#2a2a2a] bg-[#1a1a1a] shadow-xl text-[#ededed] z-50 rounded-md"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
-        {/* Ungrouped items */}
         {ungrouped.map((option) => (
           <button
             key={option.value}
@@ -362,7 +360,6 @@ function StageSelect({ value, onValueChange, triggerClassName }) {
   );
 }
 
-/* ── Searchable Assignee Dropdown ────────────────────────────────────────── */
 function AssigneeDropdown({ selected, onToggle }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");

@@ -57,11 +57,8 @@ export function TeamScreen() {
           error.message || error,
           error.code,
         );
-        // Handle specific error codes if necessary, e.g., if row not found
         if (error.code === "PGRST116") {
-          // Example: code for no rows found
-          setMembers([]); // Gracefully handle missing row by setting empty members
-        }
+          setMembers([]);         }
       }
 
       if (data && data.members) {
@@ -71,8 +68,7 @@ export function TeamScreen() {
             : Object.values(data.members),
         );
       } else {
-        setMembers([]); // Gracefully handle missing 'members' property or no data
-      }
+        setMembers([]);       }
       setLoading(false);
     };
     fetchTeam();

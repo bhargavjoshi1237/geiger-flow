@@ -1,4 +1,3 @@
-// filepath: components/internal/screens/projects/vault/add_vault_item_dialog.jsx
 "use client";
 
 import React, { useState } from "react";
@@ -122,7 +121,6 @@ export function AddVaultItemDialog({
   const [showSecret, setShowSecret] = useState(false);
   const [internalOpen, setInternalOpen] = useState(false);
 
-  // Use controlled open if provided, otherwise use internal state
   const isControlled = typeof open === "boolean";
   const dialogOpen = isControlled ? open : internalOpen;
   const dialogOnOpenChange = isControlled ? onOpenChange : (open) => {
@@ -173,7 +171,6 @@ export function AddVaultItemDialog({
           ? formData.accessSetup.password
           : "",
       },
-      // Map secret to appropriate field based on type
       password: formData.type === "password" || formData.type === "database" || formData.type === "smtp" || formData.type === "certificate" || formData.type === "ssh_key" ? formData.secret : "",
       apiKey: formData.type === "api_key" ? formData.secret : "",
       username: "",
@@ -207,7 +204,6 @@ export function AddVaultItemDialog({
 
         <form onSubmit={handleSubmit} className="">
           <div className="space-y-5">
-            {/* Secret Name */}
             <div className="space-y-2">
               <Label className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wide">Secret Name</Label>
               <Input
@@ -219,7 +215,6 @@ export function AddVaultItemDialog({
               />
             </div>
 
-            {/* Type Selection */}
             <div className="space-y-2">
               <Label className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wide">Type</Label>
               <Select value={formData.type} onValueChange={(value) => handleInputChange("type", value)}>
@@ -243,7 +238,6 @@ export function AddVaultItemDialog({
               </Select>
             </div>
 
-            {/* Secret Value */}
             <div className="space-y-2">
               <Label className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wide">
                 {formData.type === "api_key" ? "API Key" : "Secret Value"}
@@ -266,7 +260,6 @@ export function AddVaultItemDialog({
               </div>
             </div>
 
-            {/* URL (Optional) */}
             <div className="space-y-2">
               <Label className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wide">URL / Endpoint <span className="text-[#525252]">(optional)</span></Label>
               <Input
@@ -277,7 +270,6 @@ export function AddVaultItemDialog({
               />
             </div>
 
-            {/* Notes (Optional) */}
             <div className="space-y-2">
               <Label className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wide">Notes <span className="text-[#525252]">(optional)</span></Label>
               <Textarea

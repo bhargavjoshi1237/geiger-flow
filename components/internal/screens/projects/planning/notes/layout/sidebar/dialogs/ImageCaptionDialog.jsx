@@ -86,7 +86,6 @@ const ImageCaptionDialog = ({ open, onOpenChange, initialData, onSave }) => {
                   className="w-full h-10 rounded border border-zinc-700 flex items-center justify-center gap-2 hover:border-zinc-500 transition-colors"
                   style={{ backgroundColor: bgColor }}
                 >
-                  {/* Show check pattern if transparent, but opacity handles that mostly. */}
                 </button>
               </ColorPicker>
             </div>

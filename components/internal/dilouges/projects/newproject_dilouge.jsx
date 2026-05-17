@@ -26,7 +26,6 @@ export function NewProjectDialog({ children, onCreate }) {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   
-  // Vault settings
   const [vaultEnabled, setVaultEnabled] = useState(true);
   const [vaultAccessType, setVaultAccessType] = useState("team");
   const [vaultKeylessEntry, setVaultKeylessEntry] = useState(false);

@@ -41,7 +41,6 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 
-// --- Inline presets ---
 
 const ACTIVITY_TYPES = [
   { value: "task", label: "Task", color: "#3b82f6" },
@@ -93,7 +92,6 @@ const REMINDER_OPTIONS = [
   { value: 1440, label: "1 day before" },
 ];
 
-// --- Form State ---
 
 const INITIAL_FORM = {
   name: "",
@@ -112,7 +110,6 @@ const INITIAL_FORM = {
   reminder: 15,
 };
 
-// --- Component ---
 
 export function AddActivityDialog({
   children,
@@ -176,7 +173,6 @@ export function AddActivityDialog({
     setFormData(INITIAL_FORM);
   };
 
-  // Helpers
   const typeColor = ACTIVITY_TYPES.find((t) => t.value === formData.type)?.color || "#737373";
   const priorityColor = PRIORITY_LEVELS.find((p) => p.value === formData.priority)?.color || "#737373";
 
@@ -184,7 +180,6 @@ export function AddActivityDialog({
     <Dialog open={dialogOpen} onOpenChange={dialogOnOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-2xl max-h-[85vh] flex flex-col bg-[#161616] border-[#2a2a2a] text-[#ededed] p-0 shadow-2xl">
-        {/* Header */}
         <DialogHeader className="px-6 pt-6 pb-4 border-b border-[#2a2a2a]">
           <DialogTitle className="text-xl flex items-center gap-2 font-semibold">
             {activity ? (
@@ -198,9 +193,7 @@ export function AddActivityDialog({
           </DialogDescription>
         </DialogHeader>
 
-        {/* Scrollable Form */}
         <form id="activity-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
-          {/* Section: General */}
           <div className="space-y-4">
             <h4 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">General Information</h4>
             <div className="grid grid-cols-[1fr_160px] gap-4">
@@ -248,7 +241,6 @@ export function AddActivityDialog({
 
           <Separator className="bg-[#2a2a2a]" />
 
-          {/* Section: Properties */}
           <div className="space-y-4">
             <h4 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Properties & Assignment</h4>
             <div className="grid grid-cols-2 gap-4">
@@ -356,7 +348,6 @@ export function AddActivityDialog({
 
           <Separator className="bg-[#2a2a2a]" />
 
-          {/* Section: Schedule */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h4 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Schedule</h4>
@@ -481,7 +472,6 @@ export function AddActivityDialog({
           </div>
         </form>
 
-        {/* Footer */}
         <DialogFooter className="px-6 py-4 border-t border-[#2a2a2a] bg-[#1a1a1a] sm:justify-between items-center shrink-0">
           <Button
             type="button"

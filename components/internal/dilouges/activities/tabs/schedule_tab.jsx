@@ -48,7 +48,6 @@ const RECURRENCE_OPTIONS = [
 export function ScheduleTab({ formData, handleInputChange }) {
   return (
     <div className="space-y-6">
-      {/* All Day Toggle */}
       <div className="flex items-center justify-between p-4 bg-[#202020] rounded-lg border border-[#2a2a2a]">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
@@ -65,7 +64,6 @@ export function ScheduleTab({ formData, handleInputChange }) {
         />
       </div>
 
-      {/* Start Date & Time */}
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col space-y-2">
           <Label className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wide">
@@ -109,7 +107,6 @@ export function ScheduleTab({ formData, handleInputChange }) {
         )}
       </div>
 
-      {/* End Date & Time */}
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col space-y-2">
           <Label className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wide">
@@ -153,7 +150,6 @@ export function ScheduleTab({ formData, handleInputChange }) {
         )}
       </div>
 
-      {/* Duration */}
       <div className="flex flex-col space-y-2">
         <Label className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wide">
           <Timer className="w-3.5 h-3.5 inline mr-1.5" />
@@ -182,7 +178,6 @@ export function ScheduleTab({ formData, handleInputChange }) {
 
       <Separator className="bg-[#2a2a2a]" />
 
-      {/* Recurrence */}
       <div className="flex flex-col space-y-3">
         <Label className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wide">
           <Repeat className="w-3.5 h-3.5 inline mr-1.5" />

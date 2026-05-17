@@ -231,7 +231,6 @@ export function NewObjectiveDialog({
   const isOpen = open !== undefined ? open : internalOpen;
   const setIsOpen = onOpenChange || setInternalOpen;
 
-  // Populate form when editing
   useEffect(() => {
     if (editObjective && isOpen) {
       setFormData({
@@ -350,7 +349,6 @@ export function NewObjectiveDialog({
           onSubmit={handleSubmit}
           className="flex-1 overflow-y-auto px-6 py-4 space-y-6"
         >
-          {/* General Information */}
           <div className="space-y-4">
             <h4 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
               General Information
@@ -406,7 +404,6 @@ export function NewObjectiveDialog({
 
           <Separator className="bg-[#2a2a2a]" />
 
-          {/* Timeline & Ownership */}
           <div className="space-y-4">
             <h4 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
               Timeline & Ownership
@@ -463,7 +460,6 @@ export function NewObjectiveDialog({
 
           <Separator className="bg-[#2a2a2a]" />
 
-          {/* Key Results */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h4 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">

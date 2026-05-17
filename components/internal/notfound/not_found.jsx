@@ -5,17 +5,6 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-/**
- * Reusable Empty State component for cases like "No Team Members", "No Projects", etc.
- * 
- * @param {Object} props
- * @param {React.ReactNode} props.icon - The top icon or component (e.g., Avatar stack)
- * @param {string} props.title - Main heading
- * @param {string} props.description - Subtext description
- * @param {string} props.actionLabel - Label for the primary action button
- * @param {() => void} props.onAction - Callback for the action button
- * @param {string} [props.className] - Optional container classes
- */
 export function EmptyState({
   icon,
   title,

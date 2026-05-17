@@ -26,7 +26,6 @@ export default function FilterDropdown({
 }) {
   const [internalFilter, setInternalFilter] = useState(options[0]?.value || "1d");
   
-  // Use controlled value if provided, otherwise use internal state
   const filter = controlledValue !== undefined ? controlledValue : internalFilter;
   
   const handleValueChange = (newValue) => {

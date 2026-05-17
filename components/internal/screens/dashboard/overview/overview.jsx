@@ -98,7 +98,6 @@ export function OverviewScreen() {
         ))}
       </div>
 
-      {/* Upcoming Deadlines Section */}
       <div className="z-10 relative">
         <DeadlinesSection />
       </div>

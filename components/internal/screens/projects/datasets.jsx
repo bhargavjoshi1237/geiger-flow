@@ -33,7 +33,6 @@ export function DatasetsScreen() {
 
   const handleSaveActivity = async (activity) => {
     console.log("Saving dataset activity:", activity);
-    // Add your save logic here
   };
 
   return (

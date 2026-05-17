@@ -97,7 +97,6 @@ export function GeneralSettingsScreen() {
           </p>
         </div>
 
-        {/* We can place multiple IconButtonCards right next to each other or inside a wrapper. Let's make a wrapper for this list to look like a single grouped card if we want, or separate them. In the image they appear as separate items within a section. */}
         <div className="flex flex-col gap-0 border border-border rounded-xl overflow-hidden bg-background">
           <div>
             <IconButtonCard
@@ -119,7 +118,6 @@ export function GeneralSettingsScreen() {
         </div>
       </div>
 
-      {/* Example 2: Banner + icon + text + trailing button */}
       <IconButtonCard
         classNames={{
           container: "bg-[#161616] shadow-none",
@@ -138,7 +136,6 @@ export function GeneralSettingsScreen() {
         }
       />
 
-      {/* Example 3: Banner + SubBanner + info icon + green button */}
       <IconButtonCard
         banner="Custom domains"
         subBanner="Present a branded experience to your users"
@@ -152,7 +149,6 @@ export function GeneralSettingsScreen() {
         }
       />
 
-      {/* Example 4: Transfer Project (replacing one of the Danger Zone items) */}
       <IconButtonCard
         banner="Transfer project"
         icon={<Truck className="w-5 h-5" />}
@@ -168,7 +164,6 @@ export function GeneralSettingsScreen() {
         }
       />
 
-      {/* Example 5: Delete Project */}
       <IconButtonCard
         banner="Delete project"
         subBanner="Permanently remove your project and its database"

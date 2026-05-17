@@ -180,11 +180,9 @@ function downloadAsPNG(data, name) {
   canvas.height = CANVAS_H;
   const ctx = canvas.getContext("2d");
 
-  // Background
   ctx.fillStyle = "#232323";
   ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
 
-  // Dot grid
   ctx.fillStyle = "#373737";
   for (let x = 12; x < CANVAS_W; x += 12) {
     for (let y = 12; y < CANVAS_H; y += 12) {
@@ -251,7 +249,6 @@ function downloadAsPNG(data, name) {
     });
   }
 
-  // Title
   ctx.fillStyle = "#a1a1aa";
   ctx.font = "bold 13px Arial";
   ctx.textAlign = "left";

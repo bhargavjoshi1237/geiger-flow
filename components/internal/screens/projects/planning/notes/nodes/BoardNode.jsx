@@ -74,9 +74,7 @@ const BoardNode = ({ id, data, selected, dragging }) => {
             className="p-2 rounded-md shrink-0 flex items-center justify-center transition-colors"
             style={{
               backgroundColor:
-                data.iconLightAccent || "rgba(168, 85, 247, 0.1)", // default purple-500/10
-              color: data.iconDarkAccent || "#c084fc", // default purple-400
-            }}
+                data.iconLightAccent || "rgba(168, 85, 247, 0.1)",               color: data.iconDarkAccent || "#c084fc",             }}
           >
             {(() => {
               const IconComp =
@@ -108,7 +106,6 @@ const BoardNode = ({ id, data, selected, dragging }) => {
           }}
         />
 
-        {/* Top Right Handle */}
         <Handle
           type="source"
           id="source-top-right"
@@ -127,7 +124,6 @@ const BoardNode = ({ id, data, selected, dragging }) => {
           <ArrowRight className="w-[10px] h-[10px] opacity-0 group-hover/handle:opacity-100 transition-opacity duration-200 text-black -rotate-45" />
         </Handle>
 
-        {/* Top Left Handle */}
         <Handle
           type="source"
           id="source-top-left"

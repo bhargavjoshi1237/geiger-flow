@@ -9,20 +9,15 @@ import { Label } from "./label";
 import { RefreshCw, Play, Pause, Plus } from "lucide-react";
 import { AddActivityDialog } from "@/components/internal/dilouges/activities/add_activity_dilouge";
 
-/**
- * Demo component showing various activity visualization patterns
- */
 
 export function ActivityCalendarDemo() {
   const [activities, setActivities] = useState([]);
   const [isSimulating, setIsSimulating] = useState(false);
   const [simulationSpeed, setSimulationSpeed] = useState(2000);
 
-  // Generate random activity data
   const generateRandomActivity = () => {
     const now = new Date();
-    const randomDaysAgo = Math.floor(Math.random() * 30); // Last 30 days
-    const randomHour = Math.floor(Math.random() * 24);
+    const randomDaysAgo = Math.floor(Math.random() * 30);     const randomHour = Math.floor(Math.random() * 24);
     const randomMinute = Math.floor(Math.random() * 60);
 
     const timestamp = new Date(now);
@@ -39,7 +34,6 @@ export function ActivityCalendarDemo() {
     };
   };
 
-  // Initialize with some sample data
   useEffect(() => {
     const sampleActivities = [];
     for (let i = 0; i < 150; i++) {
@@ -48,7 +42,6 @@ export function ActivityCalendarDemo() {
     setActivities(sampleActivities);
   }, []);
 
-  // Simulate real-time activity
   useEffect(() => {
     if (!isSimulating) return;
 
@@ -62,8 +55,7 @@ export function ActivityCalendarDemo() {
         },
       };
       
-      setActivities(prev => [newActivity, ...prev].slice(0, 1000)); // Keep last 1000
-    }, simulationSpeed);
+      setActivities(prev => [newActivity, ...prev].slice(0, 1000));     }, simulationSpeed);
 
     return () => clearInterval(interval);
   }, [isSimulating, simulationSpeed]);
@@ -95,7 +87,6 @@ export function ActivityCalendarDemo() {
 
   return (
     <div className="space-y-6">
-      {/* Controls */}
       <Card className="bg-[#202020] border-[#2a2a2a]">
         <CardHeader>
           <CardTitle className="text-[#e7e7e7]">Activity Visualization Demo</CardTitle>
@@ -168,7 +159,6 @@ export function ActivityCalendarDemo() {
         </CardContent>
       </Card>
 
-      {/* Activity Calendar */}
       <ActivityCalendar
         activities={activities}
         onDateSelect={handleDateSelect}
@@ -178,7 +168,6 @@ export function ActivityCalendarDemo() {
         description="Track activity patterns and intensity"
       />
 
-      {/* Activity Patterns Info */}
       <Card className="bg-[#202020] border-[#2a2a2a]">
         <CardHeader>
           <CardTitle className="text-[#e7e7e7]">Activity Patterns</CardTitle>
@@ -230,7 +219,6 @@ export function ActivityCalendarDemo() {
         </CardContent>
       </Card>
 
-      {/* Data Structure Info */}
       <Card className="bg-[#202020] border-[#2a2a2a]">
         <CardHeader>
           <CardTitle className="text-[#e7e7e7]">Activity Data Structure</CardTitle>
@@ -238,11 +226,11 @@ export function ActivityCalendarDemo() {
         <CardContent>
           <pre className="text-xs text-[#a3a3a3] bg-[#1a1a1a] p-4 rounded-lg overflow-x-auto border border-[#2a2a2a]">
 {`{
-  timestamp: Date | string,   // When the activity occurred
-  intensity?: number,         // 1-5 scale (default: 1)
-  count?: number,             // Alternative to intensity
-  type?: string,              // Category (work, meeting, etc.)
-  metadata?: {                // Additional data
+  timestamp: Date | string,
+  intensity?: number,
+  count?: number,
+  type?: string,
+  metadata?: {
     source: string,
     [key: string]: any
   }

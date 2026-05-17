@@ -36,36 +36,36 @@ import { Calendar } from '@/components/ui/calendar';
 
 ```typescript
 interface Activity {
-  timestamp: Date | string;  // When the activity occurred
-  intensity?: number;        // 1-5 scale (default: 1)
-  count?: number;            // Alternative to intensity
-  type?: string;             // Category (optional)
-  metadata?: object;         // Additional data (optional)
+  timestamp: Date | string;
+  intensity?: number;
+  count?: number;
+  type?: string;
+  metadata?: object;
 }
 ```
 
 ### Examples
 
 ```jsx
-// Simple activity with timestamp only
+
 const simpleActivity = {
   timestamp: new Date(),
-  // intensity defaults to 1
+
 };
 
-// Activity with explicit intensity
+
 const intenseActivity = {
   timestamp: new Date(),
-  intensity: 5,  // Maximum intensity
+  intensity: 5,
 };
 
-// Activity with count (gets normalized)
+
 const countActivity = {
   timestamp: '2026-03-15T10:30:00',
-  count: 15,  // Will be normalized to 0-5 scale
+  count: 15,
 };
 
-// Complete activity with all fields
+
 const completeActivity = {
   timestamp: new Date(),
   intensity: 3,
@@ -84,16 +84,16 @@ const completeActivity = {
 
 ```jsx
 <Calendar
-  // Existing props
+
   events={[]}
   selectedDate={new Date()}
   view="month"
-  
-  // Activity visualization props
-  activities={[]}              // Array of activity objects
-  showActivity={false}         // Enable activity visualization
-  activityViewMode="overlay"   // 'overlay' | 'replace'
-  activityColorScheme="zinc"   // 'zinc' | 'blue' | 'green' | 'purple'
+
+
+  activities={[]}
+  showActivity={false}
+  activityViewMode="overlay"
+  activityColorScheme="zinc"
 />
 ```
 
@@ -143,19 +143,19 @@ Activity intensity is calculated using a 0-5 scale:
 
 ```javascript
 const ACTIVITY_COLORS = {
-  0: 'bg-transparent',      // No activity
-  1: 'bg-zinc-500/10',      // Minimal
-  2: 'bg-zinc-500/20',      // Low
-  3: 'bg-zinc-500/30',      // Moderate
-  4: 'bg-zinc-500/40',      // High
-  5: 'bg-zinc-500/50',      // Very High
+  0: 'bg-transparent',
+  1: 'bg-zinc-500/10',
+  2: 'bg-zinc-500/20',
+  3: 'bg-zinc-500/30',
+  4: 'bg-zinc-500/40',
+  5: 'bg-zinc-500/50',
 };
 ```
 
 ### Normalization Formula
 
 ```javascript
-// Default maxCount = 20 (adjust based on your data)
+
 const level = Math.min(5, Math.ceil((totalActivity / maxCount) * 5));
 ```
 
@@ -212,7 +212,7 @@ The `ActivityCalendar` component provides automatic statistics:
 - Total activity this week
 - Comparison to last week
 
-### Month Statistics  
+### Month Statistics
 - Total activity this month
 - Daily average
 
@@ -233,7 +233,7 @@ const teamActivities = commits.map(commit => ({
   metadata: { author: commit.author }
 }));
 
-<ActivityCalendar 
+<ActivityCalendar
   activities={teamActivities}
   title="Team Activity"
 />
@@ -248,7 +248,7 @@ const eventAttendance = events.map(event => ({
   type: event.type,
 }));
 
-<ActivityCalendar 
+<ActivityCalendar
   activities={eventAttendance}
   title="Event Attendance"
 />
@@ -257,7 +257,7 @@ const eventAttendance = events.map(event => ({
 ### 3. System Monitoring
 
 ```jsx
-// Real-time system metrics
+
 useEffect(() => {
   const interval = setInterval(() => {
     addActivity({
@@ -265,7 +265,7 @@ useEffect(() => {
       count: requestCount,
       type: 'requests',
     });
-  }, 60000); // Every minute
+  }, 60000);
 
   return () => clearInterval(interval);
 }, []);
@@ -284,7 +284,7 @@ const userActions = actions.map(action => ({
   },
 }));
 
-<ActivityCalendar 
+<ActivityCalendar
   activities={userActions}
   title="User Activity"
 />
@@ -306,7 +306,7 @@ You can customize the activity colors by modifying the `ACTIVITY_COLORS` constan
 ```javascript
 const ACTIVITY_COLORS = {
   0: 'bg-transparent',
-  1: 'bg-blue-500/10',    // Custom color
+  1: 'bg-blue-500/10',
   2: 'bg-blue-500/20',
   3: 'bg-blue-500/30',
   4: 'bg-blue-500/40',
@@ -319,8 +319,8 @@ const ACTIVITY_COLORS = {
 Adjust the `maxCount` parameter based on your data:
 
 ```javascript
-// In getActivityLevel function
-const maxCount = 50; // Increase for high-volume data
+
+const maxCount = 50;
 ```
 
 ## Demo

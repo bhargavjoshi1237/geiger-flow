@@ -48,7 +48,6 @@ function ProjectLayoutContent({ id }) {
     }
   }, [id, fetchProjectInfo]);
 
-  // Get all search param keys; the first non-"screen" key is the active tab
   const screenParamKeys = [];
   searchParams.forEach((_, key) => {
     screenParamKeys.push(key);

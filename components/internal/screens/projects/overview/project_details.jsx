@@ -635,7 +635,6 @@ export function ProjectDetailsScreen() {
 
   return (
     <MainScreenWrapper>
-      {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mt-2 gap-4">
         <div className="flex items-center justify-center md:justify-start gap-3 w-full md:w-auto text-center md:text-left">
           <h1 className="text-2xl font-bold text-white tracking-tight">
@@ -709,7 +708,6 @@ export function ProjectDetailsScreen() {
         />
       </div>
 
-      {/* Deadlines Section */}
       <DeadlinesSection />
 
       <div className="flex flex-col gap-4 xl:flex-row">
@@ -724,7 +722,6 @@ export function ProjectDetailsScreen() {
         </div>
       </div>
 
-      {/* Top Issues Section */}
       <div className="py-4 space-y-4">
         <div className="flex items-center justify-between">
           <div className="px-1">

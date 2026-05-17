@@ -43,7 +43,6 @@ export function BillingScreen() {
         </h1>
       </div>
 
-      {/* Subscription Plan */}
       <div className="flex flex-col lg:flex-row gap-8 border-b border-[#2c2c2c] pb-10">
         <div className="lg:w-4/12 space-y-3 shrink-0">
           <h3 className="text-[15px] font-medium text-[#e7e7e7]">
@@ -86,7 +85,6 @@ export function BillingScreen() {
         </div>
       </div>
 
-      {/* Cost Control */}
       <div className="flex flex-col lg:flex-row gap-8 border-b border-[#2c2c2c] pb-10">
         <div className="lg:w-4/12 space-y-6 shrink-0">
           <div className="space-y-3">
@@ -150,7 +148,6 @@ export function BillingScreen() {
         </div>
       </div>
 
-      {/* Past Invoices */}
       <div className="flex flex-col lg:flex-row gap-8 pb-10">
         <div className="lg:w-4/12 space-y-3 shrink-0">
           <h3 className="text-[15px] font-medium text-[#e7e7e7]">

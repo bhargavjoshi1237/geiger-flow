@@ -33,7 +33,6 @@ import {
 } from "lucide-react";
 import { Input } from "./input";
 
-// Utility functions
 const formatTime = (date) => {
   return date.toLocaleTimeString("en-US", {
     hour: "numeric",
@@ -63,7 +62,6 @@ const isSameMonth = (date1, date2) => {
   );
 };
 
-// weekStartsOn: 0 = Sunday (default), 1 = Monday
 const getDaysInMonth = (date, weekStartsOn = 0) => {
   const year = date.getFullYear();
   const month = date.getMonth();
@@ -71,13 +69,11 @@ const getDaysInMonth = (date, weekStartsOn = 0) => {
   const lastDay = new Date(year, month + 1, 0);
   const daysInMonth = lastDay.getDate();
 
-  // For Monday-first: Sun becomes 6, Mon becomes 0, …
   let startingDay = firstDay.getDay();
   if (weekStartsOn === 1) startingDay = (startingDay + 6) % 7;
 
   const days = [];
 
-  // Previous month trailing days
   const prevMonthLastDay = new Date(year, month, 0).getDate();
   for (let i = startingDay - 1; i >= 0; i--) {
     days.push({
@@ -86,12 +82,10 @@ const getDaysInMonth = (date, weekStartsOn = 0) => {
     });
   }
 
-  // Current month days
   for (let i = 1; i <= daysInMonth; i++) {
     days.push({ date: new Date(year, month, i), isCurrentMonth: true });
   }
 
-  // Next month leading days to fill 6 weeks
   const remainingDays = 42 - days.length;
   for (let i = 1; i <= remainingDays; i++) {
     days.push({
@@ -123,7 +117,6 @@ const MONTHS = [
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-// Event Types Configuration
 export const EVENT_COLORS = {
   default:    { pill: "bg-zinc-500/[0.15] text-blue-300",    dot: "#3b82f6",  special: false },
   standup:    { pill: "bg-indigo-500/[0.15] text-indigo-300", dot: "#6366f1",  special: false },
@@ -153,7 +146,6 @@ const formatEventTime = (dateStr) => {
   });
 };
 
-// Activity Intensity Colors
 const ACTIVITY_COLORS = {
   0: 'bg-transparent',
   1: 'bg-zinc-500/10',
@@ -176,7 +168,6 @@ const ACTIVITY_SHOWCASE_COLORS = {
   work: "#737373",
 };
 
-// Get activity level for a specific date and time range
 const getActivityLevel = (activities, date, startHour = null, endHour = null) => {
   if (!activities || activities.length === 0) return 0;
   
@@ -186,10 +177,8 @@ const getActivityLevel = (activities, date, startHour = null, endHour = null) =>
   const relevantActivities = activities.filter(activity => {
     const activityDate = new Date(activity.timestamp);
     
-    // Check if same day
     if (!isSameDay(activityDate, checkDate)) return false;
     
-    // If hours specified, check if within range
     if (startHour !== null && endHour !== null) {
       const activityHour = activityDate.getHours();
       return activityHour >= startHour && activityHour < endHour;
@@ -198,19 +187,15 @@ const getActivityLevel = (activities, date, startHour = null, endHour = null) =>
     return true;
   });
   
-  // Sum activity intensities
   totalActivity = relevantActivities.reduce((sum, activity) => {
     return sum + (activity.intensity || activity.count || 1);
   }, 0);
   
-  // Normalize to 0-5 scale (adjust maxCount based on your data)
-  const maxCount = 20; // Adjust this based on expected maximum activity
-  const level = Math.min(5, Math.ceil((totalActivity / maxCount) * 5));
+  const maxCount = 20;   const level = Math.min(5, Math.ceil((totalActivity / maxCount) * 5));
   
   return level;
 };
 
-// Get total activity for a date
 const getActivityForDate = (activities, date) => {
   return getActivityLevel(activities, date);
 };
@@ -239,19 +224,16 @@ const getActivityTime = (activity) => {
   return formatEventTime(value);
 };
 
-// Calendar Component
 export function Calendar({
   events = [],
   selectedDate = new Date(),
   onDateSelect,
   onEventClick,
   onActivityClick,
-  view = "month", // "month", "week", "day"
-  onViewChange,
+  view = "month",   onViewChange,
   showViewSwitcher = true,
   showHeader = true,
-  defaultViewOnDayClick = "day", // "day" | "week" | "month" - view to switch to when clicking a day
-  className,
+  defaultViewOnDayClick = "day",   className,
   eventTypes = ["default", "meeting", "deadline", "task", "milestone", "reminder"],
   onEventCreate,
   enableCreate = false,
@@ -259,20 +241,13 @@ export function Calendar({
   maxHour = 23,
   hourInterval = 1,
   timeFormat = "12h",
-  // Activity visualization props
-  activities = [], // Array of { timestamp: Date, intensity?: number, count?: number, type?: string }
-  showActivity = false, // Enable activity visualization
-  activityViewMode = 'overlay', // 'overlay' | 'replace' - show activity as overlay or replace events
-  activityColorScheme = 'zinc', // Color scheme for activity: 'zinc', 'blue', 'green', 'purple'
-  fadeKey = 0, // Changed externally each time events filter changes (e.g. tab switch)
-}) {
+  activities = [],   showActivity = false,   activityViewMode = 'overlay',   activityColorScheme = 'zinc',   fadeKey = 0, }) {
   const [currentDate, setCurrentDate] = useState(new Date(selectedDate));
   const [currentView, setCurrentView] = useState(view);
   const [selectedDay, setSelectedDay] = useState(new Date(selectedDate));
   const [dayStripOffset, setDayStripOffset] = useState(0);
   const [dayStripBaseDate, setDayStripBaseDate] = useState(new Date(selectedDate));
 
-  // Per-cell fade tracking: stores map of date-strings → events from previous fadeKey
   const prevDayEventMapRef = React.useRef({});
 
   useEffect(() => {
@@ -284,7 +259,6 @@ export function Calendar({
     setCurrentView(view);
   }, [view]);
 
-  // Go to today on initial mount
   useEffect(() => {
     goToToday();
   }, []);
@@ -348,7 +322,6 @@ export function Calendar({
     });
   };
   
-  // Get activity level for hour
   const getActivityForHour = (date, hour) => {
     return getActivityLevel(activities, date, hour, hour + 1);
   };
@@ -449,14 +422,11 @@ export function Calendar({
   );
 
   const renderMonthView = () => {
-    const days = getDaysInMonth(currentDate, 1); // Monday-first
-    const today = new Date();
+    const days = getDaysInMonth(currentDate, 1);     const today = new Date();
     const MON_WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     const MON_WEEKDAYS_SHORT = ["M", "T", "W", "T", "F", "S", "S"];
     const MAX_PILLS = 3;
 
-    // ── Per-cell fade tracking ────────────────────────────────────────────
-    // Build a map of date-strings → events for every day in the grid
     const dayEventMap = {};
     days.forEach(d => {
       const key = d.date.toISOString().slice(0, 10);
@@ -468,13 +438,11 @@ export function Calendar({
     const prevDateKeys   = new Set(Object.keys(prevEventMap).filter(k => prevEventMap[k].length > 0));
     const enteringKeys   = new Set([...currentDateKeys].filter(k => !prevDateKeys.has(k)));
     const leavingKeys    = new Set([...prevDateKeys].filter(k => !currentDateKeys.has(k)));
-    // Keep old ref alive so leaving cells can render ghost events, then replace after a tick
     const ghostEventMap = { ...prevEventMap };
     prevDayEventMapRef.current = { ...dayEventMap };
 
     return (
       <div className="overflow-hidden">
-        {/* Per-cell fade keyframes (injected once) */}
         <style>{`
           @keyframes cellFadeIn {
             0%   { opacity: 0; transform: translateY(3px); }
@@ -488,7 +456,6 @@ export function Calendar({
           .cell-leave { animation: cellFadeOut 250ms ease-in both; }
         `}</style>
 
-        {/* Weekday headers */}
         <div className="grid grid-cols-7 border-b border-[#2a2a2a] bg-[#1a1a1a]">
           {MON_WEEKDAYS.map((day, idx) => (
             <div
@@ -501,7 +468,6 @@ export function Calendar({
           ))}
         </div>
 
-        {/* Calendar days */}
         <div className="grid grid-cols-7">
           {days.map((day, index) => {
             const dateKey = day.date.toISOString().slice(0, 10);
@@ -539,11 +505,8 @@ export function Calendar({
                       "transition-colors hover:bg-[#202020]",
                       ACTIVITY_COLORS[activityLevel],
                       !isCurrentMonth && "opacity-35",
-                      index % 7 === 6 && "border-r-0", // last col
-                      index >= 35 && "border-b-0",     // last row
-                    )}
+                      index % 7 === 6 && "border-r-0",                       index >= 35 && "border-b-0",                         )}
                   >
-                    {/* Date number with HoverCard */}
                     <div className="mb-1 sm:mb-1.5">
                       <HoverCard openDelay={300} closeDelay={100}>
                         <HoverCardTrigger asChild>
@@ -693,7 +656,6 @@ export function Calendar({
                       </div>
                     )}
 
-                    {/* Mobile: bottom-left activity dots */}
                     {displayEvents.length > 0 && (
                       <div
                         className={cn(
@@ -722,7 +684,6 @@ export function Calendar({
                       </div>
                     )}
 
-                    {/* Desktop: event pills */}
                     <div
                       className={cn(
                         "hidden sm:block space-y-[3px]",
@@ -780,7 +741,6 @@ export function Calendar({
                       )}
                     </div>
 
-                    {/* Avatar stack: show unique participants for the day */}
                     {(() => {
                       const dayParticipants = displayEvents
                         .filter(e => e.participants && e.participants.length > 0)
@@ -914,7 +874,6 @@ export function Calendar({
 
     return (
       <div className="flex flex-col h-full">
-        {/* Week day headers */}
         <div className="grid grid-cols-8 border-b border-[#2a2a2a]">
           <div className="w-16"></div>
           {weekDays.map((day, index) => {
@@ -928,7 +887,6 @@ export function Calendar({
                 )}
                 onClick={() => {
                   setSelectedDay(day);
-                  // Switch to day view when clicking on a day in week view
                   if (defaultViewOnDayClick === "day" && currentView === "week") {
                     handleViewChange("day");
                   }
@@ -953,10 +911,8 @@ export function Calendar({
           })}
         </div>
 
-        {/* Time slots */}
         <div className="flex-1 overflow-y-auto">
           <div className="grid grid-cols-8">
-            {/* Time column */}
             <div className="border-r border-[#2a2a2a]">
               {hours.map((hour) => (
                 <div
@@ -968,7 +924,6 @@ export function Calendar({
               ))}
             </div>
 
-            {/* Day columns */}
             {weekDays.map((day, dayIndex) => {
               const isToday = isSameDay(day, today);
               return (
@@ -1031,7 +986,6 @@ export function Calendar({
                           );
                         })}
                         
-                        {/* Add event button on hover */}
                         {enableCreate && hourEvents.length === 0 && (
                           <div className="hidden group-hover:flex items-center justify-center h-full">
                             <Button
@@ -1076,12 +1030,10 @@ export function Calendar({
       return isSameDay(eventStart, selectedDay);
     });
 
-    // Generate 10 days centered around base date for horizontal strip
     const getDaysStrip = (centerDate) => {
       const days = [];
       const start = new Date(centerDate);
-      start.setDate(start.getDate() - 4); // Show 4 days before
-      for (let i = 0; i < 14; i++) {
+      start.setDate(start.getDate() - 4);       for (let i = 0; i < 14; i++) {
         const day = new Date(start);
         day.setDate(start.getDate() + i);
         days.push(day);
@@ -1095,7 +1047,6 @@ export function Calendar({
 
     const handleDayStripClick = (day) => {
       setSelectedDay(day);
-      // Don't change strip position - keep dayStripBaseDate and offset as-is
       if (onDateSelect) onDateSelect(day);
     };
 
@@ -1109,7 +1060,6 @@ export function Calendar({
 
     return (
       <div className="flex flex-col h-full">
-        {/* Day header */}
         <div className="text-center py-4 border-b border-[#2a2a2a]">
           <div className="text-sm text-[#6b6b6b] uppercase">
             {WEEKDAYS[selectedDay.getDay()]}
@@ -1129,10 +1079,8 @@ export function Calendar({
           </div>
         </div>
 
-        {/* Horizontal day navigation strip */}
         <div className="border-b border-[#2a2a2a] py-3 px-4">
           <div className="flex items-center gap-2">
-            {/* Left scroll arrow */}
             <button
               onClick={handleScrollPrev}
               className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-[#a3a3a3] hover:text-[#e7e7e7] hover:bg-[#2a2a2a] transition-colors"
@@ -1141,7 +1089,6 @@ export function Calendar({
               <ChevronLeft className="w-5 h-5" />
             </button>
 
-            {/* Day strip - 10 days horizontal */}
             <div className="flex-1 flex gap-1.5 overflow-hidden">
               {visibleDays.map((day, idx) => {
                 const isSelected = isSameDay(day, selectedDay);
@@ -1159,9 +1106,6 @@ export function Calendar({
                       ACTIVITY_COLORS[dayActivity]
                     )}
                   >
-                    {/* <div className="text-[9px] font-medium text-[#737373] uppercase">
-                      {WEEKDAYS[day.getDay()].slice(0, 3)}
-                    </div> */}
                     <div
                       className={cn(
                         "text-sm font-semibold mt-0.5 w-7 h-7 flex items-center justify-center rounded-lg",
@@ -1172,18 +1116,11 @@ export function Calendar({
                     >
                       {day.getDate()}
                     </div>
-                    {/* {dayActivity > 0 && (
-                      <div className={cn(
-                        "w-1.5 h-1.5 rounded-full mt-0.5",
-                        dayActivity >= 4 ? "bg-green-500" : dayActivity >= 2 ? "bg-yellow-500" : "bg-zinc-500"
-                      )} />
-                    )} */}
                   </button>
                 );
               })}
             </div>
 
-            {/* Right scroll arrow */}
             <button
               onClick={handleScrollNext}
               className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-[#a3a3a3] hover:text-[#e7e7e7] hover:bg-[#2a2a2a] transition-colors"
@@ -1194,7 +1131,6 @@ export function Calendar({
           </div>
         </div>
 
-        {/* Events list */}
         <div className="flex-1 overflow-y-auto mt-6">
           <div className="space-y-2">
             {hours.map((hour) => {
@@ -1286,11 +1222,9 @@ export function Calendar({
     );
   };
 
-  // Render activity summary widget
   const renderActivitySummary = () => {
     if (!showActivity) return null;
     
-    // Calculate total activity for visible period
     let daysToCheck = [];
     if (currentView === 'day') {
       daysToCheck = [selectedDay];
@@ -1348,7 +1282,6 @@ export function Calendar({
   );
 }
 
-// Timeline Component
 export function Timeline({
   events = [],
   onEventClick,
@@ -1399,7 +1332,6 @@ export function Timeline({
 
   return (
     <div className={cn("bg-[#1a1a1a] border border-[#2a2a2a] rounded-2xl p-6", className)}>
-      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold text-[#e7e7e7]">
           {days[0].toLocaleDateString("en-US", { month: "short", day: "numeric" })} -{" "}
@@ -1436,10 +1368,8 @@ export function Timeline({
         </div>
       </div>
 
-      {/* Timeline Grid */}
       <div className="overflow-x-auto">
         <div className="min-w-[800px]">
-          {/* Day headers */}
           <div className="grid grid-cols-[80px_repeat(14,1fr)] gap-1 mb-2">
             <div></div>
             {days.map((day, index) => {
@@ -1468,7 +1398,6 @@ export function Timeline({
             })}
           </div>
 
-          {/* Timeline rows */}
           <div className="space-y-1">
             {days.map((day, dayIndex) => {
               const dayEvents = getEventsForDate(day);
@@ -1482,14 +1411,12 @@ export function Timeline({
                     isToday && "bg-zinc-500/20"
                   )}
                 >
-                  {/* Day label */}
                   <div className="flex items-center">
                     <span className="text-sm text-[#6b6b6b]">
                       {day.toLocaleDateString("en-US", { weekday: "short" })}
                     </span>
                   </div>
                   
-                  {/* Events */}
                   <div className="col-span-14 flex gap-1 flex-wrap">
                     {dayEvents.length === 0 ? (
                       <div className="text-xs text-[#3a3a3a] px-2 py-1">
@@ -1517,7 +1444,6 @@ export function Timeline({
                       })
                     )}
                     
-                    {/* Add button */}
                     {enableCreate && (
                       <Button
                         variant="ghost"
@@ -1541,15 +1467,13 @@ export function Timeline({
   );
 }
 
-// Event Modal Component
 export function EventModal({
   isOpen,
   onClose,
   event,
   onSave,
   onDelete,
-  mode = "view", // "view", "create", "edit"
-}) {
+  mode = "view", }) {
   const [formData, setFormData] = useState({
     title: "",
     description: "",

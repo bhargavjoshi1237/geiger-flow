@@ -200,7 +200,6 @@ export function VaultAccessControl({
             </div>
           </div>
 
-          {/* Role Selection */}
           {accessControl.type === "roles" && (
             <div className="space-y-3">
               <Label className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wide">Allowed Roles</Label>
@@ -225,7 +224,6 @@ export function VaultAccessControl({
           )}
 
 
-          {/* User Selection */}
           {accessControl.type === "users" && (
             <div className="space-y-3">
               <Label className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wide">Email Addresses</Label>
@@ -284,7 +282,6 @@ export function VaultAccessControl({
             </div>
           )}
 
-          {/* Position Selection */}
           {accessControl.type === "positions" && (
             <div className="space-y-3">
               <Label className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wide">Positions</Label>

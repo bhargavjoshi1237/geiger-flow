@@ -211,7 +211,6 @@ export default function EditCalendarThemeDialog({
       );
     }
 
-    // events
     return (
       <div className="h-full w-full rounded-xl select-none" style={innerStyle}>
         <div

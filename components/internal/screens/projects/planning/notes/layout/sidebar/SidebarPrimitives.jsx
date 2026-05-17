@@ -3,11 +3,6 @@
 import React from "react";
 import { ArrowLeft } from "lucide-react";
 
-/**
- * SidebarButton
- * Minimalist version — geiger-flow color palette.
- * Uses transparent bg with subtle #2a2a2a hover states.
- */
 export const SidebarButton = React.forwardRef(
   (
     { icon: Icon, label, active, onClick, className, children, ...props },

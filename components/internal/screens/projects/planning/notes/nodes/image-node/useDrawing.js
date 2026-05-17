@@ -3,8 +3,7 @@
 import { useState, useRef, useCallback } from "react";
 
 export function useDrawing({ id, isDrawing, drawingData, setNodes }) {
-  const [tool, setTool] = useState("pencil"); // 'pencil' | 'eraser'
-  const [brushSize, setBrushSize] = useState(3);
+  const [tool, setTool] = useState("pencil");   const [brushSize, setBrushSize] = useState(3);
   const [brushColor, setBrushColor] = useState("#ff0000");
 
   const canvasRef = useRef(null);

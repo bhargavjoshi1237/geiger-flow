@@ -1,10 +1,6 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 
-/**
- * A wrapper for main screens (Overview, Datasets, Workflows, Team, etc.)
- * Uses the styles originally from the Overview screen.
- */
 export function MainScreenWrapper({ children, className, ...props }) {
   return (
     <div
@@ -19,10 +15,6 @@ export function MainScreenWrapper({ children, className, ...props }) {
   );
 }
 
-/**
- * A wrapper for secondary screens (Settings, etc.)
- * Uses the styles originally from the Settings > General screen.
- */
 export function SecondaryScreenWrapper({ children, className, ...props }) {
   return (
     <div

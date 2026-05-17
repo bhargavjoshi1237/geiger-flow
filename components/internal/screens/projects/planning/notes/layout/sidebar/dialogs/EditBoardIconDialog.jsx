@@ -113,7 +113,6 @@ export default function EditBoardIconDialog({
           </div>
 
           <div className="grid grid-cols-[auto_1fr] gap-4 p-4 rounded-lg border border-zinc-800/60 bg-zinc-900/30 items-center">
-            {/* Preview Section */}
             <div className="flex flex-col justify-center items-center gap-3 pr-4 border-r border-zinc-800/60">
               <span className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
                 Preview
@@ -132,7 +131,6 @@ export default function EditBoardIconDialog({
               })()}
             </div>
 
-            {/* Accent Colors Section */}
             <div className="flex flex-col gap-3 pl-2">
               <span className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
                 Theme Colors

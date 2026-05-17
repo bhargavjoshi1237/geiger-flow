@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreVertical, Check, Trash2, Bell } from "lucide-react";
 
-// Clean, minimal notification item component
 export function NotificationItem({
   notification,
   onMarkAsRead,
@@ -18,7 +17,6 @@ export function NotificationItem({
 }) {
   const IconComponent = LucideIcons[notification.icon] || Bell;
   
-  // Format time safely
   const formattedTime = React.useMemo(() => {
     try {
       const date = new Date(notification.time);
@@ -30,7 +28,6 @@ export function NotificationItem({
     }
   }, [notification.time]);
 
-  // Parse extra content safely
   const extraContent = React.useMemo(() => {
     try {
       if (!notification.extra) return null;
@@ -61,7 +58,6 @@ export function NotificationItem({
         <IconComponent className={`w-4 h-4 ${iconColor}`} strokeWidth={1.8} />
       </div>
 
-      {/* Content */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-3 mb-1">
           <h3 className={`text-[13px] font-medium truncate ${isUnread ? "text-white" : "text-[#c0c0c0]"}`}>
@@ -76,7 +72,6 @@ export function NotificationItem({
           {notification.description}
         </p>
 
-        {/* Extra content for comments/files/actions */}
         {extraContent && (
           <div className="mt-3">
             {extraContent.type === "comment" && (
@@ -115,7 +110,6 @@ export function NotificationItem({
           </div>
         )}
 
-        {/* Type badge */}
         <div className="mt-3">
           <span className="text-[9px] uppercase font-semibold tracking-wider text-[#666666] bg-[#1f1f1f] px-2 py-1 rounded-md border border-[#2a2a2a]">
             {notification.type}
@@ -123,7 +117,6 @@ export function NotificationItem({
         </div>
       </div>
 
-      {/* Actions menu */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
           <button className="p-1.5 rounded-lg text-[#666666] hover:text-white hover:bg-[#2a2a2a] transition-colors opacity-0 group-hover:opacity-100">

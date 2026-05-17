@@ -17,7 +17,6 @@ import { Eye, Lock, Calendar as CalendarIcon, BarChart3, Timer, Zap, Shield, Che
 export function SettingsTab({ formData, handleInputChange }) {
   return (
     <div className="space-y-6">
-      {/* Visibility Settings */}
       <div className="space-y-4">
         <Label className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wide">
           <Eye className="w-3.5 h-3.5 inline mr-1.5" />
@@ -65,7 +64,6 @@ export function SettingsTab({ formData, handleInputChange }) {
 
       <Separator className="bg-[#2a2a2a]" />
 
-      {/* Time Tracking Settings */}
       <div className="space-y-4">
         <Label className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wide">
           <BarChart3 className="w-3.5 h-3.5 inline mr-1.5" />
@@ -113,7 +111,6 @@ export function SettingsTab({ formData, handleInputChange }) {
 
       <Separator className="bg-[#2a2a2a]" />
 
-      {/* Approval Settings */}
       <div className="space-y-4">
         <Label className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wide">
           <Shield className="w-3.5 h-3.5 inline mr-1.5" />
@@ -143,7 +140,6 @@ export function SettingsTab({ formData, handleInputChange }) {
 
       <Separator className="bg-[#2a2a2a]" />
 
-      {/* Reminders */}
       <div className="space-y-4">
         <Label className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wide">
           <Bell className="w-3.5 h-3.5 inline mr-1.5" />

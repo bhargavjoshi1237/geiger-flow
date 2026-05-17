@@ -16,10 +16,6 @@ export function LogsScreen() {
             View & analyze advisory logs about the project and members.
           </p>
         </div>
-        {/* <Button className="bg-white text-black hover:bg-[#e7e7e7]">
-            <Plus className="w-4 h-4 mr-2" />
-            Export Logs
-          </Button> */}
       </div>
 
       <div className="h-[400px] flex items-center justify-center border-2 border-dashed border-[#2a2a2a] rounded-lg text-[#a3a3a3]">

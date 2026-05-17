@@ -56,7 +56,6 @@ export function InboxScreen() {
   }, []);
 
   const handleMarkAsRead = async (id) => {
-    // Optimistic UI update
     setNotifications(
       notifications.map((n) => (n.id === id ? { ...n, read: true } : n)),
     );
@@ -113,8 +112,7 @@ export function InboxScreen() {
       n.title.toLowerCase().includes(search.toLowerCase()) ||
       n.description.toLowerCase().includes(search.toLowerCase());
     const matchesTab =
-      activeTab === "all" ? true : activeTab === "unread" ? !n.read : true; // "archived" logic can be added if schema supports it
-    return matchesSearch && matchesTab;
+      activeTab === "all" ? true : activeTab === "unread" ? !n.read : true;     return matchesSearch && matchesTab;
   });
 
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -252,7 +250,6 @@ export function InboxScreen() {
         <SheetContent className="bg-[#141414] border-l border-[#1f1f1f] text-[#e7e7e7] p-0 w-full max-w-md shadow-2xl flex flex-col [&>button]:right-5 [&>button]:top-5 [&>button]:text-[#555555] hover:[&>button]:text-white">
           {selectedNotification && (
             <>
-              {/* Header */}
               <div className="px-6 pt-12 pb-5 border-b border-[#1f1f1f] shrink-0 bg-[#171717]">
                 <div className="flex items-center gap-3 mb-4">
                   <div
@@ -287,15 +284,12 @@ export function InboxScreen() {
                 </SheetTitle>
               </div>
 
-              {/* Content */}
               <div className="flex-1 overflow-y-auto px-6 py-5 bg-[#141414]">
                 <div className="space-y-5">
-                  {/* Description */}
                   <p className="text-[14px] text-[#909090] leading-relaxed whitespace-pre-wrap">
                     {selectedNotification.description}
                   </p>
 
-                  {/* Extra Content */}
                   {(() => {
                     let extraContent = null;
                     try {
@@ -360,7 +354,6 @@ export function InboxScreen() {
                     return null;
                   })()}
 
-                  {/* Metadata Card */}
                   <div className="bg-[#1a1a1a] rounded-lg border border-[#1f1f1f] p-4">
                     <div className="grid grid-cols-2 gap-y-3 text-[12px]">
                       <div className="text-[#555555]">Received</div>
@@ -377,7 +370,6 @@ export function InboxScreen() {
                 </div>
               </div>
 
-              {/* Footer Actions */}
               <div className="p-4 border-t border-[#1f1f1f] bg-[#171717] flex gap-2 shrink-0">
                 {!selectedNotification.read && (
                   <button

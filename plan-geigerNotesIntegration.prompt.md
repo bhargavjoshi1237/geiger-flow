@@ -119,7 +119,7 @@ Create a unified canvas that can display both Flow project items and Notes board
 ## 5. Data Model Extensions
 
 ```javascript
-// New schema additions
+
 {
   boards: {
     id: string,

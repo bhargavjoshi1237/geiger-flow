@@ -1,5 +1,5 @@
--- SQL to insert demo notifications for the flow_notifications table
--- This covers standard, comment, file-share, and action-based notifications
+
+
 
 INSERT INTO public.flow_notifications (
   user_id, 

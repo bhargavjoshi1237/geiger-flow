@@ -22,7 +22,6 @@ import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers"
 import { AddActivityDialog } from "@/components/internal/dilouges/activities/add_activity_dilouge";
 import { cn } from "@/lib/utils";
 
-// ─── Participant profiles ────────────────────────────────────────────────────
 const PARTICIPANTS = [
   { id: "you",      name: "You",           role: "Project Lead",   avatar: "/avatars/you.png"       },
   { id: "ali",      name: "Ali",           role: "Designer",       avatar: "/avatars/ali.png"       },
@@ -39,100 +38,66 @@ const PARTICIPANTS = [
 const TABS = ["All", "Shared", "Public", "Archived"];
 const TAB_KEYS = ["all events", "shared", "public", "archived"];
 
-// ─── Sample events – January 2025 (matching reference screenshot) ──────────────
 const SAMPLE_EVENTS = [
-  // ═══════════════════════════════════════════════════════════════════════════
-  // SINGLE DAY ACTIVITIES (events that occur within one day)
-  // ═══════════════════════════════════════════════════════════════════════════
   
-  // ── Dec 30 ──────────────────────────────────────────────────────────────────
   { id: "d30-1", title: "Monday standup",         start: "2024-12-30T09:00", end: "2024-12-30T09:30",  type: "standup",   visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0], PARTICIPANTS[2], PARTICIPANTS[4]] },
   { id: "d30-2", title: "Coffee with Ali",         start: "2024-12-30T11:30", end: "2024-12-30T12:00",  type: "coffee",    visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0], PARTICIPANTS[1]] },
   { id: "d30-3", title: "Marketing site review",  start: "2024-12-30T14:30", end: "2024-12-30T15:30",  type: "marketing", visibility: "public",   owner: "jamie",    participants: [PARTICIPANTS[4], PARTICIPANTS[0], PARTICIPANTS[8]] },
   { id: "d30-4", title: "Product sync",           start: "2024-12-30T16:00", end: "2024-12-30T17:00",  type: "meeting",   visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0], PARTICIPANTS[3]] },
   { id: "d30-5", title: "Design review",          start: "2024-12-30T17:00", end: "2024-12-30T18:00",  type: "design",    visibility: "public",   owner: "amelie",   participants: [PARTICIPANTS[5], PARTICIPANTS[1], PARTICIPANTS[0]] },
-  // ── Dec 31 ──────────────────────────────────────────────────────────────────
   { id: "d31-1", title: "Monday standup",         start: "2024-12-31T09:00", end: "2024-12-31T09:30",  type: "standup",   visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0], PARTICIPANTS[2]] },
-  // ── Jan 2 ───────────────────────────────────────────────────────────────────
   { id: "j2-1",  title: "One-on-one w/ Alex",     start: "2025-01-02T10:00", end: "2025-01-02T10:30",  type: "meeting",   visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0], PARTICIPANTS[2]] },
   { id: "j2-2",  title: "All-hands meeting",      start: "2025-01-02T16:00", end: "2025-01-02T17:00",  type: "meeting",   visibility: "public",   owner: "zahir",    participants: [PARTICIPANTS[8], PARTICIPANTS[9], PARTICIPANTS[0], PARTICIPANTS[2], PARTICIPANTS[3]] },
   { id: "j2-3",  title: "Dinner with the team",   start: "2025-01-02T18:30", end: "2025-01-02T20:00",  type: "personal",  visibility: "public",   owner: "you",      participants: [PARTICIPANTS[0], PARTICIPANTS[1], PARTICIPANTS[2], PARTICIPANTS[5]] },
-  // ── Jan 3 ───────────────────────────────────────────────────────────────────
   { id: "j3-1",  title: "Friday standup",         start: "2025-01-03T09:00", end: "2025-01-03T09:30",  type: "standup",   visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0], PARTICIPANTS[2], PARTICIPANTS[7]] },
-  // ── Jan 5 ───────────────────────────────────────────────────────────────────
   { id: "j5-1",  title: "House inspection",       start: "2025-01-05T10:30", end: "2025-01-05T12:00",  type: "inspection",visibility: "public",   owner: "you",      participants: [PARTICIPANTS[0]] },
-  // ── Jan 6 ───────────────────────────────────────────────────────────────────
   { id: "j6-1",  title: "Monday standup",         start: "2025-01-06T09:00", end: "2025-01-06T09:30",  type: "standup",   visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0], PARTICIPANTS[2]] },
   { id: "j6-2",  title: "Content planning",       start: "2025-01-06T11:00", end: "2025-01-06T12:00",  type: "planning",  visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0], PARTICIPANTS[4]] },
-  // ── Jan 7 ───────────────────────────────────────────────────────────────────
   { id: "j7-1",  title: "One-on-one w/ Blake",    start: "2025-01-07T10:00", end: "2025-01-07T10:30",  type: "meeting",   visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0], PARTICIPANTS[3]] },
   { id: "j7-2",  title: "Catch up w/ Ali",        start: "2025-01-07T14:30", end: "2025-01-07T15:00",  type: "coffee",    visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0], PARTICIPANTS[1]] },
-  // ── Jan 8 ───────────────────────────────────────────────────────────────────
   { id: "j8-1",  title: "Deep work",              start: "2025-01-08T09:00", end: "2025-01-08T12:00",  type: "work",      visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0]] },
   { id: "j8-2",  title: "Design sync",            start: "2025-01-08T10:30", end: "2025-01-08T11:00",  type: "design",    visibility: "public",   owner: "amelie",   participants: [PARTICIPANTS[5], PARTICIPANTS[1]] },
   { id: "j8-3",  title: "SEO planning",           start: "2025-01-08T13:30", end: "2025-01-08T14:30",  type: "planning",  visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0], PARTICIPANTS[4]] },
   { id: "j8-4",  title: "Growth review",          start: "2025-01-08T15:00", end: "2025-01-08T16:00",  type: "meeting",   visibility: "public",   owner: "zahir",    participants: [PARTICIPANTS[8], PARTICIPANTS[3], PARTICIPANTS[0]] },
   { id: "j8-5",  title: "1:1 Jamie",              start: "2025-01-08T16:30", end: "2025-01-08T17:00",  type: "meeting",   visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0], PARTICIPANTS[4]] },
   { id: "j8-6",  title: "Roadmap planning",       start: "2025-01-08T17:00", end: "2025-01-08T18:00",  type: "planning",  visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0], PARTICIPANTS[3]] },
-  // ── Jan 9 ───────────────────────────────────────────────────────────────────
   { id: "j9-1",  title: "Lunch with the crew",    start: "2025-01-09T12:00", end: "2025-01-09T13:00",  type: "lunch",     visibility: "public",   owner: "ali",      participants: [PARTICIPANTS[1], PARTICIPANTS[2], PARTICIPANTS[0], PARTICIPANTS[5]] },
-  // ── Jan 10 ──────────────────────────────────────────────────────────────────
   { id: "j10-1", title: "Friday standup",         start: "2025-01-10T09:00", end: "2025-01-10T09:30",  type: "standup",   visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0], PARTICIPANTS[2], PARTICIPANTS[7]] },
   { id: "j10-2", title: "Olivia x Riley",         start: "2025-01-10T10:00", end: "2025-01-10T10:30",  type: "meeting",   visibility: "public",   owner: "olivia",   participants: [PARTICIPANTS[6], PARTICIPANTS[7]] },
   { id: "j10-3", title: "Product demo",           start: "2025-01-10T13:30", end: "2025-01-10T14:30",  type: "meeting",   visibility: "public",   owner: "blake",    participants: [PARTICIPANTS[3], PARTICIPANTS[0], PARTICIPANTS[2], PARTICIPANTS[9]] },
-  // ── Jan 11 ──────────────────────────────────────────────────────────────────
   { id: "j11-1", title: "House inspection",       start: "2025-01-11T11:00", end: "2025-01-11T12:30",  type: "inspection",visibility: "public",   owner: "you",      participants: [PARTICIPANTS[0]] },
-  // ── Jan 12 ──────────────────────────────────────────────────────────────────
   { id: "j12-1", title: "Ava's engagement",       start: "2025-01-12T13:00", end: "2025-01-12T15:00",  type: "social",    visibility: "public",   owner: "ava",      participants: [PARTICIPANTS[9], PARTICIPANTS[0], PARTICIPANTS[1]] },
-  // ── Jan 13 ──────────────────────────────────────────────────────────────────
   { id: "j13-1", title: "Monday standup",         start: "2025-01-13T09:00", end: "2025-01-13T09:30",  type: "standup",   visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0], PARTICIPANTS[2]] },
   { id: "j13-2", title: "Team lunch",             start: "2025-01-13T12:15", end: "2025-01-13T13:15",  type: "lunch",     visibility: "public",   owner: "you",      participants: [PARTICIPANTS[0], PARTICIPANTS[1], PARTICIPANTS[2], PARTICIPANTS[3], PARTICIPANTS[4]] },
-  // ── Jan 15 ──────────────────────────────────────────────────────────────────
   { id: "j15-1", title: "Product planning",       start: "2025-01-15T09:30", end: "2025-01-15T10:30",  type: "planning",  visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0], PARTICIPANTS[3]] },
-  // ── Jan 17 ──────────────────────────────────────────────────────────────────
   { id: "j17-1", title: "Friday standup",         start: "2025-01-17T09:00", end: "2025-01-17T09:30",  type: "standup",   visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0], PARTICIPANTS[2], PARTICIPANTS[7]] },
   { id: "j17-2", title: "Coffee w/ Amélie",       start: "2025-01-17T09:30", end: "2025-01-17T10:00",  type: "coffee",    visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0], PARTICIPANTS[5]] },
   { id: "j17-3", title: "All-hands meeting",      start: "2025-01-17T16:00", end: "2025-01-17T17:00",  type: "meeting",   visibility: "public",   owner: "zahir",    participants: [PARTICIPANTS[8], PARTICIPANTS[9], PARTICIPANTS[0], PARTICIPANTS[2], PARTICIPANTS[3], PARTICIPANTS[6]] },
   { id: "j17-4", title: "Design feedback",        start: "2025-01-17T14:30", end: "2025-01-17T15:30",  type: "design",    visibility: "public",   owner: "amelie",   participants: [PARTICIPANTS[5], PARTICIPANTS[1], PARTICIPANTS[0]] },
   { id: "j17-5", title: "Sprint planning",        start: "2025-01-17T11:00", end: "2025-01-17T12:00",  type: "planning",  visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0], PARTICIPANTS[2], PARTICIPANTS[7]] },
-  // ── Jan 18 ──────────────────────────────────────────────────────────────────
   { id: "j18-1", title: "Half marathon",          start: "2025-01-18T07:00", end: "2025-01-18T10:00",  type: "exercise",  visibility: "public",   owner: "you",      participants: [PARTICIPANTS[0]] },
-  // ── Jan 20 ──────────────────────────────────────────────────────────────────
   { id: "j20-1", title: "Monday standup",         start: "2025-01-20T09:00", end: "2025-01-20T09:30",  type: "standup",   visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0], PARTICIPANTS[2]] },
   { id: "j20-2", title: "Deep work",              start: "2025-01-20T09:15", end: "2025-01-20T12:00",  type: "work",      visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0]] },
-  // ── Jan 21 ──────────────────────────────────────────────────────────────────
   { id: "j21-1", title: "Quarterly review",       start: "2025-01-21T11:30", end: "2025-01-21T12:30",  type: "meeting",   visibility: "public",   owner: "zahir",    participants: [PARTICIPANTS[8], PARTICIPANTS[9], PARTICIPANTS[3], PARTICIPANTS[0]] },
   { id: "j21-2", title: "Lunch with Zahir",       start: "2025-01-21T13:00", end: "2025-01-21T14:00",  type: "lunch",     visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0], PARTICIPANTS[8]] },
   { id: "j21-3", title: "Dinner with family",     start: "2025-01-21T19:00", end: "2025-01-21T21:00",  type: "personal",  visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0]] },
-  // ── Jan 22 ──────────────────────────────────────────────────────────────────
   { id: "j22-1", title: "Deep work",              start: "2025-01-22T09:00", end: "2025-01-22T12:00",  type: "work",      visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0]] },
   { id: "j22-2", title: "Design sync",            start: "2025-01-22T14:30", end: "2025-01-22T15:00",  type: "design",    visibility: "public",   owner: "amelie",   participants: [PARTICIPANTS[5], PARTICIPANTS[1]] },
-  // ── Jan 23 ──────────────────────────────────────────────────────────────────
   { id: "j23-1", title: "Amélie coffee",          start: "2025-01-23T10:00", end: "2025-01-23T10:30",  type: "coffee",    visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0], PARTICIPANTS[5]] },
-  // ── Jan 24 ──────────────────────────────────────────────────────────────────
   { id: "j24-1", title: "Friday standup",         start: "2025-01-24T09:00", end: "2025-01-24T09:30",  type: "standup",   visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0], PARTICIPANTS[2], PARTICIPANTS[7]] },
   { id: "j24-2", title: "Accountant",             start: "2025-01-24T13:45", end: "2025-01-24T14:45",  type: "meeting",   visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0]] },
   { id: "j24-3", title: "Marketing site review",  start: "2025-01-24T14:30", end: "2025-01-24T15:30",  type: "marketing", visibility: "public",   owner: "jamie",    participants: [PARTICIPANTS[4], PARTICIPANTS[0], PARTICIPANTS[1]] },
   { id: "j24-4", title: "Board prep",             start: "2025-01-24T16:00", end: "2025-01-24T17:00",  type: "planning",  visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0], PARTICIPANTS[9]] },
   { id: "j24-5", title: "Investor call",          start: "2025-01-24T17:00", end: "2025-01-24T18:00",  type: "meeting",   visibility: "public",   owner: "ava",      participants: [PARTICIPANTS[9], PARTICIPANTS[8], PARTICIPANTS[0]] },
-  // ── Jan 27 ──────────────────────────────────────────────────────────────────
   { id: "j27-1", title: "Monday standup",         start: "2025-01-27T09:00", end: "2025-01-27T09:30",  type: "standup",   visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0], PARTICIPANTS[2]] },
-  // ── Jan 28 ──────────────────────────────────────────────────────────────────
   { id: "j28-1", title: "Content planning",       start: "2025-01-28T11:00", end: "2025-01-28T12:00",  type: "planning",  visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0], PARTICIPANTS[4]] },
   { id: "j28-2", title: "Lunch with Ali",         start: "2025-01-28T12:45", end: "2025-01-28T13:45",  type: "lunch",     visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0], PARTICIPANTS[1]] },
-  // ── Jan 29 ──────────────────────────────────────────────────────────────────
   { id: "j29-1", title: "Product planning",       start: "2025-01-29T09:30", end: "2025-01-29T10:30",  type: "planning",  visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0], PARTICIPANTS[3]] },
-  // ── Jan 30 ──────────────────────────────────────────────────────────────────
   { id: "j30-1", title: "All-hands meeting",      start: "2025-01-30T16:00", end: "2025-01-30T17:00",  type: "meeting",   visibility: "public",   owner: "zahir",    participants: [PARTICIPANTS[8], PARTICIPANTS[9], PARTICIPANTS[0], PARTICIPANTS[2], PARTICIPANTS[3]] },
   { id: "j30-2", title: "Team dinner",            start: "2025-01-30T17:30", end: "2025-01-30T19:30",  type: "social",    visibility: "public",   owner: "you",      participants: [PARTICIPANTS[0], PARTICIPANTS[1], PARTICIPANTS[2], PARTICIPANTS[5]] },
-  // ── Jan 31 ──────────────────────────────────────────────────────────────────
   { id: "j31-1", title: "Friday standup",         start: "2025-01-31T09:00", end: "2025-01-31T09:30",  type: "standup",   visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0], PARTICIPANTS[2], PARTICIPANTS[7]] },
-  // ── Feb 2 ───────────────────────────────────────────────────────────────────
   { id: "f2-1",  title: "Monday standup",         start: "2025-02-02T09:00", end: "2025-02-02T09:30",  type: "standup",   visibility: "shared",   owner: "you",      participants: [PARTICIPANTS[0], PARTICIPANTS[2]] },
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // MULTI-DAY ACTIVITIES (events spanning multiple consecutive days)
-  // ═══════════════════════════════════════════════════════════════════════════
   
   { id: "multi-1", title: "Team Offsite - Strategy", start: "2024-12-06T09:00", end: "2024-12-08T18:00", type: "meeting",  visibility: "public",  owner: "zahir",   participants: [PARTICIPANTS[8], PARTICIPANTS[9], PARTICIPANTS[3], PARTICIPANTS[0]] },
   { id: "multi-2", title: "Product Launch Week v2.0", start: "2025-01-13T00:00", end: "2025-01-17T23:59", type: "milestone", visibility: "public",  owner: "blake",   participants: [PARTICIPANTS[3], PARTICIPANTS[0], PARTICIPANTS[2], PARTICIPANTS[6], PARTICIPANTS[5]] },
@@ -141,18 +106,12 @@ const SAMPLE_EVENTS = [
   { id: "multi-5", title: "Client Workshop - Phase 2", start: "2025-01-23T10:00", end: "2025-01-24T17:00", type: "meeting",  visibility: "public",  owner: "blake",   participants: [PARTICIPANTS[3], PARTICIPANTS[0], PARTICIPANTS[5]] },
   { id: "multi-6", title: "Annual Company Retreat", start: "2025-02-03T07:00", end: "2025-02-05T20:00", type: "social",   visibility: "public",  owner: "ava",     participants: [PARTICIPANTS[9], PARTICIPANTS[8], PARTICIPANTS[0], PARTICIPANTS[1], PARTICIPANTS[2], PARTICIPANTS[4]] },
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // MULTI-WEEK ACTIVITIES (long-term projects and recurring events)
-  // ═══════════════════════════════════════════════════════════════════════════
   
   { id: "week-1", title: "Q1 Product Development", start: "2024-12-02T09:00", end: "2024-12-30T18:00", type: "deadline",  visibility: "public",  owner: "blake",   participants: [PARTICIPANTS[3], PARTICIPANTS[0], PARTICIPANTS[2]] },
   { id: "week-2", title: "Winter Marketing Campaign", start: "2025-01-06T00:00", end: "2025-01-26T23:59", type: "marketing", visibility: "public",  owner: "jamie",   participants: [PARTICIPANTS[4], PARTICIPANTS[0]] },
   { id: "week-3", title: "Beta Testing - Phase 1", start: "2025-01-13T00:00", end: "2025-01-27T23:59", type: "task",      visibility: "shared",  owner: "you",     participants: [PARTICIPANTS[0], PARTICIPANTS[6], PARTICIPANTS[7]] },
   { id: "week-4", title: "New Hire Onboarding Batch 1", start: "2025-02-03T09:00", end: "2025-02-14T17:00", type: "planning", visibility: "shared", owner: "you",   participants: [PARTICIPANTS[0], PARTICIPANTS[3]] },
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // ARCHIVED EVENTS
-  // ═══════════════════════════════════════════════════════════════════════════
   { id: "arch-1", title: "Q4 Retrospective",      start: "2024-11-15T10:00", end: "2024-11-15T11:30", type: "meeting",  visibility: "shared",  owner: "you",   archived: true, participants: [PARTICIPANTS[0], PARTICIPANTS[3], PARTICIPANTS[8]] },
   { id: "arch-2", title: "Old Product Demo",      start: "2024-11-20T14:00", end: "2024-11-20T15:00", type: "meeting",  visibility: "public",  owner: "blake",  archived: true, participants: [PARTICIPANTS[3], PARTICIPANTS[0], PARTICIPANTS[9]] },
   { id: "arch-3", title: "Legacy Sprint Review",  start: "2024-11-22T09:00", end: "2024-11-22T10:00", type: "standup",  visibility: "shared",  owner: "you",   archived: true, participants: [PARTICIPANTS[0], PARTICIPANTS[2], PARTICIPANTS[7]] },
@@ -160,11 +119,7 @@ const SAMPLE_EVENTS = [
   { id: "arch-5", title: "Halloween Party",       start: "2024-10-31T18:00", end: "2024-10-31T22:00", type: "social",   visibility: "public",  owner: "jamie",  archived: true, participants: [PARTICIPANTS[4], PARTICIPANTS[1], PARTICIPANTS[2], PARTICIPANTS[0]] },
 ];
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ACTIVITY DATA - March 15-23 and May 15-20, 2026 (Demo for activity visualization)
-// ═══════════════════════════════════════════════════════════════════════════
 const SAMPLE_ACTIVITIES = [
-  // March 15, 2026 (Sunday)
   { timestamp: "2026-03-15T09:00", intensity: 3 },
   { timestamp: "2026-03-15T10:00", intensity: 4 },
   { timestamp: "2026-03-15T11:00", intensity: 2 },
@@ -172,7 +127,6 @@ const SAMPLE_ACTIVITIES = [
   { timestamp: "2026-03-15T15:00", intensity: 3 },
   { timestamp: "2026-03-15T16:00", intensity: 1 },
   
-  // March 16, 2026 (Monday)
   { timestamp: "2026-03-16T08:00", intensity: 2 },
   { timestamp: "2026-03-16T09:00", intensity: 5 },
   { timestamp: "2026-03-16T10:00", intensity: 4 },
@@ -183,7 +137,6 @@ const SAMPLE_ACTIVITIES = [
   { timestamp: "2026-03-16T16:00", intensity: 3 },
   { timestamp: "2026-03-16T17:00", intensity: 2 },
   
-  // March 17, 2026 (Tuesday)
   { timestamp: "2026-03-17T09:00", intensity: 3 },
   { timestamp: "2026-03-17T10:00", intensity: 4 },
   { timestamp: "2026-03-17T11:00", intensity: 2 },
@@ -191,7 +144,6 @@ const SAMPLE_ACTIVITIES = [
   { timestamp: "2026-03-17T15:00", intensity: 5 },
   { timestamp: "2026-03-17T16:00", intensity: 4 },
   
-  // March 18, 2026 (Wednesday)
   { timestamp: "2026-03-18T08:00", intensity: 1 },
   { timestamp: "2026-03-18T09:00", intensity: 4 },
   { timestamp: "2026-03-18T10:00", intensity: 5 },
@@ -202,7 +154,6 @@ const SAMPLE_ACTIVITIES = [
   { timestamp: "2026-03-18T16:00", intensity: 2 },
   { timestamp: "2026-03-18T17:00", intensity: 1 },
   
-  // March 19, 2026 (Thursday)
   { timestamp: "2026-03-19T09:00", intensity: 3 },
   { timestamp: "2026-03-19T10:00", intensity: 3 },
   { timestamp: "2026-03-19T11:00", intensity: 4 },
@@ -211,7 +162,6 @@ const SAMPLE_ACTIVITIES = [
   { timestamp: "2026-03-19T15:00", intensity: 4 },
   { timestamp: "2026-03-19T16:00", intensity: 3 },
   
-  // March 20, 2026 (Friday)
   { timestamp: "2026-03-20T08:00", intensity: 2 },
   { timestamp: "2026-03-20T09:00", intensity: 5 },
   { timestamp: "2026-03-20T10:00", intensity: 4 },
@@ -221,20 +171,17 @@ const SAMPLE_ACTIVITIES = [
   { timestamp: "2026-03-20T16:00", intensity: 2 },
   { timestamp: "2026-03-20T17:00", intensity: 3 },
   
-  // March 21, 2026 (Saturday)
   { timestamp: "2026-03-21T10:00", intensity: 2 },
   { timestamp: "2026-03-21T11:00", intensity: 1 },
   { timestamp: "2026-03-21T14:00", intensity: 3 },
   { timestamp: "2026-03-21T15:00", intensity: 2 },
   
-  // March 22, 2026 (Sunday)
   { timestamp: "2026-03-22T09:00", intensity: 1 },
   { timestamp: "2026-03-22T10:00", intensity: 2 },
   { timestamp: "2026-03-22T11:00", intensity: 1 },
   { timestamp: "2026-03-22T15:00", intensity: 2 },
   { timestamp: "2026-03-22T16:00", intensity: 1 },
   
-  // March 23, 2026 (Monday)
   { timestamp: "2026-03-23T08:00", intensity: 3 },
   { timestamp: "2026-03-23T09:00", intensity: 5 },
   { timestamp: "2026-03-23T10:00", intensity: 4 },
@@ -245,7 +192,6 @@ const SAMPLE_ACTIVITIES = [
   { timestamp: "2026-03-23T16:00", intensity: 4 },
   { timestamp: "2026-03-23T17:00", intensity: 3 },
 
-  // May 15-20, 2026 (current-month showcase around May 17)
   { timestamp: "2026-05-15T09:30", name: "Sprint handoff", type: "planning", intensity: 3 },
   { timestamp: "2026-05-15T14:00", name: "Asset QA pass", type: "task", intensity: 2 },
   { timestamp: "2026-05-16T10:00", name: "DAM upload review", type: "meeting", intensity: 4 },
@@ -342,16 +288,13 @@ function getViewSubtitle(date, viewMode) {
 
 export function ProjectionsScreen() {
   const [activeTab, setActiveTab]       = useState("all events");
-  const [currentDate, setCurrentDate]   = useState(new Date(2025, 0, 10)); // Jan 10 2025
-  const [viewMode, setViewMode]         = useState("month");
+  const [currentDate, setCurrentDate]   = useState(new Date(2025, 0, 10));   const [viewMode, setViewMode]         = useState("month");
   const [searchQuery, setSearchQuery]   = useState("");
   const [fadeKey, setFadeKey]                 = useState(0);
   const [displayEvents, setDisplayEvents]     = useState(SAMPLE_EVENTS);
 
-  // Real today's date from browser
   const today = new Date();
 
-  // ── Tab filtering with per-cell fade ──────────────────────────────────
   useEffect(() => {
     let filtered;
     switch (activeTab) {
@@ -368,17 +311,14 @@ export function ProjectionsScreen() {
       case "archived":
         filtered = SAMPLE_EVENTS.filter((e) => e.archived);
         break;
-      default: // "all events"
-        filtered = SAMPLE_EVENTS.filter((e) => !e.archived);
+      default:         filtered = SAMPLE_EVENTS.filter((e) => !e.archived);
         break;
     }
     setDisplayEvents(filtered);
-    setFadeKey((k) => k + 1);          // triggers per-cell re-entrance
-  }, [activeTab]);
+    setFadeKey((k) => k + 1);            }, [activeTab]);
 
   const handleViewModeChange = (newView) => {
     setViewMode(newView);
-    // Always pivot to the current period when a view is selected.
     setCurrentDate(new Date());
   };
 
@@ -428,7 +368,6 @@ export function ProjectionsScreen() {
 
   const handleSaveActivity = async (activity) => {
     console.log("Saving calendar activity:", activity);
-    // Add your save logic here
     setIsAddActivityOpen(false);
     setSelectedCreateDate(null);
   };
@@ -466,7 +405,6 @@ export function ProjectionsScreen() {
       </div>
       </div>
 
-      {/* Mobile page heading */}
       <div className="sm:hidden mb-4">
         <div className="flex items-center justify-between border-b border-[#2a2a2a] pb-3">
           <h1 className="text-[35px] font-semibold leading-none text-[#e7e7e7] tracking-tight">Calendar</h1>
@@ -487,13 +425,9 @@ export function ProjectionsScreen() {
         </div>
       </div>
       
-      {/* ── Calendar area ────────────────────────────────────────────────────── */}
         <div className="border border-[#2a2a2a] rounded-2xl overflow-hidden bg-[#1a1a1a]">
-          {/* Sub-header: month nav + controls */}
           <div className="border-b border-[#2a2a2a]">
-            {/* ── Mobile layout ──────────────────────────────────────────────── */}
             <div className="flex flex-col gap-3 px-4 py-3 sm:hidden">
-              {/* Row 1: tabs */}
               <div className="flex items-center gap-1 bg-[#202020] w-full justify-center rounded-xl p-1 border border-[#2a2a2a]">
                 {TABS.map((tab, idx) => (
                   <button
@@ -540,7 +474,6 @@ export function ProjectionsScreen() {
                 </AddActivityDialog>
               </div>
 
-              {/* Row 4: segmented navigation */}
               <div className="grid grid-cols-[40px_1fr_40px] border border-[#2f2f2f] rounded-xl overflow-hidden">
                 <button
                   type="button"
@@ -566,9 +499,7 @@ export function ProjectionsScreen() {
               </div>
             </div>
 
-            {/* ── Desktop layout ─────────────────────────────────────────────── */}
             <div className="hidden sm:flex items-center justify-between px-5 py-3.5">
-              {/* Left: date badge + month info */}
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
                 
@@ -603,7 +534,6 @@ export function ProjectionsScreen() {
                 </div>
               </div>
 
-              {/* Right: view selector + add button */}
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1">
                 <button
@@ -613,13 +543,6 @@ export function ProjectionsScreen() {
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
-                {/* <button
-                  type="button"
-                  onClick={goToToday}
-                  className="px-3.5 py-1.5 text-sm font-medium text-[#a3a3a3] hover:text-white border border-[#2a2a2a] rounded-lg hover:bg-[#202020] transition-colors"
-                >
-                  Today Button
-                </button> */}
                 <button
                   type="button"
                   className="p-1.5 rounded-lg text-[#737373] hover:text-white hover:bg-[#202020] transition-colors"
@@ -648,7 +571,6 @@ export function ProjectionsScreen() {
             </div>
           </div>
 
-          {/* Calendar grid */}
           <Calendar
             events={filteredEvents}
             activities={SAMPLE_ACTIVITIES}
@@ -667,7 +589,6 @@ export function ProjectionsScreen() {
           />
         </div>
 
-        {/* Controlled Add Activity Dialog for calendar date clicks */}
         <AddActivityDialog
           open={isAddActivityOpen}
           onOpenChange={setIsAddActivityOpen}

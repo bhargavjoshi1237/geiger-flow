@@ -49,7 +49,6 @@ export default function UpgradePlanDialogue({ open, onOpenChange }) {
     <Dialog open={open} onOpenChange={resetAndClose}>
       <DialogContent className="bg-[#161616] border-[#2a2a2a] text-[#ededed]">
         <div className="relative w-full overflow-hidden">
-          {/* Step 1: Select Plan */}
           <div
             className={cn(
               "transition-transform duration-300 ease-in-out",
@@ -164,7 +163,6 @@ export default function UpgradePlanDialogue({ open, onOpenChange }) {
             </div>
           </div>
 
-          {/* Step 2: Add payment method */}
           <div
             className={cn(
               "transition-transform duration-300 ease-in-out",
@@ -237,7 +235,6 @@ export default function UpgradePlanDialogue({ open, onOpenChange }) {
             </div>
           </div>
 
-          {/* Step 3: Purchase seats */}
           <div
             className={cn(
               "transition-transform duration-300 ease-in-out",

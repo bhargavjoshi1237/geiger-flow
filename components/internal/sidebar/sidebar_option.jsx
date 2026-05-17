@@ -109,7 +109,6 @@ export function SidebarOption({
         </ul>
       )}
 
-      {/* Collapsed state subitems with tooltips */}
       {subItems && isExpanded && isCollapsed && (
         <ul className="flex flex-col gap-0.5 pt-2">
           {subItems.map((sub) => (

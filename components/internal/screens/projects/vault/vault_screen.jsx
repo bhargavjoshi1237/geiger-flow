@@ -172,7 +172,6 @@ export function VaultScreen() {
   const [viewingAccessControl, setViewingAccessControl] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  // Filter vault items based on search and type
   const filteredItems = vaultItems.filter((item) => {
     const matchesSearch =
       item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -229,7 +228,6 @@ export function VaultScreen() {
 
   return (
     <MainScreenWrapper>
-      {/* Header */}
       <div className="flex flex-col gap-4 border-b border-[#2a2a2a] pb-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <h1 className="text-3xl font-bold text-[#e7e7e7]">Vault</h1>
@@ -268,7 +266,6 @@ export function VaultScreen() {
         </AddVaultItemDialog>
       </div>
 
-      {/* Search and Filters */}
       <div className="flex flex-col gap-3 mb-6 sm:flex-row sm:items-center">
         <div className="relative w-full sm:max-w-md sm:flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#737373]" />
@@ -290,7 +287,6 @@ export function VaultScreen() {
         </div>
       </div>
 
-      {/* Vault Items Grid */}
       {filteredItems.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-[#2a2a2a] rounded-2xl">
           <div className="w-16 h-16 rounded-2xl bg-[#1a1a1a] flex items-center justify-center mb-4">
@@ -335,7 +331,6 @@ export function VaultScreen() {
         />
       )}
 
-      {/* Access Control Dialog */}
       {viewingAccessControl && (
         <VaultAccessControl
           item={viewingAccessControl}

@@ -151,8 +151,7 @@ const CenterEdge = ({
               borderRadius: "50%",
               border: "1px solid #777",
               boxShadow: "0 2px 4px rgba(0,0,0,0.5)",
-              zIndex: 1002, // Higher than label
-            }}
+              zIndex: 1002,             }}
             className="nodrag"
             onPointerDown={onPointerDown}
             onPointerMove={onPointerMove}

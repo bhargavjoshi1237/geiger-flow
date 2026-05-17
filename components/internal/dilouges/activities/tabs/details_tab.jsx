@@ -73,7 +73,6 @@ const TEAM_MEMBERS = [
 export function DetailsTab({ formData, handleInputChange, handleToggleTag, handleToggleAssignee }) {
   return (
     <div className="space-y-4">
-      {/* Name & Type Row */}
       <div className="flex gap-2">
         <div className="w-[80%]">
           <Label className="text-sm font-medium text-zinc-300">
@@ -107,7 +106,6 @@ export function DetailsTab({ formData, handleInputChange, handleToggleTag, handl
         </div>
       </div>
 
-      {/* Description */}
       <div className="space-y-1.5">
         <Label className="text-sm font-medium text-zinc-300">Description</Label>
         <Textarea
@@ -118,7 +116,6 @@ export function DetailsTab({ formData, handleInputChange, handleToggleTag, handl
         />
       </div>
 
-      {/* Priority, Status, Progress Row */}
       <div className="flex gap-4">
         <div className="space-y-1.5">
           <Label className="text-sm font-medium text-zinc-300">Priority</Label>
@@ -178,7 +175,6 @@ export function DetailsTab({ formData, handleInputChange, handleToggleTag, handl
 
       <Separator className="bg-[#2a2a2a]" />
 
-      {/* Tags */}
       <div className="space-y-2">
         <Label className="text-sm font-medium text-zinc-300">Tags</Label>
         <div className="flex flex-wrap gap-1.5">
@@ -200,7 +196,6 @@ export function DetailsTab({ formData, handleInputChange, handleToggleTag, handl
         </div>
       </div>
 
-      {/* Assignees */}
       <div className="space-y-1.5">
         <Label className="text-sm font-medium text-zinc-300">Assignees</Label>
         <DropdownMenu>
@@ -259,7 +254,6 @@ export function DetailsTab({ formData, handleInputChange, handleToggleTag, handl
         </DropdownMenu>
       </div>
 
-      {/* Project & Milestone Row */}
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1.5">
           <Label className="text-sm font-medium text-zinc-300">Project</Label>
@@ -297,7 +291,6 @@ export function DetailsTab({ formData, handleInputChange, handleToggleTag, handl
         </div>
       </div>
 
-      {/* Notes */}
       <div className="space-y-1.5">
         <Label className="text-sm font-medium text-zinc-300">Notes</Label>
         <Textarea
