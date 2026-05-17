@@ -90,6 +90,7 @@ export function NewGoalDialog({
   onEdit,
   open,
   onOpenChange,
+  statusOptions = STATUS_OPTIONS,
 }) {
   const isEditMode = !!editGoal;
   const [formData, setFormData] = useState(INITIAL_FORM);
@@ -243,7 +244,7 @@ export function NewGoalDialog({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-[#1e1e1e] border-[#2a2a2a]">
-                    {STATUS_OPTIONS.map((s) => (
+                    {statusOptions.map((s) => (
                       <SelectItem
                         key={s.value}
                         value={s.value}

@@ -1,31 +1,32 @@
-import React from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import React, { useState } from "react";
 import { GeneralSettingsScreen } from "./general/general_settings";
-import { ConnectivityScreen } from "./connectivity/connectivity_screen";
-import { CustomsSettingsScreen } from "./customs/customs_settings";
-import { AddonsSettingsScreen } from "./addons/addons_settings";
+import { CustomsCreateFieldButton, CustomsSettingsScreen } from "./customs/customs_settings";
+import { AddonsSettingsScreen, AddonsViewToggle } from "./addons/addons_settings";
 import { UsageSettingsScreen } from "./usage/usage_screen";
 import { AdvancedSettingsScreen } from "./advanced/advanced_settings";
 import { EnterpriseSettingsScreen } from "./enterprise/enterprise_settings";
+import { ConnectionsScreen } from "./connections/connections_screen";
 import { SecondaryScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 
 export function SettingsScreen({ activeSettingsTab = "General" }) {
+  const [addonsCompactView, setAddonsCompactView] = useState(false);
+  const [customsCreateOpen, setCustomsCreateOpen] = useState(false);
+
   const renderContent = () => {
     switch (activeSettingsTab) {
       case "General":
         return <GeneralSettingsScreen />;
-      case "Connectivity":
-        return <ConnectivityScreen />;
+      case "Connections":
+        return <ConnectionsScreen />;
       case "Customs":
-        return <CustomsSettingsScreen />;
+        return (
+          <CustomsSettingsScreen
+            isCreateOpen={customsCreateOpen}
+            onCreateOpenChange={setCustomsCreateOpen}
+          />
+        );
       case "Add-ons":
-        return <AddonsSettingsScreen />;
+        return <AddonsSettingsScreen compactView={addonsCompactView} />;
       case "Usage":
         return <UsageSettingsScreen />;
       case "Advanced":
@@ -45,14 +46,27 @@ export function SettingsScreen({ activeSettingsTab = "General" }) {
 
   return (
     <SecondaryScreenWrapper>
-      <div>
-        <h1 className="text-2xl font-bold text-white tracking-tight mb-2">
-          {activeSettingsTab}
-        </h1>
-        <p className="text-[#a3a3a3] text-sm">
-          Manage your {activeSettingsTab.toLowerCase()} settings for this
-          project.
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-white tracking-tight mb-2">
+            {activeSettingsTab}
+          </h1>
+          <p className="text-[#a3a3a3] text-sm">
+            Manage your {activeSettingsTab.toLowerCase()} settings for this
+            project.
+          </p>
+        </div>
+
+        {activeSettingsTab === "Customs" && (
+          <CustomsCreateFieldButton onClick={() => setCustomsCreateOpen(true)} />
+        )}
+
+        {activeSettingsTab === "Add-ons" && (
+          <AddonsViewToggle
+            compactView={addonsCompactView}
+            onToggle={() => setAddonsCompactView((value) => !value)}
+          />
+        )}
       </div>
 
       {renderContent()}

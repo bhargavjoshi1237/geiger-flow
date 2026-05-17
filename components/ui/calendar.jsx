@@ -163,6 +163,19 @@ const ACTIVITY_COLORS = {
   5: 'bg-zinc-500/50',
 };
 
+const ACTIVITY_SHOWCASE_COLORS = {
+  default: "#737373",
+  task: "#737373",
+  meeting: "#737373",
+  event: "#737373",
+  reminder: "#737373",
+  deadline: "#a3a3a3",
+  milestone: "#a3a3a3",
+  planning: "#737373",
+  design: "#737373",
+  work: "#737373",
+};
+
 // Get activity level for a specific date and time range
 const getActivityLevel = (activities, date, startHour = null, endHour = null) => {
   if (!activities || activities.length === 0) return 0;
@@ -202,12 +215,37 @@ const getActivityForDate = (activities, date) => {
   return getActivityLevel(activities, date);
 };
 
+const getActivityItemsForDate = (activities, date) => {
+  if (!activities || activities.length === 0) return [];
+
+  return activities.filter((activity) => {
+    const activityDate = new Date(activity.timestamp || activity.startDate || activity.start);
+    return isSameDay(activityDate, date);
+  });
+};
+
+const getActivityColor = (activity) => {
+  if (activity.color) return activity.color;
+  return ACTIVITY_SHOWCASE_COLORS[activity.type] || ACTIVITY_SHOWCASE_COLORS.default;
+};
+
+const getActivityLabel = (activity) => {
+  return activity.title || activity.name || activity.label || activity.type || "Activity";
+};
+
+const getActivityTime = (activity) => {
+  const value = activity.timestamp || activity.startDate || activity.start;
+  if (!value) return null;
+  return formatEventTime(value);
+};
+
 // Calendar Component
 export function Calendar({
   events = [],
   selectedDate = new Date(),
   onDateSelect,
   onEventClick,
+  onActivityClick,
   view = "month", // "month", "week", "day"
   onViewChange,
   showViewSwitcher = true,
@@ -471,6 +509,11 @@ export function Calendar({
             const isToday = isSameDay(day.date, today);
             const isCurrentMonth = day.isCurrentMonth;
             const activityLevel = showActivity ? getActivityForDate(activities, day.date) : 0;
+            const dayActivities = showActivity ? getActivityItemsForDate(activities, day.date) : [];
+            const dayActivityTotal = dayActivities.reduce(
+              (sum, activity) => sum + (activity.intensity || activity.count || 1),
+              0,
+            );
             const isSelected = isSameDay(day.date, selectedDay);
             const isEntering = enteringKeys.has(dateKey);
             const isLeaving  = leavingKeys.has(dateKey);
@@ -532,9 +575,10 @@ export function Calendar({
                               day: "numeric",
                             })}
                           </p>
-                          {dayEvents.length === 0 ? (
-                            <p className="text-xs text-[#737373]">No events scheduled</p>
-                          ) : (
+                          {dayEvents.length === 0 && dayActivities.length === 0 ? (
+                            <p className="text-xs text-[#737373]">No events or activity</p>
+                          ) : null}
+                          {dayEvents.length > 0 && (
                             <div className="space-y-1.5">
                               {dayEvents.map((ev, i) => {
                                 const cs = EVENT_COLORS[ev.type] || EVENT_COLORS.default;
@@ -555,9 +599,99 @@ export function Calendar({
                               })}
                             </div>
                           )}
+                          {dayActivities.length > 0 && (
+                            <div className={cn("space-y-1.5", dayEvents.length > 0 && "mt-3 border-t border-[#2a2a2a] pt-2")}>
+                              <div className="flex items-center justify-between">
+                                <span className="text-[10px] font-medium uppercase tracking-wide text-[#737373]">
+                                  Activity
+                                </span>
+                                <span className="text-[10px] text-[#737373]">
+                                  {dayActivityTotal} total
+                                </span>
+                              </div>
+                              {dayActivities.slice(0, 4).map((activity, i) => {
+                                const color = getActivityColor(activity);
+                                return (
+                                  <div
+                                    key={i}
+                                    className="rounded-md border border-[#333333] bg-[#202020] px-2 py-1"
+                                    style={{
+                                      borderLeftColor: color,
+                                      borderLeftWidth: "2px",
+                                    }}
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-xs font-medium text-white truncate flex-1">
+                                        {getActivityLabel(activity)}
+                                      </span>
+                                      <span className="text-[10px] text-[#737373] flex-shrink-0">
+                                        {getActivityTime(activity)}
+                                      </span>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                              {dayActivities.length > 4 && (
+                                <p className="text-[10px] text-[#737373]">
+                                  +{dayActivities.length - 4} more
+                                </p>
+                              )}
+                            </div>
+                          )}
                         </HoverCardContent>
                       </HoverCard>
                     </div>
+
+                    {dayActivities.length > 0 && (
+                      <div className="absolute right-2 top-2 flex max-w-[44px] items-center justify-end gap-1 sm:hidden pointer-events-none">
+                        {dayActivities.slice(0, 3).map((activity, i) => (
+                          <span
+                            key={i}
+                            className="h-1.5 w-1.5 rounded-full"
+                            style={{ backgroundColor: getActivityColor(activity) }}
+                          />
+                        ))}
+                      </div>
+                    )}
+
+                    {dayActivities.length > 0 && (
+                      <div className="hidden sm:block mb-1 space-y-[3px]">
+                        {dayActivities.slice(0, 2).map((activity, i) => {
+                          const color = getActivityColor(activity);
+                          return (
+                            <button
+                              key={i}
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (onActivityClick) onActivityClick(activity);
+                              }}
+                              className="group flex w-full items-start gap-1.5 rounded-md border border-[#333333] bg-[#202020] px-1.5 py-1 text-left leading-tight transition-colors hover:border-[#474747] hover:bg-[#242424]"
+                              style={{
+                                borderLeftColor: color,
+                                borderLeftWidth: "3px",
+                              }}
+                            >
+                              <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                                <span className="truncate text-[10px] font-medium text-white">
+                                  {getActivityLabel(activity)}
+                                </span>
+                                {getActivityTime(activity) && (
+                                  <span className="truncate text-[9px] font-medium text-[#737373]">
+                                    {getActivityTime(activity)}
+                                  </span>
+                                )}
+                              </span>
+                            </button>
+                          );
+                        })}
+                        {dayActivities.length > 2 && (
+                          <p className="px-1.5 pt-0.5 text-[10px] leading-none text-[#737373]">
+                            +{dayActivities.length - 2} more
+                          </p>
+                        )}
+                      </div>
+                    )}
 
                     {/* Mobile: bottom-left activity dots */}
                     {displayEvents.length > 0 && (

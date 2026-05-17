@@ -184,14 +184,35 @@ function AddonCard({ addon, enabled, positionOptions, selectValue, currentColor,
   );
 }
 
-export function AddonsSettingsScreen() {
+export function AddonsViewToggle({ compactView, onToggle }) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      className={cn(
+        "w-8 h-8 rounded-lg border flex items-center justify-center transition-all duration-200",
+        compactView
+          ? "border-[#2c2c2c] bg-[#e7e7e7] text-[#111]"
+          : "border-[#2c2c2c] bg-[#1e1e1e] text-[#666] hover:text-[#999] hover:bg-[#222]"
+      )}
+      title={compactView ? "Switch to list view" : "Switch to grid view"}
+    >
+      {compactView ? (
+        <LayoutList className="w-4 h-4" />
+      ) : (
+        <LayoutGrid className="w-4 h-4" />
+      )}
+    </button>
+  );
+}
+
+export function AddonsSettingsScreen({ compactView: controlledCompactView }) {
   const { isAddonEnabled, toggleAddon, navPositions, setAddonNavPosition, addonColors, setAddonColor } =
     useAddonRegistry();
   const installedAddons = getInstalledAddons();
 
-  const [compactView, setCompactView] = useState(false);
-  const enabledCount = installedAddons.filter((a) => isAddonEnabled(a.id)).length;
-  const totalCount = installedAddons.length;
+  const [uncontrolledCompactView] = useState(false);
+  const compactView = controlledCompactView ?? uncontrolledCompactView;
 
   const positionOptions = projectNav.map((item, idx) => ({
     value: String(idx),
@@ -207,42 +228,7 @@ export function AddonsSettingsScreen() {
   });
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-start justify-between gap-4 pb-6 border-b border-[#2a2a2a]">
-        <div className="space-y-1.5">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-[#1e1e1e] border border-[#2c2c2c] flex items-center justify-center">
-              <LucidePackagePlus className="w-4.5 h-4.5 text-[#a3a3a3]" strokeWidth={1.8} />
-            </div>
-            <div>
-              <h3 className="text-lg font-medium text-[#e7e7e7]">
-                Add-ons
-              </h3>
-              <p className="text-xs text-[#666]">
-                {totalCount} installed · {enabledCount} active
-              </p>
-            </div>
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={() => setCompactView(!compactView)}
-          className={cn(
-            "w-8 h-8 rounded-lg border flex items-center justify-center transition-all duration-200",
-            compactView
-              ? "border-[#2c2c2c] bg-[#e7e7e7] text-[#111]"
-              : "border-[#2c2c2c] bg-[#1e1e1e] text-[#666] hover:text-[#999] hover:bg-[#222]"
-          )}
-          title={compactView ? "Switch to list view" : "Switch to grid view"}
-        >
-          {compactView ? (
-            <LayoutList className="w-4 h-4" />
-          ) : (
-            <LayoutGrid className="w-4 h-4" />
-          )}
-        </button>
-      </div>
-
+    <div className="space-y-8 border-t border-[#2a2a2a] pt-6">
       {installedAddons.length === 0 ? (
         <div className="rounded-xl border border-dashed border-[#2c2c2c] bg-[#161616] p-12 flex flex-col items-center justify-center gap-3">
           <div className="w-12 h-12 rounded-full bg-[#1e1e1e] border border-[#2c2c2c] flex items-center justify-center">

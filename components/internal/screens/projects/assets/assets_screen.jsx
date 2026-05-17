@@ -10,7 +10,6 @@ import { StorageBreakdownCard } from "./storage_breakdown";
 import { UploadDialog } from "./upload_dialog";
 import { ActivityCard } from "./activity_card";
 import { TopAssetsCard } from "./top_assets_card";
-import { DamCard } from "./dam_card";
 
 export function AssetsScreen() {
   const [uploadOpen, setUploadOpen] = useState(false);
@@ -50,15 +49,14 @@ export function AssetsScreen() {
       <div className="space-y-6 mt-6">
         <StatsRow />
 
-        <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-4">
+        <div>
           <MediaTable />
-          <StorageBreakdownCard />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <ActivityCard />
           <TopAssetsCard />
-          <DamCard />
+          <StorageBreakdownCard />
         </div>
       </div>
     </MainScreenWrapper>

@@ -161,7 +161,7 @@ const SAMPLE_EVENTS = [
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ACTIVITY DATA - March 15-23, 2026 (Demo for activity visualization)
+// ACTIVITY DATA - March 15-23 and May 15-20, 2026 (Demo for activity visualization)
 // ═══════════════════════════════════════════════════════════════════════════
 const SAMPLE_ACTIVITIES = [
   // March 15, 2026 (Sunday)
@@ -244,6 +244,20 @@ const SAMPLE_ACTIVITIES = [
   { timestamp: "2026-03-23T15:00", intensity: 5 },
   { timestamp: "2026-03-23T16:00", intensity: 4 },
   { timestamp: "2026-03-23T17:00", intensity: 3 },
+
+  // May 15-20, 2026 (current-month showcase around May 17)
+  { timestamp: "2026-05-15T09:30", name: "Sprint handoff", type: "planning", intensity: 3 },
+  { timestamp: "2026-05-15T14:00", name: "Asset QA pass", type: "task", intensity: 2 },
+  { timestamp: "2026-05-16T10:00", name: "DAM upload review", type: "meeting", intensity: 4 },
+  { timestamp: "2026-05-16T15:30", name: "Metadata cleanup", type: "work", intensity: 2 },
+  { timestamp: "2026-05-17T09:00", name: "Release readiness check", type: "deadline", intensity: 5 },
+  { timestamp: "2026-05-17T11:30", name: "Design sync", type: "design", intensity: 3 },
+  { timestamp: "2026-05-17T16:00", name: "Stakeholder notes", type: "reminder", intensity: 2 },
+  { timestamp: "2026-05-18T10:30", name: "Preview deployment", type: "milestone", intensity: 4 },
+  { timestamp: "2026-05-18T13:00", name: "Bug triage", type: "task", intensity: 3 },
+  { timestamp: "2026-05-19T09:30", name: "Content audit", type: "work", intensity: 2 },
+  { timestamp: "2026-05-19T15:00", name: "Calendar feedback", type: "meeting", intensity: 3 },
+  { timestamp: "2026-05-20T12:00", name: "Follow-up reminder", type: "reminder", intensity: 1 },
 ];
 
 const MONTHS = [

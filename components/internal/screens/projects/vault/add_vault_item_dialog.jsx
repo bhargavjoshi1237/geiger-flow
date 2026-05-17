@@ -1,7 +1,7 @@
 // filepath: components/internal/screens/projects/vault/add_vault_item_dialog.jsx
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -22,7 +22,22 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Key, Database, Link, Mail, Server, Terminal, Box, Eye, EyeOff, Edit3 } from "lucide-react";
+import {
+  Plus,
+  Key,
+  Database,
+  Link,
+  Mail,
+  Server,
+  Terminal,
+  Box,
+  Eye,
+  EyeOff,
+  Edit3,
+  Fingerprint,
+  LockKeyhole,
+  ShieldCheck,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const VAULT_TYPES = [
@@ -42,40 +57,78 @@ const INITIAL_FORM_STATE = {
   secret: "",
   url: "",
   notes: "",
+  accessSetup: {
+    method: "pin",
+    pin: "",
+    password: "",
+    sessionMinutes: "15",
+  },
 };
+
+const SETUP_METHODS = [
+  {
+    value: "pin",
+    label: "PIN",
+    description: "Fast numeric unlock for this secret",
+    icon: LockKeyhole,
+  },
+  {
+    value: "password",
+    label: "Password",
+    description: "Require a secret access password",
+    icon: Key,
+  },
+  {
+    value: "passkey",
+    label: "Hardware passkey",
+    description: "Use passkey or hardware authenticator",
+    icon: Fingerprint,
+  },
+];
+
+function buildInitialFormState(item) {
+  if (!item) {
+    return {
+      ...INITIAL_FORM_STATE,
+      accessSetup: { ...INITIAL_FORM_STATE.accessSetup },
+    };
+  }
+
+  return {
+    name: item.name || "",
+    type: item.type || "password",
+    secret: item.password || item.apiKey || item.secret || "",
+    url: item.url || "",
+    notes: item.notes || "",
+    accessSetup: {
+      ...INITIAL_FORM_STATE.accessSetup,
+      ...(item.accessSetup || {}),
+      method:
+        item.accessSetup?.method ||
+        item.accessSetup?.methods?.[0] ||
+        INITIAL_FORM_STATE.accessSetup.method,
+    },
+  };
+}
 
 export function AddVaultItemDialog({
   children,
   item = null,
-  open = false,
+  open,
   onOpenChange = () => {},
   onSave = () => {},
 }) {
-  const [formData, setFormData] = useState(INITIAL_FORM_STATE);
+  const [formData, setFormData] = useState(() => buildInitialFormState(item));
   const [showSecret, setShowSecret] = useState(false);
   const [internalOpen, setInternalOpen] = useState(false);
 
   // Use controlled open if provided, otherwise use internal state
-  const isControlled = open !== false;
+  const isControlled = typeof open === "boolean";
   const dialogOpen = isControlled ? open : internalOpen;
   const dialogOnOpenChange = isControlled ? onOpenChange : (open) => {
     setInternalOpen(open);
     onOpenChange(open);
   };
-
-  useEffect(() => {
-    if (item) {
-      setFormData({
-        name: item.name || "",
-        type: item.type || "password",
-        secret: item.password || item.apiKey || item.secret || "",
-        url: item.url || "",
-        notes: item.notes || "",
-      });
-    } else if (!dialogOpen) {
-      setFormData(INITIAL_FORM_STATE);
-    }
-  }, [item, dialogOpen]);
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
@@ -84,23 +137,54 @@ export function AddVaultItemDialog({
     }));
   };
 
+  const selectSetupMethod = (method) => {
+    setFormData((prev) => ({
+      ...prev,
+      accessSetup: {
+        ...prev.accessSetup,
+        method,
+      },
+    }));
+  };
+
+  const handleAccessSetupChange = (field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      accessSetup: {
+        ...prev.accessSetup,
+        [field]: value,
+      },
+    }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    const accessMethod = formData.accessSetup.method || "pin";
     const itemToSave = {
+      ...(item || {}),
       ...formData,
       id: item?.id || null,
+      accessSetup: {
+        ...formData.accessSetup,
+        method: accessMethod,
+        methods: [accessMethod],
+        pin: accessMethod === "pin" ? formData.accessSetup.pin : "",
+        password: accessMethod === "password"
+          ? formData.accessSetup.password
+          : "",
+      },
       // Map secret to appropriate field based on type
       password: formData.type === "password" || formData.type === "database" || formData.type === "smtp" || formData.type === "certificate" || formData.type === "ssh_key" ? formData.secret : "",
       apiKey: formData.type === "api_key" ? formData.secret : "",
       username: "",
     };
     onSave(itemToSave);
-    setFormData(INITIAL_FORM_STATE);
+    setFormData(buildInitialFormState(null));
   };
 
   return (
     <Dialog open={dialogOpen} onOpenChange={dialogOnOpenChange}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+      {children && <DialogTrigger asChild>{children}</DialogTrigger>}
       <DialogContent className="sm:max-w-[520px] max-h-[85vh] overflow-y-auto bg-[#161616] text-[#ededed] border border-[#2a2a2a]">
         <DialogHeader className="mb-2">
           <DialogTitle className="font-semibold flex items-center gap-2.5 text-white">
@@ -202,6 +286,103 @@ export function AddVaultItemDialog({
                 onChange={(e) => handleInputChange("notes", e.target.value)}
                 className="bg-[#1a1a1a] border-[#2a2a2a] text-[#ededed] placeholder:text-[#525252] focus:border-[#3a3a3a] min-h-[80px] resize-none"
               />
+            </div>
+
+            <div className="space-y-3 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-4">
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5 flex size-8 items-center justify-center rounded-lg border border-[#333333] bg-[#202020]">
+                  <ShieldCheck className="size-4 text-[#a3a3a3]" />
+                </div>
+                <div>
+                  <Label className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wide">
+                    Access Secret
+                  </Label>
+                  <p className="mt-1 text-xs leading-5 text-[#737373]">
+                    Configure the single method required to access this secret.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid gap-2">
+                {SETUP_METHODS.map((method) => {
+                  const MethodIcon = method.icon;
+                  const isSelected = formData.accessSetup.method === method.value;
+
+                  return (
+                    <button
+                      key={method.value}
+                      type="button"
+                      onClick={() => selectSetupMethod(method.value)}
+                      className={cn(
+                        "flex items-center gap-3 rounded-lg border px-3 py-2.5 text-left transition-colors",
+                        isSelected
+                          ? "border-[#474747] bg-[#242424] text-white"
+                          : "border-[#2a2a2a] bg-[#161616] text-[#a3a3a3] hover:border-[#3a3a3a]",
+                      )}
+                    >
+                      <MethodIcon className="size-4 shrink-0 text-[#a3a3a3]" />
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-sm font-medium">{method.label}</span>
+                        <span className="block truncate text-xs text-[#737373]">
+                          {method.description}
+                        </span>
+                      </span>
+                      <span
+                        className={cn(
+                          "size-2 rounded-full",
+                          isSelected ? "bg-emerald-400" : "bg-[#3a3a3a]",
+                        )}
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+
+              {formData.accessSetup.method === "pin" && (
+                <div className="space-y-2">
+                  <Label className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wide">
+                    PIN
+                  </Label>
+                  <Input
+                    type="password"
+                    inputMode="numeric"
+                    maxLength={8}
+                    placeholder="4-8 digits"
+                    value={formData.accessSetup.pin}
+                    onChange={(e) => handleAccessSetupChange("pin", e.target.value.replace(/\D/g, ""))}
+                    className="bg-[#161616] border-[#2a2a2a] text-[#ededed] placeholder:text-[#525252] focus:border-[#3a3a3a] h-9"
+                  />
+                </div>
+              )}
+
+              {formData.accessSetup.method === "password" && (
+                <div className="space-y-2">
+                  <Label className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wide">
+                    Password
+                  </Label>
+                  <Input
+                    type="password"
+                    placeholder="Set access password"
+                    value={formData.accessSetup.password}
+                    onChange={(e) => handleAccessSetupChange("password", e.target.value)}
+                    className="bg-[#161616] border-[#2a2a2a] text-[#ededed] placeholder:text-[#525252] focus:border-[#3a3a3a] h-9"
+                  />
+                </div>
+              )}
+
+              <div className="space-y-1">
+                <Label className="text-[11px] font-semibold text-[#737373] uppercase tracking-wide">
+                  Session TTL
+                </Label>
+                <Input
+                  type="number"
+                  min="1"
+                  max="120"
+                  value={formData.accessSetup.sessionMinutes}
+                  onChange={(e) => handleAccessSetupChange("sessionMinutes", e.target.value)}
+                  className="bg-[#161616] border-[#2a2a2a] text-[#ededed] h-8"
+                />
+              </div>
             </div>
           </div>
 

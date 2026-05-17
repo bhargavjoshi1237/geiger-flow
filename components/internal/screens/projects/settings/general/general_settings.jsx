@@ -1,14 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  CardFooter,
-} from "@/components/ui/card";
+import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -21,7 +13,6 @@ import {
   BarChart2,
   Truck,
   Pause,
-  Play,
   BarChart,
 } from "lucide-react";
 import { IconButtonCard } from "@/components/internal/shared/iconbuttoncard";
@@ -29,13 +20,9 @@ import { IconButtonCard } from "@/components/internal/shared/iconbuttoncard";
 export function GeneralSettingsScreen() {
   const { project } = useProject();
   const [copied, setCopied] = useState(false);
-  const [projectName, setProjectName] = useState("");
-
-  useEffect(() => {
-    if (project?.name) {
-      setProjectName(project.name);
-    }
-  }, [project]);
+  const [editedProjectName, setEditedProjectName] = useState(null);
+  const projectName = editedProjectName ?? project?.name ?? "";
+  
 
   const handleCopyId = () => {
     if (project?.id) {
@@ -48,32 +35,32 @@ export function GeneralSettingsScreen() {
   return (
     <div className="space-y-12">
       <div className="space-y-6 my-10">
-       <div className="space-y-2 max-w-xl">
+       <div className="space-y-2 w-full">
               <Label htmlFor="project-name" className="text-foreground">
                 Project Name
               </Label>
               <Input
                 id="project-name"
                 value={projectName}
-                onChange={(e) => setProjectName(e.target.value)}
+                onChange={(e) => setEditedProjectName(e.target.value)}
                 className="bg-background border-border text-foreground focus-visible:ring-ring"
                 placeholder="e.g. My Awesome Project"
               />
               <p className="text-xs text-muted-foreground/70">
-                This is your project's visible name within Geiger Flow.
+                This name appears throughout Geiger Flow.
               </p>
             </div>
 
-            <div className="space-y-2 max-w-xl">
+            <div className="space-y-2 w-full">
               <Label htmlFor="project-id" className="text-foreground">
                 Project ID
               </Label>
-              <div className="flex gap-2">
+              <div className="flex w-full gap-2">
                 <Input
                   id="project-id"
                   value={project?.id || ""}
                   readOnly
-                  className="h-10 bg-background border-border text-muted-foreground focus-visible:ring-0 font-mono text-sm"
+                  className="h-10 flex-1 bg-background border-border text-muted-foreground focus-visible:ring-0 font-mono text-sm"
                 />
                 <Button
                   variant="outline"
@@ -93,10 +80,12 @@ export function GeneralSettingsScreen() {
                 Used when interacting with the Geiger API.
               </p>
             </div>
-               <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
               Save Changes
             </Button>
       </div>
+
+      
 
       <div className="space-y-4">
         <div className="space-y-1.5">

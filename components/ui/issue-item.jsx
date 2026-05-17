@@ -56,8 +56,24 @@ const statusIcons = {
   ),
 };
 
+function IssueSeverityBadge({ severity = "medium", className }) {
+  return (
+    <span
+      className={cn(
+        "text-xs px-2 min-w-[60px] items-center justify-center gap-1.5 inline-flex py-0.5 rounded-md border capitalize",
+        severityColors[severity] || severityColors.medium,
+        className,
+      )}
+    >
+      {severityIcons[severity] || severityIcons.medium}
+      <span>{severity}</span>
+    </span>
+  );
+}
+
 function IssueItem({
   className,
+  sheetContentClassName,
   title,
   severity = "medium",
   status = "open",
@@ -97,20 +113,12 @@ function IssueItem({
                 {dueDate}
               </span>
             )}
-            <span
-              className={cn(
-                "text-xs px-2 min-w-[60px] items-center justify-center gap-1.5 flex py-0.5 rounded-md border capitalize",
-                severityColors[severity] || severityColors.medium
-              )}
-            >
-              {severityIcons[severity]}
-              <p>{severity}</p>
-            </span>
+            <IssueSeverityBadge severity={severity} />
           </div>
         </div>
       </SheetTrigger>
       {children && (
-        <SheetContent side="right">
+        <SheetContent side="right" className={sheetContentClassName}>
           <SheetTitle className="sr-only">{title}</SheetTitle>
           {children}
         </SheetContent>
@@ -119,4 +127,4 @@ function IssueItem({
   );
 }
 
-export { IssueItem, severityColors };
+export { IssueItem, IssueSeverityBadge, severityColors };

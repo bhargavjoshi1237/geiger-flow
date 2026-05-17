@@ -6,8 +6,8 @@ import {
   Settings,
   ShieldCheck,
   Users,
+  UsersRound,
   Settings2,
-  Link,
   BarChart3,
   Sliders,
   CheckSquare,
@@ -24,6 +24,7 @@ import {
   LucidePackagePlus,
   Waypoints,
   Radio,
+  Link2,
 } from "lucide-react";
 
 export const projectNav = [
@@ -41,6 +42,7 @@ export const projectNav = [
   { title: "Assets", icon: LucideFileImage },
   { title: "Logs", icon: Activity },
   { title: "Team", icon: Users, badge: "7" },
+  { title: "Resource Allocation", icon: UsersRound },
   { title: "Vault", icon: Key },
   { title: "Security", icon: ShieldCheck },
   { title: "Settings", icon: Settings, hasSubmenu: true },
@@ -48,7 +50,7 @@ export const projectNav = [
 
 export const settingsNav = [
   { title: "General", icon: Settings2 },
-  { title: "Connectivity", icon: Link },
+  { title: "Connections", icon: Link2 },
   { title: "Customs", icon: SlidersHorizontal },
   { title: "Add-ons", icon: LucidePackagePlus },
   { title: "Usage", icon: BarChart3 },

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -17,6 +17,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
@@ -87,6 +88,25 @@ const COLUMN_ICON = {
   at_risk: AlertTriangle,
   completed: CheckCircle2,
 };
+
+function createColumnKey(label, columns) {
+  const base = label
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+  const seed = base || "custom_column";
+  const usedKeys = new Set(columns.map((col) => col.key));
+  let key = seed;
+  let index = 2;
+
+  while (usedKeys.has(key)) {
+    key = `${seed}_${index}`;
+    index += 1;
+  }
+
+  return key;
+}
 
 function GoalCard({ goal, isDragOverlay, onEdit, onDelete, onDuplicate }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
@@ -260,9 +280,9 @@ function GoalCard({ goal, isDragOverlay, onEdit, onDelete, onDuplicate }) {
   );
 }
 
-function KanbanColumn({ statusKey, goals, objective, onEdit, onDelete, onDuplicate, onAddGoal }) {
-  const config = STATUS_CONFIG.find((s) => s.key === statusKey);
-  const Icon = COLUMN_ICON[statusKey];
+function KanbanColumn({ column, goals, onEdit, onDelete, onDuplicate, onAddGoal }) {
+  const statusKey = column.key;
+  const Icon = COLUMN_ICON[statusKey] || Circle;
   const { setNodeRef, isOver } = useDroppable({ id: statusKey });
 
   return (
@@ -270,14 +290,14 @@ function KanbanColumn({ statusKey, goals, objective, onEdit, onDelete, onDuplica
       ref={setNodeRef}
       className={cn(
         "flex flex-col bg-[#131313] border border-[#2a2a2a] border-t-2 rounded-xl min-w-[280px] flex-1 min-h-0 transition-colors",
-        COLUMN_ACCENT[statusKey],
+        COLUMN_ACCENT[statusKey] || "border-t-[#525252]",
         isOver && "bg-[#171717] border-[#3a3a3a]"
       )}
     >
       <div className="flex items-center justify-between px-4 py-3 border-b border-[#222]">
         <div className="flex items-center gap-2">
           <Icon className="w-3.5 h-3.5 text-[#737373]" />
-          <span className="text-xs font-medium text-[#a3a3a3]">{config?.label}</span>
+          <span className="text-xs font-medium text-[#a3a3a3]">{column.label}</span>
           <span className="text-[10px] text-[#3a3a3a] bg-[#1a1a1a] rounded-full px-1.5 py-0.5 tabular-nums">
             {goals.length}
           </span>
@@ -314,10 +334,49 @@ function KanbanColumn({ statusKey, goals, objective, onEdit, onDelete, onDuplica
   );
 }
 
+function AddColumnCard({ onAddColumn }) {
+  const [columnName, setColumnName] = useState("");
+  const trimmedName = columnName.trim();
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    if (!trimmedName) return;
+    onAddColumn(trimmedName);
+    setColumnName("");
+  }
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col gap-3 bg-[#101010] border border-dashed border-[#2a2a2a] rounded-xl min-w-[280px] flex-1 p-4 self-stretch"
+    >
+      <div className="flex items-center gap-2 text-[#737373]">
+        <Plus className="w-3.5 h-3.5" />
+        <span className="text-xs font-medium">New Column</span>
+      </div>
+      <Input
+        value={columnName}
+        onChange={(event) => setColumnName(event.target.value)}
+        placeholder="Column name"
+        className="bg-[#1a1a1a] border-[#2a2a2a] text-[#e7e7e7] placeholder:text-[#525252] focus-visible:ring-1 focus-visible:ring-[#3a3a3a] h-9 text-sm"
+      />
+      <Button
+        type="submit"
+        disabled={!trimmedName}
+        className="h-8 bg-white text-black hover:bg-[#e7e7e7] disabled:bg-[#242424] disabled:text-[#525252]"
+      >
+        <Plus className="w-3.5 h-3.5 mr-2" />
+        Add Column
+      </Button>
+    </form>
+  );
+}
+
 export function ObjectiveKanban({ objective, onBack }) {
   const [goals, setGoals] = useState(
     (objective.goals || []).map((g) => ({ ...g }))
   );
+  const [columns, setColumns] = useState(STATUS_CONFIG);
 
   const [activeId, setActiveId] = useState(null);
   const [editGoal, setEditGoal] = useState(null);
@@ -372,9 +431,20 @@ export function ObjectiveKanban({ objective, onBack }) {
     setAddDialogStatus(null);
   }
 
+  function handleAddColumn(label) {
+    setColumns((prev) => [
+      ...prev,
+      {
+        key: createColumnKey(label, prev),
+        label,
+        color: "custom",
+      },
+    ]);
+  }
+
   const goalsByColumn = useMemo(() => {
     const grouped = {};
-    STATUS_CONFIG.forEach((col) => {
+    columns.forEach((col) => {
       grouped[col.key] = [];
     });
     goals.forEach((g) => {
@@ -384,7 +454,12 @@ export function ObjectiveKanban({ objective, onBack }) {
       grouped[g.status].push(g);
     });
     return grouped;
-  }, [goals]);
+  }, [columns, goals]);
+
+  const statusOptions = useMemo(
+    () => columns.map((col) => ({ value: col.key, label: col.label })),
+    [columns]
+  );
 
   const activeGoal = useMemo(
     () => goals.find((g) => g.id === activeId),
@@ -409,7 +484,7 @@ export function ObjectiveKanban({ objective, onBack }) {
     if (!over) return;
 
     const activeCol = findColumnForGoal(active.id);
-    const overCol = STATUS_CONFIG.some((s) => s.key === over.id)
+    const overCol = columns.some((s) => s.key === over.id)
       ? over.id
       : findColumnForGoal(over.id);
 
@@ -429,7 +504,7 @@ export function ObjectiveKanban({ objective, onBack }) {
     if (!over) return;
 
     const activeCol = findColumnForGoal(active.id);
-    const overCol = STATUS_CONFIG.some((s) => s.key === over.id)
+    const overCol = columns.some((s) => s.key === over.id)
       ? over.id
       : findColumnForGoal(over.id);
 
@@ -548,18 +623,18 @@ export function ObjectiveKanban({ objective, onBack }) {
           onDragEnd={handleDragEnd}
         >
           <div className="flex gap-4 flex-1 overflow-x-auto py-4 min-h-0 items-stretch">
-            {STATUS_CONFIG.map((col) => (
+            {columns.map((col) => (
               <KanbanColumn
                 key={col.key}
-                statusKey={col.key}
+                column={col}
                 goals={goalsByColumn[col.key] || []}
-                objective={objective}
                 onEdit={handleEditGoal}
                 onDelete={handleDeleteGoal}
                 onDuplicate={handleDuplicateGoal}
                 onAddGoal={handleAddGoal}
               />
             ))}
+            <AddColumnCard onAddColumn={handleAddColumn} />
           </div>
 
           <DragOverlay>
@@ -580,6 +655,7 @@ export function ObjectiveKanban({ objective, onBack }) {
           setEditDialogOpen(open);
           if (!open) setEditGoal(null);
         }}
+        statusOptions={statusOptions}
       />
 
       <NewGoalDialog
@@ -589,6 +665,7 @@ export function ObjectiveKanban({ objective, onBack }) {
           setAddDialogOpen(open);
           if (!open) setAddDialogStatus(null);
         }}
+        statusOptions={statusOptions}
       />
     </MainScreenWrapper>
   );

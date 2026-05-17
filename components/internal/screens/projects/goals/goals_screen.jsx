@@ -487,6 +487,10 @@ export function GoalsScreen() {
   const [goals, setGoals] = useState(MOCK_GOALS);
   const [editGoal, setEditGoal] = useState(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const goalColumns = [
+    goals.filter((_, index) => index % 2 === 0),
+    goals.filter((_, index) => index % 2 === 1),
+  ];
 
   const handleCreateGoal = async (newGoal) => {
     setGoals((prev) => [newGoal, ...prev]);
@@ -550,7 +554,7 @@ export function GoalsScreen() {
         <div>
           <h1 className="text-3xl font-bold text-[#e7e7e7]">Goals</h1>
           <p className="text-[#a3a3a3] mt-1">
-            Define measurable targets & key business goals for this project.
+            Define measurable targets & key business goals for this project. You can have max 6 goals at a time.
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -592,7 +596,8 @@ export function GoalsScreen() {
       </div>
 
       {view === "grid" ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <>
+        <div className="space-y-4 lg:hidden">
           {goals.map((goal) => (
             <GoalCard
               key={goal.id}
@@ -604,6 +609,23 @@ export function GoalsScreen() {
             />
           ))}
         </div>
+        <div className="hidden lg:grid lg:grid-cols-2 gap-4 items-start">
+          {goalColumns.map((columnGoals, columnIndex) => (
+            <div key={columnIndex} className="space-y-4">
+              {columnGoals.map((goal) => (
+                <GoalCard
+                  key={goal.id}
+                  goal={goal}
+                  onEdit={handleEditGoal}
+                  onDelete={handleDeleteGoal}
+                  onDuplicate={handleDuplicateGoal}
+                  onChangeStatus={handleChangeStatus}
+                />
+              ))}
+            </div>
+          ))}
+        </div>
+        </>
       ) : (
         <div className="space-y-2">
           {goals.map((goal) => (

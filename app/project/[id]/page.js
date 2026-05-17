@@ -16,6 +16,7 @@ import { GroundingScreen } from "@/components/internal/screens/projects/groundin
 import { GoalsScreen } from "@/components/internal/screens/projects/goals/goals_screen";
 import { ReportingScreen } from "@/components/internal/screens/reporting/reporting_screen";
 import { TeamScreen } from "@/components/internal/screens/projects/team/team";
+import { ResourceAllocationScreen } from "@/components/internal/screens/projects/resource_allocation/resource_allocation_screen";
 import { MilestonesScreen } from "@/components/internal/screens/projects/milestones/milestones_screen";
 import { ProjectionsScreen } from "@/components/internal/screens/projects/projections/projections_screen";
 import { SecurityScreen } from "@/components/internal/screens/projects/security/security_screen";
@@ -31,6 +32,7 @@ import { getAddonScreens, getAddonNavItems } from "@/addons/registry";
 import "@/addons/sql";
 import "@/addons/project-plus";
 import "@/addons/forms";
+import "@/addons/credited-resources";
 import { useEffect } from "react";
 
 function ProjectLayoutContent({ id }) {
@@ -102,6 +104,8 @@ function ProjectLayoutContent({ id }) {
         return <MilestonesScreen />;
       case "Team":
         return <TeamScreen />;
+      case "Resource Allocation":
+        return <ResourceAllocationScreen />;
       case "Vault":
         return <VaultScreen />;
       case "Assets":

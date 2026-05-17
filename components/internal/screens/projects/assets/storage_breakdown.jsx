@@ -3,9 +3,7 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import {
-  HardDrive, ShieldCheck, Zap, Calendar, BarChart3, Info,
-} from "lucide-react";
+import { HardDrive, Zap } from "lucide-react";
 import { storageBreakdown } from "./data";
 
 export function StorageBreakdownCard() {
@@ -22,25 +20,27 @@ export function StorageBreakdownCard() {
           <HardDrive className="w-4 h-4 text-[#525252]" />
         </div>
       </CardHeader>
-      <CardContent className="flex flex-col justify-between h-full">
-       <div className="space-y-3">
-         <Progress value={68} className="h-2 text-[#a3a3a3]" />
-        {storageBreakdown.map((item) => (
-          <div key={item.type} className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className={"w-2 h-2 rounded-full " + item.color} />
-              <span className="text-sm text-[#a3a3a3]">{item.type}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-[#e7e7e7]">{item.used}</span>
-              <span className="text-xs text-[#525252] w-8 text-right">{item.percentage}%</span>
-            </div>
+      <CardContent className="flex h-full flex-col justify-between gap-6">
+        <div className="space-y-4">
+          <Progress value={68} className="h-2 text-[#a3a3a3]" />
+          <div className="space-y-3">
+            {storageBreakdown.map((item) => (
+              <div key={item.type} className="flex items-center justify-between gap-4">
+                <div className="flex min-w-0 items-center gap-2">
+                  <div className={"w-2 h-2 shrink-0 rounded-full " + item.color} />
+                  <span className="truncate text-sm text-[#a3a3a3]">{item.type}</span>
+                </div>
+                <div className="flex shrink-0 items-center gap-3">
+                  <span className="text-sm text-[#e7e7e7]">{item.used}</span>
+                  <span className="w-8 text-right text-xs text-[#525252]">{item.percentage}%</span>
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
-       </div>
+        </div>
 
-        <div className="border-t border-[#2a2a2a]">
-          <div className="pt-3 mt-1 flex-col items-start justify-between gap-2">
+        <div className="border-t border-[#2a2a2a] pt-4">
+          <div className="flex-col items-start justify-between gap-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Zap className="w-3.5 h-3.5 text-[#525252]" />

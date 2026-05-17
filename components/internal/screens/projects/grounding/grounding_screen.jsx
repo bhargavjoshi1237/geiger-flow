@@ -21,6 +21,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -219,66 +220,71 @@ function ChannelButton({ channel, active, collapsed, onClick }) {
 }
 
 function ChannelRail({ selectedChannel, collapsed, onToggleCollapsed, onSelectChannel }) {
+  if (collapsed) {
+    return (
+      <aside className="hidden h-full w-10 shrink-0 xl:flex xl:flex-col xl:items-center">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={onToggleCollapsed}
+          className="h-9 w-9 rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] text-[#a3a3a3] shadow-sm hover:bg-[#242424] hover:text-white"
+          title="Expand channels"
+          aria-label="Expand channels"
+        >
+          <PanelLeftOpen className="h-4 w-4" />
+        </Button>
+      </aside>
+    );
+  }
+
   return (
     <aside
-      className={cn(
-        "hidden h-full shrink-0 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] transition-[width] duration-200 xl:flex xl:flex-col",
-        collapsed ? "w-[64px]" : "w-[286px]",
-      )}
+      className="hidden h-full w-[286px] shrink-0 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] transition-[width] duration-200 xl:flex xl:flex-col"
     >
-      <div className={cn("shrink-0 border-b border-[#2a2a2a]", collapsed ? "p-2" : "p-4")}>
-        <div className={cn("flex items-center gap-3", collapsed ? "justify-center" : "justify-between")}>
-          {!collapsed ? (
-            <div>
-              <h2 className="text-sm font-semibold text-[#ededed]">Channels</h2>
-              <p className="mt-0.5 text-xs text-[#737373]">Project-wide context</p>
-            </div>
-          ) : null}
+      <div className="shrink-0 border-b border-[#2a2a2a] p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h2 className="text-sm font-semibold text-[#ededed]">Channels</h2>
+            <p className="mt-0.5 text-xs text-[#737373]">Project-wide context</p>
+          </div>
           <Button
             type="button"
             variant="ghost"
             size="icon"
             onClick={onToggleCollapsed}
             className="h-8 w-8 text-[#737373] hover:bg-[#242424] hover:text-white"
-            title={collapsed ? "Expand channels" : "Collapse channels"}
+            title="Collapse channels"
+            aria-label="Collapse channels"
           >
-            {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+            <PanelLeftClose className="h-4 w-4" />
           </Button>
         </div>
-        {!collapsed ? (
-          <div className="relative mt-4">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#737373]" />
-            <input
-              placeholder="Search channels..."
-              className="h-9 w-full rounded-md border border-[#333333] bg-[#202020] py-2 pl-9 pr-3 text-sm text-[#ededed] outline-none placeholder:text-[#737373] focus:border-[#474747] focus:ring-2 focus:ring-[#333333]/50"
-            />
-          </div>
-        ) : null}
+        <div className="relative mt-4">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#737373]" />
+          <input
+            placeholder="Search channels..."
+            className="h-9 w-full rounded-md border border-[#333333] bg-[#202020] py-2 pl-9 pr-3 text-sm text-[#ededed] outline-none placeholder:text-[#737373] focus:border-[#474747] focus:ring-2 focus:ring-[#333333]/50"
+          />
+        </div>
       </div>
-      <div
-        className={cn(
-          "min-h-0 flex-1 space-y-1 overflow-y-auto p-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
-          collapsed && "flex flex-col items-center",
-        )}
-      >
+      <div className="min-h-0 flex-1 space-y-1 overflow-y-auto p-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {CHANNELS.map((channel) => (
           <ChannelButton
             key={channel.id}
             channel={channel}
             active={selectedChannel === channel.id}
-            collapsed={collapsed}
+            collapsed={false}
             onClick={() => onSelectChannel(channel.id)}
           />
         ))}
       </div>
-      {!collapsed ? (
-        <div className="border-t border-[#2a2a2a] p-2">
-          <Button variant="ghost" className="h-8 w-full justify-start gap-2 text-xs text-[#737373] hover:bg-[#242424] hover:text-white">
-            <Plus className="h-3.5 w-3.5" />
-            Add channel
-          </Button>
-        </div>
-      ) : null}
+      <div className="border-t border-[#2a2a2a] p-2">
+        <Button variant="ghost" className="h-8 w-full justify-start gap-2 text-xs text-[#737373] hover:bg-[#242424] hover:text-white">
+          <Plus className="h-3.5 w-3.5" />
+          Add channel
+        </Button>
+      </div>
     </aside>
   );
 }
@@ -320,9 +326,11 @@ function MessageItem({ message }) {
   return (
     <article className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] px-4 py-3 transition-colors hover:border-[#3a3a3a]">
       <div className="flex items-start gap-3">
-        <div className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[11px] font-bold", toneClasses[message.tone])}>
-          {message.initials}
-        </div>
+        <Avatar className="h-8 w-8 rounded-md">
+          <AvatarFallback className={cn("rounded-md text-[11px] font-bold", toneClasses[message.tone])}>
+            {message.initials}
+          </AvatarFallback>
+        </Avatar>
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 items-start justify-between gap-3">
             <div className="flex min-w-0 items-center gap-2">
@@ -394,15 +402,48 @@ function MessageItem({ message }) {
 
 export function GroundingScreen() {
   const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState(MESSAGES);
   const [selectedChannel, setSelectedChannel] = useState(CHANNELS[0].id);
   const [channelsCollapsed, setChannelsCollapsed] = useState(false);
   const [mode, setMode] = useState("message");
 
   const activeChannel = CHANNELS.find((channel) => channel.id === selectedChannel) ?? CHANNELS[0];
   const visibleMessages = useMemo(
-    () => MESSAGES.filter((messageItem) => messageItem.channelId === selectedChannel),
-    [selectedChannel],
+    () => messages.filter((messageItem) => messageItem.channelId === selectedChannel),
+    [messages, selectedChannel],
   );
+
+  const handleSendMessage = () => {
+    const trimmedMessage = message.trim();
+
+    if (!trimmedMessage || activeChannel.locked) {
+      return;
+    }
+
+    const sentAt = new Date().toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+    });
+
+    setMessages((currentMessages) => [
+      ...currentMessages,
+      {
+        id: `msg_${Date.now()}`,
+        channelId: activeChannel.id,
+        author: "You",
+        role: "Project Member",
+        initials: "YO",
+        time: sentAt,
+        tone: "emerald",
+        type: mode === "broadcast" ? "Broadcast" : "Message",
+        body: trimmedMessage,
+        replies: 0,
+        acknowledgements: 0,
+        pinned: false,
+      },
+    ]);
+    setMessage("");
+  };
 
   return (
     <MainScreenWrapper className="text-[#e7e7e7]">
@@ -430,7 +471,7 @@ export function GroundingScreen() {
         </div>
       </div>
 
-      <div className="flex h-[calc(100dvh-250px)] min-h-[500px] gap-4">
+      <div className="relative flex h-[calc(100dvh-250px)] min-h-[500px] gap-4">
         <ChannelRail
           selectedChannel={selectedChannel}
           collapsed={channelsCollapsed}
@@ -447,37 +488,23 @@ export function GroundingScreen() {
             ))}
           </section>
 
-          <section className="mt-3 shrink-0">
-            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center rounded-lg border border-[#2a2a2a] bg-[#202020] p-0.5">
-                {["message", "decision", "broadcast"].map((item) => (
-                  <Button
-                    key={item}
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setMode(item)}
-                    className={cn(
-                      "h-7 rounded-md px-3 text-xs capitalize",
-                      mode === item
-                        ? "bg-[#2a2a2a] text-white"
-                        : "text-[#737373] hover:bg-transparent hover:text-[#a3a3a3]",
-                    )}
-                  >
-                    {item}
-                  </Button>
-                ))}
-              </div>
-              <Button className="h-8 bg-white text-sm text-black hover:bg-[#e7e7e7]" disabled={!message.trim() || activeChannel.locked}>
-                <Send className="mr-2 h-2 w-2" />
-                <p className="text-sm">Send</p>
-              </Button>
-            </div>
+          <section className="mt-3 shrink-0 flex gap-3">
             <Textarea
               value={message}
               onChange={(event) => setMessage(event.target.value)}
               placeholder={`Write a ${mode} for ${activeChannel.name}...`}
-              className="min-h-[112px] resize-none border-[#333333] bg-[#202020] text-[#ededed] placeholder:text-[#737373]"
+              className="min-h-[50px] resize-none border-[#333333] bg-[#202020] text-[#ededed] placeholder:text-[#737373]"
             />
+             <div className="flex flex-wrap items-center justify-between ">
+              <Button
+                type="button"
+                className="h-full bg-white text-sm text-black hover:bg-[#e7e7e7]"
+                disabled={!message.trim() || activeChannel.locked}
+                onClick={handleSendMessage}
+              >
+                <Send className="h-2 w-2" />
+                </Button>
+            </div>
           </section>
         </main>
 

@@ -22,10 +22,7 @@ export function DamCard() {
           <Package className="w-4 h-4 text-[#525252]" />
         </div>
       </CardHeader>
-      <CardContent className="flex flex-col gap-6">
-        <p className="text-sm text-[#a3a3a3]">
-          Open the full DAM for versioning, AI tagging, bulk actions, and granular access controls.
-        </p>
+      <CardContent className="flex flex-col gap-4">
         <Button className="w-full bg-white text-black hover:bg-[#e7e7e7]" asChild>
           <a href="#">
             <ExternalLink className="w-4 h-4 mr-2" />

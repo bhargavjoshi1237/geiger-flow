@@ -65,7 +65,7 @@ function SettingRow({
           </p>
         )}
       </div>
-      <div className="flex-1 flex items-center gap-3">{children}</div>
+      <div className="flex-1 flex items-center justify-end gap-3">{children}</div>
     </div>
   );
 }
@@ -204,19 +204,6 @@ export function AdvancedSettingsScreen() {
 
   return (
     <div className="space-y-12">
-      <div className="space-y-1.5">
-        <h3 className="text-xl font-medium text-foreground">
-          Advanced
-        </h3>
-        <p className="text-sm text-muted-foreground">
-          Configure security, webhooks, environment variables, and advanced
-          project controls for{" "}
-          <span className="text-foreground font-medium">
-            {project?.name || "this project"}
-          </span>
-        </p>
-      </div>
-
       <div className="space-y-4">
         <div className="space-y-1">
           <h3 className="text-lg font-medium text-foreground">
@@ -228,7 +215,8 @@ export function AdvancedSettingsScreen() {
         </div>
 
         <Card className="bg-[#181818] border-[#2c2c2c] text-[#e7e7e7] rounded-xl overflow-hidden shadow-sm">
-          <SettingRow
+       <div className="-my-6" >
+           <SettingRow
             label="Project Visibility"
             description="Control who can discover and access this project"
           >
@@ -298,6 +286,7 @@ export function AdvancedSettingsScreen() {
               )}
             </div>
           </SettingRow>
+       </div>
         </Card>
       </div>
 
@@ -312,9 +301,10 @@ export function AdvancedSettingsScreen() {
         </div>
 
         <Card className="bg-[#181818] border-[#2c2c2c] text-[#e7e7e7] rounded-xl overflow-hidden shadow-sm">
-          <div className="p-5 space-y-0">
-            <ToggleRow
-              label="Audit Logging"
+          <div className="-my-6">
+            <div className=" ">
+              <ToggleRow
+                label="Audit Logging"
               description="Log all API requests, mutations, and access events"
               checked={auditLogging}
               onCheckedChange={setAuditLogging}
@@ -337,6 +327,7 @@ export function AdvancedSettingsScreen() {
               checked={requestSigning}
               onCheckedChange={setRequestSigning}
             />
+          </div>
           </div>
         </Card>
 
@@ -402,8 +393,9 @@ export function AdvancedSettingsScreen() {
         </div>
 
         <Card className="bg-[#181818] border-[#2c2c2c] text-[#e7e7e7] rounded-xl overflow-hidden shadow-sm">
-          <WebhookItem
-            name="CI/CD Pipeline"
+          <div className="-my-6">
+            <WebhookItem
+              name="CI/CD Pipeline"
             url="https://api.github.com/repos/acme/project/dispatches"
             events={["push", "deploy"]}
             status="active"
@@ -434,6 +426,7 @@ export function AdvancedSettingsScreen() {
               Add Webhook
             </Button>
           </div>
+          </div>
         </Card>
       </div>
 
@@ -446,10 +439,10 @@ export function AdvancedSettingsScreen() {
             Manage secrets and configuration for your project.
           </p>
         </div>
-
         <Card className="bg-[#181818] border-[#2c2c2c] text-[#e7e7e7] rounded-xl overflow-hidden shadow-sm">
-          <EnvVarItem
-            name="DATABASE_URL"
+          <div className="-my-6">
+            <EnvVarItem
+              name="DATABASE_URL"
             value="postgresql://db.xxx.supabase.co:5432/postgres"
             isSecret={true}
           />
@@ -485,6 +478,7 @@ export function AdvancedSettingsScreen() {
               <ExternalLink className="w-3 h-3 mr-1.5" />
               Add Variable
             </Button>
+          </div>
           </div>
         </Card>
       </div>
@@ -575,9 +569,9 @@ export function AdvancedSettingsScreen() {
             Irreversible and destructive actions.
           </p>
         </div>
-
         <Card className="bg-[#181818] border border-red-500/20 text-[#e7e7e7] rounded-xl overflow-hidden shadow-sm">
-          <div className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="-my-6">
+            <div className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-start gap-3">
               <div className="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center shrink-0 mt-0.5">
                 <RotateCcw className="w-4 h-4" strokeWidth={1.8} />
@@ -624,6 +618,7 @@ export function AdvancedSettingsScreen() {
               <Trash2 className="w-3.5 h-3.5 mr-1.5" />
               Delete Project
             </Button>
+          </div>
           </div>
         </Card>
       </div>

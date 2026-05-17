@@ -212,18 +212,6 @@ export function EnterpriseSettingsScreen() {
 
   return (
     <div className="space-y-12">
-      <div className="space-y-1.5">
-        <h3 className="text-xl font-medium text-foreground">
-          Enterprise
-        </h3>
-        <p className="text-sm text-muted-foreground">
-          Manage SSO, compliance, security policies, and audit controls for{" "}
-          <span className="text-foreground font-medium">
-            {project?.name || "this project"}
-          </span>
-        </p>
-      </div>
-
       <div className="bg-[#181818] border border-[#2c2c2c] rounded-2xl p-5 shadow-sm">
         <div className="flex items-start gap-3">
           <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 text-primary flex items-center justify-center shrink-0 mt-0.5">
@@ -256,7 +244,7 @@ export function EnterpriseSettingsScreen() {
         </div>
 
         <Card className="bg-[#181818] border-[#2c2c2c] text-[#e7e7e7] rounded-xl overflow-hidden shadow-sm">
-          <div className="p-5 space-y-0">
+          <div className="-my-6">
             <ToggleRow
               label="Single Sign-On (SSO)"
               description="Require SSO authentication for all project members"
@@ -294,68 +282,7 @@ export function EnterpriseSettingsScreen() {
         </div>
       </div>
 
-      <div className="space-y-4">
-        <div className="space-y-1">
-          <h3 className="text-lg font-medium text-foreground">
-            Compliance
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            Regulatory compliance and certification status.
-          </p>
-        </div>
-
-        <Card className="bg-[#181818] border-[#2c2c2c] text-[#e7e7e7] rounded-xl overflow-hidden shadow-sm">
-          <ComplianceItem
-            icon={ShieldCheck}
-            title="SOC 2 Type II"
-            status="compliant"
-            lastAudit="Jan 15, 2026"
-            details="Trust service criteria: Security, Availability, Confidentiality"
-          />
-          <ComplianceItem
-            icon={Scale}
-            title="GDPR"
-            status="compliant"
-            lastAudit="Dec 20, 2025"
-            details="Data processing agreement active · DPO: compliance@geigerflow.dev"
-          />
-          <ComplianceItem
-            icon={FileCheck}
-            title="HIPAA"
-            status="verified"
-            lastAudit="Nov 8, 2025"
-            details="BAA in place · PHI encryption enabled"
-          />
-          <ComplianceItem
-            icon={Lock}
-            title="ISO 27001"
-            status="compliant"
-            lastAudit="Oct 1, 2025"
-            details="Information Security Management System certified"
-          />
-          <ComplianceItem
-            icon={Shield}
-            title="PCI DSS"
-            status="in review"
-            lastAudit="Mar 22, 2026"
-            details="Self-assessment questionnaire submitted · awaiting approval"
-          />
-          <div className="py-3 px-5 flex items-center justify-between bg-[#161616]/50">
-            <span className="text-[12px] text-[#555]">
-              4 compliant &middot; 1 in review
-            </span>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 text-[12px] text-[#a3a3a3] hover:text-[#e7e7e7] hover:bg-[#2c2c2c]"
-            >
-              <FileText className="w-3 h-3 mr-1.5" />
-              View Certificates
-            </Button>
-          </div>
-        </Card>
-      </div>
-
+   
       <div className="space-y-4">
         <div className="space-y-1">
           <h3 className="text-lg font-medium text-foreground">
@@ -366,8 +293,8 @@ export function EnterpriseSettingsScreen() {
           </p>
         </div>
 
-        <Card className="bg-[#181818] border-[#2c2c2c] text-[#e7e7e7] rounded-xl overflow-hidden shadow-sm">
-          <div className="p-5 space-y-0">
+        <Card className="bg-[#181818]  border-[#2c2c2c] text-[#e7e7e7] rounded-xl overflow-hidden shadow-sm">
+          <div className="-my-6">
             <ToggleRow
               label="Encryption at Rest"
               description="AES-256 encryption for all stored data"
@@ -460,7 +387,8 @@ export function EnterpriseSettingsScreen() {
         </div>
 
         <Card className="bg-[#181818] border-[#2c2c2c] text-[#e7e7e7] rounded-xl overflow-hidden shadow-sm">
-          <AuditLogItem
+         <div className="-my-6">
+           <AuditLogItem
             action="enabled SSO for project"
             user="bhargavjoshi"
             target="SAML 2.0 provider configuration updated"
@@ -515,74 +443,11 @@ export function EnterpriseSettingsScreen() {
               <ChevronRight className="w-3 h-3 ml-1" />
             </Button>
           </div>
+         </div>
         </Card>
       </div>
 
-      <div className="space-y-4">
-        <div className="space-y-1">
-          <h3 className="text-lg font-medium text-foreground">
-            Enterprise Resources
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            Documentation, support, and administrative tools.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-[#181818] border border-[#2c2c2c] rounded-xl p-5 shadow-sm hover:border-[#3c3c3c] transition-all duration-300 cursor-pointer group">
-            <div className="flex items-center gap-2.5 mb-3">
-              <div className="w-8 h-8 rounded-lg bg-[#2c2c2c] border border-[#3c3c3c] text-[#a3a3a3] flex items-center justify-center">
-                <FileText className="w-4 h-4" strokeWidth={1.8} />
-              </div>
-              <span className="text-[13px] font-medium text-[#a3a3a3] group-hover:text-[#e7e7e7] transition-colors">
-                API Docs
-              </span>
-            </div>
-            <p className="text-[11px] text-[#555] leading-relaxed">
-              Enterprise API reference and authentication guides.
-            </p>
-          </div>
-          <div className="bg-[#181818] border border-[#2c2c2c] rounded-xl p-5 shadow-sm hover:border-[#3c3c3c] transition-all duration-300 cursor-pointer group">
-            <div className="flex items-center gap-2.5 mb-3">
-              <div className="w-8 h-8 rounded-lg bg-[#2c2c2c] border border-[#3c3c3c] text-[#a3a3a3] flex items-center justify-center">
-                <Network className="w-4 h-4" strokeWidth={1.8} />
-              </div>
-              <span className="text-[13px] font-medium text-[#a3a3a3] group-hover:text-[#e7e7e7] transition-colors">
-                SSO Setup Guide
-              </span>
-            </div>
-            <p className="text-[11px] text-[#555] leading-relaxed">
-              Step-by-step guide for configuring SAML and OIDC.
-            </p>
-          </div>
-          <div className="bg-[#181818] border border-[#2c2c2c] rounded-xl p-5 shadow-sm hover:border-[#3c3c3c] transition-all duration-300 cursor-pointer group">
-            <div className="flex items-center gap-2.5 mb-3">
-              <div className="w-8 h-8 rounded-lg bg-[#2c2c2c] border border-[#3c3c3c] text-[#a3a3a3] flex items-center justify-center">
-                <Scale className="w-4 h-4" strokeWidth={1.8} />
-              </div>
-              <span className="text-[13px] font-medium text-[#a3a3a3] group-hover:text-[#e7e7e7] transition-colors">
-                Compliance Hub
-              </span>
-            </div>
-            <p className="text-[11px] text-[#555] leading-relaxed">
-              Download certificates, BAA, DPA, and audit reports.
-            </p>
-          </div>
-          <div className="bg-[#181818] border border-[#2c2c2c] rounded-xl p-5 shadow-sm hover:border-[#3c3c3c] transition-all duration-300 cursor-pointer group">
-            <div className="flex items-center gap-2.5 mb-3">
-              <div className="w-8 h-8 rounded-lg bg-[#2c2c2c] border border-[#3c3c3c] text-[#a3a3a3] flex items-center justify-center">
-                <UserCog className="w-4 h-4" strokeWidth={1.8} />
-              </div>
-              <span className="text-[13px] font-medium text-[#a3a3a3] group-hover:text-[#e7e7e7] transition-colors">
-                Contact Sales
-              </span>
-            </div>
-            <p className="text-[11px] text-[#555] leading-relaxed">
-              Reach your account manager for custom configurations.
-            </p>
-          </div>
-        </div>
-      </div>
+    
     </div>
   );
 }

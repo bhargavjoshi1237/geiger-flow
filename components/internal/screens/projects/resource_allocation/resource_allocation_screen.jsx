@@ -1,0 +1,432 @@
+"use client";
+
+import React, { useMemo, useState } from "react";
+import {
+  AlertTriangle,
+  BriefcaseBusiness,
+  Calendar,
+  CheckCircle2,
+  Circle,
+  ClipboardList,
+  Copy,
+  Plus,
+  Search,
+  UserPlus,
+} from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
+import { cn } from "@/lib/utils";
+
+const INITIAL_ALLOCATIONS = [
+  {
+    id: "res_101",
+    name: "Priya Shah",
+    role: "Product Lead",
+    allocation: 70,
+    status: "allocated",
+    work: "Custom fields rollout",
+    workType: "Milestone",
+    due: "May 17",
+    access: "Project member",
+  },
+  {
+    id: "res_102",
+    name: "Sam Lee",
+    role: "Engineering",
+    allocation: 88,
+    status: "at_risk",
+    work: "Vault permission audit",
+    workType: "Task",
+    due: "May 15",
+    access: "Admin approved",
+  },
+  {
+    id: "res_103",
+    name: "Riley Park",
+    role: "QA Lead",
+    allocation: 45,
+    status: "available",
+    work: "Release readiness pass",
+    workType: "Goal",
+    due: "May 21",
+    access: "Project member",
+  },
+  {
+    id: "res_104",
+    name: "Mira Kapoor",
+    role: "Designer",
+    allocation: 32,
+    status: "available",
+    work: "Onboarding polish",
+    workType: "Task",
+    due: "May 24",
+    access: "Pending invite",
+  },
+];
+
+const INITIAL_REQUESTS = [
+  {
+    id: "req_221",
+    title: "Frontend support for workflow builder",
+    type: "Request",
+    owner: "Aadit Joshi",
+    status: "review",
+    due: "May 17",
+  },
+  {
+    id: "pos_044",
+    title: "Security reviewer",
+    type: "Position",
+    owner: "Sam Lee",
+    status: "open",
+    due: "May 20",
+  },
+  {
+    id: "hire_018",
+    title: "QA analyst for launch window",
+    type: "Hiring",
+    owner: "Riley Park",
+    status: "sourcing",
+    due: "May 24",
+  },
+];
+
+const STATUS_META = {
+  allocated: {
+    label: "Allocated",
+    className: "bg-blue-500/15 text-blue-300 border-blue-500/30",
+    Icon: CheckCircle2,
+  },
+  available: {
+    label: "Available",
+    className: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
+    Icon: Circle,
+  },
+  at_risk: {
+    label: "At Risk",
+    className: "bg-amber-500/15 text-amber-300 border-amber-500/30",
+    Icon: AlertTriangle,
+  },
+  review: {
+    label: "Review",
+    className: "bg-violet-500/15 text-violet-300 border-violet-500/30",
+    Icon: ClipboardList,
+  },
+  open: {
+    label: "Open",
+    className: "bg-blue-500/15 text-blue-300 border-blue-500/30",
+    Icon: BriefcaseBusiness,
+  },
+  sourcing: {
+    label: "Sourcing",
+    className: "bg-amber-500/15 text-amber-300 border-amber-500/30",
+    Icon: UserPlus,
+  },
+};
+
+const FILTERS = [
+  { id: "all", label: "All" },
+  { id: "allocated", label: "Allocated" },
+  { id: "available", label: "Available" },
+  { id: "at_risk", label: "At Risk" },
+];
+
+function StatusBadge({ status }) {
+  const meta = STATUS_META[status] || STATUS_META.review;
+
+  return (
+    <Badge className={cn("min-w-[86px] justify-center whitespace-nowrap border px-2", meta.className)}>
+      {meta.label}
+    </Badge>
+  );
+}
+
+function AllocationStats({ allocations, requests }) {
+  const allocatedCount = allocations.filter((item) => item.status === "allocated").length;
+  const availableCount = allocations.filter((item) => item.status === "available").length;
+  const riskCount = allocations.filter((item) => item.status === "at_risk").length;
+  const averageAllocation = Math.round(
+    allocations.reduce((sum, item) => sum + item.allocation, 0) / allocations.length,
+  );
+
+  const stats = [
+    { label: "Total", value: allocations.length },
+    { label: "Allocated", value: allocatedCount },
+    { label: "Available", value: availableCount },
+    { label: "Requests", value: requests.length },
+    { label: "Avg load", value: `${averageAllocation}%` },
+  ];
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      {stats.map((item) => (
+        <span
+          key={item.label}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] px-3 py-1.5 text-xs text-[#737373]"
+        >
+          {item.label}
+          <span className="font-semibold tabular-nums text-[#e7e7e7]">{item.value}</span>
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function AllocationTable({ allocations }) {
+  return (
+    <div className="overflow-hidden rounded-2xl border border-[#2a2a2a] bg-[#202020]">
+      <Table>
+        <TableHeader>
+          <TableRow className="border-[#2a2a2a] bg-[#1a1a1a]">
+            <TableHead>Resource</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Linked Work</TableHead>
+            <TableHead>Projected Work</TableHead>
+            <TableHead>Due</TableHead>
+            <TableHead>Load</TableHead>
+            <TableHead>Access Level</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {allocations.map((resource) => {
+            const statusMeta = STATUS_META[resource.status];
+            const StatusIcon = statusMeta?.Icon || Circle;
+
+            return (
+              <ContextMenu key={resource.id}>
+                <ContextMenuTrigger asChild>
+                  <TableRow className="border-[#2a2a2a] hover:bg-[#242424]">
+                    <TableCell>
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-[#ededed]">{resource.name}</span>
+                          {resource.status === "at_risk" ? (
+                            <AlertTriangle className="h-3.5 w-3.5 text-amber-300" />
+                          ) : null}
+                        </div>
+                        <p className="line-clamp-1 text-xs text-[#737373]">{resource.role}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      <StatusBadge status={resource.status} />
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col gap-1">
+                        <span className="text-sm text-[#d4d4d4]">{resource.work}</span>
+                        <span className="inline-flex items-center gap-1 text-xs text-[#737373]">
+                          <StatusIcon className="h-3 w-3" />
+                          {resource.workType}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col gap-1">
+                        <span className="text-sm text-[#d4d4d4]">{resource.work}</span>
+                        <span className="inline-flex items-center gap-1 text-xs text-[#737373]">
+                          <StatusIcon className="h-3 w-3" />
+                          {resource.workType}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <span className="inline-flex items-center gap-1.5 text-sm text-[#a3a3a3]">
+                        <Calendar className="h-3.5 w-3.5 text-[#737373]" />
+                        {resource.due}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <div className="w-[130px] space-y-1.5">
+                        <Progress
+                          value={resource.allocation}
+                          className="h-1.5 rounded-full bg-[#2a2a2a] [&_[data-slot=progress-indicator]]:bg-[#ededed]"
+                        />
+                        <p className="text-xs text-[#737373]">{resource.allocation}%</p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <span className="max-w-[150px] truncate text-xs text-[#a3a3a3]">{resource.access}</span>
+                    </TableCell>
+                  </TableRow>
+                </ContextMenuTrigger>
+                <ContextMenuContent className="w-52 bg-[#202020] border-[#333333] shadow-xl">
+                  <ContextMenuItem className="text-[#a3a3a3] focus:bg-[#2a2a2a] focus:text-white cursor-pointer gap-2">
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    Review allocation
+                  </ContextMenuItem>
+                  <ContextMenuItem className="text-[#a3a3a3] focus:bg-[#2a2a2a] focus:text-white cursor-pointer gap-2">
+                    <UserPlus className="h-3.5 w-3.5" />
+                    Create request
+                  </ContextMenuItem>
+                  <ContextMenuItem className="text-[#a3a3a3] focus:bg-[#2a2a2a] focus:text-white cursor-pointer gap-2">
+                    <Copy className="h-3.5 w-3.5" />
+                    Copy linked work
+                  </ContextMenuItem>
+                  <ContextMenuSeparator className="bg-[#333333]" />
+                  <ContextMenuItem className="text-[#737373] focus:bg-[#2a2a2a] focus:text-white cursor-pointer gap-2">
+                    <AlertTriangle className="h-3.5 w-3.5" />
+                    Mark at risk
+                  </ContextMenuItem>
+                </ContextMenuContent>
+              </ContextMenu>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
+function RequestItem({ item }) {
+  const meta = STATUS_META[item.status] || STATUS_META.review;
+  const TypeIcon = item.type === "Hiring" ? UserPlus : item.type === "Position" ? BriefcaseBusiness : ClipboardList;
+
+  return (
+    <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] px-4 py-4 transition-colors hover:border-[#3a3a3a]">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center">
+        <div className="min-w-0 flex-1">
+          <div className="mb-1 flex items-center gap-2">
+            <TypeIcon className="h-3.5 w-3.5 shrink-0 text-[#737373]" />
+            <h3 className="truncate text-sm font-semibold text-[#e7e7e7]">{item.title}</h3> 
+          </div>
+          <p className="text-xs text-[#737373]">
+            {item.type} | Owner: {item.owner} | Due {item.due}
+          </p>
+        </div>
+        <Button variant="ghost" size="sm" className="h-8 text-xs text-[#a3a3a3] hover:bg-[#242424] hover:text-white">
+          Review
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function RequestQueue({ requests }) {
+  return (
+    <div className="space-y-2">
+      {requests.map((item) => (
+        <RequestItem key={item.id} item={item} />
+      ))}
+    </div>
+  );
+}
+
+export function ResourceAllocationScreen() {
+  const [allocations] = useState(INITIAL_ALLOCATIONS);
+  const [requests, setRequests] = useState(INITIAL_REQUESTS);
+  const [query, setQuery] = useState("");
+  const [activeFilter, setActiveFilter] = useState("all");
+  const [requestCounter, setRequestCounter] = useState(222);
+
+  const filteredAllocations = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+
+    return allocations.filter((resource) => {
+      const matchesFilter = activeFilter === "all" || resource.status === activeFilter;
+      if (!matchesFilter) return false;
+      if (!normalizedQuery) return true;
+
+      return [
+        resource.name,
+        resource.role,
+        resource.work,
+        resource.workType,
+        resource.access,
+        resource.status,
+      ]
+        .join(" ")
+        .toLowerCase()
+        .includes(normalizedQuery);
+    });
+  }, [activeFilter, allocations, query]);
+
+  const addRequest = () => {
+    const nextId = requestCounter + 1;
+    setRequestCounter(nextId);
+    setRequests((currentRequests) => [
+      {
+        id: `req_${nextId}`,
+        title: "New resource request",
+        type: "Request",
+        owner: "Current user",
+        status: "review",
+        due: "Unscheduled",
+      },
+      ...currentRequests,
+    ]);
+  };
+
+  return (
+    <MainScreenWrapper>
+      <div className="flex flex-col gap-4 border-b border-[#2a2a2a] pb-6 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-[#e7e7e7] md:text-3xl">Resource Allocation</h1>
+          <p className="mt-1 text-[#a3a3a3]">
+            Assign people to project work and track resource requests.
+          </p>
+        </div>
+        <Button className="bg-white text-black hover:bg-[#e7e7e7]" onClick={addRequest}>
+          <Plus className="mr-2 h-4 w-4" />
+          New Request
+        </Button>
+      </div>
+
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <AllocationStats allocations={allocations} requests={requests} />
+        <div className="flex flex-col gap-2 lg:items-end">
+         
+          <div className="flex items-center gap-2 overflow-x-auto pb-1">
+            {FILTERS.map((filter) => (
+              <Button
+                key={filter.id}
+                type="button"
+                variant="ghost"
+                className={cn(
+                  "h-8 rounded-lg border px-3 text-xs",
+                  activeFilter === filter.id
+                    ? "border-[#3a3a3a] bg-[#2a2a2a] text-white"
+                    : "border-[#2a2a2a] bg-[#1a1a1a] text-[#737373] hover:bg-[#202020] hover:text-[#e7e7e7]",
+                )}
+                onClick={() => setActiveFilter(filter.id)}
+              >
+                {filter.label}
+              </Button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {filteredAllocations.length === 0 ? (
+        <div className="flex h-[260px] flex-col items-center justify-center rounded-xl border border-dashed border-[#2a2a2a] bg-[#1a1a1a] text-[#737373]">
+          <BriefcaseBusiness className="h-10 w-10 opacity-30" />
+          <p className="mt-3 text-sm">No resources match your current filters.</p>
+        </div>
+      ) : (
+        <AllocationTable allocations={filteredAllocations} />
+      )}
+    </MainScreenWrapper>
+  );
+}

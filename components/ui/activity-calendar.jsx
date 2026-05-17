@@ -125,6 +125,7 @@ export function ActivityCalendar({
         onViewChange={setView}
         showViewSwitcher={true}
         onEventClick={onActivityClick}
+        onActivityClick={onActivityClick}
         className=""
       />
 
