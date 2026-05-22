@@ -69,6 +69,8 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 STRING_URI=your-direct-postgres-connection-string   # migrations only
 GEIGER_EMAIL_API_URL=your-suite-email-endpoint      # assignment notifications
 GEIGER_EMAIL_API_KEY=your-suite-email-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key     # vault passkeys and secret reveal
+WEBAUTHN_ORIGINS=http://localhost:3000              # optional, comma-separated passkey origins
 ```
 
 ### Database
