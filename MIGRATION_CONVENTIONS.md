@@ -252,7 +252,7 @@ first.
 
 ```sql
 create extension if not exists pgcrypto;
-create schema if not exists events;
+create schema if not exists flow;
 grant usage on schema flow to anon, authenticated, service_role;
 
 -- Define the shared trigger function locally rather than depending on another
