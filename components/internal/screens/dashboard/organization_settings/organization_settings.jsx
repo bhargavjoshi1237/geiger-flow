@@ -4,7 +4,10 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Copy, Check } from "lucide-react";
+import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 
 export function OrganizationSettingsScreen() {
   const [copied, setCopied] = useState(false);
@@ -17,16 +20,17 @@ export function OrganizationSettingsScreen() {
   };
 
   return (
-    <div className="space-y-6 w-full px-2 lg:px-0 max-w-5xl mx-auto py-4">
-      <div className="mt-4">
-        <h1 className="text-2xl md:text-3xl font-semibold text-[#e7e7e7] tracking-tight">
-          Organization Settings
-        </h1>
-        <p className="text-[#a3a3a3] text-sm mt-1">
-          General configuration, privacy, and lifecycle controls
-        </p>
+    <MainScreenWrapper className="flex flex-col gap-10 space-y-0 text-[#e7e7e7]">
+      <div className="flex flex-col gap-4 border-b border-[#2a2a2a] pb-6 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-semibold text-[#e7e7e7] tracking-tight">
+            Organization Settings
+          </h1>
+          <p className="text-[#a3a3a3] text-sm mt-1">
+            General configuration, privacy, and lifecycle controls
+          </p>
+        </div>
       </div>
-
       <div className="space-y-4">
         <h3 className="text-lg font-medium text-[#e7e7e7]">
           Organization details
@@ -111,67 +115,65 @@ export function OrganizationSettingsScreen() {
             </Button>
           </div>
 
-          <div className="lg:w-7/12 flex flex-col gap-6">
-            <label className="flex gap-4 items-start cursor-pointer group">
-              <div className="mt-0.5 flex items-center justify-center w-4 h-4 rounded-full border border-[var(--primary,white)] bg-[var(--primary,white)] shrink-0">
-                <div className="w-1.5 h-1.5 rounded-full bg-black"></div>
-              </div>
-              <div>
-                <div className="text-sm font-medium text-[#e7e7e7] mb-1">
+          <RadioGroup defaultValue="disabled" className="lg:w-7/12 gap-6">
+            <Label className="flex gap-4 items-start cursor-pointer group">
+              <RadioGroupItem value="disabled" className="mt-0.5 border-[var(--primary,white)] text-[var(--primary,white)]" />
+              <span>
+                <span className="block text-sm font-medium text-[#e7e7e7] mb-1">
                   Disabled
-                </div>
-                <div className="text-[13px] text-[#8b8b8b] leading-[1.5]">
+                </span>
+                <span className="block text-[13px] text-[#8b8b8b] leading-[1.5]">
                   You do not consent to sharing any database information with
                   third-party AI providers and understand that responses will be
                   generic and not tailored to your database
-                </div>
-              </div>
-            </label>
+                </span>
+              </span>
+            </Label>
 
-            <label className="flex gap-4 items-start cursor-pointer group">
-              <div className="mt-0.5 flex items-center justify-center w-4 h-4 rounded-full border border-[#474747] bg-transparent group-hover:border-[#a3a3a3] transition-colors shrink-0"></div>
-              <div>
-                <div className="text-sm font-medium text-[#e7e7e7] mb-1">
+            <Label className="flex gap-4 items-start cursor-pointer group">
+              <RadioGroupItem value="schema" className="mt-0.5 border-[#474747] group-hover:border-[#a3a3a3]" />
+              <span>
+                <span className="block text-sm font-medium text-[#e7e7e7] mb-1">
                   Schema Only
-                </div>
-                <div className="text-[13px] text-[#8b8b8b] leading-[1.5]">
-                  You consent to sharing your database's schema metadata (such
-                  as table and column names, data types, and relationships—but
+                </span>
+                <span className="block text-[13px] text-[#8b8b8b] leading-[1.5]">
+                  You consent to sharing your database schema metadata (such
+                  as table and column names, data types, and relationships, but
                   not actual database data) with third-party AI providers
-                </div>
-              </div>
-            </label>
+                </span>
+              </span>
+            </Label>
 
-            <label className="flex gap-4 items-start cursor-pointer group">
-              <div className="mt-0.5 flex items-center justify-center w-4 h-4 rounded-full border border-[#474747] bg-transparent group-hover:border-[#a3a3a3] transition-colors shrink-0"></div>
-              <div>
-                <div className="text-sm font-medium text-[#e7e7e7] mb-1">
+            <Label className="flex gap-4 items-start cursor-pointer group">
+              <RadioGroupItem value="schema_logs" className="mt-0.5 border-[#474747] group-hover:border-[#a3a3a3]" />
+              <span>
+                <span className="block text-sm font-medium text-[#e7e7e7] mb-1">
                   Schema & Logs
-                </div>
-                <div className="text-[13px] text-[#8b8b8b] leading-[1.5]">
+                </span>
+                <span className="block text-[13px] text-[#8b8b8b] leading-[1.5]">
                   You consent to sharing your schema and logs (which may contain
                   PII/database data) with third-party AI providers for better
                   results
-                </div>
-              </div>
-            </label>
+                </span>
+              </span>
+            </Label>
 
-            <label className="flex gap-4 items-start cursor-pointer group">
-              <div className="mt-0.5 flex items-center justify-center w-4 h-4 rounded-full border border-[#474747] bg-transparent group-hover:border-[#a3a3a3] transition-colors shrink-0"></div>
-              <div>
-                <div className="text-sm font-medium text-[#e7e7e7] mb-1">
+            <Label className="flex gap-4 items-start cursor-pointer group">
+              <RadioGroupItem value="schema_logs_data" className="mt-0.5 border-[#474747] group-hover:border-[#a3a3a3]" />
+              <span>
+                <span className="block text-sm font-medium text-[#e7e7e7] mb-1">
                   Schema, Logs & Database Data
-                </div>
-                <div className="text-[13px] text-[#8b8b8b] leading-[1.5]">
+                </span>
+                <span className="block text-[13px] text-[#8b8b8b] leading-[1.5]">
                   You consent to give third-party AI providers full access to
                   run database read-only queries and analyze results for optimal
                   results
-                </div>
-              </div>
-            </label>
-          </div>
+                </span>
+              </span>
+            </Label>
+          </RadioGroup>
         </Card>
       </div>
-    </div>
+    </MainScreenWrapper>
   );
 }

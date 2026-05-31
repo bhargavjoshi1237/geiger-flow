@@ -59,15 +59,7 @@ const TARGET_OPTIONS = [
   },
 ];
 
-const TEAM_MEMBERS = [
-  "You",
-  "Amélie",
-  "Alex",
-  "Sam",
-  "Riley",
-  "Jordan",
-  "Casey",
-];
+const TEAM_MEMBERS = [];
 
 const INITIAL_FORM = {
   title: "",

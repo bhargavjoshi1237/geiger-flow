@@ -89,7 +89,7 @@ const DrawingToolbar = ({
           }`}
         >
           {PRESET_SIZES.map((size) => (
-            <button
+            <Button
               key={size}
               onClick={() => setBrushSize(size)}
               className={`rounded-full hover:bg-zinc-700 flex items-center justify-center w-8 h-8 transition-all ${brushSize === size ? "bg-zinc-700 ring-1 ring-white" : ""}`}
@@ -103,7 +103,7 @@ const DrawingToolbar = ({
                   maxWidth: 16,
                 }}
               />
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -137,7 +137,7 @@ const DrawingToolbar = ({
           style={{ width: "max-content" }}
         >
           {PRESET_COLORS.map((c) => (
-            <button
+            <Button
               key={c}
               className={`w-6 h-6 rounded-full border transition-transform hover:scale-110 ${brushColor === c ? "border-white scale-110" : "border-transparent"}`}
               style={{ backgroundColor: c }}

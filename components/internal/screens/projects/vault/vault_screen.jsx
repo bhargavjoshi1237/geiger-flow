@@ -9,155 +9,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { VaultItemCard } from "./vault_item_card";
-import { AddVaultItemDialog } from "./add_vault_item_dialog";
+import { AddVaultItemDialog, VAULT_TYPES } from "./add_vault_item_dialog";
 import { VaultCredentialAccessDialog } from "./vault_credential_access_dialog";
 import { VaultAccessControl } from "./vault_access_control";
 import FilterDropdown from "../overview/filter_dropdown";
+import { Button } from "@/components/ui/button";
 
-const initialVaultItems = [
-  {
-    id: "1",
-    name: "Production Database",
-    type: "database",
-    username: "admin",
-    password: "prod-db-root-password",
-    url: "prod-db.example.com",
-    notes: "Main production database credentials",
-    accessControl: {
-      type: "team",
-      allowedRoles: ["admin"],
-      allowedUsers: [],
-      allowedPositions: [],
-    },
-    ttl: null,
-    keylessEntry: false,
-    accessSetup: {
-      method: "pin",
-      methods: ["pin"],
-      pin: "1234",
-      password: "",
-      sessionMinutes: "15",
-    },
-    createdAt: "2024-01-15T10:30:00Z",
-    updatedAt: "2024-01-20T14:45:00Z",
-  },
-  {
-    id: "2",
-    name: "AWS Production Keys",
-    type: "api_key",
-    username: "geiger-prod",
-    apiKey: "AKIA-PROD-EXAMPLE-KEY",
-    url: "https://console.aws.amazon.com",
-    notes: "AWS root account credentials",
-    accessControl: {
-      type: "roles",
-      allowedRoles: ["admin", "devops"],
-      allowedUsers: ["john@example.com"],
-      allowedPositions: [],
-    },
-    ttl: "7d",
-    keylessEntry: true,
-    accessSetup: {
-      method: "passkey",
-      methods: ["passkey"],
-      pin: "",
-      password: "",
-      sessionMinutes: "10",
-    },
-    createdAt: "2024-01-10T08:00:00Z",
-    updatedAt: "2024-02-01T16:20:00Z",
-  },
-  {
-    id: "3",
-    name: "Stripe API Key",
-    type: "api_key",
-    username: "",
-    apiKey: "sk_live_stripe_example",
-    url: "",
-    notes: "Stripe live API key for payments",
-    accessControl: {
-      type: "users",
-      allowedRoles: [],
-      allowedUsers: ["billing@example.com", "finance@example.com"],
-      allowedPositions: ["CTO", "CFO"],
-    },
-    ttl: null,
-    keylessEntry: false,
-    accessSetup: {
-      method: "password",
-      methods: ["password"],
-      pin: "",
-      password: "finance-review",
-      sessionMinutes: "5",
-    },
-    createdAt: "2024-01-05T12:00:00Z",
-    updatedAt: "2024-01-25T09:30:00Z",
-  },
-  {
-    id: "4",
-    name: "GitHub Organization",
-    type: "oauth",
-    username: "geiger-org",
-    secret: "github-oauth-client-secret",
-    url: "https://github.com/geiger-org",
-    notes: "GitHub organization admin access",
-    accessControl: {
-      type: "positions",
-      allowedRoles: [],
-      allowedUsers: [],
-      allowedPositions: ["Tech Lead", "Engineering Manager"],
-    },
-    ttl: "30d",
-    keylessEntry: true,
-    accessSetup: {
-      method: "passkey",
-      methods: ["passkey"],
-      pin: "",
-      password: "",
-      sessionMinutes: "20",
-    },
-    createdAt: "2024-01-01T00:00:00Z",
-    updatedAt: "2024-01-30T11:15:00Z",
-  },
-  {
-    id: "5",
-    name: "SMTP Credentials",
-    type: "smtp",
-    username: "mailer",
-    password: "smtp-sendgrid-password",
-    url: "smtp.sendgrid.net",
-    notes: "SendGrid SMTP for transactional emails",
-    accessControl: {
-      type: "team",
-      allowedRoles: [],
-      allowedUsers: [],
-      allowedPositions: [],
-    },
-    ttl: null,
-    keylessEntry: false,
-    accessSetup: {
-      method: "pin",
-      methods: ["pin"],
-      pin: "4321",
-      password: "",
-      sessionMinutes: "15",
-    },
-    createdAt: "2024-01-20T15:00:00Z",
-    updatedAt: "2024-01-20T15:00:00Z",
-  },
-];
-
-const VAULT_TYPES = [
-  { value: "all", label: "All Types", icon: "" },
-  { value: "database", label: "Database", icon: "🗄️" },
-  { value: "api_key", label: "API Key", icon: "🔑" },
-  { value: "oauth", label: "OAuth", icon: "🔐" },
-  { value: "smtp", label: "SMTP", icon: "📧" },
-  { value: "password", label: "Password", icon: "🔒" },
-  { value: "certificate", label: "Certificate", icon: "📜" },
-  { value: "ssh_key", label: "SSH Key", icon: "🖥️" },
-  { value: "other", label: "Other", icon: "📦" },
-];
+const initialVaultItems = [];
 
 function createVaultItemId() {
   return `${new Date().getTime()}`;
@@ -253,7 +111,7 @@ export function VaultScreen() {
             setEditingItem(null);
           }}
         >
-          <button 
+          <Button 
             onClick={() => {
               setEditingItem(null);
               setDialogOpen(true);
@@ -262,7 +120,7 @@ export function VaultScreen() {
           >
             <Plus className="w-4 h-4 text-black font-bold stroke-[3]" />
             Add Secret
-          </button>
+          </Button>
         </AddVaultItemDialog>
       </div>
 

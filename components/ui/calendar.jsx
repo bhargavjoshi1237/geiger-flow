@@ -175,7 +175,7 @@ const getActivityLevel = (activities, date, startHour = null, endHour = null) =>
   let totalActivity = 0;
   
   const relevantActivities = activities.filter(activity => {
-    const activityDate = new Date(activity.timestamp);
+    const activityDate = new Date(activity.timestamp || activity.startDate || activity.start);
     
     if (!isSameDay(activityDate, checkDate)) return false;
     
@@ -211,7 +211,7 @@ const getActivityItemsForDate = (activities, date) => {
 
 const getActivityColor = (activity) => {
   if (activity.color) return activity.color;
-  return ACTIVITY_SHOWCASE_COLORS[activity.type] || ACTIVITY_SHOWCASE_COLORS.default;
+  return EVENT_COLORS[activity.type]?.dot || ACTIVITY_SHOWCASE_COLORS[activity.type] || ACTIVITY_SHOWCASE_COLORS.default;
 };
 
 const getActivityLabel = (activity) => {
@@ -222,6 +222,18 @@ const getActivityTime = (activity) => {
   const value = activity.timestamp || activity.startDate || activity.start;
   if (!value) return null;
   return formatEventTime(value);
+};
+
+const getActivityPillClasses = (activity) => {
+  return EVENT_COLORS[activity.type]?.pill || EVENT_COLORS.default.pill;
+};
+
+const getCalendarItemDate = (item) => {
+  const value = item.kind === "activity"
+    ? item.data.timestamp || item.data.startDate || item.data.start
+    : item.data.start;
+
+  return value ? new Date(value) : new Date(0);
 };
 
 export function Calendar({
@@ -486,8 +498,14 @@ export function Calendar({
             const hasEvents  = dayEvents.length > 0;
             const ghostEvents = (isLeaving && !hasEvents) ? (ghostEventMap[dateKey] || []) : [];
             const showGhost  = isLeaving && !hasEvents && ghostEvents.length > 0;
-            const displayEvents = hasEvents ? dayEvents : (showGhost ? ghostEvents : []);
-            const overflowCount = displayEvents.length - MAX_PILLS;
+            const liveDisplayItems = [
+              ...dayEvents.map((event) => ({ kind: "event", data: event })),
+              ...dayActivities.map((activity) => ({ kind: "activity", data: activity })),
+            ].sort((a, b) => getCalendarItemDate(a) - getCalendarItemDate(b));
+            const displayItems = showGhost
+              ? ghostEvents.map((event) => ({ kind: "event", data: event }))
+              : liveDisplayItems;
+            const overflowCount = displayItems.length - MAX_PILLS;
 
             return (
               <ContextMenu key={index}>
@@ -503,7 +521,7 @@ export function Calendar({
                     className={cn(
                       "min-h-[92px] sm:min-h-[120px] p-1.5 sm:p-1.5 border-b border-r border-[#2a2a2a] cursor-pointer relative overflow-hidden",
                       "transition-colors hover:bg-[#202020]",
-                      ACTIVITY_COLORS[activityLevel],
+                      activityViewMode === "heatmap" && ACTIVITY_COLORS[activityLevel],
                       !isCurrentMonth && "opacity-35",
                       index % 7 === 6 && "border-r-0",                       index >= 35 && "border-b-0",                         )}
                   >
@@ -605,58 +623,7 @@ export function Calendar({
                       </HoverCard>
                     </div>
 
-                    {dayActivities.length > 0 && (
-                      <div className="absolute right-2 top-2 flex max-w-[44px] items-center justify-end gap-1 sm:hidden pointer-events-none">
-                        {dayActivities.slice(0, 3).map((activity, i) => (
-                          <span
-                            key={i}
-                            className="h-1.5 w-1.5 rounded-full"
-                            style={{ backgroundColor: getActivityColor(activity) }}
-                          />
-                        ))}
-                      </div>
-                    )}
-
-                    {dayActivities.length > 0 && (
-                      <div className="hidden sm:block mb-1 space-y-[3px]">
-                        {dayActivities.slice(0, 2).map((activity, i) => {
-                          const color = getActivityColor(activity);
-                          return (
-                            <button
-                              key={i}
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (onActivityClick) onActivityClick(activity);
-                              }}
-                              className="group flex w-full items-start gap-1.5 rounded-md border border-[#333333] bg-[#202020] px-1.5 py-1 text-left leading-tight transition-colors hover:border-[#474747] hover:bg-[#242424]"
-                              style={{
-                                borderLeftColor: color,
-                                borderLeftWidth: "3px",
-                              }}
-                            >
-                              <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                                <span className="truncate text-[10px] font-medium text-white">
-                                  {getActivityLabel(activity)}
-                                </span>
-                                {getActivityTime(activity) && (
-                                  <span className="truncate text-[9px] font-medium text-[#737373]">
-                                    {getActivityTime(activity)}
-                                  </span>
-                                )}
-                              </span>
-                            </button>
-                          );
-                        })}
-                        {dayActivities.length > 2 && (
-                          <p className="px-1.5 pt-0.5 text-[10px] leading-none text-[#737373]">
-                            +{dayActivities.length - 2} more
-                          </p>
-                        )}
-                      </div>
-                    )}
-
-                    {displayEvents.length > 0 && (
+                    {displayItems.length > 0 && (
                       <div
                         className={cn(
                           "absolute left-2 bottom-1.5 sm:hidden pointer-events-none",
@@ -665,8 +632,10 @@ export function Calendar({
                         )}
                       >
                         <div className="flex items-center gap-[5px]">
-                          {displayEvents.slice(0, 3).map((event, i) => {
-                            const cs = EVENT_COLORS[event.type] || EVENT_COLORS.default;
+                          {displayItems.slice(0, 3).map((item, i) => {
+                            const cs = item.kind === "activity"
+                              ? { dot: getActivityColor(item.data) }
+                              : EVENT_COLORS[item.data.type] || EVENT_COLORS.default;
                             return (
                               <span
                                 key={i}
@@ -676,9 +645,9 @@ export function Calendar({
                             );
                           })}
                         </div>
-                        {displayEvents.length > 3 && (
+                        {displayItems.length > 3 && (
                           <span className="block text-[10px] text-[#737373] leading-none mt-1">
-                            +{displayEvents.length - 3}
+                            +{displayItems.length - 3}
                           </span>
                         )}
                       </div>
@@ -691,14 +660,26 @@ export function Calendar({
                         showGhost && "cell-leave",
                       )}
                     >
-                      {displayEvents.slice(0, MAX_PILLS).map((event, i) => {
-                        const cs = EVENT_COLORS[event.type] || EVENT_COLORS.default;
+                      {displayItems.slice(0, MAX_PILLS).map((item, i) => {
+                        const isActivityItem = item.kind === "activity";
+                        const event = item.data;
+                        const cs = isActivityItem
+                          ? {
+                              pill: getActivityPillClasses(event),
+                              dot: getActivityColor(event),
+                              special: true,
+                            }
+                          : EVENT_COLORS[event.type] || EVENT_COLORS.default;
                         return (
                           <div
                             key={i}
                             onClick={(e) => {
                               if (showGhost) return;
                               e.stopPropagation();
+                              if (isActivityItem) {
+                                if (onActivityClick) onActivityClick(event);
+                                return;
+                              }
                               if (onEventClick) onEventClick(event);
                             }}
                             className={cn(
@@ -714,9 +695,11 @@ export function Calendar({
                                 style={{ backgroundColor: cs.dot }}
                               />
                             )}
-                            <span className="truncate flex-1 min-w-0">{event.title}</span>
+                            <span className="truncate flex-1 min-w-0">
+                              {isActivityItem ? getActivityLabel(event) : event.title}
+                            </span>
                             <span className="flex-shrink-0 opacity-60 text-[10px] pl-0.5">
-                              {formatEventTime(event.start)}
+                              {isActivityItem ? getActivityTime(event) : formatEventTime(event.start)}
                             </span>
                           </div>
                         );
@@ -742,7 +725,7 @@ export function Calendar({
                     </div>
 
                     {(() => {
-                      const dayParticipants = displayEvents
+                      const dayParticipants = dayEvents
                         .filter(e => e.participants && e.participants.length > 0)
                         .flatMap(e => e.participants || []);
                       const uniqueParticipants = dayParticipants.filter(

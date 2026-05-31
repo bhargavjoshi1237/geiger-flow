@@ -18,6 +18,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { SidebarButton } from "../SidebarPrimitives";
+import { Button } from "@/components/ui/button";
 
 const defaultReactions = [
   { icon: ThumbsUp, label: "Like"},
@@ -46,7 +47,7 @@ export const ReactionPlug = ({ onReaction, emojis, reactions }) => {
       >
         <div className="flex flex-wrap gap-0.5 p-0.5 max-w-[180px]">
           {items.map(({ icon: Icon, label, color }) => (
-            <button
+            <Button
               key={label}
               title={label}
               className="
@@ -61,7 +62,7 @@ export const ReactionPlug = ({ onReaction, emojis, reactions }) => {
                 className={`w-[18px] h-[18px] ${color} transition-transform duration-150 group-hover:scale-110`}
                 strokeWidth={1.8}
               />
-            </button>
+            </Button>
           ))}
         </div>
       </PopoverContent>

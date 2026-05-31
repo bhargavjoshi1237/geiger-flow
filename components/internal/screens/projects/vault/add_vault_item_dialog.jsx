@@ -39,7 +39,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const VAULT_TYPES = [
+export const VAULT_TYPES = [
   { value: "password", label: "Password", icon: Key },
   { value: "api_key", label: "API Key", icon: Key },
   { value: "database", label: "Database", icon: Database },
@@ -245,18 +245,18 @@ export function AddVaultItemDialog({
               <div className="relative">
                 <Input
                   type={showSecret ? "text" : "password"}
-                  placeholder={formData.type === "api_key" ? "sk_live_..." : "Enter secret value"}
+                  placeholder="Enter secret value"
                   value={formData.secret}
                   onChange={(e) => handleInputChange("secret", e.target.value)}
                   className="bg-[#1a1a1a] border-[#2a2a2a] text-[#ededed] placeholder:text-[#525252] focus:border-[#3a3a3a] focus:ring-1 focus:ring-[#3a3a3a] h-9 pr-10 font-mono transition-all duration-200"
                 />
-                <button
+                <Button
                   type="button"
                   onClick={() => setShowSecret(!showSecret)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-[#525252] hover:text-[#ededed] transition-colors duration-200"
                 >
                   {showSecret ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -301,7 +301,7 @@ export function AddVaultItemDialog({
                   const isSelected = formData.accessSetup.method === method.value;
 
                   return (
-                    <button
+                    <Button
                       key={method.value}
                       type="button"
                       onClick={() => selectSetupMethod(method.value)}
@@ -325,7 +325,7 @@ export function AddVaultItemDialog({
                           isSelected ? "bg-emerald-400" : "bg-[#3a3a3a]",
                         )}
                       />
-                    </button>
+                    </Button>
                   );
                 })}
               </div>

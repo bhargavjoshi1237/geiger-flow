@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 function AddonCard({ addon, enabled, positionOptions, selectValue, currentColor, onToggle, onPositionChange, onColorChange }) {
   const [expanded, setExpanded] = useState(false);
@@ -90,7 +91,7 @@ function AddonCard({ addon, enabled, positionOptions, selectValue, currentColor,
         </div>
       </div>
 
-      <button
+      <Button
         type="button"
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center justify-center gap-1.5 py-2.5 border-t border-[#222] hover:bg-[#1a1a1a] transition-colors duration-200"
@@ -103,7 +104,7 @@ function AddonCard({ addon, enabled, positionOptions, selectValue, currentColor,
         <span className="text-[11px] text-[#555] font-medium">
           {expanded ? "Less details" : "More details"}
         </span>
-      </button>
+      </Button>
 
       {expanded && (
         <div className="border-t border-[#222] p-5 space-y-5">
@@ -133,7 +134,7 @@ function AddonCard({ addon, enabled, positionOptions, selectValue, currentColor,
                 </div>
                 <div className="flex items-center gap-1.5">
                   {["#3b82f6", "#8b5cf6", "#ec4899", "#f59e0b", "#10b981", "#ef4444", "#06b6d4", "#f97316"].map((color) => (
-                    <button
+                    <Button
                       key={color}
                       type="button"
                       onClick={() => onColorChange(color)}
@@ -186,7 +187,7 @@ function AddonCard({ addon, enabled, positionOptions, selectValue, currentColor,
 
 export function AddonsViewToggle({ compactView, onToggle }) {
   return (
-    <button
+    <Button
       type="button"
       onClick={onToggle}
       className={cn(
@@ -202,7 +203,7 @@ export function AddonsViewToggle({ compactView, onToggle }) {
       ) : (
         <LayoutGrid className="w-4 h-4" />
       )}
-    </button>
+    </Button>
   );
 }
 

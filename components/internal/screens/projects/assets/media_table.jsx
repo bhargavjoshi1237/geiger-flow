@@ -26,14 +26,18 @@ import {
   Folder,
   FolderOpen,
   ChevronRight,
+  PanelLeftClose,
+  PanelLeftOpen,
+  PanelRightClose,
+  PanelRightOpen,
   Home,
   HardDrive,
-  Check,
   Calendar,
   Ruler,
   User,
 } from "lucide-react";
 import { assetFolders, mediaItems, typeIcons, typeColors } from "./data";
+import { SegmentedTabs } from "@/components/internal/shared/segmented_tabs";
 
 const typeFilters = ["All", "Image", "Video", "Document", "Audio", "Archive"];
 
@@ -82,11 +86,12 @@ function FileActionsDropdown() {
 
 function FolderTile({ folder, isActive, fileCount, onOpen }) {
   return (
-    <button
+    <Button
       type="button"
+      variant="ghost"
       onClick={onOpen}
       className={cn(
-        "w-full rounded-md border p-3.5 text-left transition-colors",
+        "h-auto w-full flex-col items-stretch justify-start rounded-md border p-3.5 text-left transition-colors",
         isActive
           ? "border-[#525252] bg-[#242424]"
           : "border-[#2a2a2a] bg-[#1e1e1e] hover:border-[#3a3a3a] hover:bg-[#242424]"
@@ -109,11 +114,11 @@ function FolderTile({ folder, isActive, fileCount, onOpen }) {
         </Badge>
       </div>
       <p className="mt-3 text-xs text-[#525252]">Updated {folder.updatedAt}</p>
-    </button>
+    </Button>
   );
 }
 
-function DetailsPane({ selectedItem }) {
+function DetailsPane({ selectedItem, onCollapse }) {
   const IconComp = selectedItem ? typeIcons[selectedItem.type] : HardDrive;
   const statusClassName = selectedItem?.status === "Active"
     ? "border-emerald-500/15 bg-emerald-500/10 text-emerald-400"
@@ -122,14 +127,26 @@ function DetailsPane({ selectedItem }) {
       : "border-[#333333] bg-[#242424] text-[#a3a3a3]";
 
   return (
-    <aside className="border-t border-[#2a2a2a] bg-[#181818] p-4 min-[1700px]:border-l min-[1700px]:border-t-0">
+    <aside className="border-t border-[#2a2a2a] bg-[#181818] p-4 xl:border-l xl:border-t-0">
       <div className="flex items-center justify-between gap-3">
         <p className="text-xs font-semibold uppercase tracking-wide text-[#737373]">Asset details</p>
-        {selectedItem?.status ? (
-          <Badge className={cn("shrink-0", statusClassName)}>
-            {selectedItem.status}
-          </Badge>
-        ) : null}
+        <div className="flex items-center gap-2">
+          {selectedItem?.status ? (
+            <Badge className={cn("shrink-0", statusClassName)}>
+              {selectedItem.status}
+            </Badge>
+          ) : null}
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={onCollapse}
+            title="Collapse asset details"
+            className="hidden h-7 w-7 text-[#737373] hover:bg-[#242424] hover:text-[#e7e7e7] xl:inline-flex"
+          >
+            <PanelRightClose className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       {selectedItem ? (
@@ -209,6 +226,8 @@ export function MediaTable() {
   const [selectedId, setSelectedId] = useState(mediaItems[0]?.id);
   const [query, setQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("All");
+  const [isFolderPaneCollapsed, setIsFolderPaneCollapsed] = useState(false);
+  const [isDetailsPaneCollapsed, setIsDetailsPaneCollapsed] = useState(false);
 
   const currentFolder = assetFolders.find((folder) => folder.id === currentFolderId);
   const folderCounts = useMemo(() => {
@@ -279,55 +298,81 @@ export function MediaTable() {
           </div>
         </div>
 
-        <div className="mt-4 flex flex-wrap gap-2">
-          {typeFilters.map((type) => (
-            <Button
-              key={type}
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setTypeFilter(type)}
-              className={cn(
-                "h-8 border-[#2a2a2a] bg-transparent px-3 text-xs text-[#a3a3a3] hover:bg-[#242424] hover:text-[#e7e7e7]",
-                typeFilter === type && "border-[#525252] bg-[#242424] text-[#e7e7e7]"
-              )}
-            >
-              {typeFilter === type ? <Check className="h-3.5 w-3.5" /> : null}
-              {type}
-            </Button>
-          ))}
-        </div>
+        <SegmentedTabs
+          tabs={typeFilters}
+          value={typeFilter}
+          onChange={setTypeFilter}
+          className="mt-4"
+          buttonClassName="h-8 text-xs"
+        />
       </div>
 
-      <div className="grid min-h-[520px] grid-cols-1 min-[1700px]:grid-cols-[250px_minmax(0,1fr)_300px]">
-        <nav className="border-b border-[#2a2a2a] bg-[#181818] p-4 min-[1700px]:border-b-0 min-[1700px]:border-r">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => openFolder("all")}
-            className={cn(
-              "mb-3 h-auto w-full justify-start rounded-md border px-3 py-2 text-left hover:bg-[#242424]",
-              currentFolderId === "all"
-                ? "border-[#525252] bg-[#242424] text-[#e7e7e7]"
-                : "border-[#2a2a2a] bg-[#1e1e1e] text-[#a3a3a3]"
-            )}
-          >
-            <HardDrive className="h-4 w-4" />
-            All Assets
-            <span className="ml-auto text-xs text-[#737373]">{mediaItems.length}</span>
-          </Button>
+      <div
+        className={cn(
+          "grid min-h-[520px] grid-cols-1",
+          !isFolderPaneCollapsed && !isDetailsPaneCollapsed && "xl:grid-cols-[250px_minmax(0,1fr)_300px]",
+          isFolderPaneCollapsed && !isDetailsPaneCollapsed && "xl:grid-cols-[48px_minmax(0,1fr)_300px]",
+          !isFolderPaneCollapsed && isDetailsPaneCollapsed && "xl:grid-cols-[250px_minmax(0,1fr)_48px]",
+          isFolderPaneCollapsed && isDetailsPaneCollapsed && "xl:grid-cols-[48px_minmax(0,1fr)_48px]",
+        )}
+      >
+        <nav className="border-b border-[#2a2a2a] bg-[#181818] xl:border-b-0 xl:border-r">
+          {isFolderPaneCollapsed ? (
+            <div className="hidden h-full items-start justify-center p-2 xl:flex">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsFolderPaneCollapsed(false)}
+                title="Expand all assets"
+                className="h-8 w-8 text-[#737373] hover:bg-[#242424] hover:text-[#e7e7e7]"
+              >
+                <PanelLeftOpen className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : (
+            <div className="p-4">
+              <div className="mb-3 flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => openFolder("all")}
+                  className={cn(
+                    "h-auto min-w-0 flex-1 justify-start rounded-md border px-3 py-2 text-left hover:bg-[#242424]",
+                    currentFolderId === "all"
+                      ? "border-[#525252] bg-[#242424] text-[#e7e7e7]"
+                      : "border-[#2a2a2a] bg-[#1e1e1e] text-[#a3a3a3]"
+                  )}
+                >
+                  <HardDrive className="h-4 w-4" />
+                  All Assets
+                  <span className="ml-auto text-xs text-[#737373]">{mediaItems.length}</span>
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsFolderPaneCollapsed(true)}
+                  title="Collapse all assets"
+                  className="hidden h-9 w-9 text-[#737373] hover:bg-[#242424] hover:text-[#e7e7e7] xl:inline-flex"
+                >
+                  <PanelLeftClose className="h-4 w-4" />
+                </Button>
+              </div>
 
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 min-[1700px]:!grid-cols-1">
-            {assetFolders.map((folder) => (
-              <FolderTile
-                key={folder.id}
-                folder={folder}
-                fileCount={folderCounts[folder.id]}
-                isActive={currentFolderId === folder.id}
-                onOpen={() => openFolder(folder.id)}
-              />
-            ))}
-          </div>
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:!grid-cols-1">
+                {assetFolders.map((folder) => (
+                  <FolderTile
+                    key={folder.id}
+                    folder={folder}
+                    fileCount={folderCounts[folder.id]}
+                    isActive={currentFolderId === folder.id}
+                    onOpen={() => openFolder(folder.id)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </nav>
 
         <div className="min-w-0 overflow-auto">
@@ -384,7 +429,22 @@ export function MediaTable() {
           ) : null}
         </div>
 
-        <DetailsPane selectedItem={selectedItem} />
+        {isDetailsPaneCollapsed ? (
+          <aside className="hidden border-t border-[#2a2a2a] bg-[#181818] p-2 xl:flex xl:items-start xl:justify-center xl:border-l xl:border-t-0">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsDetailsPaneCollapsed(false)}
+              title="Expand asset details"
+              className="h-8 w-8 text-[#737373] hover:bg-[#242424] hover:text-[#e7e7e7]"
+            >
+              <PanelRightOpen className="h-4 w-4" />
+            </Button>
+          </aside>
+        ) : (
+          <DetailsPane selectedItem={selectedItem} onCollapse={() => setIsDetailsPaneCollapsed(true)} />
+        )}
       </div>
     </div>
   );

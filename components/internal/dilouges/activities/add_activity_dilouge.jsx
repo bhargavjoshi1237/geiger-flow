@@ -75,13 +75,7 @@ const TAG_PRESETS = [
   { id: "testing", label: "Testing", color: "#f59e0b" },
 ];
 
-const TEAM_MEMBERS = [
-  { id: "m1", name: "Alex Johnson", initials: "AJ", role: "Developer" },
-  { id: "m2", name: "Sarah Chen", initials: "SC", role: "Designer" },
-  { id: "m3", name: "Mike Peters", initials: "MP", role: "PM" },
-  { id: "m4", name: "Emily Davis", initials: "ED", role: "Developer" },
-  { id: "m5", name: "James Wilson", initials: "JW", role: "QA" },
-];
+const TEAM_MEMBERS = [];
 
 const REMINDER_OPTIONS = [
   { value: 0, label: "At time of event" },
@@ -282,7 +276,7 @@ export function AddActivityDialog({
                 <Label className="text-xs text-zinc-300">Tags</Label>
                 <div className="flex flex-wrap gap-2">
                   {TAG_PRESETS.map((tag) => (
-                    <button
+                    <Button
                       key={tag.id}
                       type="button"
                       onClick={() => toggleTag(tag.id)}
@@ -299,7 +293,7 @@ export function AddActivityDialog({
                       }
                     >
                       {tag.label}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>

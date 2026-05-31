@@ -327,7 +327,7 @@ export default function DownloadBoardDialog({
               const Icon = fmt.icon;
               const isSelected = selected === fmt.id;
               return (
-                <button
+                <Button
                   key={fmt.id}
                   onClick={() => setSelected(fmt.id)}
                   className={`flex items-center gap-3 p-3 rounded-lg border text-left transition-all
@@ -352,7 +352,7 @@ export default function DownloadBoardDialog({
                       {fmt.description}
                     </p>
                   </div>
-                </button>
+                </Button>
               );
             })}
           </div>

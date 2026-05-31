@@ -136,12 +136,12 @@ function GoalCard({ goal, isDragOverlay, onEdit, onDelete, onDuplicate }) {
         <CardContent className="p-4 space-y-3">
           <div className="flex items-start gap-2">
             {!isDragOverlay && (
-              <button
+              <Button
                 className="mt-0.5 text-[#3a3a3a] hover:text-[#525252] cursor-grab active:cursor-grabbing shrink-0"
                 {...listeners}
               >
                 <GripVertical className="w-3.5 h-3.5" />
-              </button>
+              </Button>
             )}
             <div className="flex-1 min-w-0 space-y-1.5">
               <h4 className="text-sm font-medium text-[#e7e7e7] leading-snug">
@@ -185,7 +185,7 @@ function GoalCard({ goal, isDragOverlay, onEdit, onDelete, onDuplicate }) {
 
           {hasKeyResults && (
             <div className="border-t border-[#222] pt-2">
-              <button
+              <Button
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -202,7 +202,7 @@ function GoalCard({ goal, isDragOverlay, onEdit, onDelete, onDuplicate }) {
                     goalsOpen && "rotate-180"
                   )}
                 />
-              </button>
+              </Button>
               <div
                 className={cn(
                   "grid transition-all duration-200 ease-in-out",

@@ -343,12 +343,12 @@ export default function EditCalendarThemeDialog({
                 Calendar Style
               </DialogTitle>
             </div>
-            <button
+            <Button
               onClick={() => onOpenChange(false)}
               className="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-500 hover:text-white hover:bg-zinc-800 transition-all"
             >
               <X className="w-4 h-4" />
-            </button>
+            </Button>
           </div>
         </DialogHeader>
 
@@ -356,7 +356,7 @@ export default function EditCalendarThemeDialog({
           {STYLES.map((tab) => {
             const Icon = tab.icon;
             return (
-              <button
+              <Button
                 key={tab.id}
                 onClick={() => handleChange("calendarStyle", tab.id)}
                 className={cn(
@@ -368,7 +368,7 @@ export default function EditCalendarThemeDialog({
               >
                 <Icon className="w-4 h-4" />
                 {tab.label}
-              </button>
+              </Button>
             );
           })}
         </div>
@@ -400,7 +400,7 @@ export default function EditCalendarThemeDialog({
               Theme
             </span>
             <div className="grid grid-cols-2 gap-2">
-              <button
+              <Button
                 onClick={() => handleChange("calendarTheme", "light")}
                 className={cn(
                   "flex items-center justify-center gap-2 py-3 rounded-lg border text-sm font-medium transition-all",
@@ -410,8 +410,8 @@ export default function EditCalendarThemeDialog({
                 )}
               >
                 <Lightbulb className="h-4 w-4" /><p>Light</p>
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => handleChange("calendarTheme", "dark")}
                 className={cn(
                   "flex items-center justify-center gap-2 py-3 rounded-lg border text-sm font-medium transition-all",
@@ -421,7 +421,7 @@ export default function EditCalendarThemeDialog({
                 )}
               >
                   <Moon className="h-4 w-4" /><p>Dark</p>
-              </button>
+              </Button>
             </div>
           </div>
         </div>

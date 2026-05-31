@@ -3,29 +3,21 @@
 import React, { useState } from "react";
 import {
   Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { useProject } from "@/context/project-context";
 import {
   Trash2,
   AlertTriangle,
   RotateCcw,
   Download,
   Upload,
-  FileCode2,
   Clock,
   Shield,
   Zap,
   Globe,
-  Database,
   Key,
   RefreshCw,
   Eye,
@@ -33,7 +25,6 @@ import {
   Copy,
   Check,
   ExternalLink,
-  ArrowRight,
 } from "lucide-react";
 import {
   Select,
@@ -194,13 +185,12 @@ function EnvVarItem({ name, value, isSecret }) {
 }
 
 export function AdvancedSettingsScreen() {
-  const { project } = useProject();
   const [readOnly, setReadOnly] = useState(false);
   const [maintenanceMode, setMaintenanceMode] = useState(false);
-  const [auditLogging, setAuditLogging] = useState(true);
-  const [rateLimiting, setRateLimiting] = useState(true);
+  const [auditLogging, setAuditLogging] = useState(false);
+  const [rateLimiting, setRateLimiting] = useState(false);
   const [ipRestriction, setIpRestriction] = useState(false);
-  const [requestSigning, setRequestSigning] = useState(true);
+  const [requestSigning, setRequestSigning] = useState(false);
 
   return (
     <div className="space-y-12">
@@ -342,10 +332,10 @@ export function AdvancedSettingsScreen() {
               </span>
             </div>
             <div className="text-xl font-semibold text-[#e7e7e7] mb-1">
-              Active
+              No data
             </div>
             <p className="text-[12px] text-[#555]">
-              TLS 1.3 enforced &middot; Auto-renews Jun 12, 2026
+              Certificate status will appear after backend data is connected
             </p>
           </div>
           <div className="bg-[#181818] border border-[#2c2c2c] rounded-xl p-5 shadow-sm">
@@ -358,7 +348,7 @@ export function AdvancedSettingsScreen() {
               </span>
             </div>
             <div className="flex items-baseline gap-1 mb-1">
-              <span className="text-xl font-semibold text-[#e7e7e7]">24</span>
+              <span className="text-xl font-semibold text-[#e7e7e7]">0</span>
               <span className="text-sm text-[#555]">hours</span>
             </div>
             <p className="text-[12px] text-[#555]">
@@ -374,9 +364,9 @@ export function AdvancedSettingsScreen() {
                 API Version
               </span>
             </div>
-            <div className="text-xl font-semibold text-[#e7e7e7] mb-1">v2.4</div>
+            <div className="text-xl font-semibold text-[#e7e7e7] mb-1">No version</div>
             <p className="text-[12px] text-[#555]">
-              Latest stable &middot; Deprecation: none
+              API version data will appear after backend data is connected
             </p>
           </div>
         </div>
@@ -394,29 +384,8 @@ export function AdvancedSettingsScreen() {
 
         <Card className="bg-[#181818] border-[#2c2c2c] text-[#e7e7e7] rounded-xl overflow-hidden shadow-sm">
           <div className="-my-6">
-            <WebhookItem
-              name="CI/CD Pipeline"
-            url="https://api.github.com/repos/acme/project/dispatches"
-            events={["push", "deploy"]}
-            status="active"
-            lastTriggered="2 min ago"
-          />
-          <WebhookItem
-            name="Slack Notifications"
-            url="https://hooks.slack.com/services/T00/B00/xxx"
-            events={["issue", "deploy"]}
-            status="active"
-            lastTriggered="18 min ago"
-          />
-          <WebhookItem
-            name="Analytics Tracker"
-            url="https://analytics.example.com/ingest"
-            events={["*"]}
-            status="paused"
-            lastTriggered="3 days ago"
-          />
           <div className="py-3 px-5 flex items-center justify-between bg-[#161616]/50">
-            <span className="text-[12px] text-[#555]">3 webhooks configured</span>
+            <span className="text-[12px] text-[#555]">No webhooks configured</span>
             <Button
               variant="ghost"
               size="sm"
@@ -441,34 +410,9 @@ export function AdvancedSettingsScreen() {
         </div>
         <Card className="bg-[#181818] border-[#2c2c2c] text-[#e7e7e7] rounded-xl overflow-hidden shadow-sm">
           <div className="-my-6">
-            <EnvVarItem
-              name="DATABASE_URL"
-            value="postgresql://db.xxx.supabase.co:5432/postgres"
-            isSecret={true}
-          />
-          <EnvVarItem
-            name="NEXT_PUBLIC_APP_URL"
-            value="https://app.geigerflow.dev"
-            isSecret={false}
-          />
-          <EnvVarItem
-            name="STRIPE_SECRET_KEY"
-            value="sk_live_51Nx...Rk8m"
-            isSecret={true}
-          />
-          <EnvVarItem
-            name="SENDGRID_API_KEY"
-            value="SG.abc123...xyz789"
-            isSecret={true}
-          />
-          <EnvVarItem
-            name="NODE_ENV"
-            value="production"
-            isSecret={false}
-          />
           <div className="py-3 px-5 flex items-center justify-between bg-[#161616]/50">
             <span className="text-[12px] text-[#555]">
-              5 variables (3 secrets)
+              No variables configured
             </span>
             <Button
               variant="ghost"

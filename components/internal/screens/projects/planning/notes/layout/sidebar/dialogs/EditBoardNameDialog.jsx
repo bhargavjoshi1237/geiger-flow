@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 
 export default function EditBoardNameDialog({
   open,
@@ -40,7 +41,7 @@ export default function EditBoardNameDialog({
         </DialogHeader>
         <div className="py-4 space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-zinc-300">Name</label>
+            <Label className="text-sm font-medium text-zinc-300">Name</Label>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -53,7 +54,7 @@ export default function EditBoardNameDialog({
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium text-zinc-300">Caption</label>
+            <Label className="text-sm font-medium text-zinc-300">Caption</Label>
             <Input
               value={caption}
               onChange={(e) => setCaption(e.target.value)}

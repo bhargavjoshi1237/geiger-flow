@@ -2,6 +2,7 @@
 
 import React from "react";
 import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export const SidebarButton = React.forwardRef(
   (
@@ -9,7 +10,7 @@ export const SidebarButton = React.forwardRef(
     ref,
   ) => {
     return (
-      <button
+      <Button
         ref={ref}
         onClick={onClick}
         type="button"
@@ -34,7 +35,7 @@ export const SidebarButton = React.forwardRef(
         <div className="flex items-center justify-center relative z-10">
           {children || (Icon && <Icon className="w-5 h-5" strokeWidth={1.75} />)}
         </div>
-      </button>
+      </Button>
     );
   },
 );

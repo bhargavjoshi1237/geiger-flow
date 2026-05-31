@@ -25,6 +25,7 @@ import {
   Waypoints,
   Radio,
   Link2,
+  ExternalLink,
 } from "lucide-react";
 
 export const projectNav = [
@@ -44,6 +45,7 @@ export const projectNav = [
   { title: "Team", icon: Users, badge: "7" },
   { title: "Resource Allocation", icon: UsersRound },
   { title: "Vault", icon: Key },
+  { title: "Externals", icon: ExternalLink },
   { title: "Security", icon: ShieldCheck },
   { title: "Settings", icon: Settings, hasSubmenu: true },
 ];

@@ -5,7 +5,7 @@ import React, { createContext, useContext, useState, useCallback } from "react";
 const AddonRegistryContext = createContext();
 
 const INSTALLED_ADDONS = [];
-const DEFAULT_ENABLED_ADDONS = [];
+const DEFAULT_ENABLED_ADDONS = ["system-architecture"];
 
 export function loadAddon(addonModule) {
   const existing = INSTALLED_ADDONS.findIndex((a) => a.id === addonModule.id);
@@ -39,6 +39,18 @@ export function getAddonScreens(enabledIds) {
     }
   });
   return screens;
+}
+
+export function getAddonScreenOptions(enabledIds) {
+  const options = {};
+  getEnabledAddons(enabledIds).forEach((addon) => {
+    addon.screens.forEach((screen) => {
+      options[screen.id] = {
+        fullBleed: Boolean(screen.fullBleed),
+      };
+    });
+  });
+  return options;
 }
 
 export function getAddonNavItems(enabledIds, navPositions = {}, addonColors = {}) {

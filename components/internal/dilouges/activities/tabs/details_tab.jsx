@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { Slider } from "@/components/ui/slider";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -62,13 +63,7 @@ const TAG_PRESETS = [
   { id: "testing", label: "Testing", color: "bg-pink-500/20 text-pink-300" },
 ];
 
-const TEAM_MEMBERS = [
-  { id: "1", name: "Alex Johnson" },
-  { id: "2", name: "Sarah Miller" },
-  { id: "3", name: "Mike Chen" },
-  { id: "4", name: "Emma Davis" },
-  { id: "5", name: "James Wilson" },
-];
+const TEAM_MEMBERS = [];
 
 export function DetailsTab({ formData, handleInputChange, handleToggleTag, handleToggleAssignee }) {
   return (
@@ -162,13 +157,12 @@ export function DetailsTab({ formData, handleInputChange, handleToggleTag, handl
           <Label className="text-sm font-medium text-zinc-300">
             Progress <span className="text-zinc-500 text-xs">({formData.progress}%)</span>
           </Label>
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={formData.progress}
-            onChange={(e) => handleInputChange("progress", parseInt(e.target.value))}
-            className="w-full h-1.5 bg-[#2a2a2a] rounded-lg appearance-none cursor-pointer accent-[#ededed] mt-3"
+          <Slider
+            min={0}
+            max={100}
+            value={[formData.progress]}
+            onValueChange={([value]) => handleInputChange("progress", value)}
+            className="mt-3 [&_[data-slot=slider-range]]:bg-[#ededed] [&_[data-slot=slider-track]]:bg-[#2a2a2a] [&_[data-slot=slider-thumb]]:border-[#ededed]"
           />
         </div>
       </div>
@@ -179,19 +173,21 @@ export function DetailsTab({ formData, handleInputChange, handleToggleTag, handl
         <Label className="text-sm font-medium text-zinc-300">Tags</Label>
         <div className="flex flex-wrap gap-1.5">
           {TAG_PRESETS.map((tag) => (
-            <button
+            <Button
               key={tag.id}
               type="button"
+              variant="ghost"
+              size="sm"
               onClick={() => handleToggleTag(tag.id)}
               className={cn(
-                "px-2.5 py-1 rounded text-xs font-medium transition-all border",
+                "h-auto rounded px-2.5 py-1 text-xs font-medium transition-all border",
                 formData.tags.includes(tag.id)
                   ? "bg-[#ededed] text-[#161616] border-[#ededed]"
                   : "bg-[#202020] border-[#2a2a2a] text-[#737373] hover:border-[#3a3a3a]"
               )}
             >
               {tag.label}
-            </button>
+            </Button>
           ))}
         </div>
       </div>

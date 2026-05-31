@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import {
   AlertTriangle,
   BarChart3,
@@ -17,7 +18,6 @@ import {
   Plus,
   Radio,
   Rows3,
-  Send,
   Settings2,
   ShieldCheck,
   Sparkles,
@@ -56,100 +56,11 @@ const QUESTION_TYPES = {
   dropdown: { label: "Dropdown", Icon: ChevronDown, placeholder: "Select from a list" },
 };
 
-const INITIAL_FORMS = [
-  {
-    id: "frm_access",
-    title: "Project access request",
-    description: "Collect clause-bound access requests before granting private workspace permissions.",
-    status: "Published",
-    responses: 18,
-    lastSubmission: "Today",
-    owner: "Aadit Joshi",
-    confidentiality: "Project clause",
-  },
-  {
-    id: "frm_vendor",
-    title: "Vendor security intake",
-    description: "Capture vendor attestations and security review evidence for the project record.",
-    status: "Draft",
-    responses: 4,
-    lastSubmission: "May 10",
-    owner: "Priya Shah",
-    confidentiality: "Confidential",
-  },
-  {
-    id: "frm_retrospective",
-    title: "Release retrospective",
-    description: "Gather structured project feedback from team members after launch.",
-    status: "Closed",
-    responses: 27,
-    lastSubmission: "May 6",
-    owner: "Sam Lee",
-    confidentiality: "Project members",
-  },
-];
+const INITIAL_FORMS = [];
 
-const INITIAL_QUESTIONS = [
-  {
-    id: "q1",
-    title: "What access do you need?",
-    type: "short",
-    required: true,
-    description: "Keep this specific to project systems and datasets.",
-    options: [],
-  },
-  {
-    id: "q2",
-    title: "Reason for access",
-    type: "paragraph",
-    required: true,
-    description: "Include the project clause, approver, and expected duration.",
-    options: [],
-  },
-  {
-    id: "q3",
-    title: "Requested permission level",
-    type: "multiple",
-    required: true,
-    description: "",
-    options: ["Viewer", "Contributor", "Maintainer"],
-  },
-  {
-    id: "q4",
-    title: "Systems involved",
-    type: "checkbox",
-    required: false,
-    description: "",
-    options: ["Vault", "Assets", "Reporting", "SQL"],
-  },
-];
+const INITIAL_QUESTIONS = [];
 
-const RESPONSES = [
-  {
-    id: "R-1042",
-    respondent: "Mira Kapoor",
-    submitted: "Today 10:42",
-    status: "Needs review",
-    access: "Contributor",
-    clause: "NDA + launch clause",
-  },
-  {
-    id: "R-1041",
-    respondent: "Riley Park",
-    submitted: "Yesterday",
-    status: "Approved",
-    access: "Viewer",
-    clause: "Employee clause",
-  },
-  {
-    id: "R-1038",
-    respondent: "External partner",
-    submitted: "May 9",
-    status: "Flagged",
-    access: "Maintainer",
-    clause: "Pending verification",
-  },
-];
+const RESPONSES = [];
 
 const RESPONSE_ANSWERS = {
   q1: "Temporary reporting and assets access",
@@ -182,7 +93,7 @@ function Metric({ label, value, detail, Icon }) {
   );
 }
 
-function FormList({ forms, selectedFormId, onSelect }) {
+function FormList({ forms, selectedFormId, onSelect, onCreateForm }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-[#2a2a2a] bg-[#202020]">
       <div className="flex items-center justify-between border-b border-[#2a2a2a] px-4 py-3">
@@ -190,14 +101,14 @@ function FormList({ forms, selectedFormId, onSelect }) {
           <p className="text-sm font-semibold text-[#ededed]">Project forms</p>
           <p className="text-xs text-[#737373]">Confidential collection spaces</p>
         </div>
-        <Button size="sm" className="h-8 bg-white text-black hover:bg-[#e7e7e7]">
+        <Button type="button" size="sm" className="h-8 bg-white text-black hover:bg-[#e7e7e7]" onClick={onCreateForm}>
           <Plus className="mr-1.5 h-3.5 w-3.5" />
           New
         </Button>
       </div>
       <div className="divide-y divide-[#2a2a2a]">
         {forms.map((form) => (
-          <button
+          <Button
             key={form.id}
             type="button"
             onClick={() => onSelect(form.id)}
@@ -219,7 +130,7 @@ function FormList({ forms, selectedFormId, onSelect }) {
               <span>{form.responses} responses</span>
               <span>{form.confidentiality}</span>
             </div>
-          </button>
+          </Button>
         ))}
       </div>
     </div>
@@ -576,10 +487,17 @@ function ViewSwitch({ activeView, onChange }) {
 }
 
 export function FormsScreen() {
+  const params = useParams();
+  const router = useRouter();
+  const projectId = params?.id || "";
+  const builderHref = projectId ? `/project/${encodeURIComponent(projectId)}/builder` : "/project/builder";
+  const openBuilder = () => {
+    router.push(builderHref);
+  };
   const [forms, setForms] = useState(INITIAL_FORMS);
-  const [selectedFormId, setSelectedFormId] = useState(INITIAL_FORMS[0].id);
+  const [selectedFormId, setSelectedFormId] = useState(INITIAL_FORMS[0]?.id || null);
   const [questions, setQuestions] = useState(INITIAL_QUESTIONS);
-  const [activeQuestionId, setActiveQuestionId] = useState(INITIAL_QUESTIONS[0].id);
+  const [activeQuestionId, setActiveQuestionId] = useState(INITIAL_QUESTIONS[0]?.id || null);
   const [activeView, setActiveView] = useState("Builder");
   const [settings, setSettings] = useState({
     membersOnly: true,
@@ -599,6 +517,10 @@ export function FormsScreen() {
   );
 
   const updateSelectedForm = (patch) => {
+    if (!selectedForm) {
+      return;
+    }
+
     setForms((currentForms) =>
       currentForms.map((form) => (form.id === selectedForm.id ? { ...form, ...patch } : form)),
     );
@@ -623,6 +545,44 @@ export function FormsScreen() {
     setActiveQuestionId(question.id);
   };
 
+  if (!selectedForm) {
+    return (
+      <MainScreenWrapper className="space-y-6 text-[#e7e7e7]">
+        <div className="flex flex-col gap-4 border-b border-[#2a2a2a] pb-6 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-3">
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-teal-500/25 bg-teal-500/10">
+              <FileQuestion className="h-5 w-5 text-teal-300" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-[#e7e7e7] md:text-3xl">Forms</h1>
+              <p className="mt-1 text-[#a3a3a3]">Create confidential forms for project-bound submissions.</p>
+            </div>
+          </div>
+          <Button type="button" className="bg-white text-black hover:bg-[#e7e7e7]" onClick={openBuilder}>
+            <Plus className="mr-2 h-4 w-4" />
+            New form
+          </Button>
+        </div>
+
+        <div className="grid min-h-[360px] place-items-center border border-dashed border-[#333333] bg-[#1a1a1a] p-6 text-center">
+          <div className="max-w-sm">
+            <div className="mx-auto grid h-12 w-12 place-items-center rounded-lg border border-[#2a2a2a] bg-[#202020]">
+              <FileQuestion className="h-5 w-5 text-[#a3a3a3]" />
+            </div>
+            <h2 className="mt-4 text-lg font-semibold text-[#ededed]">No forms yet</h2>
+            <p className="mt-2 text-sm leading-6 text-[#737373]">
+              Start with a draft and publish it when the project intake is ready.
+            </p>
+            <Button type="button" className="mt-4 bg-white text-black hover:bg-[#e7e7e7]" onClick={openBuilder}>
+              <Plus className="mr-2 h-4 w-4" />
+              Create form
+            </Button>
+          </div>
+        </div>
+      </MainScreenWrapper>
+    );
+  }
+
   return (
     <MainScreenWrapper className="space-y-6 text-[#e7e7e7]">
       <div className="flex flex-col gap-4 border-b border-[#2a2a2a] pb-6 md:flex-row md:items-center md:justify-between">
@@ -636,13 +596,9 @@ export function FormsScreen() {
           </div>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <Button variant="outline" className="border-[#2a2a2a] bg-transparent text-[#a3a3a3] hover:bg-[#242424] hover:text-white">
-            <Eye className="mr-2 h-4 w-4" />
-            Preview
-          </Button>
-          <Button className="bg-white text-black hover:bg-[#e7e7e7]">
-            <Send className="mr-2 h-4 w-4" />
-            Publish
+          <Button type="button" className="bg-white text-black hover:bg-[#e7e7e7]" onClick={openBuilder}>
+            <Plus className="mr-2 h-4 w-4" />
+            New form
           </Button>
         </div>
       </div>
@@ -655,7 +611,7 @@ export function FormsScreen() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[330px_1fr]">
-        <FormList forms={forms} selectedFormId={selectedForm.id} onSelect={setSelectedFormId} />
+        <FormList forms={forms} selectedFormId={selectedForm.id} onSelect={setSelectedFormId} onCreateForm={openBuilder} />
 
         <section className="min-w-0 space-y-4">
           <div className="overflow-hidden rounded-2xl border border-[#2a2a2a] bg-[#202020]">

@@ -1,42 +1,9 @@
 "use client";
 
 import React, { createContext, useContext, useState, useCallback } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 const ProjectContext = createContext();
-
-export const projectsData = [
-  {
-    id: "aabackup",
-    name: "aabackup",
-    provider: "AWS",
-    region: "ap-south-1",
-    status: "PAUSED",
-  },
-  {
-    id: "anime-alley",
-    name: "Anime Alley",
-    provider: "AWS",
-    region: "ap-south-1",
-    status: "PAUSED",
-  },
-  {
-    id: "books",
-    name: "Books",
-    provider: "AWS",
-    region: "ap-south-1",
-    status: "PAUSED",
-  },
-  {
-    id: "geiger-studio",
-    name: "Geiger Studio",
-    provider: "AWS",
-    region: "ap-south-1",
-    status: "ACTIVE",
-    tags: ["ACTIVE", "NANO"],
-  },
-];
-
-import { createClient } from "@/lib/supabase/client";
 
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -46,7 +13,6 @@ export function ProjectProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   const fetchProjectInfo = useCallback(async (id) => {
-    console.log("[project-context] fetchProjectInfo triggered for:", id);
     setLoading(true);
     let foundProject = null;
 
@@ -66,10 +32,8 @@ export function ProjectProvider({ children }) {
     }
 
     if (foundProject) {
-      console.log("[project-context] project found:", foundProject.name);
       setProject(foundProject);
     } else {
-      console.log("[project-context] project not found, using fallback for:", id);
       setProject({
         id,
         name: id.charAt(0).toUpperCase() + id.slice(1).replace(/-/g, " "),

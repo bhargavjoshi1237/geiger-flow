@@ -38,58 +38,9 @@ const STATUS_OPTIONS = [
   { value: "completed", label: "Completed" },
 ];
 
-const TEAM_MEMBERS = [
-  "You",
-  "Amélie",
-  "Alex",
-  "Sam",
-  "Riley",
-  "Jordan",
-  "Casey",
-];
+const TEAM_MEMBERS = [];
 
-const KEY_RESULT_SUGGESTIONS = [
-  { category: "Completion", items: [
-    "Complete all [X] deliverables",
-    "Finish [X] milestones on time",
-    "Close [X]% of open issues",
-    "Deliver [X] features to production",
-    "Complete [X] sprint goals",
-  ]},
-  { category: "Quality", items: [
-    "Achieve [X]% test coverage",
-    "Reduce bug count by [X]%",
-    "Maintain [X] code review approval rate",
-    "Zero critical defects in production",
-    "Achieve [X] Lighthouse score",
-  ]},
-  { category: "Performance", items: [
-    "Reduce load time to under [X] seconds",
-    "Achieve [X]% uptime SLA",
-    "Reduce API response time by [X]%",
-    "Process [X] requests per second",
-  ]},
-  { category: "Adoption", items: [
-    "Onboard [X] new users",
-    "Achieve [X]% user retention rate",
-    "Reach [X] daily active users",
-    "Increase adoption rate by [X]%",
-    "Collect [X] user feedback responses",
-  ]},
-  { category: "Revenue & Growth", items: [
-    "Generate [X] in new revenue",
-    "Increase conversion rate by [X]%",
-    "Reduce churn rate to under [X]%",
-    "Achieve [X]% month-over-month growth",
-  ]},
-  { category: "Process", items: [
-    "Reduce onboarding time to [X] days",
-    "Achieve [X]% sprint velocity",
-    "Complete [X] retrospectives",
-    "Document [X] processes",
-    "Reduce meeting time by [X]%",
-  ]},
-];
+const KEY_RESULT_SUGGESTIONS = [];
 
 const INITIAL_FORM = {
   title: "",
@@ -180,7 +131,7 @@ function SearchableKeyResultSelect({ value, onChange, selectedLabels }) {
                       (l) => l.toLowerCase() === item.toLowerCase()
                     );
                     return (
-                      <button
+                      <Button
                         key={item}
                         type="button"
                         disabled={isSelected}
@@ -202,7 +153,7 @@ function SearchableKeyResultSelect({ value, onChange, selectedLabels }) {
                           <span className="w-3 h-3 shrink-0" />
                         )}
                         <span className="truncate">{item}</span>
-                      </button>
+                      </Button>
                     );
                   })}
                 </div>

@@ -82,11 +82,11 @@ const ImageCaptionDialog = ({ open, onOpenChange, initialData, onSave }) => {
                 side="top"
                 align="start"
               >
-                <button
+                <Button
                   className="w-full h-10 rounded border border-zinc-700 flex items-center justify-center gap-2 hover:border-zinc-500 transition-colors"
                   style={{ backgroundColor: bgColor }}
                 >
-                </button>
+                </Button>
               </ColorPicker>
             </div>
             <div className="grid gap-2">
@@ -97,7 +97,7 @@ const ImageCaptionDialog = ({ open, onOpenChange, initialData, onSave }) => {
                 side="top"
                 align="start"
               >
-                <button
+                <Button
                   className="w-full h-10 rounded border border-zinc-700 flex items-center justify-center gap-2 hover:border-zinc-500 transition-colors"
                   style={{ backgroundColor: textColor }}
                 />

@@ -7,6 +7,7 @@ import {
   useConnection,
 } from "@xyflow/react";
 import { Link, ArrowRight } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import Reactions from "../ui/Reactions";
 import TextEditingTrait from "./traits/TextEditingTrait";
 
@@ -113,8 +114,8 @@ const LinkNode = ({ id, data, selected, dragging }) => {
         <div className="flex-1 w-full h-full overflow-hidden flex items-center px-4">
           <Link className="w-5 h-5 text-zinc-500 mr-3 flex-shrink-0" />
           <TextEditingTrait className="w-full">
-            <input
-              className="w-full bg-transparent outline-none text-zinc-300 placeholder:text-zinc-600 font-sans"
+            <Input
+              className="w-full border-0 bg-transparent px-0 py-0 text-zinc-300 shadow-none placeholder:text-zinc-600 focus-visible:ring-0 font-sans"
               placeholder="Enter a link URL"
               value={data.url || ""}
               onChange={(evt) => {

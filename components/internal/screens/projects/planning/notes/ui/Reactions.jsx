@@ -1,4 +1,5 @@
 import React from "react";
+import { Button } from "@/components/ui/button";
 
 const Reactions = ({ reactions = {}, onReactionClick }) => {
   const reactionEntries = Object.entries(reactions).filter(
@@ -10,7 +11,7 @@ const Reactions = ({ reactions = {}, onReactionClick }) => {
   return (
     <div className="absolute -bottom-3 right-2 flex flex-row-reverse flex-wrap gap-1.5 z-20 pointer-events-auto">
       {reactionEntries.map(([emoji, count]) => (
-        <button
+        <Button
           key={emoji}
           title={`${count} reactions`}
           className={`
@@ -33,7 +34,7 @@ const Reactions = ({ reactions = {}, onReactionClick }) => {
           <span className="font-medium text-zinc-300 tabular-nums">
             {count}
           </span>
-        </button>
+        </Button>
       ))}
     </div>
   );

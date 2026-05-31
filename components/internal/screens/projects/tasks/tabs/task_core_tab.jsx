@@ -3,6 +3,8 @@
 import React, { useState, useMemo, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -60,13 +62,7 @@ const PRIORITY_OPTIONS = [
   { value: "critical", label: "Critical", Icon: AlertTriangle },
 ];
 
-const TEAM_MEMBERS = [
-  { id: "user_1", name: "Alex" },
-  { id: "user_2", name: "Sam" },
-  { id: "user_3", name: "Priya" },
-  { id: "user_4", name: "Morgan" },
-  { id: "user_5", name: "Jordan" },
-];
+const TEAM_MEMBERS = [];
 
 export function TaskCoreTab({
   formData,
@@ -176,16 +172,12 @@ export function TaskCoreTab({
           <span className="text-[#737373] text-xs font-mono">{formData.progress}%</span>
         </Label>
         <div className="relative pt-1 pb-2">
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={formData.progress || 0}
-            onChange={(event) => handleInputChange("progress", Number(event.target.value))}
-            className="w-full h-1.5 rounded-lg appearance-none cursor-pointer outline-none focus-visible:ring-1 focus-visible:ring-zinc-600 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1e1e1e] [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:bg-[#ededed] [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-md hover:[&::-webkit-slider-thumb]:scale-110 active:[&::-webkit-slider-thumb]:scale-95 transition-all"
-            style={{
-              background: `linear-gradient(to right, #ededed ${formData.progress || 0}%, #2a2a2a ${formData.progress || 0}%)`
-            }}
+          <Slider
+            min={0}
+            max={100}
+            value={[formData.progress || 0]}
+            onValueChange={([value]) => handleInputChange("progress", value)}
+            className="[&_[data-slot=slider-range]]:bg-[#ededed] [&_[data-slot=slider-track]]:bg-[#2a2a2a] [&_[data-slot=slider-thumb]]:border-[#ededed]"
           />
         </div>
       </div>
@@ -261,8 +253,9 @@ function StageSelect({ value, onValueChange, triggerClassName }) {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button
+        <Button
           type="button"
+          variant="outline"
           className={cn(
             "flex w-full items-center justify-between gap-2 rounded-md border px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50",
             triggerClassName
@@ -275,7 +268,7 @@ function StageSelect({ value, onValueChange, triggerClassName }) {
           <svg className="w-4 h-4 opacity-50 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="6 9 12 15 18 9" />
           </svg>
-        </button>
+        </Button>
       </PopoverTrigger>
       <PopoverContent
         align="start"
@@ -284,9 +277,10 @@ function StageSelect({ value, onValueChange, triggerClassName }) {
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         {ungrouped.map((option) => (
-          <button
+          <Button
             key={option.value}
             type="button"
+            variant="ghost"
             onClick={() => handleSelect(option.value)}
             className={cn(
               "relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-hidden select-none transition-colors hover:bg-[#2a2a2a] hover:text-[#ededed] data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -297,7 +291,7 @@ function StageSelect({ value, onValueChange, triggerClassName }) {
           >
             <option.Icon className="w-3.5 h-3.5 shrink-0" />
             <span className="font-medium flex-1 text-left">{option.label}</span>
-          </button>
+          </Button>
         ))}
 
         {Object.entries(groups).map(([group, items]) => {
@@ -309,8 +303,9 @@ function StageSelect({ value, onValueChange, triggerClassName }) {
               onMouseEnter={() => handleHoverEnter(group)}
               onMouseLeave={handleHoverLeave}
             >
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 className={cn(
                   "relative w-full flex items-center gap-2 rounded-sm py-1.5 pl-2 pr-7 text-sm transition-colors",
                   hoveredGroup === group
@@ -321,14 +316,15 @@ function StageSelect({ value, onValueChange, triggerClassName }) {
                 <GroupIcon className="w-3.5 h-3.5 shrink-0" />
                 <span className="flex-1 font-medium text-left">{group}</span>
                 <ArrowRight className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 opacity-50" />
-              </button>
+              </Button>
 
               {hoveredGroup === group && (
                 <div className="absolute left-full top-0 ml-1 w-40 border border-[#2a2a2a] bg-[#1a1a1a] shadow-xl rounded-md z-50 p-1 text-[#ededed]">
                   {items.map((item) => (
-                    <button
+                    <Button
                       key={item.value}
                       type="button"
+                      variant="ghost"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleSelect(item.value);
@@ -348,7 +344,7 @@ function StageSelect({ value, onValueChange, triggerClassName }) {
                       >
                         <CheckIcon className="size-4" />
                       </span>
-                    </button>
+                    </Button>
                   ))}
                 </div>
               )}
@@ -375,13 +371,14 @@ function AssigneeDropdown({ selected, onToggle }) {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button
+        <Button
           type="button"
+          variant="outline"
           className="flex items-center gap-1.5 px-3 py-1.5 h-[30px] rounded-full border border-dashed border-[#474747] text-xs font-medium text-[#a3a3a3] hover:text-zinc-100 hover:border-[#737373] hover:bg-[#202020] transition-all bg-transparent"
         >
           <Plus className="w-3.5 h-3.5" />
           Add Assignee
-        </button>
+        </Button>
       </PopoverTrigger>
       <PopoverContent
         align="start"
@@ -406,9 +403,10 @@ function AssigneeDropdown({ selected, onToggle }) {
             filtered.map((member) => {
               const isSelected = selected.includes(member.id);
               return (
-                <button
+                <Button
                   key={member.id}
                   type="button"
+                  variant="ghost"
                   onClick={() => onToggle(member.id)}
                   className={cn(
                     "w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-xs transition-colors",
@@ -431,7 +429,7 @@ function AssigneeDropdown({ selected, onToggle }) {
                   </Avatar>
                   <span className="flex-1 text-left font-medium">{member.name}</span>
                   {isSelected && <Check className="w-3.5 h-3.5 text-emerald-400" />}
-                </button>
+                </Button>
               );
             })
           )}

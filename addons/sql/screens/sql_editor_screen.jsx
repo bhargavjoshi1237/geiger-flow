@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Table,
@@ -27,21 +28,16 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
-const SAMPLE_QUERIES = [
-  "SELECT * FROM users LIMIT 10;",
-  "SELECT count(*) AS total FROM users;",
-  "SELECT * FROM projects ORDER BY created_at DESC LIMIT 5;",
-  "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';",
-];
-
 function QueryHistoryItem({ query, timestamp, result, onClick }) {
   const isSuccess = result?.status === "success";
   const isError = result?.status === "error";
 
   return (
-    <button
+    <Button
+      type="button"
+      variant="ghost"
       onClick={onClick}
-      className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-[#2a2a2a] transition-colors group cursor-pointer"
+      className="h-auto w-full justify-start text-left px-3 py-2.5 rounded-lg hover:bg-[#2a2a2a] transition-colors group cursor-pointer"
     >
       <div className="flex items-start gap-2">
         {isSuccess && <CheckCircle2 className="w-3.5 h-3.5 text-green-500 mt-0.5 shrink-0" />}
@@ -64,7 +60,7 @@ function QueryHistoryItem({ query, timestamp, result, onClick }) {
           </div>
         </div>
       </div>
-    </button>
+    </Button>
   );
 }
 
@@ -172,11 +168,6 @@ export function SqlEditorScreen() {
     setHistory([]);
   };
 
-  const handleSampleQuery = (sampleQuery) => {
-    setQuery(sampleQuery);
-    textareaRef.current?.focus();
-  };
-
   return (
     <MainScreenWrapper>
       <div className="space-y-6">
@@ -206,12 +197,15 @@ export function SqlEditorScreen() {
                     <span className="text-xs font-medium text-[#e5e5e5]">History</span>
                   </div>
                   {history.length > 0 && (
-                    <button
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
                       onClick={clearHistory}
                       className="text-[10px] text-[#525252] hover:text-red-400 transition-colors cursor-pointer"
                     >
                       Clear
-                    </button>
+                    </Button>
                   )}
                 </div>
                 <ScrollArea className="flex-1">
@@ -248,12 +242,15 @@ export function SqlEditorScreen() {
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <button
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-sm"
                           onClick={() => setShowHistory((prev) => !prev)}
                           className={`p-1.5 rounded-md transition-colors cursor-pointer ${showHistory ? "bg-[#2a2a2a] text-[#e5e5e5]" : "text-[#525252] hover:text-[#737373]"}`}
                         >
                           <ChevronLeft className="w-3.5 h-3.5" />
-                        </button>
+                        </Button>
                       </TooltipTrigger>
                       <TooltipContent side="bottom" className="bg-[#2a2a2a] border-[#333] text-[#e5e5e5] text-[11px]">
                         Toggle history
@@ -263,12 +260,15 @@ export function SqlEditorScreen() {
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <button
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-sm"
                           onClick={clearEditor}
                           className="p-1.5 rounded-md text-[#525252] hover:text-[#737373] hover:bg-[#2a2a2a] transition-colors cursor-pointer"
                         >
                           <RotateCcw className="w-3.5 h-3.5" />
-                        </button>
+                        </Button>
                       </TooltipTrigger>
                       <TooltipContent side="bottom" className="bg-[#2a2a2a] border-[#333] text-[#e5e5e5] text-[11px]">
                         Clear editor
@@ -278,28 +278,18 @@ export function SqlEditorScreen() {
                 </div>
               </div>
 
-              <textarea
+              <Textarea
                 ref={textareaRef}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Enter your SQL query here... (Ctrl+Enter to execute)"
-                className="w-full min-h-[140px] max-h-[300px] bg-[#161616] text-[#e5e5e5] placeholder:text-[#525252] font-mono text-xs p-4 resize-y outline-none leading-relaxed"
+                className="min-h-[140px] max-h-[300px] rounded-none border-0 bg-[#161616] p-4 font-mono text-xs leading-relaxed text-[#e5e5e5] placeholder:text-[#525252] resize-y focus-visible:ring-0 focus-visible:ring-offset-0"
                 spellCheck={false}
               />
 
               <div className="flex items-center justify-between px-4 py-2.5 border-t border-[#2a2a2a] bg-[#1a1a1a]">
-                <div className="flex items-center gap-2">
-                  {SAMPLE_QUERIES.map((sq) => (
-                    <button
-                      key={sq}
-                      onClick={() => handleSampleQuery(sq)}
-                      className="text-[10px] text-[#525252] hover:text-[#a3a3a3] bg-[#2a2a2a] hover:bg-[#333] px-2 py-1 rounded transition-colors cursor-pointer font-mono truncate max-w-[140px]"
-                    >
-                      {sq.split(" ").slice(0, 3).join(" ")}...
-                    </button>
-                  ))}
-                </div>
+                <div />
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] text-[#525252] hidden sm:inline">
                     Ctrl+Enter to run
@@ -324,7 +314,10 @@ export function SqlEditorScreen() {
             <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl overflow-hidden flex-1 flex flex-col min-h-[200px]">
               <div className="flex items-center justify-between px-4 py-2.5 border-b border-[#2a2a2a]">
                 <div className="flex items-center gap-1">
-                  <button
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
                     onClick={() => setActiveTab("results")}
                     className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
                       activeTab === "results"
@@ -333,8 +326,11 @@ export function SqlEditorScreen() {
                     }`}
                   >
                     Results {results && <span className="text-[#525252] ml-1">({results.rowCount})</span>}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
                     onClick={() => setActiveTab("messages")}
                     className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer relative ${
                       activeTab === "messages"
@@ -346,7 +342,7 @@ export function SqlEditorScreen() {
                     {error && (
                       <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-400 rounded-full" />
                     )}
-                  </button>
+                  </Button>
                 </div>
 
                 {results && (
@@ -360,14 +356,17 @@ export function SqlEditorScreen() {
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <button
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon-xs"
                             onClick={() => {
                               navigator.clipboard.writeText(JSON.stringify(results.rows, null, 2));
                             }}
                             className="p-1 rounded text-[#525252] hover:text-[#737373] hover:bg-[#2a2a2a] transition-colors cursor-pointer"
                           >
                             <Copy className="w-3 h-3" />
-                          </button>
+                          </Button>
                         </TooltipTrigger>
                         <TooltipContent side="bottom" className="bg-[#2a2a2a] border-[#333] text-[#e5e5e5] text-[11px]">
                           Copy as JSON

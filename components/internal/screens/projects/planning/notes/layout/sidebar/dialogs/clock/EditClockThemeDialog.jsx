@@ -20,7 +20,7 @@ const ColorField = ({ label, value, onChange }) => (
       {label}
     </span>
     <ColorPicker value={value} onChange={onChange} align="center">
-      <button
+      <Button
         className="w-8 h-5 rounded-[5px] border border-zinc-700/80 cursor-pointer hover:border-zinc-500 transition-all hover:scale-110 focus:outline-none focus:ring-1 focus:ring-zinc-500 focus:ring-offset-1 focus:ring-offset-[#141414]"
         style={{ backgroundColor: value }}
       />
@@ -179,12 +179,12 @@ export default function EditClockThemeDialog({
                 Clock Settings
               </DialogTitle>
             </div>
-            <button
+            <Button
               onClick={() => onOpenChange(false)}
               className="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-500 hover:text-white hover:bg-zinc-800 transition-all"
             >
               <X className="w-4 h-4" />
-            </button>
+            </Button>
           </div>
         </DialogHeader>
 
@@ -193,7 +193,7 @@ export default function EditClockThemeDialog({
             { id: "analog", label: "Analog", icon: Clock },
             { id: "digital", label: "Digital", icon: Monitor },
           ].map((tab) => (
-            <button
+            <Button
               key={tab.id}
               onClick={() => handleChange("clockType", tab.id)}
               className={cn(
@@ -205,7 +205,7 @@ export default function EditClockThemeDialog({
             >
               <tab.icon className="w-4 h-4" />
               {tab.label}
-            </button>
+            </Button>
           ))}
         </div>
 

@@ -39,116 +39,6 @@ import { cn } from "@/lib/utils";
 import { ObjectiveKanban } from "./objective_kanban";
 import { NewObjectiveDialog } from "@/components/internal/dilouges/objectives/new_objective_dilouge";
 
-const MOCK_OBJECTIVES = [
-  {
-    id: "obj_001",
-    title: "Establish UX consistency across all project screens",
-    description:
-      "Ensure every screen follows the same design language, spacing tokens, and interaction patterns.",
-    status: "on_track",
-    progress: 68,
-    owner: "Amélie",
-    startDate: "2026-03-01",
-    targetDate: "2026-04-15",
-    keyResults: [
-      { label: "Audit all screens against design system", progress: 100, done: true },
-      { label: "Migrate remaining hardcoded colors to tokens", progress: 72, done: false },
-      { label: "Unified input box standard applied globally", progress: 33, done: false },
-    ],
-    goals: [
-      { id: "g_001_1", title: "Audit dashboard screens", description: "Review all dashboard-related screens for design token compliance", status: "completed", progress: 100, owner: "Amélie", keyResults: [{ label: "Check spacing tokens", progress: 100, done: true }, { label: "Verify color usage", progress: 100, done: true }] },
-      { id: "g_001_2", title: "Audit project screens", description: "Review all project-level screens for consistency", status: "on_track", progress: 75, owner: "Alex", keyResults: [{ label: "Sidebar consistency", progress: 100, done: true }, { label: "Topbar alignment", progress: 50, done: false }] },
-      { id: "g_001_3", title: "Migrate hardcoded colors", description: "Replace hardcoded hex colors with CSS variable tokens", status: "on_track", progress: 60, owner: "Sam", keyResults: [{ label: "globals.css tokens", progress: 100, done: true }, { label: "Component migration", progress: 20, done: false }] },
-      { id: "g_001_4", title: "Update input standards", description: "Apply global input box standard across all form fields", status: "not_started", progress: 0, owner: "Riley", keyResults: [{ label: "Update Input component", progress: 0, done: false }, { label: "Migrate usages", progress: 0, done: false }] },
-    ],
-  },
-  {
-    id: "obj_002",
-    title: "Achieve blocker visibility for every task",
-    description:
-      "Surface dependency chains and blocked-by relationships so PMs can act on blockers immediately.",
-    status: "at_risk",
-    progress: 30,
-    owner: "Sam",
-    startDate: "2026-03-10",
-    targetDate: "2026-04-01",
-    keyResults: [
-      { label: "Dependency chain map UI complete", progress: 50, done: false },
-      { label: "Real-time blocker alerts in inbox", progress: 10, done: false },
-      { label: "Chain-view exported as shareable link", progress: 0, done: false },
-    ],
-    goals: [
-      { id: "g_002_1", title: "Design chain map UI", description: "Create visual representation of task dependency chains", status: "on_track", progress: 50, owner: "Sam", keyResults: [{ label: "Wireframes approved", progress: 100, done: true }, { label: "Interactive prototype", progress: 0, done: false }] },
-      { id: "g_002_2", title: "Blocker alert system", description: "Implement real-time notifications when tasks get blocked", status: "at_risk", progress: 10, owner: "Alex", keyResults: [{ label: "Alert trigger logic", progress: 20, done: false }, { label: "Inbox integration", progress: 0, done: false }] },
-      { id: "g_002_3", title: "Export chain view", description: "Allow sharing dependency chain as a link", status: "not_started", progress: 0, owner: "Riley", keyResults: [{ label: "Serialize chain data", progress: 0, done: false }, { label: "Shareable URL", progress: 0, done: false }] },
-    ],
-  },
-  {
-    id: "obj_003",
-    title: "Deliver delivery-insights analytics module",
-    description:
-      "Build weekly velocity, delay patterns, and burndown analytics so teams can self-serve data.",
-    status: "on_track",
-    progress: 45,
-    owner: "Alex",
-    startDate: "2026-03-20",
-    targetDate: "2026-05-01",
-    keyResults: [
-      { label: "Velocity computation pipeline", progress: 80, done: false },
-      { label: "Delay-pattern detection algorithm", progress: 40, done: false },
-      { label: "Analytics dashboard UI", progress: 15, done: false },
-    ],
-    goals: [
-      { id: "g_003_1", title: "Velocity pipeline", description: "Compute and store weekly velocity metrics per team", status: "on_track", progress: 80, owner: "Alex", keyResults: [{ label: "Data model", progress: 100, done: true }, { label: "Computation engine", progress: 60, done: false }] },
-      { id: "g_003_2", title: "Delay detection", description: "Identify patterns in task delays across sprints", status: "at_risk", progress: 40, owner: "Sam", keyResults: [{ label: "Historical analysis", progress: 50, done: false }, { label: "Prediction model", progress: 30, done: false }] },
-      { id: "g_003_3", title: "Dashboard UI", description: "Build the analytics dashboard with charts and filters", status: "not_started", progress: 15, owner: "Amélie", keyResults: [{ label: "Chart components", progress: 20, done: false }, { label: "Filter sidebar", progress: 10, done: false }] },
-      { id: "g_003_4", title: "Burndown charts", description: "Implement sprint and milestone burndown visualization", status: "on_track", progress: 45, owner: "Alex", keyResults: [{ label: "Data aggregation", progress: 60, done: false }, { label: "Chart rendering", progress: 30, done: false }] },
-    ],
-  },
-  {
-    id: "obj_004",
-    title: "Clean notification & inbox clarity",
-    description:
-      "Reduce inbox noise by defining triage rules and grouping logic for task-related notifications.",
-    status: "completed",
-    progress: 100,
-    owner: "You",
-    startDate: "2026-03-05",
-    targetDate: "2026-03-14",
-    keyResults: [
-      { label: "Triage ruleset defined and approved", progress: 100, done: true },
-      { label: "Grouping logic implemented", progress: 100, done: true },
-      { label: "PM & TL sign-off received", progress: 100, done: true },
-    ],
-    goals: [
-      { id: "g_004_1", title: "Define triage rules", description: "Audit existing notifications and define triage classification", status: "completed", progress: 100, owner: "You", keyResults: [{ label: "Ruleset document", progress: 100, done: true }, { label: "Stakeholder approval", progress: 100, done: true }] },
-      { id: "g_004_2", title: "Implement grouping", description: "Build grouping logic for task-related notifications", status: "completed", progress: 100, owner: "Sam", keyResults: [{ label: "Grouping engine", progress: 100, done: true }, { label: "Inbox UI update", progress: 100, done: true }] },
-      { id: "g_004_3", title: "Get sign-off", description: "Obtain PM and TL sign-off on notification changes", status: "completed", progress: 100, owner: "You", keyResults: [{ label: "PM approval", progress: 100, done: true }, { label: "TL approval", progress: 100, done: true }] },
-    ],
-  },
-  {
-    id: "obj_005",
-    title: "Secure vault access control rollout",
-    description:
-      "Implement role-based vault access with environment scoping for all project team members.",
-    status: "not_started",
-    progress: 0,
-    owner: "Riley",
-    startDate: "2026-04-01",
-    targetDate: "2026-05-15",
-    keyResults: [
-      { label: "RBAC policy spec written", progress: 0, done: false },
-      { label: "Environment scoping middleware", progress: 0, done: false },
-      { label: "Audit log for vault access events", progress: 0, done: false },
-    ],
-    goals: [
-      { id: "g_005_1", title: "Write RBAC spec", description: "Define role-based access control policies for vault", status: "not_started", progress: 0, owner: "Riley", keyResults: [{ label: "Role definitions", progress: 0, done: false }, { label: "Permission matrix", progress: 0, done: false }] },
-      { id: "g_005_2", title: "Environment middleware", description: "Build middleware for environment-scoped vault access", status: "not_started", progress: 0, owner: "Alex", keyResults: [{ label: "Middleware layer", progress: 0, done: false }, { label: "Env variable isolation", progress: 0, done: false }] },
-      { id: "g_005_3", title: "Audit logging", description: "Implement audit trail for all vault access events", status: "not_started", progress: 0, owner: "Sam", keyResults: [{ label: "Log schema", progress: 0, done: false }, { label: "Event capture", progress: 0, done: false }] },
-    ],
-  },
-];
-
 const STATUS_META = {
   not_started: {
     label: "Not Started",
@@ -339,7 +229,7 @@ function ObjectiveCard({ objective, onSelect, onEdit, onDelete, onDuplicate, onC
 
         {objective.keyResults && objective.keyResults.length > 0 && (
           <div className="border-t border-[#222] pt-2">
-            <button
+            <Button
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
@@ -356,7 +246,7 @@ function ObjectiveCard({ objective, onSelect, onEdit, onDelete, onDuplicate, onC
                   goalsOpen && "rotate-180"
                 )}
               />
-            </button>
+            </Button>
             <div
               className={cn(
                 "grid transition-all duration-200 ease-in-out",
@@ -534,7 +424,7 @@ function ObjectiveListItem({ objective, onSelect, onEdit, onDelete, onDuplicate,
 export function ObjectivesScreen() {
   const [selectedObjective, setSelectedObjective] = useState(null);
   const [view, setView] = useState("grid");
-  const [objectives, setObjectives] = useState(MOCK_OBJECTIVES);
+  const [objectives, setObjectives] = useState([]);
   const [editObjective, setEditObjective] = useState(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
 

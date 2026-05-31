@@ -3,6 +3,7 @@
 import React from "react";
 import { useBanner } from "@/context/banner-context";
 import { AlertCircle, X, ExternalLink } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export function GlobalBanner() {
@@ -74,13 +75,16 @@ export function GlobalBanner() {
       </div>
 
       {banner.isSticky && (
-        <button
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
           onClick={hideBanner}
           className="absolute right-4 p-1.5 rounded-full hover:bg-white/10 transition-all active:scale-95 flex items-center justify-center"
           aria-label="Close banner"
         >
           <X className="w-3.5 h-3.5" />
-        </button>
+        </Button>
       )}
     </div>
   );

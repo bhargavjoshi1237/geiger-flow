@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreVertical, Check, Trash2, Bell } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export function NotificationItem({
   notification,
@@ -99,12 +100,12 @@ export function NotificationItem({
 
             {extraContent.type === "actions" && (
               <div className="flex items-center gap-2 mt-2.5">
-                <button className="px-3 py-1.5 rounded-lg border border-[#333333] text-[11px] font-medium text-[#909090] hover:bg-[#252525] hover:text-white transition-colors">
+                <Button className="px-3 py-1.5 rounded-lg border border-[#333333] text-[11px] font-medium text-[#909090] hover:bg-[#252525] hover:text-white transition-colors">
                   {extraContent.options?.[0] || "Decline"}
-                </button>
-                <button className="px-3 py-1.5 rounded-lg bg-white text-[11px] font-medium text-black hover:bg-gray-200 transition-colors">
+                </Button>
+                <Button className="px-3 py-1.5 rounded-lg bg-white text-[11px] font-medium text-black hover:bg-gray-200 transition-colors">
                   {extraContent.options?.[1] || "Accept"}
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -119,9 +120,9 @@ export function NotificationItem({
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-          <button className="p-1.5 rounded-lg text-[#666666] hover:text-white hover:bg-[#2a2a2a] transition-colors opacity-0 group-hover:opacity-100">
+          <Button className="p-1.5 rounded-lg text-[#666666] hover:text-white hover:bg-[#2a2a2a] transition-colors opacity-0 group-hover:opacity-100">
             <MoreVertical className="w-4 h-4" />
-          </button>
+          </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="end"

@@ -118,12 +118,12 @@ export default function FileChangeDialog({
                   Download
                 </Button>
               </div>
-              <button
+              <Button
                 onClick={() => setIsWarningVisible(false)}
                 className="absolute top-2 right-2 text-amber-500/50 hover:text-amber-500 transition-colors"
               >
                 <X size={14} />
-              </button>
+              </Button>
             </div>
           )}
 

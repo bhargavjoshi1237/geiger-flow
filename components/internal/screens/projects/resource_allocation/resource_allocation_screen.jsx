@@ -41,79 +41,9 @@ import {
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { cn } from "@/lib/utils";
 
-const INITIAL_ALLOCATIONS = [
-  {
-    id: "res_101",
-    name: "Priya Shah",
-    role: "Product Lead",
-    allocation: 70,
-    status: "allocated",
-    work: "Custom fields rollout",
-    workType: "Milestone",
-    due: "May 17",
-    access: "Project member",
-  },
-  {
-    id: "res_102",
-    name: "Sam Lee",
-    role: "Engineering",
-    allocation: 88,
-    status: "at_risk",
-    work: "Vault permission audit",
-    workType: "Task",
-    due: "May 15",
-    access: "Admin approved",
-  },
-  {
-    id: "res_103",
-    name: "Riley Park",
-    role: "QA Lead",
-    allocation: 45,
-    status: "available",
-    work: "Release readiness pass",
-    workType: "Goal",
-    due: "May 21",
-    access: "Project member",
-  },
-  {
-    id: "res_104",
-    name: "Mira Kapoor",
-    role: "Designer",
-    allocation: 32,
-    status: "available",
-    work: "Onboarding polish",
-    workType: "Task",
-    due: "May 24",
-    access: "Pending invite",
-  },
-];
+const INITIAL_ALLOCATIONS = [];
 
-const INITIAL_REQUESTS = [
-  {
-    id: "req_221",
-    title: "Frontend support for workflow builder",
-    type: "Request",
-    owner: "Aadit Joshi",
-    status: "review",
-    due: "May 17",
-  },
-  {
-    id: "pos_044",
-    title: "Security reviewer",
-    type: "Position",
-    owner: "Sam Lee",
-    status: "open",
-    due: "May 20",
-  },
-  {
-    id: "hire_018",
-    title: "QA analyst for launch window",
-    type: "Hiring",
-    owner: "Riley Park",
-    status: "sourcing",
-    due: "May 24",
-  },
-];
+const INITIAL_REQUESTS = [];
 
 const STATUS_META = {
   allocated: {

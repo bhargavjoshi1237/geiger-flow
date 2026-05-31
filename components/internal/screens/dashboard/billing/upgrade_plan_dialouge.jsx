@@ -24,7 +24,7 @@ const STEPS = {
 export default function UpgradePlanDialogue({ open, onOpenChange }) {
   const [step, setStep] = React.useState(STEPS.SELECT_PLAN);
   const [selectedPlan, setSelectedPlan] = React.useState("basic");
-  const [seats, setSeats] = React.useState(32);
+  const [seats, setSeats] = React.useState(1);
 
   const handleSelectPlan = () => {
     setStep(STEPS.PAYMENT_METHOD);
@@ -185,15 +185,15 @@ export default function UpgradePlanDialogue({ open, onOpenChange }) {
                   <div className="h-8 w-12 border-2 border-white/20 rounded-md" />
                 </div>
                 <div className="space-y-4">
-                    <div className="text-white/60 font-medium tracking-widest text-lg">1234 1234 1234 1234</div>
+                    <div className="text-white/60 font-medium tracking-widest text-lg">???? ???? ???? ????</div>
                     <div className="flex justify-between items-end">
                         <div className="space-y-1">
                             <div className="text-[10px] uppercase text-white/40 font-bold">Name on card</div>
-                            <div className="text-sm font-semibold text-white">Olivia Rhye</div>
+                            <div className="text-sm font-semibold text-white">Cardholder</div>
                         </div>
                         <div className="space-y-1">
                             <div className="text-[10px] uppercase text-white/40 font-bold">Expiry</div>
-                            <div className="text-sm font-semibold text-white">06 / 2024</div>
+                            <div className="text-sm font-semibold text-white">MM / YY</div>
                         </div>
                     </div>
                 </div>
@@ -202,20 +202,20 @@ export default function UpgradePlanDialogue({ open, onOpenChange }) {
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2 space-y-2">
                   <Label htmlFor="card-name" className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wide">Name on card</Label>
-                  <Input id="card-name" defaultValue="Olivia Rhye" className="bg-[#1a1a1a] border-[#2a2a2a] text-[#ededed] placeholder:text-[#525252] focus:border-[#3a3a3a] focus:ring-1 focus:ring-[#3a3a3a] h-9 transition-all duration-200" />
+                  <Input id="card-name" className="bg-[#1a1a1a] border-[#2a2a2a] text-[#ededed] placeholder:text-[#525252] focus:border-[#3a3a3a] focus:ring-1 focus:ring-[#3a3a3a] h-9 transition-all duration-200" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="expiry" className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wide">Expiry</Label>
-                  <Input id="expiry" placeholder="MM / YY" defaultValue="06 / 2024" className="bg-[#1a1a1a] border-[#2a2a2a] text-[#ededed] placeholder:text-[#525252] focus:border-[#3a3a3a] focus:ring-1 focus:ring-[#3a3a3a] h-9 transition-all duration-200" />
+                  <Input id="expiry" placeholder="MM / YY" className="bg-[#1a1a1a] border-[#2a2a2a] text-[#ededed] placeholder:text-[#525252] focus:border-[#3a3a3a] focus:ring-1 focus:ring-[#3a3a3a] h-9 transition-all duration-200" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="cvv" className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wide">CVV</Label>
-                  <Input id="cvv" placeholder="•••" type="password" defaultValue="123" className="bg-[#1a1a1a] border-[#2a2a2a] text-[#ededed] placeholder:text-[#525252] focus:border-[#3a3a3a] focus:ring-1 focus:ring-[#3a3a3a] h-9 transition-all duration-200" />
+                  <Input id="cvv" placeholder="•••" type="password" className="bg-[#1a1a1a] border-[#2a2a2a] text-[#ededed] placeholder:text-[#525252] focus:border-[#3a3a3a] focus:ring-1 focus:ring-[#3a3a3a] h-9 transition-all duration-200" />
                 </div>
                 <div className="col-span-2 space-y-2">
                   <Label htmlFor="card-number" className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wide">Card number</Label>
                   <div className="relative">
-                    <Input id="card-number" defaultValue="1234 1234 1234 1234" className="bg-[#1a1a1a] border-[#2a2a2a] text-[#ededed] placeholder:text-[#525252] focus:border-[#3a3a3a] focus:ring-1 focus:ring-[#3a3a3a] h-9 pr-10 transition-all duration-200" />
+                    <Input id="card-number" className="bg-[#1a1a1a] border-[#2a2a2a] text-[#ededed] placeholder:text-[#525252] focus:border-[#3a3a3a] focus:ring-1 focus:ring-[#3a3a3a] h-9 pr-10 transition-all duration-200" />
                     <div className="absolute right-3 top-1/2 -translate-y-1/2">
                         <div className="flex -space-x-2">
                             <div className="h-4 w-4 rounded-full bg-[#eb5e52] opacity-80" />

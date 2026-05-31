@@ -38,95 +38,6 @@ import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers"
 import { cn } from "@/lib/utils";
 import { NewGoalDialog } from "@/components/internal/dilouges/goals/new_goal_dilouge";
 
-const MOCK_GOALS = [
-  {
-    id: "g_001",
-    title: "Improve onboarding conversion rate",
-    description: "Increase the percentage of new users who complete onboarding from 40% to 75% within Q2.",
-    status: "on_track",
-    progress: 62,
-    owner: "Amélie",
-    targetDate: "2026-06-30",
-    keyResults: [
-      { label: "Redesign onboarding flow with fewer steps", progress: 100, done: true },
-      { label: "Add progress indicators to guide users", progress: 80, done: false },
-      { label: "Implement skip-and-return functionality", progress: 45, done: false },
-      { label: "A/B test new flow with 500 users", progress: 20, done: false },
-    ],
-  },
-  {
-    id: "g_002",
-    title: "Achieve 99.9% platform uptime SLA",
-    description: "Maintain consistent platform availability and reduce incident response time to under 15 minutes.",
-    status: "on_track",
-    progress: 95,
-    owner: "Alex",
-    targetDate: "2026-04-15",
-    keyResults: [
-      { label: "Set up multi-region failover", progress: 100, done: true },
-      { label: "Implement automated health checks", progress: 100, done: true },
-      { label: "Reduce MTTR to under 15 minutes", progress: 85, done: false },
-    ],
-  },
-  {
-    id: "g_003",
-    title: "Launch collaborative editing feature",
-    description: "Enable real-time collaborative editing across all document types within the project workspace.",
-    status: "at_risk",
-    progress: 35,
-    owner: "Sam",
-    targetDate: "2026-05-01",
-    keyResults: [
-      { label: "Design conflict resolution protocol", progress: 60, done: false },
-      { label: "Build WebSocket sync engine", progress: 40, done: false },
-      { label: "Implement cursor presence awareness", progress: 15, done: false },
-      { label: "Ship beta to 50 internal users", progress: 0, done: false },
-    ],
-  },
-  {
-    id: "g_004",
-    title: "Reduce customer support ticket volume",
-    description: "Decrease monthly support tickets by 40% through self-service improvements and better documentation.",
-    status: "completed",
-    progress: 100,
-    owner: "You",
-    targetDate: "2026-03-31",
-    keyResults: [
-      { label: "Launch searchable knowledge base", progress: 100, done: true },
-      { label: "Add in-app contextual help tooltips", progress: 100, done: true },
-      { label: "Automate 60% of common inquiries", progress: 100, done: true },
-    ],
-  },
-  {
-    id: "g_005",
-    title: "Migrate to new authentication system",
-    description: "Transition all users to the new OAuth 2.0 + PKCE authentication flow with zero downtime.",
-    status: "not_started",
-    progress: 0,
-    owner: "Riley",
-    targetDate: "2026-06-15",
-    keyResults: [
-      { label: "Audit current auth dependencies", progress: 0, done: false },
-      { label: "Build new auth middleware layer", progress: 0, done: false },
-      { label: "Migrate 100% of active sessions", progress: 0, done: false },
-    ],
-  },
-  {
-    id: "g_006",
-    title: "Increase team sprint velocity by 25%",
-    description: "Improve sprint planning accuracy and delivery speed across all project teams.",
-    status: "on_track",
-    progress: 48,
-    owner: "Jordan",
-    targetDate: "2026-05-30",
-    keyResults: [
-      { label: "Implement velocity tracking dashboard", progress: 100, done: true },
-      { label: "Reduce sprint scope creep to under 10%", progress: 50, done: false },
-      { label: "Achieve 90% sprint commitment accuracy", progress: 30, done: false },
-    ],
-  },
-];
-
 const STATUS_META = {
   not_started: {
     label: "Not Started",
@@ -305,7 +216,7 @@ function GoalCard({ goal, onEdit, onDelete, onDuplicate, onChangeStatus }) {
 
         {goal.keyResults && goal.keyResults.length > 0 && (
           <div className="border-t border-[#222] pt-2">
-            <button
+            <Button
               type="button"
               onClick={() => setKrsOpen((prev) => !prev)}
               className="flex items-center justify-between w-full gap-2 group/acc cursor-pointer"
@@ -319,7 +230,7 @@ function GoalCard({ goal, onEdit, onDelete, onDuplicate, onChangeStatus }) {
                   krsOpen && "rotate-180"
                 )}
               />
-            </button>
+            </Button>
             <div
               className={cn(
                 "grid transition-all duration-200 ease-in-out",
@@ -484,7 +395,7 @@ function GoalListItem({ goal, onEdit, onDelete, onDuplicate, onChangeStatus }) {
 
 export function GoalsScreen() {
   const [view, setView] = useState("grid");
-  const [goals, setGoals] = useState(MOCK_GOALS);
+  const [goals, setGoals] = useState([]);
   const [editGoal, setEditGoal] = useState(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const goalColumns = [

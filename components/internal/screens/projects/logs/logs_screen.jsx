@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -22,7 +22,6 @@ import {
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { cn } from "@/lib/utils";
 import { LogEntry, LevelBadge, LEVEL_CONFIG, formatExactTime } from "./log_entry";
-import { MOCK_LOGS } from "./mock_logs";
 
 function MetadataRow({ label, value }) {
   return (
@@ -131,7 +130,7 @@ function LogDetailSheet({ log, open, onOpenChange }) {
               <pre className="bg-[#161616] border border-[#333333] rounded-lg p-4 text-[11px] text-[#737373] font-mono overflow-x-auto leading-relaxed max-h-[240px] [&::-webkit-scrollbar]:hidden [&]:-ms-overflow-style:none [&]:scrollbar-width:none">
                 {JSON.stringify(log, null, 2)}
               </pre>
-              <button
+              <Button
                 onClick={handleCopy}
                 className={cn(
                   "absolute top-2 right-2 p-1.5 rounded-md border transition-colors",
@@ -145,7 +144,7 @@ function LogDetailSheet({ log, open, onOpenChange }) {
                 ) : (
                   <Copy className="w-3.5 h-3.5" />
                 )}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -157,12 +156,7 @@ function LogDetailSheet({ log, open, onOpenChange }) {
 export function LogsScreen() {
   const [selectedLog, setSelectedLog] = useState(null);
   const [sheetOpen, setSheetOpen] = useState(false);
-
-  const sortedLogs = useMemo(() => {
-    return [...MOCK_LOGS].sort(
-      (a, b) => new Date(b.timestamp) - new Date(a.timestamp),
-    );
-  }, []);
+  const logs = [];
 
   const handleLogClick = (log) => {
     setSelectedLog(log);
@@ -185,13 +179,23 @@ export function LogsScreen() {
       </div>
 
       <div className="space-y-2">
-        {sortedLogs.map((log) => (
-          <LogEntry
-            key={log.id}
-            log={log}
-            onClick={handleLogClick}
-          />
-        ))}
+        {logs.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-[#333333] bg-[#1a1a1a] p-10 text-center">
+            <Terminal className="mx-auto mb-3 h-6 w-6 text-[#525252]" />
+            <p className="text-sm font-medium text-[#e7e7e7]">No logs yet</p>
+            <p className="mt-1 text-xs text-[#737373]">
+              Project logs will appear here once events are recorded.
+            </p>
+          </div>
+        ) : (
+          logs.map((log) => (
+            <LogEntry
+              key={log.id}
+              log={log}
+              onClick={handleLogClick}
+            />
+          ))
+        )}
       </div>
 
       <LogDetailSheet

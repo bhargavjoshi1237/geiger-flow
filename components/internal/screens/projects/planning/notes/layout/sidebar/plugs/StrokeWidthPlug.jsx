@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
 import { SidebarButton } from "../SidebarPrimitives";
+import { Button } from "@/components/ui/button";
 
 const STROKE_WIDTHS = [
   { label: "Thin", value: 1 },
@@ -33,7 +34,7 @@ export const StrokeWidthPlug = ({ value, onChange }) => {
             Thickness
           </Label>
           {STROKE_WIDTHS.map((sw) => (
-            <button
+            <Button
               key={sw.label}
               onClick={() => onChange(sw.value)}
               className={`flex items-center gap-3 px-2 py-2 rounded-lg text-sm transition-colors
@@ -45,7 +46,7 @@ export const StrokeWidthPlug = ({ value, onChange }) => {
                 style={{ height: sw.value }}
               />
               <span className="text-xs">{sw.label}</span>
-            </button>
+            </Button>
           ))}
         </div>
       </PopoverContent>

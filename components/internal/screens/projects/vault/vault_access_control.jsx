@@ -9,8 +9,8 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -20,25 +20,9 @@ import {
   Building2,
   Plus,
   X,
-  Clock,
-  Lock,
-  Unlock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import FilterDropdown from "../overview/filter_dropdown";
-
-const ALL_ROLES = ["admin", "member", "viewer", "devops", "billing", "security"];
-const ALL_POSITIONS = [
-  "CTO",
-  "Engineering Manager",
-  "Tech Lead",
-  "Senior Engineer",
-  "DevOps Engineer",
-  "CFO",
-  "Finance Manager",
-  "VP of Engineering",
-  "Product Manager",
-];
 
 const TTL_OPTIONS = [
   { value: "none", label: "Never" },
@@ -55,6 +39,8 @@ export function VaultAccessControl({
   open = false,
   onOpenChange = () => {},
   onSave = () => {},
+  roles = [],
+  positions = [],
 }) {
   const [accessControl, setAccessControl] = useState({
     type: "team",
@@ -167,12 +153,13 @@ export function VaultAccessControl({
               ].map((option) => {
                 const isActive = accessControl.type === option.value;
                 return (
-                  <button
+                  <Button
                     key={option.value}
                     type="button"
+                    variant="ghost"
                     onClick={() => handleTypeChange(option.value)}
                     className={cn(
-                      "relative flex flex-col items-center justify-center gap-2 py-3.5 px-3 rounded-lg border text-xs font-medium",
+                      "relative h-auto flex-col items-center justify-center gap-2 py-3.5 px-3 rounded-lg border text-xs font-medium",
                       isActive
                         ? "border-[#404040] text-white"
                         : "bg-[#1a1a1a] border-[#2a2a2a] text-[#737373] hover:border-[#3a3a3a] hover:text-[#a3a3a3]",
@@ -194,7 +181,7 @@ export function VaultAccessControl({
                       {option.label}
                     </span>
                      
-                  </button>
+                  </Button>
                 );
               })}
             </div>
@@ -204,21 +191,29 @@ export function VaultAccessControl({
             <div className="space-y-3">
               <Label className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wide">Allowed Roles</Label>
               <div className="flex flex-wrap gap-2">
-                {ALL_ROLES.map((role) => (
-                  <button
-                    key={role}
-                    type="button"
-                    onClick={() => handleRoleToggle(role)}
-                    className={cn(
-                      "px-3 py-1 rounded-md text-xs font-medium border transition-all duration-200",
-                      accessControl.allowedRoles.includes(role)
-                        ? "bg-[#202020] border-[#474747] text-white shadow-sm"
-                        : "bg-[#1a1a1a] border-[#2a2a2a] text-[#737373] hover:border-[#3a3a3a] hover:text-[#a3a3a3] hover:bg-[#1f1f1f]",
-                    )}
-                  >
-                    {role.charAt(0).toUpperCase() + role.slice(1)}
-                  </button>
-                ))}
+                {roles.length === 0 ? (
+                  <p className="rounded-lg border border-dashed border-[#2a2a2a] bg-[#1a1a1a] px-3 py-3 text-xs text-[#737373]">
+                    No roles available yet. Roles will appear here after backend data is connected.
+                  </p>
+                ) : (
+                  roles.map((role) => (
+                    <Button
+                      key={role}
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRoleToggle(role)}
+                      className={cn(
+                        "px-3 py-1 rounded-md text-xs font-medium border transition-all duration-200",
+                        accessControl.allowedRoles.includes(role)
+                          ? "bg-[#202020] border-[#474747] text-white shadow-sm"
+                          : "bg-[#1a1a1a] border-[#2a2a2a] text-[#737373] hover:border-[#3a3a3a] hover:text-[#a3a3a3] hover:bg-[#1f1f1f]",
+                      )}
+                    >
+                      {role.charAt(0).toUpperCase() + role.slice(1)}
+                    </Button>
+                  ))
+                )}
               </div>
             </div>
           )}
@@ -239,13 +234,15 @@ export function VaultAccessControl({
                           <UserCheck className="w-3.5 h-3.5 text-[#737373]" />
                         </div>
                         <span className="flex-1 text-sm text-[#ededed]">{email}</span>
-                        <button
+                        <Button
                           type="button"
+                          variant="ghost"
+                          size="icon-xs"
                           onClick={() => handleUserRemove(email)}
                           className="text-[#525252] hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
                         >
                           <X className="w-4 h-4" />
-                        </button>
+                        </Button>
                       </div>
                     ))}
                   </div>
@@ -255,13 +252,13 @@ export function VaultAccessControl({
                   role="group" 
                   className="group/input-group relative flex w-full min-w-0 items-center rounded-[var(--input-box-radius)] border border-[#2a2a2a] transition-colors outline-none hover:border-[#3a3a3a] has-[[data-slot=input-group-control]:focus-visible]:border-[#3a3a3a] has-[[data-slot=input-group-control]:focus-visible]:ring-1 has-[[data-slot=input-group-control]:focus-visible]:ring-[#3a3a3a]/50"
                 >
-                  <input 
+                  <Input
                     data-slot="input-group-control"
                     placeholder="email@example.com"
                     value={userInput}
                     onChange={(e) => setUserInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    className="flex-1 rounded-none border-0 bg-transparent px-[var(--input-box-padding-x)] py-[var(--input-box-padding-y)] text-sm leading-5 text-[#ededed] outline-none ring-0 placeholder:text-[#525252] focus-visible:ring-0"
+                    className="flex-1 rounded-none border-0 bg-transparent px-[var(--input-box-padding-x)] py-[var(--input-box-padding-y)] text-sm leading-5 text-[#ededed] shadow-none placeholder:text-[#525252] focus-visible:ring-0"
                   />
                   <div 
                     role="group" 
@@ -269,13 +266,14 @@ export function VaultAccessControl({
                     data-align="inline-end"
                     className="flex h-auto cursor-text items-center justify-center gap-[var(--input-box-icon-gap)] py-[var(--input-box-padding-y)] pl-[var(--input-box-icon-gap)] text-sm font-medium text-[#737373] select-none order-last pr-[var(--input-box-padding-x)]"
                   >
-                    <button
+                    <Button
                       type="button"
+                      size="icon-xs"
                       onClick={handleUserAdd}
                       className="flex size-5 items-center justify-center rounded-full bg-[#ededed] text-[#161616] hover:bg-white transition-all duration-200"
                     >
                       <Plus className="size-3" />
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -286,21 +284,29 @@ export function VaultAccessControl({
             <div className="space-y-3">
               <Label className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wide">Positions</Label>
               <div className="flex flex-wrap gap-2">
-                {ALL_POSITIONS.map((position) => (
-                  <button
-                    key={position}
-                    type="button"
-                    onClick={() => handlePositionToggle(position)}
-                    className={cn(
-                      "px-3 py-1 rounded-md text-xs font-medium border transition-all duration-200",
-                      accessControl.allowedPositions.includes(position)
-                        ? "bg-[#202020] border-[#474747] text-white shadow-sm"
-                        : "bg-[#1a1a1a] border-[#2a2a2a] text-[#737373] hover:border-[#3a3a3a] hover:text-[#a3a3a3] hover:bg-[#1f1f1f]",
-                    )}
-                  >
-                    {position}
-                  </button>
-                ))}
+                {positions.length === 0 ? (
+                  <p className="rounded-lg border border-dashed border-[#2a2a2a] bg-[#1a1a1a] px-3 py-3 text-xs text-[#737373]">
+                    No positions available yet. Positions will appear here after backend data is connected.
+                  </p>
+                ) : (
+                  positions.map((position) => (
+                    <Button
+                      key={position}
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handlePositionToggle(position)}
+                      className={cn(
+                        "px-3 py-1 rounded-md text-xs font-medium border transition-all duration-200",
+                        accessControl.allowedPositions.includes(position)
+                          ? "bg-[#202020] border-[#474747] text-white shadow-sm"
+                          : "bg-[#1a1a1a] border-[#2a2a2a] text-[#737373] hover:border-[#3a3a3a] hover:text-[#a3a3a3] hover:bg-[#1f1f1f]",
+                      )}
+                    >
+                      {position}
+                    </Button>
+                  ))
+                )}
               </div>
             </div>
           )}

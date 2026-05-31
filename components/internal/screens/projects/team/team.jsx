@@ -2,14 +2,17 @@
 
 import React, { useState, useEffect } from "react";
 import {
-  Users2,
+  BriefcaseBusiness,
+  Crown,
   Plus,
   Mail,
   MoreHorizontal,
   Edit,
-  DeleteIcon,
-  Delete,
+  ShieldCheck,
   Trash,
+  UserRound,
+  Users,
+  Workflow,
 } from "lucide-react";
 import {
   Table,
@@ -32,7 +35,27 @@ import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { EmptyState } from "@/components/internal/notfound/not_found";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+
+const roleLabels = {
+  admin: "Admin",
+  member: "Member",
+  viewer: "Viewer",
+};
+
+function RoleBadgeIcon({ role }) {
+  const iconClassName = "mr-1 h-3 w-3";
+  const iconByRole = {
+    admin: Crown,
+    member: Users,
+    viewer: UserRound,
+    manager: BriefcaseBusiness,
+  };
+  const Icon = iconByRole[role] || ShieldCheck;
+
+  return <Icon className={iconClassName} />;
+}
 
 export function TeamScreen() {
   const { project } = useProject();
@@ -44,7 +67,6 @@ export function TeamScreen() {
     const fetchTeam = async () => {
       if (!project?.id) return;
       const supabase = createClient();
-      console.log("[flow_teams] fetching team for project:", project.id);
       const { data, error } = await supabase
         .from("flow_teams")
         .select("*")
@@ -78,15 +100,12 @@ export function TeamScreen() {
     const avatarStack = (
       <div className="flex -space-x-4 items-center -mr-0.5">
         <Avatar className="w-12 h-12 bg-[#2a2a2a] ring-4 ring-[#121212]">
-          <AvatarImage src="https://github.com/shadcn.png" />
           <AvatarFallback>JD</AvatarFallback>
         </Avatar>
         <Avatar className="w-12 h-12 bg-[#2a2a2a] ring-4 ring-[#121212]">
-          <AvatarImage src="https://github.com/nutlope.png" />
           <AvatarFallback>MK</AvatarFallback>
         </Avatar>
         <Avatar className="w-12 h-12 bg-[#2a2a2a] ring-4 ring-[#121212]">
-           <AvatarImage src="https://avatar.vercel.sh/shadcn" />
            <AvatarFallback>R</AvatarFallback>
         </Avatar>
       </div>
@@ -151,10 +170,10 @@ export function TeamScreen() {
           </p>
         </div>
         <InviteMemberDialog onInvite={handleInvite}>
-          <button className="bg-[#e7e7e7] hover:bg-zinc-200 text-black px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors">
+          <Button className="bg-[#e7e7e7] hover:bg-zinc-200 text-black px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors">
             <Plus className="w-4 h-4 text-black font-bold stroke-[3]" />
             Invite member
-          </button>
+          </Button>
         </InviteMemberDialog>
       </div>
        
@@ -164,7 +183,7 @@ export function TeamScreen() {
           <TableHeader>
             <TableRow className="bg-[#1a1a1a] border-[#2a2a2a]">
               <TableHead>Member</TableHead>
-              <TableHead>Role</TableHead>
+              <TableHead>Access</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Action</TableHead>
             </TableRow>
@@ -211,9 +230,16 @@ export function TeamScreen() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <span className="text-xs font-medium text-[#c0c0c0] bg-[#2a2a2a] px-2 py-1 rounded border border-[#333333] capitalize">
-                      {member.role}
-                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      <Badge className="border-emerald-500/20 bg-emerald-500/10 text-emerald-300">
+                        <RoleBadgeIcon role={member.role} />
+                        {roleLabels[member.role] || member.role || "Member"}
+                      </Badge>
+                      <Badge className="border-sky-500/20 bg-sky-500/10 text-sky-300">
+                        <Workflow className="mr-1 h-3 w-3" />
+                        Project
+                      </Badge>
+                    </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1.5">
@@ -226,9 +252,9 @@ export function TeamScreen() {
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <button className="text-zinc-400 hover:text-white transition-colors p-1 rounded-md hover:bg-zinc-800">
+                        <Button className="text-zinc-400 hover:text-white transition-colors p-1 rounded-md hover:bg-zinc-800">
                           <MoreHorizontal className="w-4 h-4" />
-                        </button>
+                        </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent
                         align="end"
@@ -242,9 +268,9 @@ export function TeamScreen() {
                             handleEditRole(email, role)
                           }
                         >
-                          <button className="w-full text-left flex gap-2 px-2 py-1.5 text-sm hover:bg-[#2a2a2a] hover:text-white transition-colors rounded-sm cursor-default">
+                          <Button className="w-full text-left flex gap-2 px-2 py-1.5 text-sm hover:bg-[#2a2a2a] hover:text-white transition-colors rounded-sm cursor-default">
                             <Edit className="w-4 h-4" /> Edit Role
-                          </button>
+                          </Button>
                         </InviteMemberDialog>
                         <DropdownMenuItem
                           className="hover:bg-[#2a2a2a]  flex gap-2 focus:bg-[#2a2a2a] focus:text-white cursor-pointer text-red-700 focus:text-red-400"

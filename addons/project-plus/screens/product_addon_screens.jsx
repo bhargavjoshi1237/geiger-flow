@@ -7,9 +7,13 @@ import {
   ArrowUpRight,
   Banknote,
   Beaker,
+  Calculator,
+  ChevronDown,
+  ChevronRight,
   CheckCircle2,
   ClipboardCheck,
   Clock3,
+  DollarSign,
   Flame,
   GitPullRequestArrow,
   Lightbulb,
@@ -18,16 +22,27 @@ import {
   ReceiptText,
   Search,
   Siren,
+  Trash2,
   TrendingUp,
   UserRound,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
+import { SegmentedTabs } from "@/components/internal/shared/segmented_tabs";
 import { cn } from "@/lib/utils";
+import { useProjectBudget } from "@/context/project-budget-context";
 
 const STATUS_CLASS = {
   red: "border-red-500/30 bg-red-500/15 text-red-300",
@@ -108,25 +123,7 @@ function SearchBox({ value, onChange, placeholder }) {
 }
 
 function FilterTabs({ tabs, active, onChange }) {
-  return (
-    <div className="flex w-full items-center overflow-x-auto rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] p-0.5 sm:w-auto">
-      {tabs.map((tab) => (
-        <Button
-          key={tab}
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => onChange(tab)}
-          className={cn(
-            "h-7 rounded-md px-3 text-xs",
-            active === tab ? "bg-[#2a2a2a] text-white" : "text-[#737373] hover:bg-transparent hover:text-[#a3a3a3]",
-          )}
-        >
-          {tab}
-        </Button>
-      ))}
-    </div>
-  );
+  return <SegmentedTabs tabs={tabs} value={active} onChange={onChange} buttonClassName="h-8 text-xs" />;
 }
 
 function useFilteredRows(rows, active, query, fields) {
@@ -141,11 +138,7 @@ function useFilteredRows(rows, active, query, fields) {
   }, [active, fields, query, rows]);
 }
 
-const riskRows = [
-  { id: "RSK-12", risk: "Staging data drift can delay release validation", owner: "Priya Shah", probability: 68, impact: "High", exposure: "$18k", mitigation: "Automated nightly refresh with data contract checks", status: "Mitigating", tone: "amber" },
-  { id: "RSK-09", risk: "Vendor launch-week SLA is not contractually confirmed", owner: "Sam Lee", probability: 44, impact: "Medium", exposure: "$9k", mitigation: "Escalate procurement approval and add fallback support path", status: "Open", tone: "red" },
-  { id: "RSK-05", risk: "Mobile regression matrix reduced after schedule compression", owner: "Riley Park", probability: 31, impact: "Medium", exposure: "$6k", mitigation: "Analytics-led device coverage and targeted smoke suite", status: "Watching", tone: "blue" },
-];
+const riskRows = [];
 
 export function RiskRegisterScreen() {
   const [query, setQuery] = useState("");
@@ -156,7 +149,7 @@ export function RiskRegisterScreen() {
     <MainScreenWrapper className="text-[#e7e7e7]">
       <PageHeader icon={Flame} title="Risk Register" description="Quantify delivery, vendor, security, and scope risks with mitigation owners and financial exposure." action="Add risk" accent="red" />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Metric label="Open exposure" value="$33k" detail="Weighted project impact" icon={Banknote} tone="amber" />
+        <Metric label="Open exposure" value="0" detail="Weighted project impact" icon={Banknote} tone="amber" />
         <Metric label="High impact" value="2" detail="Needs sponsor attention" icon={Siren} tone="red" />
         <Metric label="Mitigated" value="8" detail="This quarter" icon={CheckCircle2} tone="emerald" />
         <Metric label="Review SLA" value="91%" detail="Risks reviewed on time" icon={Clock3} tone="blue" />
@@ -198,11 +191,7 @@ export function RiskRegisterScreen() {
   );
 }
 
-const decisions = [
-  { id: "DEC-31", title: "Keep saved views local until report queries stabilize", driver: "Reporting query contract is still moving", owner: "Aadit Joshi", status: "Accepted", stage: "Accepted", tone: "emerald", reversibility: "High", review: "May 30" },
-  { id: "DEC-30", title: "Use role-based access for vault entries", driver: "Individual exceptions were creating audit gaps", owner: "Sam Lee", status: "Proposed", stage: "Proposed", tone: "blue", reversibility: "Medium", review: "May 15" },
-  { id: "DEC-22", title: "Revisit custom field schema after beta", driver: "Beta needs flexibility before typed constraints", owner: "Priya Shah", status: "Revisit", stage: "Revisit", tone: "amber", reversibility: "Low", review: "Jun 3" },
-];
+const decisions = [];
 
 export function DecisionLogScreen() {
   const [active, setActive] = useState("All");
@@ -242,12 +231,7 @@ export function DecisionLogScreen() {
   );
 }
 
-const launchGates = [
-  { gate: "Rollback runbook", owner: "Alex Morgan", area: "Ops", score: 100, status: "Ready", tone: "emerald", evidence: "Runbook approved and dry-run completed" },
-  { gate: "Support macros", owner: "Priya Shah", area: "Support", score: 70, status: "In Review", tone: "blue", evidence: "Copy review pending for enterprise escalation paths" },
-  { gate: "Mobile regression", owner: "Riley Park", area: "QA", score: 45, status: "Blocked", tone: "red", evidence: "Needs latest staging build before final pass" },
-  { gate: "Comms plan", owner: "Sam Lee", area: "GTM", score: 88, status: "Ready", tone: "emerald", evidence: "Launch notes and customer mail approved" },
-];
+const launchGates = [];
 
 export function ReleaseReadinessScreen() {
   return (
@@ -257,7 +241,7 @@ export function ReleaseReadinessScreen() {
         <Metric label="Readiness score" value="78%" detail="7 of 10 gates ready" icon={ClipboardCheck} tone="emerald" />
         <Metric label="Blocked gates" value="1" detail="Mobile regression" icon={Siren} tone="red" />
         <Metric label="Sign-offs" value="5/7" detail="Approvers complete" icon={UserRound} tone="blue" />
-        <Metric label="Launch window" value="May 24" detail="Target release date" icon={Clock3} tone="violet" />
+        <Metric label="Launch window" value="No date" detail="Target release date" icon={Clock3} tone="violet" />
       </div>
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_320px]">
         <Section title="Gate checklist" detail="Every gate carries evidence, ownership, and a readiness score.">
@@ -282,7 +266,7 @@ export function ReleaseReadinessScreen() {
         </Section>
         <Section title="Launch command" detail="Focus areas for the next release review.">
           <div className="space-y-3 p-4 text-sm">
-            {["Unblock staging mobile build", "Attach support macro approval", "Confirm final incident owner rotation"].map((item) => (
+            {[].map((item) => (
               <div key={item} className="flex items-start gap-3 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-3">
                 <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-300" />
                 <span className="text-[#d4d4d4]">{item}</span>
@@ -295,11 +279,7 @@ export function ReleaseReadinessScreen() {
   );
 }
 
-const feedbackItems = [
-  { title: "Bulk task updates are too slow for weekly PM rituals", source: "6 enterprise accounts", theme: "Speed", impact: "High", status: "Triaged", tone: "blue", linked: "TASK-42" },
-  { title: "CSV exports needed for audit packs", source: "Admin interviews", theme: "Reporting", impact: "High", status: "Linked", tone: "emerald", linked: "REP-19" },
-  { title: "Calendar view should surface blocked work", source: "Beta notes", theme: "Planning", impact: "Medium", status: "New", tone: "amber", linked: "Unlinked" },
-];
+const feedbackItems = [];
 
 export function FeedbackHubScreen() {
   return (
@@ -308,7 +288,7 @@ export function FeedbackHubScreen() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Metric label="New signals" value="18" detail="This week" icon={MessageSquareQuote} tone="cyan" />
         <Metric label="Linked work" value="7" detail="Feedback tied to tasks" icon={GitPullRequestArrow} tone="emerald" />
-        <Metric label="Top theme" value="Speed" detail="6 customer mentions" icon={TrendingUp} tone="violet" />
+        <Metric label="Top theme" value="No data" detail="0 customer mentions" icon={TrendingUp} tone="violet" />
         <Metric label="Revenue at stake" value="$142k" detail="Impacted ARR" icon={Banknote} tone="amber" />
       </div>
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_340px]">
@@ -336,11 +316,7 @@ export function FeedbackHubScreen() {
         </Section>
         <Section title="Theme map" detail="Signals grouped for planning.">
           <div className="space-y-3 p-4">
-            {[
-              ["Speed", 78, "6 mentions"],
-              ["Reporting", 55, "4 mentions"],
-              ["Planning", 42, "3 mentions"],
-            ].map(([theme, value, detail]) => (
+            {[].map(([theme, value, detail]) => (
               <div key={theme}>
                 <div className="flex justify-between text-xs"><span className="text-[#ededed]">{theme}</span><span className="text-[#737373]">{detail}</span></div>
                 <Progress value={value} className="mt-2 h-1.5 bg-[#2a2a2a] [&_[data-slot=progress-indicator]]:bg-cyan-300" />
@@ -353,11 +329,7 @@ export function FeedbackHubScreen() {
   );
 }
 
-const experiments = [
-  { name: "Shorter onboarding checklist", hypothesis: "Fewer starter steps improves activation without lowering project quality.", metric: "Activation", lift: "+8.1%", status: "Running", tone: "violet", confidence: 71 },
-  { name: "Inline reporting export CTA", hypothesis: "Admins export more reports when action sits beside saved views.", metric: "Exports", lift: "+3.4%", status: "Designing", tone: "blue", confidence: 38 },
-  { name: "Default grouped task list", hypothesis: "Grouping by due date improves weekly task completion.", metric: "Completion", lift: "+11%", status: "Won", tone: "emerald", confidence: 95 },
-];
+const experiments = [];
 
 export function ExperimentsScreen() {
   return (
@@ -365,7 +337,7 @@ export function ExperimentsScreen() {
       <PageHeader icon={Beaker} title="Experiment Tracker" description="Plan product bets, define hypotheses, monitor confidence, and ship learnings into goals." action="New experiment" accent="violet" />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Metric label="Running" value="3" detail="Live product tests" icon={Beaker} tone="violet" />
-        <Metric label="Win rate" value="42%" detail="Last 12 experiments" icon={CheckCircle2} tone="emerald" />
+        <Metric label="Win rate" value="0%" detail="No experiments" icon={CheckCircle2} tone="emerald" />
         <Metric label="Learning velocity" value="9d" detail="Avg cycle time" icon={Clock3} tone="blue" />
         <Metric label="Activation lift" value="+8%" detail="Current best bet" icon={ArrowUpRight} tone="emerald" />
       </div>
@@ -397,11 +369,7 @@ export function ExperimentsScreen() {
   );
 }
 
-const incidents = [
-  { id: "INC-27", title: "Webhook delivery latency above threshold", severity: "SEV-2", owner: "Sam Lee", status: "Active", tone: "red", elapsed: "38m", action: "Scale queue workers and notify enterprise consumers" },
-  { id: "INC-24", title: "Asset thumbnails regenerated slowly", severity: "SEV-3", owner: "Riley Park", status: "Monitoring", tone: "amber", elapsed: "2h", action: "Watch media queue drain and attach postmortem notes" },
-  { id: "INC-19", title: "Search indexing gap after deploy", severity: "SEV-3", owner: "Aadit Joshi", status: "Resolved", tone: "emerald", elapsed: "Done", action: "Postmortem actions filed for deploy checklist" },
-];
+const incidents = [];
 
 export function IncidentCenterScreen() {
   return (
@@ -411,7 +379,7 @@ export function IncidentCenterScreen() {
         <Metric label="Active" value="1" detail="SEV-2 in progress" icon={Siren} tone="red" />
         <Metric label="MTTR" value="38m" detail="Last 30 days" icon={Clock3} tone="emerald" />
         <Metric label="Postmortems" value="4" detail="Completed this quarter" icon={ReceiptText} tone="blue" />
-        <Metric label="SLO burn" value="12%" detail="Monthly error budget" icon={ArrowDownRight} tone="amber" />
+        <Metric label="SLO burn" value="0%" detail="No incidents" icon={ArrowDownRight} tone="amber" />
       </div>
       <Section title="Response timeline" detail="Active and recent incidents with next action ownership.">
         <div className="space-y-3 p-4">
@@ -438,78 +406,339 @@ export function IncidentCenterScreen() {
   );
 }
 
-const budgetLines = [
-  { category: "Cloud preview environments", owner: "Alex Morgan", budget: 9200, actual: 7800, forecast: 10400, status: "Watch", tone: "amber" },
-  { category: "Design contractor allocation", owner: "Priya Shah", budget: 6500, actual: 3900, forecast: 6100, status: "On Track", tone: "emerald" },
-  { category: "Security audit reserve", owner: "Sam Lee", budget: 12000, actual: 3000, forecast: 11800, status: "On Track", tone: "emerald" },
-  { category: "QA device lab", owner: "Riley Park", budget: 4800, actual: 5200, forecast: 5900, status: "Over", tone: "red" },
-];
+function currency(value, compact = false) {
+  const amount = Number(value) || 0;
+  if (compact && Math.abs(amount) >= 1000) {
+    return `${amount < 0 ? "-" : ""}$${Math.abs(amount / 1000).toFixed(1)}k`;
+  }
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
 
-function currency(value) {
-  return `$${Math.round(value / 100) / 10}k`;
+function getBudgetTone(status) {
+  if (status === "Over") return "red";
+  if (status === "Watch") return "amber";
+  return "emerald";
+}
+
+function groupExpenses(expenses) {
+  return expenses.reduce((groups, expense) => {
+    const key = expense.category || "General";
+    if (!groups[key]) {
+      groups[key] = [];
+    }
+    groups[key].push(expense);
+    return groups;
+  }, {});
+}
+
+function BudgetInput({ label, value, onChange, prefix = "$", suffix }) {
+  return (
+    <Label className="block space-y-1.5">
+      <span className="text-xs font-medium text-[#a3a3a3]">{label}</span>
+      <div className="flex h-9 items-center rounded-md border border-[#2a2a2a] bg-[#1a1a1a] px-3 focus-within:border-[#444]">
+        {prefix ? <span className="mr-2 text-xs text-[#737373]">{prefix}</span> : null}
+        <Input
+          type="number"
+          min="0"
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          className="min-w-0 flex-1 border-0 bg-transparent !px-0 !py-0 text-sm text-[#ededed] shadow-none focus-visible:ring-0"
+        />
+        {suffix ? <span className="ml-2 text-xs text-[#737373]">{suffix}</span> : null}
+      </div>
+    </Label>
+  );
+}
+
+function AddExpenseForm({ onAdd }) {
+  const [name, setName] = useState("");
+  const [category, setCategory] = useState("Operations");
+  const [monthlyCost, setMonthlyCost] = useState(1200);
+  const [owner, setOwner] = useState("Project");
+
+  const submit = () => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    onAdd({
+      name: trimmed,
+      category,
+      monthlyCost,
+      owner,
+      status: "On Track",
+      forecastMultiplier: 1,
+      notes: "Manual project expense.",
+    });
+    setName("");
+    setMonthlyCost(1200);
+  };
+
+  return (
+    <div className="grid gap-3 p-4 md:grid-cols-[1fr_160px_140px_120px_auto] md:items-end">
+      <Label className="block space-y-1.5">
+        <span className="text-xs font-medium text-[#a3a3a3]">Expense name</span>
+        <Input
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          placeholder="New vendor, license, service..."
+          className="h-9 border-[#2a2a2a] bg-[#1a1a1a] text-sm text-[#ededed] placeholder:text-[#525252]"
+        />
+      </Label>
+      <Label className="block space-y-1.5">
+        <span className="text-xs font-medium text-[#a3a3a3]">Category</span>
+        <Select
+          value={category}
+          onValueChange={setCategory}
+        >
+          <SelectTrigger className="h-9 w-full border-[#2a2a2a] bg-[#1a1a1a] text-sm text-[#ededed]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="border-[#2a2a2a] bg-[#1a1a1a] text-[#ededed]">
+            {["Operations", "Software", "Security", "Quality", "People", "Vendor", "Contingency"].map((item) => (
+              <SelectItem key={item} value={item} className="focus:bg-[#2a2a2a]">
+                {item}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </Label>
+      <BudgetInput label="Monthly" value={monthlyCost} onChange={(value) => setMonthlyCost(Number(value) || 0)} />
+      <Label className="block space-y-1.5">
+        <span className="text-xs font-medium text-[#a3a3a3]">Owner</span>
+        <Input
+          value={owner}
+          onChange={(event) => setOwner(event.target.value)}
+          className="h-9 border-[#2a2a2a] bg-[#1a1a1a] text-sm text-[#ededed]"
+        />
+      </Label>
+      <Button onClick={submit} className="h-9 bg-white text-black hover:bg-[#e7e7e7]">
+        <Plus className="mr-2 h-4 w-4" />
+        Add
+      </Button>
+    </div>
+  );
+}
+
+function ExpenseRow({ expense, onRemove }) {
+  const monthly = Number(expense.monthlyCost) || 0;
+  const forecast = monthly * (Number(expense.forecastMultiplier) || 1);
+
+  return (
+    <article className="grid gap-4 p-4 lg:grid-cols-[1fr_140px_140px_96px] lg:items-center">
+      <div>
+        <div className="flex flex-wrap items-center gap-2">
+          <h3 className="text-sm font-semibold text-[#ededed]">{expense.name}</h3>
+          <StatusBadge tone={getBudgetTone(expense.status)}>{expense.status}</StatusBadge>
+          <StatusBadge tone={expense.source === "System Architecture" ? "blue" : "zinc"}>{expense.source}</StatusBadge>
+        </div>
+        <p className="mt-1 text-xs leading-5 text-[#737373]">
+          {expense.category} {expense.owner ? `owned by ${expense.owner}` : ""} {expense.notes ? `| ${expense.notes}` : ""}
+        </p>
+      </div>
+      <div>
+        <p className="text-xs text-[#525252]">Monthly</p>
+        <p className="mt-1 text-sm font-semibold text-[#ededed]">{currency(monthly)}</p>
+      </div>
+      <div>
+        <p className="text-xs text-[#525252]">Forecast</p>
+        <p className="mt-1 text-sm font-semibold text-[#ededed]">{currency(forecast)}</p>
+      </div>
+      <div className="flex justify-end">
+        {expense.source === "Manual" ? (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onRemove(expense.id)}
+            className="h-8 w-8 text-[#737373] hover:bg-red-500/10 hover:text-red-300"
+            title="Remove expense"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        ) : (
+          <span className="text-xs text-[#525252]">Canvas</span>
+        )}
+      </div>
+    </article>
+  );
+}
+
+function InfrastructureGroup({ architectureExpenses }) {
+  const [open, setOpen] = useState(true);
+  const enabledItems = architectureExpenses.filter((item) => item.enabled);
+  const monthly = enabledItems.reduce((sum, item) => sum + item.monthlyCost, 0);
+  const groups = groupExpenses(enabledItems);
+
+  return (
+    <Section
+      title="Infrastructure expense"
+      detail="A single budget rollup generated from every costed System Architecture node. Expand it to inspect each node as an item."
+      action={
+        <Button
+          variant="ghost"
+          onClick={() => setOpen((value) => !value)}
+          className="h-8 gap-2 border border-[#2a2a2a] bg-[#1a1a1a] text-[#d4d4d4] hover:bg-[#242424] hover:text-white"
+        >
+          {open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+          {currency(monthly)}
+        </Button>
+      }
+    >
+      <div className="grid grid-cols-1 gap-4 border-b border-[#2a2a2a] p-4 md:grid-cols-3">
+        <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-3">
+          <p className="text-xs text-[#737373]">Monthly infra</p>
+          <p className="mt-1 text-xl font-semibold text-[#ededed]">{currency(monthly)}</p>
+        </div>
+        <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-3">
+          <p className="text-xs text-[#737373]">Costed nodes</p>
+          <p className="mt-1 text-xl font-semibold text-[#ededed]">{enabledItems.length}</p>
+        </div>
+        <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-3">
+          <p className="text-xs text-[#737373]">Annual run-rate</p>
+          <p className="mt-1 text-xl font-semibold text-[#ededed]">{currency(monthly * 12, true)}</p>
+        </div>
+      </div>
+      {open ? (
+        <div className="divide-y divide-[#2a2a2a]">
+          {Object.entries(groups).map(([category, items]) => {
+            const subtotal = items.reduce((sum, item) => sum + item.monthlyCost, 0);
+            return (
+              <div key={category}>
+                <div className="flex items-center justify-between bg-[#1a1a1a] px-4 py-2">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-[#a3a3a3]">{category}</span>
+                  <span className="text-xs text-[#737373]">{currency(subtotal)} / mo</span>
+                </div>
+                {items.map((expense) => (
+                  <ExpenseRow key={expense.id} expense={expense} onRemove={() => {}} />
+                ))}
+              </div>
+            );
+          })}
+        </div>
+      ) : null}
+    </Section>
+  );
 }
 
 export function BudgetTrackerScreen() {
-  const totalBudget = budgetLines.reduce((sum, item) => sum + item.budget, 0);
-  const totalForecast = budgetLines.reduce((sum, item) => sum + item.forecast, 0);
-  const used = Math.round((budgetLines.reduce((sum, item) => sum + item.actual, 0) / totalBudget) * 100);
+  const {
+    monthlyBudget,
+    setMonthlyBudget,
+    manualExpenses,
+    architectureExpenses,
+    expenses,
+    totals,
+    upsertManualExpense,
+    removeManualExpense,
+  } = useProjectBudget();
+  const [active, setActive] = useState("All");
+
+  const manualFiltered = manualExpenses.filter((expense) => active === "All" || expense.status === active || expense.category === active);
+  const nonInfraMonthly = manualExpenses.reduce((sum, item) => sum + item.monthlyCost, 0);
+  const budgetHealth =
+    totals.forecast > monthlyBudget ? "Over forecast" : totals.usedPercent > 85 ? "Tight" : "Healthy";
 
   return (
     <MainScreenWrapper className="text-[#e7e7e7]">
-      <PageHeader icon={Banknote} title="Budget Tracker" description="Track budget, actuals, forecast variance, and vendor spend before project costs become a surprise." action="Add cost line" accent="emerald" />
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Metric label="Budget used" value={`${used}%`} detail="$19.9k of $32.5k committed" icon={Banknote} tone="emerald" />
-        <Metric label="Forecast" value={currency(totalForecast)} detail="Expected at completion" icon={TrendingUp} tone="blue" />
-        <Metric label="Variance" value="+4%" detail="Over current plan" icon={AlertTriangle} tone="amber" />
-        <Metric label="Watch items" value="2" detail="Cloud and QA need action" icon={Siren} tone="red" />
-      </div>
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_330px]">
-        <Section title="Cost lines" detail="Live project budget with owner, actuals, forecast, and variance.">
-          <div className="divide-y divide-[#2a2a2a]">
-            {budgetLines.map((line) => {
-              const variance = line.forecast - line.budget;
-              const progress = Math.min(100, Math.round((line.actual / line.budget) * 100));
-              return (
-                <article key={line.category} className="grid gap-4 p-4 lg:grid-cols-[1fr_180px_220px] lg:items-center">
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="text-sm font-semibold text-[#ededed]">{line.category}</h3>
-                      <StatusBadge tone={line.tone}>{line.status}</StatusBadge>
-                    </div>
-                    <p className="mt-1 text-xs text-[#737373]">Owned by {line.owner}</p>
-                  </div>
-                  <div>
-                    <Progress value={progress} className="h-1.5 bg-[#2a2a2a] [&_[data-slot=progress-indicator]]:bg-emerald-300" />
-                    <p className="mt-1 text-xs text-[#a3a3a3]">{currency(line.actual)} actual of {currency(line.budget)}</p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3 text-xs">
-                    <div><p className="text-[#525252]">Forecast</p><p className="mt-1 text-[#ededed]">{currency(line.forecast)}</p></div>
-                    <div><p className="text-[#525252]">Variance</p><p className={cn("mt-1", variance > 0 ? "text-red-300" : "text-emerald-300")}>{variance > 0 ? "+" : ""}{currency(variance)}</p></div>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        </Section>
-        <Section title="Forecast note" detail="PM-facing finance memo for the next steering review.">
-          <div className="space-y-3 p-4">
-            <Textarea
-              value={"Cloud previews and QA lab costs are trending above plan. Security reserve still absorbs audit risk, but preview cleanup should run before the next beta cycle."}
-              readOnly
-              className="min-h-36 border-[#2a2a2a] bg-[#1a1a1a] text-sm leading-6 text-[#a3a3a3]"
+      <PageHeader icon={Banknote} title="Budget Tracker" description="Set the monthly project budget, track actual spend, forecast run-rate, and roll System Architecture nodes into infrastructure expense." action="Add cost line" accent="emerald" />
+
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[360px_1fr]">
+        <Section title="Monthly budget" detail="Project-level planning guardrail for current scope.">
+          <div className="space-y-4 p-4">
+            <BudgetInput label="Approved monthly budget" value={monthlyBudget} onChange={setMonthlyBudget} />
+            <Progress
+              value={Math.min(100, totals.usedPercent)}
+              className="h-2 bg-[#2a2a2a] [&_[data-slot=progress-indicator]]:bg-emerald-300"
             />
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 text-xs">
               <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-3">
-                <p className="text-xs text-[#737373]">Next review</p>
-                <p className="mt-1 text-sm font-semibold text-[#ededed]">May 17</p>
+                <p className="text-[#737373]">Remaining</p>
+                <p className={cn("mt-1 text-base font-semibold", totals.remaining < 0 ? "text-red-300" : "text-emerald-300")}>
+                  {currency(totals.remaining)}
+                </p>
               </div>
               <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-3">
-                <p className="text-xs text-[#737373]">Approval gap</p>
-                <p className="mt-1 text-sm font-semibold text-amber-300">$1.4k</p>
+                <p className="text-[#737373]">Health</p>
+                <p className="mt-1 text-base font-semibold text-[#ededed]">{budgetHealth}</p>
               </div>
             </div>
           </div>
         </Section>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <Metric label="Budget used" value={`${totals.usedPercent}%`} detail={`${currency(totals.actual)} of ${currency(monthlyBudget)} committed`} icon={Banknote} tone="emerald" />
+          <Metric label="Forecast" value={currency(totals.forecast, true)} detail={`${totals.forecastPercent}% of monthly budget`} icon={TrendingUp} tone="blue" />
+          <Metric label="Variance" value={currency(totals.variance, true)} detail={totals.variance > 0 ? "Over current plan" : "Under current plan"} icon={AlertTriangle} tone={totals.variance > 0 ? "amber" : "emerald"} />
+          <Metric label="Watch items" value={String(totals.watchItems)} detail={`${currency(totals.annualRunRate, true)} annual run-rate`} icon={Siren} tone={totals.watchItems > 0 ? "red" : "emerald"} />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_340px]">
+        <div className="space-y-4">
+          <InfrastructureGroup architectureExpenses={architectureExpenses} />
+
+          <Section
+            title="Manual cost lines"
+            detail="Vendor, team, reserve, and operational expenses that are not represented as architecture nodes."
+            action={<FilterTabs tabs={["All", "On Track", "Watch", "Security", "Quality", "Software"]} active={active} onChange={setActive} />}
+          >
+            <AddExpenseForm onAdd={upsertManualExpense} />
+            <div className="divide-y divide-[#2a2a2a] border-t border-[#2a2a2a]">
+              {manualFiltered.map((expense) => (
+                <ExpenseRow key={expense.id} expense={expense} onRemove={removeManualExpense} />
+              ))}
+            </div>
+          </Section>
+        </div>
+
+        <div className="space-y-4">
+          <Section title="Budget mix" detail="Where monthly spend is concentrated.">
+            <div className="space-y-4 p-4">
+              {[
+                ["Infrastructure", totals.infrastructure, "[&_[data-slot=progress-indicator]]:bg-blue-300"],
+                ["Manual expenses", nonInfraMonthly, "[&_[data-slot=progress-indicator]]:bg-emerald-300"],
+                ["Remaining budget", Math.max(0, totals.remaining), "[&_[data-slot=progress-indicator]]:bg-zinc-500"],
+              ].map(([label, value, indicatorClass]) => {
+                const pct = monthlyBudget > 0 ? Math.min(100, Math.round((value / monthlyBudget) * 100)) : 0;
+                return (
+                  <div key={label}>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-[#ededed]">{label}</span>
+                      <span className="text-[#737373]">{currency(value)} | {pct}%</span>
+                    </div>
+                    <Progress value={pct} className={cn("mt-2 h-1.5 bg-[#2a2a2a]", indicatorClass)} />
+                  </div>
+                );
+              })}
+            </div>
+          </Section>
+
+          <Section title="PM finance memo" detail="Generated from current project scope.">
+            <div className="space-y-3 p-4">
+              <Textarea
+                value={`Current monthly committed spend is ${currency(totals.actual)} against a ${currency(monthlyBudget)} budget. Infrastructure contributes ${currency(totals.infrastructure)} across ${architectureExpenses.filter((item) => item.enabled).length} architecture nodes. Forecast is ${currency(totals.forecast)}, leaving ${currency(totals.remaining)} of monthly room before additional scope, vendors, or launch reserves.`}
+                readOnly
+                className="min-h-40 border-[#2a2a2a] bg-[#1a1a1a] text-sm leading-6 text-[#a3a3a3]"
+              />
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-3">
+                  <Calculator className="h-4 w-4 text-blue-300" />
+                  <p className="mt-2 text-xs text-[#737373]">Forecast gap</p>
+                  <p className={cn("mt-1 text-sm font-semibold", totals.variance > 0 ? "text-red-300" : "text-emerald-300")}>
+                    {currency(totals.variance)}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-3">
+                  <DollarSign className="h-4 w-4" />
+                  <p className="mt-2 text-xs text-[#737373]">Tracked lines</p>
+                  <p className="mt-1 text-sm font-semibold text-[#ededed]">{expenses.length}</p>
+                </div>
+              </div>
+            </div>
+          </Section>
+        </div>
       </div>
     </MainScreenWrapper>
   );

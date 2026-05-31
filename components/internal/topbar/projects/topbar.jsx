@@ -1,21 +1,26 @@
 "use client";
 
 import React from "react";
-import { Search, Bell, HelpCircle, ChevronsUpDown, Plug } from "lucide-react";
+import { Search, Bell, HelpCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { useProject } from "@/context/project-context";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { NotificationsDropdown } from "../dialogue/notifications_dropdown";
 import { ProfileDropdown } from "../dialogue/profile_dropdown";
+import { SupabaseActivityLine } from "../supabase_activity_line";
+import { ExternalLinkIcon } from "@/components/internal/externals/external_links";
 
-export function ProjectTopbar() {
+export function ProjectTopbar({ externalLinks = [] }) {
   const { project } = useProject();
+  const topbarLinks = externalLinks.filter((link) => link.showOnTopbar);
+
   return (
-    <header className="h-14 px-4 flex items-center justify-between border-b border-[#2a2a2a] bg-[#161616] text-white z-20 w-full shrink-0">
+    <header className="relative h-14 px-4 flex items-center justify-between border-b border-[#2a2a2a] bg-[#161616] text-white z-20 w-full shrink-0">
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-1.5">
           <SidebarTrigger className="md:hidden -ml-2 text-white" />
-          <div className="w-8 h-8 rounded flex items-center justify-center shrink-0 md:-ml-1.5">
+          <div className="hidden w-8 h-8 rounded items-center justify-center shrink-0 md:flex md:-ml-1.5">
             <img
               src="/logo1.svg"
               alt=""
@@ -38,9 +43,21 @@ export function ProjectTopbar() {
         </div>
       </div>
 
+      <div className="pointer-events-none absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-2 md:hidden">
+        <img
+          src="/logo1.svg"
+          alt=""
+          className="h-5 w-5"
+          onError={(e) => {
+            e.currentTarget.style.display = "none";
+          }}
+        />
+        <span className="text-sm font-semibold text-white">Flow</span>
+      </div>
+
       <div className="flex justify-between gap-4 md:gap-8 sm:mr-2">
         <div className="flex items-center gap-2 sm:gap-3">
-          <button className="relative flex items-center bg-[#242424] border border-[#2a2a2a] hover:border-[#474747] transition-colors rounded-md h-8 px-2 sm:px-2.5 w-8 sm:w-[240px] justify-center sm:justify-start text-sm text-[#a3a3a3] shadow-sm group">
+          <Button variant="ghost" className="relative flex items-center bg-[#242424] border border-[#2a2a2a] hover:border-[#474747] transition-colors rounded-md h-8 px-2 sm:px-2.5 w-8 sm:w-[240px] justify-center sm:justify-start text-sm text-[#a3a3a3] shadow-sm group">
             <Search className="w-4 h-4 sm:mr-2 text-[#a3a3a3] group-hover:text-white transition-colors" />
             <span className="hidden sm:inline-block text-[#a3a3a3] group-hover:text-white transition-colors">
               Search project...
@@ -52,21 +69,46 @@ export function ProjectTopbar() {
                 </Kbd>
               </KbdGroup>
             </div>
-          </button>
+          </Button>
 
           <div className="flex items-center gap-0 sm:gap-1 ml-0 sm:ml-1">
-            <button className="w-8 h-8 rounded-full border border-transparent hover:bg-[#2a2a2a] hidden sm:flex items-center justify-center transition-colors text-[#a3a3a3] hover:text-white">
+            {topbarLinks.slice(0, 4).map((link) => (
+              <Button
+                key={link.id}
+                asChild
+                variant="ghost"
+                size="icon-sm"
+                className="hidden h-8 w-8 rounded-full border border-transparent hover:bg-[#2a2a2a] md:inline-flex"
+                title={link.title}
+              >
+                <a
+                  href={link.url}
+                  target={link.openInNewTab ? "_blank" : undefined}
+                  rel={link.openInNewTab ? "noreferrer" : undefined}
+                  aria-label={link.title}
+                >
+                  <ExternalLinkIcon
+                    iconName={link.icon}
+                    className="h-[18px] w-[18px]"
+                    style={{ color: link.textColor || "#a3a3a3" }}
+                    strokeWidth={2}
+                  />
+                </a>
+              </Button>
+            ))}
+            <Button variant="ghost" size="icon-sm" className="w-8 h-8 rounded-full border border-transparent hover:bg-[#2a2a2a] hidden sm:flex items-center justify-center transition-colors text-[#a3a3a3] hover:text-white">
               <HelpCircle className="w-[18px] h-[18px]" strokeWidth={2} />
-            </button>
+            </Button>
             <NotificationsDropdown>
-              <button className="w-8 h-8 rounded-full border border-transparent hover:bg-[#2a2a2a] flex items-center justify-center transition-colors text-[#a3a3a3] hover:text-white relative">
+              <Button variant="ghost" size="icon-sm" className="w-8 h-8 rounded-full border border-transparent hover:bg-[#2a2a2a] flex items-center justify-center transition-colors text-[#a3a3a3] hover:text-white relative">
                 <Bell className="w-[18px] h-[18px]" strokeWidth={2} />
-              </button>
+              </Button>
             </NotificationsDropdown>
             <ProfileDropdown />
           </div>
         </div>
       </div>
+      <SupabaseActivityLine />
     </header>
   );
 }

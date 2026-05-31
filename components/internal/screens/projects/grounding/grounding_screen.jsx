@@ -21,6 +21,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -33,131 +34,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { cn } from "@/lib/utils";
 
-const CHANNELS = [
-  {
-    id: "broadcast",
-    name: "Project Broadcast",
-    description: "Pinned delivery updates",
-    unread: 2,
-    locked: false,
-    members: 28,
-    lastActive: "4m",
-  },
-  {
-    id: "decisions",
-    name: "Delivery Decisions",
-    description: "Scope, owners, and approvals",
-    unread: 4,
-    locked: false,
-    members: 12,
-    lastActive: "18m",
-  },
-  {
-    id: "risks",
-    name: "Risk & Blockers",
-    description: "Escalations and mitigation",
-    unread: 1,
-    locked: false,
-    members: 16,
-    lastActive: "31m",
-  },
-  {
-    id: "admin",
-    name: "Admin Announcements",
-    description: "Moderator-only notices",
-    unread: 0,
-    locked: true,
-    members: 5,
-    lastActive: "2h",
-  },
-];
+const CHANNELS = [];
 
-const MESSAGES = [
-  {
-    id: "msg_1",
-    channelId: "broadcast",
-    author: "Aadit Joshi",
-    role: "Project Admin",
-    initials: "AJ",
-    time: "9:14 AM",
-    tone: "emerald",
-    type: "Broadcast",
-    body: "Onboarding milestone is complete. Please review the Exploring Nifty checklist before the afternoon sync.",
-    replies: 6,
-    acknowledgements: 21,
-    pinned: true,
-  },
-  {
-    id: "msg_2",
-    channelId: "broadcast",
-    author: "Priya Shah",
-    role: "Product Lead",
-    initials: "PS",
-    time: "9:28 AM",
-    tone: "sky",
-    type: "Question",
-    body: "Can we confirm whether the custom fields rollout is part of this sprint or the next one?",
-    replies: 3,
-    acknowledgements: 8,
-    pinned: false,
-  },
-  {
-    id: "msg_3",
-    channelId: "broadcast",
-    author: "Sam Lee",
-    role: "Engineering",
-    initials: "SL",
-    time: "9:44 AM",
-    tone: "violet",
-    type: "Decision",
-    body: "I can own the data shape for custom fields. UI can proceed with local state first, then we wire persistence.",
-    replies: 2,
-    acknowledgements: 11,
-    pinned: false,
-  },
-  {
-    id: "msg_4",
-    channelId: "decisions",
-    author: "Priya Shah",
-    role: "Product Lead",
-    initials: "PS",
-    time: "10:06 AM",
-    tone: "sky",
-    type: "Decision",
-    body: "We will keep templates out of this sprint and use the saved view work as the release boundary.",
-    replies: 4,
-    acknowledgements: 10,
-    pinned: true,
-  },
-  {
-    id: "msg_5",
-    channelId: "risks",
-    author: "Riley Park",
-    role: "QA Lead",
-    initials: "RP",
-    time: "10:22 AM",
-    tone: "amber",
-    type: "Blocker",
-    body: "Mobile regression pass is blocked until staging gets the latest activity dialog build.",
-    replies: 5,
-    acknowledgements: 7,
-    pinned: false,
-  },
-  {
-    id: "msg_6",
-    channelId: "admin",
-    author: "Aadit Joshi",
-    role: "Project Admin",
-    initials: "AJ",
-    time: "Yesterday",
-    tone: "emerald",
-    type: "Notice",
-    body: "Guest posting is paused for external reviewers until the security checklist is complete.",
-    replies: 0,
-    acknowledgements: 5,
-    pinned: true,
-  },
-];
+const MESSAGES = [];
 
 const toneClasses = {
   amber: "bg-amber-300 text-amber-950",
@@ -171,8 +50,10 @@ function ChannelButton({ channel, active, collapsed, onClick }) {
 
   if (collapsed) {
     return (
-      <button
+      <Button
         type="button"
+        variant="ghost"
+        size="icon"
         onClick={onClick}
         title={channel.name}
         className={cn(
@@ -188,16 +69,17 @@ function ChannelButton({ channel, active, collapsed, onClick }) {
             {channel.unread}
           </span>
         ) : null}
-      </button>
+      </Button>
     );
   }
 
   return (
-    <button
+    <Button
       type="button"
+      variant="ghost"
       onClick={onClick}
       className={cn(
-        "w-full rounded-lg border px-3 py-2.5 text-left transition-colors",
+        "h-auto w-full flex-col items-stretch justify-start rounded-lg border px-3 py-2.5 text-left transition-colors",
         active
           ? "border-[#3a3a3a] bg-[#242424] text-[#ededed]"
           : "border-transparent text-[#a3a3a3] hover:border-[#2a2a2a] hover:bg-[#202020] hover:text-[#ededed]",
@@ -215,7 +97,7 @@ function ChannelButton({ channel, active, collapsed, onClick }) {
       <p className="mt-1 truncate pl-6 text-xs text-[#737373]">
         {channel.description} | {channel.members} members | {channel.lastActive}
       </p>
-    </button>
+    </Button>
   );
 }
 
@@ -262,22 +144,28 @@ function ChannelRail({ selectedChannel, collapsed, onToggleCollapsed, onSelectCh
         </div>
         <div className="relative mt-4">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#737373]" />
-          <input
+          <Input
             placeholder="Search channels..."
-            className="h-9 w-full rounded-md border border-[#333333] bg-[#202020] py-2 pl-9 pr-3 text-sm text-[#ededed] outline-none placeholder:text-[#737373] focus:border-[#474747] focus:ring-2 focus:ring-[#333333]/50"
+            className="h-9 w-full border-[#333333] bg-[#202020] py-2 pl-9 pr-3 text-sm text-[#ededed] placeholder:text-[#737373] focus-visible:border-[#474747] focus-visible:ring-[#333333]/50"
           />
         </div>
       </div>
       <div className="min-h-0 flex-1 space-y-1 overflow-y-auto p-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {CHANNELS.map((channel) => (
-          <ChannelButton
-            key={channel.id}
-            channel={channel}
-            active={selectedChannel === channel.id}
-            collapsed={false}
-            onClick={() => onSelectChannel(channel.id)}
-          />
-        ))}
+        {CHANNELS.length === 0 ? (
+          <div className="rounded-lg border border-dashed border-[#2a2a2a] bg-[#202020] px-3 py-6 text-center text-xs text-[#737373]">
+            Channels will appear here after backend data is connected.
+          </div>
+        ) : (
+          CHANNELS.map((channel) => (
+            <ChannelButton
+              key={channel.id}
+              channel={channel}
+              active={selectedChannel === channel.id}
+              collapsed={false}
+              onClick={() => onSelectChannel(channel.id)}
+            />
+          ))
+        )}
       </div>
       <div className="border-t border-[#2a2a2a] p-2">
         <Button variant="ghost" className="h-8 w-full justify-start gap-2 text-xs text-[#737373] hover:bg-[#242424] hover:text-white">
@@ -290,33 +178,41 @@ function ChannelRail({ selectedChannel, collapsed, onToggleCollapsed, onSelectCh
 }
 
 function MobileChannelPicker({ selectedChannel, onSelectChannel }) {
-  const activeChannel = CHANNELS.find((channel) => channel.id === selectedChannel) ?? CHANNELS[0];
+  const activeChannel = CHANNELS.find((channel) => channel.id === selectedChannel);
 
   return (
     <div className="mb-3 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-3 xl:hidden">
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
           <p className="text-[10px] uppercase tracking-wider text-[#525252]">Channel</p>
-          <h2 className="mt-1 truncate text-sm font-semibold text-[#ededed]">{activeChannel.name}</h2>
+          <h2 className="mt-1 truncate text-sm font-semibold text-[#ededed]">
+            {activeChannel?.name || "No channels"}
+          </h2>
         </div>
         <ChevronDown className="h-4 w-4 text-[#737373]" />
       </div>
       <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-        {CHANNELS.map((channel) => (
-          <button
-            key={channel.id}
-            type="button"
-            onClick={() => onSelectChannel(channel.id)}
-            className={cn(
-              "h-8 shrink-0 rounded-md border px-3 text-xs font-medium",
-              selectedChannel === channel.id
-                ? "border-[#3a3a3a] bg-[#2a2a2a] text-white"
-                : "border-[#2a2a2a] bg-[#202020] text-[#a3a3a3]",
-            )}
-          >
-            {channel.name}
-          </button>
-        ))}
+        {CHANNELS.length === 0 ? (
+          <span className="text-xs text-[#737373]">Backend channels are not connected yet.</span>
+        ) : (
+          CHANNELS.map((channel) => (
+            <Button
+              key={channel.id}
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => onSelectChannel(channel.id)}
+              className={cn(
+                "h-8 shrink-0 rounded-md border px-3 text-xs font-medium",
+                selectedChannel === channel.id
+                  ? "border-[#3a3a3a] bg-[#2a2a2a] text-white"
+                  : "border-[#2a2a2a] bg-[#202020] text-[#a3a3a3]",
+              )}
+            >
+              {channel.name}
+            </Button>
+          ))
+        )}
       </div>
     </div>
   );
@@ -403,11 +299,11 @@ function MessageItem({ message }) {
 export function GroundingScreen() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState(MESSAGES);
-  const [selectedChannel, setSelectedChannel] = useState(CHANNELS[0].id);
+  const [selectedChannel, setSelectedChannel] = useState("");
   const [channelsCollapsed, setChannelsCollapsed] = useState(false);
   const [mode, setMode] = useState("message");
 
-  const activeChannel = CHANNELS.find((channel) => channel.id === selectedChannel) ?? CHANNELS[0];
+  const activeChannel = CHANNELS.find((channel) => channel.id === selectedChannel);
   const visibleMessages = useMemo(
     () => messages.filter((messageItem) => messageItem.channelId === selectedChannel),
     [messages, selectedChannel],
@@ -416,7 +312,7 @@ export function GroundingScreen() {
   const handleSendMessage = () => {
     const trimmedMessage = message.trim();
 
-    if (!trimmedMessage || activeChannel.locked) {
+    if (!trimmedMessage || !activeChannel || activeChannel.locked) {
       return;
     }
 
@@ -483,23 +379,41 @@ export function GroundingScreen() {
           <MobileChannelPicker selectedChannel={selectedChannel} onSelectChannel={setSelectedChannel} />
 
           <section className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {visibleMessages.map((item) => (
-              <MessageItem key={item.id} message={item} />
-            ))}
+            {activeChannel ? (
+              visibleMessages.length > 0 ? (
+                visibleMessages.map((item) => (
+                  <MessageItem key={item.id} message={item} />
+                ))
+              ) : (
+                <div className="flex h-full min-h-[240px] items-center justify-center rounded-xl border border-dashed border-[#2a2a2a] bg-[#1a1a1a] text-center">
+                  <div>
+                    <p className="text-sm font-medium text-[#ededed]">No messages yet</p>
+                    <p className="mt-1 text-xs text-[#737373]">Messages will appear here after backend data is connected.</p>
+                  </div>
+                </div>
+              )
+            ) : (
+              <div className="flex h-full min-h-[240px] items-center justify-center rounded-xl border border-dashed border-[#2a2a2a] bg-[#1a1a1a] text-center">
+                <div>
+                  <p className="text-sm font-medium text-[#ededed]">No channels yet</p>
+                  <p className="mt-1 text-xs text-[#737373]">Create or fetch channels from the backend to start grounding discussions.</p>
+                </div>
+              </div>
+            )}
           </section>
 
           <section className="mt-3 shrink-0 flex gap-3">
             <Textarea
               value={message}
               onChange={(event) => setMessage(event.target.value)}
-              placeholder={`Write a ${mode} for ${activeChannel.name}...`}
+              placeholder={activeChannel ? `Write a ${mode} for ${activeChannel.name}...` : "Connect backend channels to start messaging..."}
               className="min-h-[50px] resize-none border-[#333333] bg-[#202020] text-[#ededed] placeholder:text-[#737373]"
             />
              <div className="flex flex-wrap items-center justify-between ">
               <Button
                 type="button"
                 className="h-full bg-white text-sm text-black hover:bg-[#e7e7e7]"
-                disabled={!message.trim() || activeChannel.locked}
+                disabled={!message.trim() || !activeChannel || activeChannel.locked}
                 onClick={handleSendMessage}
               >
                 <Send className="h-2 w-2" />

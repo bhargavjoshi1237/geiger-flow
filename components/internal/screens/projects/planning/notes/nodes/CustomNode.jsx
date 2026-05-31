@@ -7,6 +7,7 @@ import {
   useConnection,
 } from "@xyflow/react";
 import { ArrowRight } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import Reactions from "../ui/Reactions";
 import ResizeHandle from "../components-ui/ResizeHandle";
 import TextEditingTrait from "./traits/TextEditingTrait";
@@ -111,8 +112,8 @@ const CustomNode = ({ id, data, selected, dragging }) => {
         <div className="flex-1 w-full h-full overflow-hidden flex items-center justify-center">
           {selected ? (
             <TextEditingTrait className="w-full h-full block">
-              <textarea
-                className="w-full h-full p-4 bg-transparent resize-none outline-none text-zinc-300 placeholder:text-zinc-600 font-sans"
+              <Textarea
+                className="w-full h-full rounded-none border-0 p-4 bg-transparent resize-none text-zinc-300 shadow-none placeholder:text-zinc-600 focus-visible:ring-0 focus-visible:ring-offset-0 font-sans"
                 placeholder="Start typing..."
                 value={data.label || ""}
                 onChange={(evt) => {

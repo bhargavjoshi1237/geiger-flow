@@ -102,7 +102,7 @@ function TableColumnHeader({ column, isSortActive, sortDirection, onSort }) {
 
 function TableListItem({ table, rows, columns, isSelected, onClick }) {
   return (
-    <button
+    <Button
       onClick={onClick}
       className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all cursor-pointer hover:bg-[#2a2a2a] ${
         isSelected ? "bg-[#2a2a2a] border border-[#333]" : "border border-transparent"
@@ -129,7 +129,7 @@ function TableListItem({ table, rows, columns, isSelected, onClick }) {
         </div>
       </div>
       <ChevronRight className={`w-4 h-4 shrink-0 ${isSelected ? "text-white" : "text-[#333]"}`} />
-    </button>
+    </Button>
   );
 }
 
@@ -501,12 +501,12 @@ export function TableEditorScreen() {
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <button
+                            <Button
                               onClick={() => setShowSidebar((prev) => !prev)}
                               className={`p-1.5 rounded-md transition-colors cursor-pointer ${showSidebar ? "bg-[#2a2a2a] text-[#e5e5e5]" : "text-[#525252] hover:text-[#737373]"}`}
                             >
                               <ChevronLeft className="w-3.5 h-3.5" />
-                            </button>
+                            </Button>
                           </TooltipTrigger>
                           <TooltipContent side="bottom" className="bg-[#2a2a2a] border-[#333] text-[#e5e5e5] text-[11px]">
                             Toggle sidebar
@@ -680,12 +680,12 @@ export function TableEditorScreen() {
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <button
+                        <Button
                           onClick={() => setShowSidebar((prev) => !prev)}
                           className={`p-1.5 rounded-md transition-colors cursor-pointer ${showSidebar ? "bg-[#2a2a2a] text-[#e5e5e5]" : "text-[#525252] hover:text-[#737373]"}`}
                         >
                           <ChevronLeft className="w-3.5 h-3.5" />
-                        </button>
+                        </Button>
                       </TooltipTrigger>
                       <TooltipContent side="bottom" className="bg-[#2a2a2a] border-[#333] text-[#e5e5e5] text-[11px]">
                         Toggle sidebar

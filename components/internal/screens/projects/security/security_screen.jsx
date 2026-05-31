@@ -26,121 +26,13 @@ import { cn } from "@/lib/utils";
 
 const SECURITY_VIEWS = ["Overview", "Access", "Vulnerabilities", "Keys"];
 
-const POLICIES = [
-  {
-    name: "Two-factor authentication",
-    description: "Require MFA for every project member before they can access protected areas.",
-    enabled: true,
-    state: "Enforced",
-  },
-  {
-    name: "Branch protection",
-    description: "Require approvals and passing checks before merging protected branches.",
-    enabled: true,
-    state: "Enforced",
-  },
-  {
-    name: "Session timeout",
-    description: "Expire inactive sessions after 30 minutes on shared or unknown devices.",
-    enabled: true,
-    state: "Recommended",
-  },
-  {
-    name: "IP allowlisting",
-    description: "Limit project access to approved office, VPN, and build-system ranges.",
-    enabled: false,
-    state: "Optional",
-  },
-];
+const POLICIES = [];
 
-const VULNERABILITIES = [
-  {
-    id: "VUL-0042",
-    title: "Outdated dependency: lodash@4.17.19",
-    area: "Frontend package",
-    severity: "High",
-    status: "Open",
-    owner: "Alex",
-    due: "Today",
-  },
-  {
-    id: "VUL-0039",
-    title: "CORS misconfiguration on /api/v2/*",
-    area: "API Layer",
-    severity: "Medium",
-    status: "Fixing",
-    owner: "Sam",
-    due: "May 14",
-  },
-  {
-    id: "VUL-0037",
-    title: "Missing Content-Security-Policy header",
-    area: "Server Config",
-    severity: "Medium",
-    status: "Resolved",
-    owner: "Priya",
-    due: "Done",
-  },
-];
+const VULNERABILITIES = [];
 
-const ACCESS_EVENTS = [
-  {
-    actor: "Sarah Chen",
-    action: "Logged in with SSO",
-    device: "Chrome / macOS",
-    location: "San Francisco, US",
-    time: "2 min ago",
-    state: "Allowed",
-  },
-  {
-    actor: "James Rivera",
-    action: "Created API key",
-    device: "CLI / Linux",
-    location: "New York, US",
-    time: "15 min ago",
-    state: "Allowed",
-  },
-  {
-    actor: "Unknown",
-    action: "Login failed",
-    device: "Firefox / Windows",
-    location: "Lagos, NG",
-    time: "32 min ago",
-    state: "Blocked",
-  },
-  {
-    actor: "Aiko Tanaka",
-    action: "Changed password",
-    device: "Safari / iOS",
-    location: "Tokyo, JP",
-    time: "1 hr ago",
-    state: "Allowed",
-  },
-];
+const ACCESS_EVENTS = [];
 
-const API_KEYS = [
-  {
-    name: "Production API",
-    key: "gpr_live_a4f8...x2k1",
-    scopes: ["read", "write"],
-    lastUsed: "2 min ago",
-    state: "Active",
-  },
-  {
-    name: "CI/CD Pipeline",
-    key: "gpr_ci_b7e2...m9p4",
-    scopes: ["read", "write", "deploy"],
-    lastUsed: "15 min ago",
-    state: "Active",
-  },
-  {
-    name: "Old Integration",
-    key: "gpr_old_f1a9...z5t3",
-    scopes: ["read"],
-    lastUsed: "45 days ago",
-    state: "Rotate",
-  },
-];
+const API_KEYS = [];
 
 const SEVERITY_CLASS = {
   High: "border-orange-500/25 bg-orange-500/10 text-orange-300",

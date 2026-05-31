@@ -19,6 +19,7 @@ const formatBytes = (bytes, decimals = 2) => {
 };
 
 import ResizeHandle from "../components-ui/ResizeHandle";
+import { Button } from "@/components/ui/button";
 
 const FileNode = ({ id, data, selected, dragging }) => {
   const connection = useConnection();
@@ -79,13 +80,13 @@ const FileNode = ({ id, data, selected, dragging }) => {
               )}
             </div>
             {fileUrl && (
-              <button
+              <Button
                 onClick={handleDownload}
                 className="p-2 hover:bg-zinc-800/50 rounded-none transition-colors text-zinc-400 hover:text-white z-10"
                 title="Download"
               >
                 <Download size={16} />
-              </button>
+              </Button>
             )}
           </div>
 

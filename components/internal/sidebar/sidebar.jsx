@@ -17,6 +17,8 @@ import { ChevronDown, Search, MoreVertical, PanelLeft, Bell, HelpCircle, X } fro
 import { SidebarOption } from "./sidebar_option";
 import { workspaceNav } from "./sidebar_nav";
 import { NotificationsDropdown } from "../topbar/dialogue/notifications_dropdown";
+import { roleHasPermission, tabPermissionKey } from "@/lib/rbac";
+import { Button } from "@/components/ui/button";
 
 function MobileSidebarHeader() {
   const { isMobile, toggleSidebar } = useSidebar();
@@ -48,8 +50,16 @@ function MobileSidebarHeader() {
   );
 }
 
-export function AppSidebar({ activeTab = "Overview", onTabChange = () => {} }) {
+export function AppSidebar({
+  activeTab = "Overview",
+  onTabChange = () => {},
+  roleId = "workspace_owner",
+  roles = [],
+}) {
   const { toggleSidebar } = useSidebar();
+  const visibleNav = workspaceNav.filter((item) =>
+    roleHasPermission(roles, roleId, tabPermissionKey(item.title)),
+  );
 
   return (
     <Sidebar
@@ -61,7 +71,7 @@ export function AppSidebar({ activeTab = "Overview", onTabChange = () => {} }) {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {workspaceNav.map((item) => (
+              {visibleNav.map((item) => (
                 <SidebarOption
                   key={item.title}
                   title={item.title}
@@ -76,13 +86,13 @@ export function AppSidebar({ activeTab = "Overview", onTabChange = () => {} }) {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="p-2 border-t border-sidebar-border mt-auto">
-        <button
+        <Button
           type="button"
           onClick={toggleSidebar}
           className="flex items-center gap-3 p-2 w-full rounded-lg hover:bg-sidebar-accent transition-all text-sidebar-foreground hover:text-white group-data-[collapsible=icon]:justify-center"
         >
           <PanelLeft className="w-5 h-5 shrink-0" />
-        </button>
+        </Button>
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

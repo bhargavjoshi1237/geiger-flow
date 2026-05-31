@@ -36,92 +36,17 @@ import { severityColors } from "@/components/ui/issue-item";
 import { cn } from "@/lib/utils";
 
 const QUEUE_VIEWS = [
-  { label: "Tasks", Icon: ListChecks, count: 4 },
-  { label: "Created", Icon: FileText, count: 3 },
-  { label: "Calendar", Icon: CalendarDays, count: 3 },
-  { label: "Files", Icon: Archive, count: 3 },
-  { label: "Notes", Icon: NotebookText, count: 3 },
-  { label: "Time", Icon: Timer, count: 3 },
+  { label: "Tasks", Icon: ListChecks, count: 0 },
+  { label: "Created", Icon: FileText, count: 0 },
+  { label: "Calendar", Icon: CalendarDays, count: 0 },
+  { label: "Files", Icon: Archive, count: 0 },
+  { label: "Notes", Icon: NotebookText, count: 0 },
+  { label: "Time", Icon: Timer, count: 0 },
 ];
 
-const TASKS = [
-  {
-    id: "DEM-1",
-    title: "Create a New Project",
-    project: "Demo Project",
-    status: "In Progress",
-    list: "Getting Started",
-    owner: "AJ",
-    due: "May 8",
-    priority: "High",
-    progress: 44,
-    description: "Finish the starter project setup and confirm the onboarding checklist.",
-  },
-  {
-    id: "DEM-17",
-    title: "Test",
-    project: "Demo Project",
-    status: "To Do",
-    list: "Exploring Nifty",
-    owner: "AJ",
-    due: "May 9",
-    priority: "High",
-    progress: 0,
-    description: "Run through the basic task flow and record any rough edges.",
-  },
-  {
-    id: "DEM-8",
-    title: "View Help Guides in Docs",
-    project: "Demo Project",
-    status: "To Do",
-    list: "Exploring Nifty",
-    owner: "AJ",
-    due: "May 10",
-    priority: "Low",
-    progress: 12,
-    description: "Review help docs and capture follow-up questions for the team.",
-  },
-  {
-    id: "LCH-4",
-    title: "Launch content checklist",
-    project: "Launch Playbook",
-    status: "In Review",
-    list: "Launch prep",
-    owner: "PS",
-    due: "May 14",
-    priority: "Medium",
-    progress: 72,
-    description: "Validate copy, owners, and channel readiness before launch.",
-  },
-];
+const TASKS = [];
 
-const SECONDARY_ROWS = {
-  Created: [
-    ["Project permissions review", "Feature Requests", "In Review", "May 14"],
-    ["Roadmap intake template", "Product Roadmap", "To Do", "May 18"],
-    ["Launch content checklist", "Launch Playbook", "In Progress", "May 21"],
-  ],
-  Calendar: [
-    ["Today", "View Help Guides in Docs", "10:00 AM", "Demo Project"],
-    ["Today", "Planning sync", "2:30 PM", "Launch Playbook"],
-    ["Tomorrow", "Roadmap review", "11:00 AM", "Product Roadmap"],
-  ],
-  Files: [
-    ["Release brief.pdf", "Launch Playbook", "Edited today", "1.2 MB"],
-    ["Customer feedback.csv", "Feature Requests", "Edited yesterday", "840 KB"],
-    ["Roadmap Q2.fig", "Product Roadmap", "Edited May 6", "5.8 MB"],
-  ],
-  Notes: [
-    ["Daily blockers", "Demo Project", "Updated 20m ago", "Private"],
-    ["Launch risks", "Launch Playbook", "Updated yesterday", "Team"],
-    ["Feature review notes", "Feature Requests", "Updated May 7", "Team"],
-  ],
-  Time: [
-    ["Create a New Project", "Demo Project", "02:45", "Today"],
-    ["View Help Guides in Docs", "Demo Project", "01:20", "Today"],
-    ["Launch checklist", "Launch Playbook", "03:10", "This week"],
-  ],
-};
+const SECONDARY_ROWS = {};
 
 const STATUS_META = {
   "To Do": {
@@ -144,10 +69,7 @@ const PRIORITY_META = {
   Low: { key: "low", Icon: ArrowUpRight },
 };
 
-const OWNER_META = {
-  AJ: { name: "Aadit Joshi", color: "bg-sky-300 text-sky-950" },
-  PS: { name: "Priya Shah", color: "bg-violet-300 text-violet-950" },
-};
+const OWNER_META = {};
 
 function HeaderAction() {
   return (
@@ -439,8 +361,8 @@ export function WorkQueueScreen() {
   }, [activeView, query]);
 
   const summary = useMemo(() => {
-    const overdue = TASKS.filter((task) => task.due === "May 8" || task.due === "May 9").length;
-    const today = TASKS.filter((task) => task.due === "May 10").length;
+    const overdue = 0;
+    const today = 0;
     const progress = Math.round(TASKS.reduce((sum, task) => sum + task.progress, 0) / TASKS.length);
     const inProgress = TASKS.filter((task) => task.status === "In Progress" || task.status === "In Review").length;
 

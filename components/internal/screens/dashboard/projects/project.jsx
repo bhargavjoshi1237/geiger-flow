@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,9 +32,9 @@ export function ProjectItem({ id, name, provider, region, status, tags = [] }) {
       <div className="absolute top-4 right-4 z-10">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="text-[#a3a3a3] hover:text-[#e7e7e7] p-1 rounded-md hover:bg-[#2a2a2a] transition-colors focus:outline-none shrink-0 cursor-pointer">
+            <Button className="text-[#a3a3a3] hover:text-[#e7e7e7] p-1 rounded-md hover:bg-[#2a2a2a] transition-colors focus:outline-none shrink-0 cursor-pointer">
               <MoreVertical className="w-5 h-5" />
-            </button>
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"

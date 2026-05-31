@@ -15,24 +15,9 @@ import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers"
 import { AddActivityDialog } from "@/components/internal/dilouges/activities/add_activity_dilouge";
 
 export function DatasetsScreen() {
-  const datasets = [
-    {
-      name: "Customer Demographics",
-      type: "CSV",
-      size: "24.5 MB",
-      status: "Active",
-    },
-    {
-      name: "Sales Transactions",
-      type: "Postgres",
-      size: "1.2 GB",
-      status: "Syncing",
-    },
-    { name: "Marketing Leads", type: "JSON", size: "8.2 MB", status: "Active" },
-  ];
+  const datasets = [];
 
-  const handleSaveActivity = async (activity) => {
-    console.log("Saving dataset activity:", activity);
+  const handleSaveActivity = async () => {
   };
 
   return (

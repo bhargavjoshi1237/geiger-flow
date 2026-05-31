@@ -36,6 +36,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
+import { Button } from "@/components/ui/button";
 
 export function ProjectsScreen() {
   const [projects, setProjects] = useState([]);
@@ -72,7 +74,7 @@ export function ProjectsScreen() {
   };
 
   useEffect(() => {
-    fetchProjects();
+    void Promise.resolve().then(fetchProjects);
   }, []);
 
   const handleCreateProject = async (details) => {
@@ -126,16 +128,21 @@ export function ProjectsScreen() {
   });
 
   return (
-    <div className="flex flex-col gap-8 w-full px-2 lg:px-0 lg:w-[75%] my-3 mx-auto text-[#e7e7e7]">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <h1 className="text-2xl md:text-3xl font-semibold text-[#e7e7e7] tracking-tight">
-          Projects
-        </h1>
+    <MainScreenWrapper className="flex flex-col gap-10 space-y-0 text-[#e7e7e7]">
+      <div className="flex flex-col gap-4 border-b border-[#2a2a2a] pb-6 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-semibold text-[#e7e7e7] tracking-tight">
+            Projects
+          </h1>
+          <p className="text-[#a3a3a3] text-sm mt-1">
+            Create, search, and manage workspace projects.
+          </p>
+        </div>
         <NewProjectDialog onCreate={handleCreateProject}>
-          <button className="bg-[#e7e7e7] hover:bg-zinc-200 text-black px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors w-fit">
+          <Button className="bg-[#e7e7e7] hover:bg-zinc-200 text-black px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors w-fit">
             <Plus className="w-4 h-4 text-black font-bold stroke-[3]" />
             New project
-          </button>
+          </Button>
         </NewProjectDialog>
       </div>
 
@@ -153,12 +160,12 @@ export function ProjectsScreen() {
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-2 bg-[#202020] border border-[#2a2a2a] text-[#a3a3a3] hover:text-[#e7e7e7] px-3 py-1.5 rounded-sm text-sm font-medium transition-colors group cursor-pointer">
+              <Button className="flex items-center gap-2 bg-[#202020] border border-[#2a2a2a] text-[#a3a3a3] hover:text-[#e7e7e7] px-3 py-1.5 rounded-sm text-sm font-medium transition-colors group cursor-pointer">
                 <span className="text-[#a3a3a3] group-hover:text-[#e7e7e7] transition-colors capitalize">
                   {statusFilter === "all" ? "Status" : statusFilter}
                 </span>
                 <ChevronDown className="w-4 h-4 text-[#525252] group-hover:text-[#e7e7e7] transition-colors" />
-              </button>
+              </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-40 bg-[#1a1a1a] border-[#2a2a2a] text-[#e7e7e7]">
               <DropdownMenuRadioGroup
@@ -195,7 +202,7 @@ export function ProjectsScreen() {
         </div>
 
         <div className="flex items-center gap-1 bg-[#1a1a1a] rounded-lg p-1 shrink-0">
-          <button
+          <Button
             onClick={() => setViewMode("grid")}
             className={`p-1.5 rounded-md transition-colors ${
               viewMode === "grid"
@@ -204,8 +211,8 @@ export function ProjectsScreen() {
             }`}
           >
             <LayoutGrid className="w-4 h-4" />
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => setViewMode("list")}
             className={`p-1.5 rounded-md transition-colors ${
               viewMode === "list"
@@ -214,7 +221,7 @@ export function ProjectsScreen() {
             }`}
           >
             <List className="w-4 h-4" />
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -302,9 +309,9 @@ export function ProjectsScreen() {
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <button className="text-[#737373] hover:text-[#e7e7e7] p-1 rounded-md hover:bg-[#2a2a2a] transition-colors cursor-pointer">
+                          <Button className="text-[#737373] hover:text-[#e7e7e7] p-1 rounded-md hover:bg-[#2a2a2a] transition-colors cursor-pointer">
                             <MoreVertical className="w-4 h-4" />
-                          </button>
+                          </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
                           align="end"
@@ -337,6 +344,6 @@ export function ProjectsScreen() {
           </Table>
         </div>
       )}
-    </div>
+    </MainScreenWrapper>
   );
 }

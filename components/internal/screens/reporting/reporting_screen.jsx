@@ -11,8 +11,8 @@ import {
   Maximize2,
   Circle,
   Search,
+  FileText,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
@@ -26,102 +26,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
+import { SegmentedTabs } from "@/components/internal/shared/segmented_tabs";
 import FilterDropdown from "@/components/internal/screens/projects/overview/filter_dropdown";
 import { severityColors } from "@/components/ui/issue-item";
 import { cn } from "@/lib/utils";
 
 const REPORT_VIEWS = ["Tasks", "Projects", "Workload", "Time"];
 
-const PROJECT_OPTIONS = [
-  { value: "all", label: "All projects" },
-  { value: "demo-project", label: "Demo Project" },
-  { value: "product-roadmap", label: "Product Roadmap" },
-  { value: "launch-playbook", label: "Launch Playbook" },
-];
+const PROJECT_OPTIONS = [{ value: "all", label: "All projects" }];
 
-const REPORT_ROWS = [
-  {
-    id: "DEM-1",
-    task: "Create a New Project",
-    project: "Demo Project",
-    owner: "AJ",
-    status: "In Progress",
-    priority: "High",
-    due: "May 8",
-    progress: 44,
-    view: "Tasks",
-  },
-  {
-    id: "DEM-8",
-    task: "View Help Guides in Docs",
-    project: "Demo Project",
-    owner: "AJ",
-    status: "To Do",
-    priority: "Low",
-    due: "May 10",
-    progress: 12,
-    view: "Tasks",
-  },
-  {
-    id: "PRD-4",
-    task: "Finalize roadmap checkpoints",
-    project: "Product Roadmap",
-    owner: "Priya",
-    status: "At Risk",
-    priority: "High",
-    due: "May 14",
-    progress: 68,
-    view: "Projects",
-  },
-  {
-    id: "LCH-2",
-    task: "Draft launch checklist",
-    project: "Launch Playbook",
-    owner: "Sam",
-    status: "Planning",
-    priority: "Medium",
-    due: "May 21",
-    progress: 27,
-    view: "Projects",
-  },
-  {
-    id: "WRK-1",
-    task: "Review team allocation",
-    project: "All Projects",
-    owner: "Priya",
-    status: "High Load",
-    priority: "Medium",
-    due: "This week",
-    progress: 82,
-    view: "Workload",
-  },
-  {
-    id: "TIM-1",
-    task: "Weekly time summary",
-    project: "Demo Project",
-    owner: "AJ",
-    status: "Logged",
-    priority: "Low",
-    due: "28h",
-    progress: 100,
-    view: "Time",
-  },
-];
+const REPORT_ROWS = [];
 
-const OWNER_META = {
-  AJ: {
-    name: "Aadit Joshi",
-    avatarClass: "bg-sky-300 text-sky-950",
-  },
-  Priya: {
-    name: "Priya Shah",
-    avatarClass: "bg-violet-300 text-violet-950",
-  },
-  Sam: {
-    name: "Sam Lee",
-    avatarClass: "bg-emerald-300 text-emerald-950",
-  },
-};
+const OWNER_META = {};
 
 const STATUS_META = {
   "In Progress": {
@@ -259,7 +175,7 @@ export function ReportingScreen() {
   }, [activeView, projectFilter, search]);
 
   return (
-    <MainScreenWrapper className="flex h-full min-h-0 flex-col text-[#e7e7e7]">
+    <MainScreenWrapper className="flex h-full min-h-0 min-w-0 flex-col gap-10 space-y-0 text-[#e7e7e7]">
       <div className="flex flex-col gap-4 border-b border-[#2a2a2a] pb-6 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-[#e7e7e7] md:text-3xl">Reporting</h1>
@@ -273,27 +189,15 @@ export function ReportingScreen() {
         </div>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col rounded-2xl border border-[#2a2a2a] bg-[#202020]">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-[#2a2a2a] bg-[#202020]">
         <div className="flex flex-col gap-3 border-b border-[#2a2a2a] p-4 xl:flex-row xl:items-center xl:justify-between">
-          <div className="flex w-full items-center overflow-x-auto rounded-lg border border-[#2a2a2a] bg-[#202020] p-0.5 xl:w-auto">
-            {REPORT_VIEWS.map((view) => (
-              <Button
-                key={view}
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => setActiveView(view)}
-                className={cn(
-                  "h-7 rounded-md px-3 text-xs",
-                  activeView === view
-                    ? "bg-[#2a2a2a] text-white"
-                    : "text-[#737373] hover:bg-transparent hover:text-[#a3a3a3]",
-                )}
-              >
-                {view}
-              </Button>
-            ))}
-          </div>
+          <SegmentedTabs
+            tabs={REPORT_VIEWS}
+            value={activeView}
+            onChange={setActiveView}
+            className="xl:w-auto"
+            buttonClassName="h-8 text-xs"
+          />
 
           <div className="flex flex-col gap-2 md:flex-row md:items-center">
             <FilterDropdown
@@ -330,36 +234,54 @@ export function ReportingScreen() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {rows.map((row) => (
-                  <TableRow key={row.id} className="border-[#2a2a2a] hover:bg-[#242424]">
-                    <TableCell>
-                      <div className="min-w-[220px]">
-                        <p className="font-medium text-[#ededed]">{row.task}</p>
-                        <p className="mt-1 font-mono text-xs text-[#737373]">{row.id}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-sm text-[#a3a3a3]">{row.project}</TableCell>
-                    <TableCell>
-                      <OwnerWidget owner={row.owner} />
-                    </TableCell>
-                    <TableCell>
-                      <StatusWidget status={row.status} />
-                    </TableCell>
-                    <TableCell>
-                      <PriorityBadge priority={row.priority} />
-                    </TableCell>
-                    <TableCell className="text-sm text-[#a3a3a3]">{row.due}</TableCell>
-                    <TableCell>
-                      <div className="w-[150px] space-y-1.5">
-                        <Progress
-                          value={row.progress}
-                          className="h-1.5 bg-[#2a2a2a] [&_[data-slot=progress-indicator]]:bg-[#ededed]"
-                        />
-                        <p className="text-xs text-[#737373]">{row.progress}%</p>
+                {rows.length === 0 ? (
+                  <TableRow className="border-[#2a2a2a] hover:bg-transparent">
+                    <TableCell colSpan={7} className="h-[320px]">
+                      <div className="flex flex-col items-center justify-center text-center">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] text-[#525252]">
+                          <FileText className="h-5 w-5" />
+                        </div>
+                        <p className="mt-4 text-sm font-semibold text-[#ededed]">
+                          No report items yet
+                        </p>
+                        <p className="mt-1 max-w-sm text-xs leading-5 text-[#737373]">
+                          Tasks, project progress, workload, and time entries will appear here after backend reporting data is connected.
+                        </p>
                       </div>
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  rows.map((row) => (
+                    <TableRow key={row.id} className="border-[#2a2a2a] hover:bg-[#242424]">
+                      <TableCell>
+                        <div className="min-w-[220px]">
+                          <p className="font-medium text-[#ededed]">{row.task}</p>
+                          <p className="mt-1 font-mono text-xs text-[#737373]">{row.id}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-sm text-[#a3a3a3]">{row.project}</TableCell>
+                      <TableCell>
+                        <OwnerWidget owner={row.owner} />
+                      </TableCell>
+                      <TableCell>
+                        <StatusWidget status={row.status} />
+                      </TableCell>
+                      <TableCell>
+                        <PriorityBadge priority={row.priority} />
+                      </TableCell>
+                      <TableCell className="text-sm text-[#a3a3a3]">{row.due}</TableCell>
+                      <TableCell>
+                        <div className="w-[150px] space-y-1.5">
+                          <Progress
+                            value={row.progress}
+                            className="h-1.5 bg-[#2a2a2a] [&_[data-slot=progress-indicator]]:bg-[#ededed]"
+                          />
+                          <p className="text-xs text-[#737373]">{row.progress}%</p>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </div>

@@ -1,6 +1,8 @@
 import React, { memo } from "react";
 import { Handle, Position, useReactFlow } from "@xyflow/react";
 import { ArrowRight, Send } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import Reactions from "../ui/Reactions";
 import TextEditingTrait from "./traits/TextEditingTrait";
 
@@ -82,20 +84,23 @@ const CommentNode = ({ id, data, selected }) => {
               }
             }}
           >
-            <input
+            <Input
               type="text"
-              className="w-full bg-[#3B4654] text-zinc-200 text-sm rounded px-3 py-2 pr-10 focus:outline-none focus:ring-1 focus:ring-zinc-500 placeholder:text-zinc-500"
+              className="w-full bg-[#3B4654] text-zinc-200 text-sm rounded px-3 py-2 pr-10 focus-visible:ring-1 focus-visible:ring-zinc-500 placeholder:text-zinc-500"
               placeholder="Write a comment..."
               value={comment}
               onChange={handleChange}
             />
           </TextEditingTrait>
-          <button
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
             onClick={handleSend}
             className="absolute right-2 text-blue-400 hover:text-blue-300 text-xs font-medium transition-colors"
           >
             Send
-          </button>
+          </Button>
         </div>
 
         <Handle

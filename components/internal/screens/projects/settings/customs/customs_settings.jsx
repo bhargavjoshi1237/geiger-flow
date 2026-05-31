@@ -54,32 +54,7 @@ const DEFAULT_DRAFT = {
   options: "",
 };
 
-const INITIAL_FIELDS = [
-  {
-    id: "field_priority",
-    name: "Priority",
-    type: "select",
-    scope: "Tasks",
-    required: true,
-    options: ["Low", "Medium", "High", "Critical"],
-  },
-  {
-    id: "field_customer_segment",
-    name: "Customer Segment",
-    type: "select",
-    scope: "Projects",
-    required: false,
-    options: ["Enterprise", "Startup", "Internal"],
-  },
-  {
-    id: "field_risk_score",
-    name: "Risk Score",
-    type: "number",
-    scope: "Milestones",
-    required: false,
-    options: [],
-  },
-];
+const INITIAL_FIELDS = [];
 
 function FieldTypeIcon({ type }) {
   const fieldType = FIELD_TYPES.find((item) => item.value === type) || FIELD_TYPES[0];

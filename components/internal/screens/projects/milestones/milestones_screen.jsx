@@ -22,48 +22,6 @@ import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers"
 import { SearchBar } from "@/components/ui/search-bar";
 import { cn } from "@/lib/utils";
 
-const MOCK_MILESTONES = [
-  {
-    id: "ms_001",
-    title: "Foundation Sprint",
-    description: "Stabilize base architecture, token setup, and initial project scaffolding.",
-    targetDate: "2026-04-22",
-    owner: "Alex",
-    tasks: [
-      { id: "t_001", title: "Finalize app shell and route guards", status: "done", assignee: "Alex" },
-      { id: "t_002", title: "Define design tokens in globals", status: "done", assignee: "Sam" },
-      { id: "t_003", title: "Wire project context hydration", status: "in_progress", assignee: "Jordan" },
-      { id: "t_004", title: "Set baseline analytics events", status: "todo", assignee: "Riley" },
-    ],
-  },
-  {
-    id: "ms_002",
-    title: "Task Intelligence",
-    description: "Deliver blocker visibility, dependency graphing, and status health indicators.",
-    targetDate: "2026-04-28",
-    owner: "Sam",
-    tasks: [
-      { id: "t_005", title: "Render dependency chain map", status: "in_progress", assignee: "Sam" },
-      { id: "t_006", title: "Detect blocked-by cycles", status: "blocked", assignee: "Alex" },
-      { id: "t_007", title: "Ship blocker inbox summaries", status: "todo", assignee: "Riley" },
-      { id: "t_008", title: "Backfill historical blocker data", status: "todo", assignee: "Taylor" },
-    ],
-  },
-  {
-    id: "ms_003",
-    title: "Milestone Reporting",
-    description: "Provide delivery snapshots with completion ratios and milestone health metrics.",
-    targetDate: "2026-05-10",
-    owner: "Jordan",
-    tasks: [
-      { id: "t_009", title: "Create KPI metric cards", status: "done", assignee: "Jordan" },
-      { id: "t_010", title: "Build export endpoint for PM reports", status: "in_progress", assignee: "Alex" },
-      { id: "t_011", title: "Add due-date drift detection", status: "todo", assignee: "Sam" },
-      { id: "t_012", title: "Finalize report filters", status: "todo", assignee: "Riley" },
-    ],
-  }
-];
-
 const MILESTONE_STATUS_META = {
   not_started: {
     label: "Not Started",
@@ -221,7 +179,7 @@ function MilestoneCard({ milestone, onToggleTask }) {
             const isDone = task.status === "done";
 
             return (
-              <button
+              <Button
                 key={task.id}
                 type="button"
                 onClick={() => onToggleTask(milestone.id, task.id)}
@@ -248,7 +206,7 @@ function MilestoneCard({ milestone, onToggleTask }) {
                 <Badge className={cn("border text-[10px] px-2 py-0 shrink-0", taskMeta.className)}>
                   {taskMeta.label}
                 </Badge>
-              </button>
+              </Button>
             );
           })}
         </div>
@@ -309,7 +267,7 @@ function MilestoneListItem({ milestone, onToggleTask }) {
         {milestone.tasks.map((task) => {
           const isDone = task.status === "done";
           return (
-            <button
+            <Button
               key={task.id}
               type="button"
               onClick={() => onToggleTask(milestone.id, task.id)}
@@ -321,7 +279,7 @@ function MilestoneListItem({ milestone, onToggleTask }) {
                 <Circle className="w-3.5 h-3.5 text-[#3a3a3a] shrink-0" />
               )}
               <span className={cn("text-xs truncate", isDone ? "text-[#a3a3a3] line-through" : "text-[#d4d4d4]")}>{task.title}</span>
-            </button>
+            </Button>
           );
         })}
       </div>
@@ -333,7 +291,7 @@ export function MilestonesScreen() {
   const [view, setView] = useState("grid");
   const [query, setQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
-  const [milestones, setMilestones] = useState(MOCK_MILESTONES);
+  const [milestones, setMilestones] = useState([]);
 
   const milestonesWithMetrics = useMemo(
     () =>

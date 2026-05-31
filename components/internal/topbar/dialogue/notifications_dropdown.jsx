@@ -8,27 +8,13 @@ import { Bell, Download, MessageSquare } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import { getUser } from "@/lib/supabase/user";
 import { formatDistanceToNow } from "date-fns";
+import { SegmentedTabs } from "@/components/internal/shared/segmented_tabs";
+import { Button } from "@/components/ui/button";
 
-const DISCUSSION_NOTIFICATIONS = [
-  {
-    id: "discussion_seed_1",
-    title: "New thread in Grounding",
-    description: "Aadit opened a delivery risk discussion for this project.",
-    type: "discussion",
-    read: false,
-    time: new Date().toISOString(),
-    icon: "MessageSquare",
-    bg_color: "bg-emerald-500/10",
-    icon_color: "text-emerald-300",
-    extra: {
-      type: "discussion",
-      channel: "Grounding",
-      author: "Aadit Joshi",
-      message: "We need a decision on the release checklist before the afternoon sync.",
-      replies: 4,
-      participants: ["AJ", "PM", "TL"],
-    },
-  },
+const NOTIFICATION_TABS = [
+  { label: "All", value: "all" },
+  { label: "Discussions", value: "discussions" },
+  { label: "Mentions", value: "mentions" },
 ];
 
 export function NotificationsDropdown({ children }) {
@@ -60,10 +46,7 @@ export function NotificationsDropdown({ children }) {
     fetchNotifications();
   }, []);
 
-  const visibleNotifications =
-    notifications.length > 0 ? notifications : DISCUSSION_NOTIFICATIONS;
-
-  const filteredNotifications = visibleNotifications.filter((n) => {
+  const filteredNotifications = notifications.filter((n) => {
     if (activeTab === "all") return true;
     if (activeTab === "unread") return !n.read;
     if (activeTab === "discussions") return n.type === "discussion";
@@ -75,9 +58,9 @@ export function NotificationsDropdown({ children }) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         {children || (
-          <button className="w-8 h-8 rounded-full border border-transparent hover:bg-[#2a2a2a] flex items-center justify-center transition-colors text-[#a3a3a3] hover:text-white relative">
+          <Button className="w-8 h-8 rounded-full border border-transparent hover:bg-[#2a2a2a] flex items-center justify-center transition-colors text-[#a3a3a3] hover:text-white relative">
             <Bell className="w-[18px] h-[18px]" strokeWidth={2} />
-          </button>
+          </Button>
         )}
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -91,33 +74,7 @@ export function NotificationsDropdown({ children }) {
             </h2>
           </div>
 
-          <div className="flex items-center gap-1.5">
-            <div className="flex items-center gap-1 bg-[#1a1a1a] w-full justify-center rounded-lg p-1 border border-[#2a2a2a]">
-              <button
-                onClick={() => setActiveTab("all")}
-                className={`px-4 py-1.5 text-sm w-full font-medium rounded-md transition-all ${
-                  activeTab === "all"
-                    ? "bg-[#2a2a2a] text-[#e7e7e7] shadow-sm"
-                    : "text-[#737373] hover:text-[#e7e7e7] hover:bg-[#202020]"
-                }`}
-              >
-                All
-              </button>
-              {["Discussions", "Mentions"].map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab.toLowerCase())}
-                  className={`px-4 py-1.5 text-sm w-full font-medium rounded-md transition-all ${
-                    activeTab === tab.toLowerCase()
-                      ? "bg-[#2a2a2a] text-[#e7e7e7] shadow-sm"
-                      : "text-[#737373] hover:text-[#e7e7e7] hover:bg-[#202020]"
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-          </div>
+          <SegmentedTabs tabs={NOTIFICATION_TABS} value={activeTab} onChange={setActiveTab} fullWidth />
         </div>
 
         <div className="max-h-[420px] overflow-y-auto pb-2 custom-scrollbar">
@@ -255,29 +212,29 @@ export function NotificationsDropdown({ children }) {
                                     </div>
                                   </div>
                                 </div>
-                                <button
+                                <Button
                                   onClick={(e) => e.stopPropagation()}
                                   className="w-8 h-8 rounded flex items-center justify-center text-[#666666] hover:text-white hover:bg-[#2a2a2a] transition-colors shrink-0"
                                 >
                                   <Download className="w-4 h-4" />
-                                </button>
+                                </Button>
                               </div>
                             ))}
 
                           {extraContent.type === "actions" && (
                             <div className="flex items-center gap-2 mt-2.5">
-                              <button
+                              <Button
                                 onClick={(e) => e.stopPropagation()}
                                 className="px-3 py-1.5 rounded-lg border border-[#333333] text-[11px] font-medium text-[#909090] hover:bg-[#252525] hover:text-white transition-colors"
                               >
                                 {extraContent.options?.[0] || "Decline"}
-                              </button>
-                              <button
+                              </Button>
+                              <Button
                                 onClick={(e) => e.stopPropagation()}
                                 className="px-3 py-1.5 rounded-lg bg-white text-[11px] font-medium text-black hover:bg-gray-200 transition-colors"
                               >
                                 {extraContent.options?.[1] || "Accept"}
-                              </button>
+                              </Button>
                             </div>
                           )}
                         </div>

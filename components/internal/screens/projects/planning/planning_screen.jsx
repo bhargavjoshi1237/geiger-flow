@@ -23,6 +23,7 @@ import {
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
@@ -102,108 +103,12 @@ function createPlanningFile({ name, nodes = [], edges = [] }) {
   };
 }
 
-const INITIAL_NODES = [
-  {
-    id: "node-1",
-    type: "custom",
-    position: { x: 250, y: 50 },
-    data: {
-      label: "Project Planning Board",
-      textAlign: "center",
-      bold: true,
-      backgroundColor: "#333333",
-    },
-    style: { width: 338, height: 68 },
-  },
-  {
-    id: "node-2",
-    type: "custom",
-    position: { x: 100, y: 220 },
-    data: { label: "Design System Setup", backgroundColor: "#1e1e1e" },
-    style: { width: 300, height: 90 },
-  },
-  {
-    id: "node-3",
-    type: "custom",
-    position: { x: 450, y: 220 },
-    data: { label: "API Integration", backgroundColor: "#1e1e1e" },
-    style: { width: 300, height: 90 },
-  },
-  {
-    id: "node-4",
-    type: "board",
-    position: { x: 80, y: 410 },
-    data: {
-      label: "Phase 1",
-      name: "Phase 1",
-      caption: "Delivery checkpoint",
-      backgroundColor: "#1e1e1e",
-    },
-    style: { width: 328, height: 70 },
-  },
-  {
-    id: "node-5",
-    type: "comment",
-    position: { x: 460, y: 410 },
-    data: {
-      label: "Remember to sync milestones with the project timeline",
-      backgroundColor: "#2a2a2a",
-    },
-    style: { width: 260, height: 120 },
-  },
-  {
-    id: "node-6",
-    type: "link",
-    position: { x: 780, y: 410 },
-    data: {
-      label: "Review security requirements",
-      url: "https://example.com/security",
-      backgroundColor: "#1e1e1e",
-    },
-    style: { width: 260, height: 88 },
-  },
-];
+const INITIAL_NODES = [];
 
-const INITIAL_EDGES = [
-  {
-    id: "e1-2",
-    source: "node-1",
-    target: "node-2",
-    type: "center",
-    markerEnd: { type: MarkerType.ArrowClosed, width: 20, height: 20 },
-  },
-  {
-    id: "e1-3",
-    source: "node-1",
-    target: "node-3",
-    type: "center",
-    markerEnd: { type: MarkerType.ArrowClosed, width: 20, height: 20 },
-  },
-  {
-    id: "e2-5",
-    source: "node-2",
-    target: "node-5",
-    type: "center",
-    markerEnd: { type: MarkerType.ArrowClosed, width: 20, height: 20 },
-  },
-  {
-    id: "e3-6",
-    source: "node-3",
-    target: "node-6",
-    type: "center",
-    markerEnd: { type: MarkerType.ArrowClosed, width: 20, height: 20 },
-  },
-];
+const INITIAL_EDGES = [];
 
 const INITIAL_FILES = [
-  {
-    id: "planning-main",
-    name: "Master Plan",
-    nodes: cloneNodes(INITIAL_NODES),
-    edges: cloneEdges(INITIAL_EDGES),
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
-  },
+  createPlanningFile({ name: "Untitled Board" }),
 ];
 
 function getDefaultNodeStyle(type) {
@@ -648,11 +553,7 @@ export function PlanningScreen() {
   }, []);
 
   const proOptions = { hideAttribution: true };
-  const collaborators = [
-    { name: "Aadit Joshi", initials: "AJ", color: "bg-emerald-300 text-emerald-950" },
-    { name: "Priya Shah", initials: "PS", color: "bg-sky-300 text-sky-950" },
-    { name: "Sam Lee", initials: "SL", color: "bg-violet-300 text-violet-950" },
-  ];
+  const collaborators = [];
 
   return (
     <MainScreenWrapper className="max-w-none space-y-0 px-0 py-0 lg:max-w-none">
@@ -802,7 +703,7 @@ export function PlanningScreen() {
                     <FileText className="h-4 w-4 shrink-0 text-[#737373]" />
                     <div className="min-w-0 flex-1">
                       {isRenaming ? (
-                        <input
+                        <Input
                           value={renameValue}
                           onChange={(event) => setRenameValue(event.target.value)}
                           onClick={(event) => event.stopPropagation()}
@@ -818,7 +719,7 @@ export function PlanningScreen() {
                             }
                           }}
                           autoFocus
-                          className="h-7 w-full rounded-md border border-[#333333] bg-[#111111] px-2 text-sm text-[#ededed] outline-none focus:border-[#474747]"
+                          className="h-7 w-full border-[#333333] bg-[#111111] px-2 text-sm text-[#ededed] focus-visible:border-[#474747] focus-visible:ring-0"
                         />
                       ) : (
                         <>
@@ -920,14 +821,14 @@ export function PlanningScreen() {
           >
             <span className="text-lg leading-none">-</span>
           </Button>
-          <button
+          <Button
             type="button"
             onClick={onFitView}
             className="h-9 min-w-14 border-r border-[#2a2a2a]/70 px-3 font-mono text-[11px] text-[#d4d4d4] hover:bg-[#444444]/60"
             title="Fit to view"
           >
             {Math.round(zoomLevel * 100)}%
-          </button>
+          </Button>
           <Button
             variant="ghost"
             size="icon"

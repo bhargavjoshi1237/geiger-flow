@@ -18,6 +18,7 @@ import {
   Unlock,
   Fingerprint,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -129,7 +130,7 @@ export function VaultItemCard({
                   {item.notes}
                 </p>
               )}
-              <button
+              <Button
                 type="button"
                 onClick={(event) => {
                   event.preventDefault();
@@ -140,7 +141,7 @@ export function VaultItemCard({
               >
                 <Fingerprint className="w-3 h-3" />
                 Access
-              </button>
+              </Button>
             </div>
           </div>
         </div>

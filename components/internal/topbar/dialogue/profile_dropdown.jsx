@@ -29,6 +29,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { getUser } from "@/lib/supabase/user";
+import { Button } from "@/components/ui/button";
 
 const surfaceStyle = {
   backgroundColor: "#1a1a1a",
@@ -68,7 +69,7 @@ export function ProfileDropdown({ children }) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         {children || (
-          <button className="w-8 h-8 rounded-full border border-[#333333] hover:border-[#474747] overflow-hidden ml-1 transition-colors">
+          <Button className="w-8 h-8 rounded-full border border-[#333333] hover:border-[#474747] overflow-hidden ml-1 transition-colors">
             <Avatar className="size-full">
               {pfpUrl && (
                 <AvatarImage src={pfpUrl} alt={displayName} />
@@ -77,7 +78,7 @@ export function ProfileDropdown({ children }) {
                 {initials}
               </AvatarFallback>
             </Avatar>
-          </button>
+          </Button>
         )}
       </DropdownMenuTrigger>
 

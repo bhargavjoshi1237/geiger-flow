@@ -25,19 +25,38 @@ import { VaultScreen } from "@/components/internal/screens/projects/vault/vault_
 import { LogsScreen } from "@/components/internal/screens/projects/logs/logs_screen";
 import { AssetsScreen } from "@/components/internal/screens/projects/assets/assets_screen";
 import { PlanningScreen } from "@/components/internal/screens/projects/planning/planning_screen";
+import { ExternalsScreen } from "@/components/internal/screens/projects/externals/externals_screen";
 import { ProjectProvider, useProject } from "@/context/project-context";
+import { ProjectBudgetProvider } from "@/context/project-budget-context";
 import { settingsNav } from "@/components/internal/sidebar/projects/sidebar_data";
+import { getProjectExternalLinksStorageKey } from "@/components/internal/externals/external_links";
 import { AddonRegistryProvider, useAddonRegistry } from "@/addons/registry";
-import { getAddonScreens, getAddonNavItems } from "@/addons/registry";
+import { getAddonScreens, getAddonScreenOptions } from "@/addons/registry";
 import "@/addons/sql";
 import "@/addons/project-plus";
 import "@/addons/forms";
 import "@/addons/credited-resources";
+import "@/addons/system-architecture";
 import { useEffect } from "react";
 
 function ProjectLayoutContent({ id }) {
   const { fetchProjectInfo, project, loading } = useProject();
-  const { enabledAddons, addonColors } = useAddonRegistry();
+  const { enabledAddons } = useAddonRegistry();
+  const [externalLinks, setExternalLinks] = React.useState(() => {
+    if (typeof window === "undefined") {
+      return [];
+    }
+
+    try {
+      const storedLinks = JSON.parse(
+        localStorage.getItem(getProjectExternalLinksStorageKey(id)) || "[]",
+      );
+
+      return Array.isArray(storedLinks) ? storedLinks : [];
+    } catch {
+      return [];
+    }
+  });
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -47,6 +66,13 @@ function ProjectLayoutContent({ id }) {
       fetchProjectInfo(id);
     }
   }, [id, fetchProjectInfo]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      getProjectExternalLinksStorageKey(id),
+      JSON.stringify(externalLinks),
+    );
+  }, [id, externalLinks]);
 
   const screenParamKeys = [];
   searchParams.forEach((_, key) => {
@@ -66,6 +92,8 @@ function ProjectLayoutContent({ id }) {
   );
 
   const addonScreens = getAddonScreens(enabledAddons);
+  const addonScreenOptions = getAddonScreenOptions(enabledAddons);
+  const isFullBleedScreen = Boolean(addonScreenOptions[currentTab]?.fullBleed);
 
   const renderScreen = () => {
     const isSettingsTab = settingsNav.some((item) => item.title === currentTab);
@@ -80,7 +108,7 @@ function ProjectLayoutContent({ id }) {
 
     switch (currentTab) {
       case "Overview":
-        return <ProjectDetailsScreen id={id} />;
+        return <ProjectDetailsScreen id={id} externalLinks={externalLinks} />;
       case "Issues":
         return <WorkflowsScreen />;
       case "Tasks":
@@ -107,6 +135,20 @@ function ProjectLayoutContent({ id }) {
         return <ResourceAllocationScreen />;
       case "Vault":
         return <VaultScreen />;
+      case "Externals":
+        return (
+          <ExternalsScreen
+            links={externalLinks}
+            onCreateLink={(link) =>
+              setExternalLinks((currentLinks) => [link, ...currentLinks])
+            }
+            onDeleteLink={(linkId) =>
+              setExternalLinks((currentLinks) =>
+                currentLinks.filter((link) => link.id !== linkId),
+              )
+            }
+          />
+        );
       case "Assets":
         return <AssetsScreen />;
       case "Logs":
@@ -114,7 +156,7 @@ function ProjectLayoutContent({ id }) {
       case "Security":
         return <SecurityScreen />;
       default:
-        return <ProjectDetailsScreen id={id} />;
+        return <ProjectDetailsScreen id={id} externalLinks={externalLinks} />;
     }
   };
 
@@ -130,12 +172,12 @@ function ProjectLayoutContent({ id }) {
   return (
     <div className="flex-col h-[100dvh] w-full bg-[#161616] text-[#ededed] font-sans overflow-hidden selection:bg-[#333333] flex">
       <SidebarProvider className="flex-col !flex h-full min-w-0" style={{flexDirection: 'column'}}>
-        <ProjectTopbar />
+        <ProjectTopbar externalLinks={externalLinks} />
         <div className="flex flex-1 overflow-hidden relative">
           <ProjectSidebar activeTab={currentTab} onTabChange={setCurrentTab} />
           <SidebarInset className="flex-1 flex flex-col h-full bg-transparent overflow-hidden relative border-none">
             <div className="absolute top-0 right-0 w-[500px] h-[300px] bg-white/[0.02] blur-[120px] pointer-events-none rounded-full"></div>
-            <main className="flex-1 overflow-y-auto p-4 md:p-8 relative z-10 w-full min-w-0 [&::-webkit-scrollbar]:hidden [&]:-ms-overflow-style:none [&]:scrollbar-width:none">
+            <main className={`flex-1 relative z-10 w-full min-w-0 [&::-webkit-scrollbar]:hidden [&]:-ms-overflow-style:none [&]:scrollbar-width:none ${isFullBleedScreen ? "min-h-0 overflow-hidden p-0" : "overflow-y-auto p-4 md:p-8"}`}>
               {renderScreen()}
             </main>
           </SidebarInset>
@@ -151,18 +193,20 @@ export default function ProjectPage({ params: paramsPromise }) {
 
   return (
     <ProjectProvider>
-      <AddonRegistryProvider>
-        <Suspense
-          fallback={
-            <div className="flex flex-col h-[100dvh] w-full bg-[#161616] items-center justify-center gap-3">
-              <div className="w-5 h-5 rounded-full border-2 border-[#474747] border-t-[#e7e7e7] animate-spin" />
-              <span className="text-[#525252] text-sm">Loading...</span>
-            </div>
-          }
-        >
-          <ProjectLayoutContent id={id} />
-        </Suspense>
-      </AddonRegistryProvider>
+      <ProjectBudgetProvider>
+        <AddonRegistryProvider>
+          <Suspense
+            fallback={
+              <div className="flex flex-col h-[100dvh] w-full bg-[#161616] items-center justify-center gap-3">
+                <div className="w-5 h-5 rounded-full border-2 border-[#474747] border-t-[#e7e7e7] animate-spin" />
+                <span className="text-[#525252] text-sm">Loading...</span>
+              </div>
+            }
+          >
+            <ProjectLayoutContent id={id} />
+          </Suspense>
+        </AddonRegistryProvider>
+      </ProjectBudgetProvider>
     </ProjectProvider>
   );
 }

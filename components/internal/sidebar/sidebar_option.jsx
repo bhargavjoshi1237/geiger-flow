@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
@@ -79,7 +80,7 @@ export function SidebarOption({
         <ul className="flex flex-col gap-0.5 pt-2">
           {subItems.map((sub) => (
             <li key={sub.title}>
-              <button
+              <Button
                 type="button"
                 onClick={(e) => {
                   e.preventDefault();
@@ -103,7 +104,7 @@ export function SidebarOption({
                   />
                 )}
                 <p className="">{sub.title}</p>
-              </button>
+              </Button>
             </li>
           ))}
         </ul>
@@ -115,7 +116,7 @@ export function SidebarOption({
             <li key={sub.title}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button
+                  <Button
                     type="button"
                     onClick={(e) => {
                       e.preventDefault();
@@ -138,7 +139,7 @@ export function SidebarOption({
                         )}
                       />
                     )}
-                  </button>
+                  </Button>
                 </TooltipTrigger>
                 <TooltipContent side="right" align="center">
                   {sub.title}

@@ -47,6 +47,7 @@ import FilterDropdown from "./filter_dropdown";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { IssueItem, severityColors } from "@/components/ui/issue-item";
 import { cn } from "@/lib/utils";
+import { ExternalLinkIcon } from "@/components/internal/externals/external_links";
 
 const CHART_COLORS = {
   primary: "#ffffff",
@@ -139,19 +140,15 @@ function MetricCard({ title, subtitle, value, data }) {
           </ChartContainer>
         </div>
         <div className="absolute bottom-2 left-4 text-[10px] text-[#404040] flex justify-between w-[calc(100%-32px)]">
-          <span>Mar 1, 8:06pm</span>
-          <span>Mar 1, 9:06pm</span>
+          <span>No start timestamp</span>
+          <span>No end timestamp</span>
         </div>
       </CardContent>
     </Card>
   );
 }
 
-const STATUS_SHOWCASE = [
-  { key: "todo", label: "To Do", value: 3, color: CHART_COLORS.primary },
-  { key: "inProgress", label: "In Progress", value: 2, color: CHART_COLORS.secondary },
-  { key: "completed", label: "Completed", value: 2, color: CHART_COLORS.borderStrong },
-];
+const STATUS_SHOWCASE = [];
 
 const PLACEHOLDER_COUNT = 0;
 
@@ -159,162 +156,30 @@ function getCount(value) {
   return Number.isFinite(value) ? value : PLACEHOLDER_COUNT;
 }
 
-const RADAR_METRICS = {
-  prs: {
-    label: "PRs",
-    description: "Pull request throughput across alternating months",
-    trend: "+5.2%",
-    data: [
-      { month: "Jan", value: 42 },
-      { month: "Mar", value: 48 },
-      { month: "May", value: 54 },
-      { month: "Jul", value: 70 },
-      { month: "Sep", value: 64 },
-      { month: "Nov", value: 52 },
-    ],
-  },
-  tasks: {
-    label: "Tasks",
-    description: "Task completions and progress events across alternating months",
-    trend: "+12.4%",
-    data: [
-      { month: "Jan", value: 68 },
-      { month: "Mar", value: 72 },
-      { month: "May", value: 77 },
-      { month: "Jul", value: 91 },
-      { month: "Sep", value: 76 },
-      { month: "Nov", value: 69 },
-    ],
-  },
-  issues: {
-    label: "Issues",
-    description: "Resolved issue count and remediation volume",
-    trend: "+8.1%",
-    data: [
-      { month: "Jan", value: 37 },
-      { month: "Mar", value: 57 },
-      { month: "May", value: 61 },
-      { month: "Jul", value: 63 },
-      { month: "Sep", value: 59 },
-      { month: "Nov", value: 52 },
-    ],
-  },
-  milestones: {
-    label: "Milestones",
-    description: "Milestones completed, reviewed, or moved forward across alternating months",
-    trend: "+3.8%",
-    data: [
-      { month: "Jan", value: 28 },
-      { month: "Mar", value: 39 },
-      { month: "May", value: 41 },
-      { month: "Jul", value: 48 },
-      { month: "Sep", value: 44 },
-      { month: "Nov", value: 46 },
-    ],
-  },
-};
+const RADAR_METRICS = {};
+
+const EMPTY_RADAR_DATA = [
+  { label: "D1", value: 0 },
+  { label: "D2", value: 0 },
+  { label: "D3", value: 0 },
+  { label: "D4", value: 0 },
+  { label: "D5", value: 0 },
+  { label: "D6", value: 0 },
+];
 
 const RADAR_METRIC_OPTIONS = Object.entries(RADAR_METRICS).map(([value, item]) => ({
   value,
   label: item.label,
 }));
 
-const RESOURCE_METRICS = {
-  prs: {
-    label: "PRs",
-    unit: "merged",
-    maxLabel: "22 PRs",
-    trend: "+6.4%",
-    people: [
-      { name: "Aadit", initials: "AJ", value: 22, color: CHART_SERIES_COLORS[0] },
-      { name: "Priya", initials: "PS", value: 18, color: CHART_SERIES_COLORS[1] },
-      { name: "Sam", initials: "SL", value: 15, color: CHART_SERIES_COLORS[2] },
-      { name: "Riley", initials: "RK", value: 11, color: CHART_SERIES_COLORS[3] },
-      { name: "Jordan", initials: "JM", value: 8, color: CHART_SERIES_COLORS[4] },
-    ],
-  },
-  tasks: {
-    label: "Tasks",
-    unit: "completed",
-    maxLabel: "34 tasks",
-    trend: "+11.8%",
-    people: [
-      { name: "Aadit", initials: "AJ", value: 31, color: CHART_SERIES_COLORS[0] },
-      { name: "Priya", initials: "PS", value: 34, color: CHART_SERIES_COLORS[1] },
-      { name: "Sam", initials: "SL", value: 25, color: CHART_SERIES_COLORS[2] },
-      { name: "Riley", initials: "RK", value: 19, color: CHART_SERIES_COLORS[3] },
-      { name: "Jordan", initials: "JM", value: 14, color: CHART_SERIES_COLORS[4] },
-    ],
-  },
-  issues: {
-    label: "Issues",
-    unit: "resolved",
-    maxLabel: "16 issues",
-    trend: "+4.7%",
-    people: [
-      { name: "Aadit", initials: "AJ", value: 12, color: CHART_SERIES_COLORS[0] },
-      { name: "Priya", initials: "PS", value: 16, color: CHART_SERIES_COLORS[1] },
-      { name: "Sam", initials: "SL", value: 13, color: CHART_SERIES_COLORS[2] },
-      { name: "Riley", initials: "RK", value: 8, color: CHART_SERIES_COLORS[3] },
-      { name: "Jordan", initials: "JM", value: 7, color: CHART_SERIES_COLORS[4] },
-    ],
-  },
-  milestones: {
-    label: "Milestones",
-    unit: "moved",
-    maxLabel: "9 milestones",
-    trend: "+3.1%",
-    people: [
-      { name: "Aadit", initials: "AJ", value: 9, color: CHART_SERIES_COLORS[0] },
-      { name: "Priya", initials: "PS", value: 7, color: CHART_SERIES_COLORS[1] },
-      { name: "Sam", initials: "SL", value: 6, color: CHART_SERIES_COLORS[2] },
-      { name: "Riley", initials: "RK", value: 5, color: CHART_SERIES_COLORS[3] },
-      { name: "Jordan", initials: "JM", value: 3, color: CHART_SERIES_COLORS[4] },
-    ],
-  },
-  time: {
-    label: "Time",
-    unit: "logged",
-    maxLabel: "38h",
-    trend: "+9.6%",
-    people: [
-      { name: "Aadit", initials: "AJ", value: 38, color: CHART_SERIES_COLORS[0] },
-      { name: "Priya", initials: "PS", value: 32, color: CHART_SERIES_COLORS[1] },
-      { name: "Sam", initials: "SL", value: 29, color: CHART_SERIES_COLORS[2] },
-      { name: "Riley", initials: "RK", value: 24, color: CHART_SERIES_COLORS[3] },
-      { name: "Jordan", initials: "JM", value: 17, color: CHART_SERIES_COLORS[4] },
-    ],
-  },
-};
+const RESOURCE_METRICS = {};
 
 const RESOURCE_METRIC_OPTIONS = Object.entries(RESOURCE_METRICS).map(([value, item]) => ({
   value,
   label: item.label,
 }));
 
-const DASHBOARD_TASKS = [
-  {
-    title: "Create a New Project",
-    id: "DEM-1",
-    priority: "High Priority",
-    due: "May 8, 1:24 AM",
-    status: "In Progress",
-  },
-  {
-    title: "Test",
-    id: "DEM-17",
-    priority: "High Priority",
-    due: "May 9, 12:00 AM",
-    status: "To Do",
-  },
-  {
-    title: "View Help Guides in Docs",
-    id: "DEM-8",
-    priority: "Low Priority",
-    due: "May 10, 1:24 AM",
-    status: "To Do",
-  },
-];
+const DASHBOARD_TASKS = [];
 
 const taskPriorityIcons = {
   critical: <AlertTriangle className="h-3 w-3" />,
@@ -343,26 +208,9 @@ function TaskPriorityBadge({ priority }) {
   );
 }
 
-const DASHBOARD_MILESTONES = [
-  { title: "Onboarding", date: "May 8-May 10", progress: 100 },
-  { title: "Exploring Nifty", date: "May 9-May 11", progress: 33 },
-  { title: "Getting Started", date: "May 10-May 14", progress: 18 },
-];
+const DASHBOARD_MILESTONES = [];
 
-const DASHBOARD_ACTIVITY = [
-  "Aadit Joshi created milestone Exploring Nifty",
-  "Aadit Joshi created milestone Getting Started",
-  "Aadit Joshi created milestone Onboarding",
-  "Aadit Joshi member joined",
-  "Project Created",
-  "Priya Shah completed View Help Guides in Docs",
-  "Sam Lee moved Test to To Do",
-  "Riley King updated Getting Started progress",
-  "Jordan Miller commented on API Documentation",
-  "Aadit Joshi assigned Create a New Project",
-  "Priya Shah reviewed milestone dates",
-  "Sam Lee updated task priority",
-];
+const DASHBOARD_ACTIVITY = [];
 
 function WidgetShell({ children, className, contentClassName }) {
   return (
@@ -458,7 +306,20 @@ function TaskStatusShowcaseWidget() {
 
 function YearlyRadarWidget() {
   const [metric, setMetric] = useState("prs");
-  const selected = RADAR_METRICS[metric];
+  const selected = RADAR_METRICS[metric] || {
+    label: "Activity",
+    description: "Backend chart data will appear here.",
+    trend: "0%",
+    data: EMPTY_RADAR_DATA,
+  };
+  const radarData = (Array.isArray(selected.data) && selected.data.length > 0
+    ? selected.data
+    : EMPTY_RADAR_DATA
+  ).map((item, index) => ({
+    ...item,
+    label: item.label || item.month || `D${index + 1}`,
+    value: getCount(item.value),
+  }));
 
   return (
     <WidgetShell className="h-[420px]" contentClassName="h-full">
@@ -489,9 +350,9 @@ function YearlyRadarWidget() {
             }}
             className="mx-auto h-[260px] w-full"
           >
-            <RadarChart data={selected.data} margin={{ top: 12, right: 30, bottom: 12, left: 30 }}>
+            <RadarChart data={radarData} margin={{ top: 12, right: 30, bottom: 12, left: 30 }}>
               <PolarGrid stroke={CHART_COLORS.grid} />
-              <PolarAngleAxis dataKey="month" tick={{ fill: CHART_COLORS.muted, fontSize: 12 }} />
+              <PolarAngleAxis dataKey="label" tick={{ fill: CHART_COLORS.muted, fontSize: 12 }} />
               <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
               <Radar
                 dataKey="value"
@@ -517,11 +378,16 @@ function YearlyRadarWidget() {
 
 function ResourcePerformanceWidget() {
   const [metric, setMetric] = useState("tasks");
-  const selected = RESOURCE_METRICS[metric];
-  const values = selected.people.map((person) => getCount(person.value));
+  const selected = RESOURCE_METRICS[metric] || {
+    label: "Resources",
+    trend: "0%",
+    people: [],
+  };
+  const people = Array.isArray(selected.people) ? selected.people : [];
+  const values = people.map((person) => getCount(person.value));
   const max = Math.max(PLACEHOLDER_COUNT, ...values);
   const chartMax = max || 1;
-  const rings = [...selected.people]
+  const rings = (people.length > 0 ? [...people] : [{ name: "No data", value: 0 }])
     .sort((a, b) => getCount(b.value) - getCount(a.value))
     .map((person, index) => ({
       ...person,
@@ -603,22 +469,27 @@ function ResourcePerformanceWidget() {
 
         <div className="mt-2 min-h-[44px] text-center">
           <p className="text-sm font-semibold text-[#ededed]">
-            Trending up by {selected.trend} this week
+            {people.length > 0
+              ? `Trending up by ${selected.trend} this week`
+              : "No resource performance data yet"}
           </p>
-          <p className="mt-1 text-sm text-[#737373]">Compared with last week across active resources</p>
+          <p className="mt-1 text-sm text-[#737373]">
+            {people.length > 0
+              ? "Compared with last week across active resources"
+              : "Backend resource metrics will replace this zero baseline."}
+          </p>
         </div>
       </div>
     </WidgetShell>
   );
 }
 
-export function ProjectDetailsScreen() {
+export function ProjectDetailsScreen({ externalLinks = [] }) {
   const { project } = useProject();
   const { showBanner } = useBanner();
   const [activeIssueTab, setActiveIssueTab] = useState("SECURITY");
   const [filterValue, setFilterValue] = useState("1w");
-  
-  console.log("Current filter value:", filterValue);
+  const dashboardLinks = externalLinks.filter((link) => link.showOnDashboard);
 
   useEffect(() => {
     if (window.location.pathname === "/") {
@@ -630,8 +501,8 @@ export function ProjectDetailsScreen() {
     }
   }, [showBanner]);
 
-  const databaseData = [2, 10, 5, 25, 8, 30, 2, 15, 5, 40, 2];
-  const authData = [5, 15, 2, 20, 10, 35, 5, 25, 2, 45, 5];
+  const databaseData = [];
+  const authData = [];
 
   return (
     <MainScreenWrapper>
@@ -680,6 +551,45 @@ export function ProjectDetailsScreen() {
           onValueChange={setFilterValue}
         />
       </div>
+
+      {dashboardLinks.length > 0 ? (
+        <section className="space-y-4">
+          <div>
+            <h2 className="text-lg font-medium text-[#e7e7e7]">External links</h2>
+            <p className="text-sm text-[#737373]">Pinned project resources</p>
+          </div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {dashboardLinks.map((link) => (
+              <a
+                key={link.id}
+                href={link.url}
+                target={link.openInNewTab ? "_blank" : undefined}
+                rel={link.openInNewTab ? "noreferrer" : undefined}
+                className="group flex min-h-20 items-center gap-3 rounded-lg border border-[#2a2a2a] bg-[#202020] p-4 transition-colors hover:border-[#3a3a3a] hover:bg-[#242424]"
+              >
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-[#333333] bg-[#1a1a1a]">
+                  <ExternalLinkIcon
+                    iconName={link.icon}
+                    className="h-5 w-5"
+                    style={{ color: link.textColor || "#ededed" }}
+                  />
+                </div>
+                <div className="min-w-0">
+                  <p
+                    className="truncate text-sm font-medium"
+                    style={{ color: link.textColor || "#ededed" }}
+                  >
+                    {link.title}
+                  </p>
+                  <p className="mt-1 truncate text-xs text-[#737373] group-hover:text-[#a3a3a3]">
+                    {link.url}
+                  </p>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
         <MetricCard
@@ -732,130 +642,17 @@ export function ProjectDetailsScreen() {
               Tasks requiring immediate attention
             </p>
           </div>
-          <button className="text-xs font-medium text-[#737373] hover:text-[#e7e7e7] px-3 py-1.5 rounded-lg transition-colors hover:border-[#474747] flex items-center gap-2">
+          <Button className="text-xs font-medium text-[#737373] hover:text-[#e7e7e7] px-3 py-1.5 rounded-lg transition-colors hover:border-[#474747] flex items-center gap-2">
           View Issues <ChevronRight className="w-3 h-3" />
-        </button>
+        </Button>
         </div>
         <div className="space-y-2">
-          <IssueItem
-            title="API response time exceeding 500ms on /users endpoint"
-            severity="critical"
-            status="open"
-            assignee="Alex M."
-            dueDate="Today"
-          >
-            <div className="p-4">
-              <h2 className="text-lg font-semibold mb-2">API response time exceeding 500ms on /users endpoint</h2>
-              <p className="text-sm text-[#a3a3a3] mb-4">Critical issue requiring immediate attention.</p>
-              <div className="space-y-2 text-sm">
-                <p><span className="text-[#737373]">Assignee:</span> Alex M.</p>
-                <p><span className="text-[#737373]">Status:</span> Open</p>
-                <p><span className="text-[#737373]">Due:</span> Today</p>
-              </div>
-            </div>
-          </IssueItem>
-          <IssueItem
-            title="Memory leak in websocket connection handler"
-            severity="critical"
-            status="in_progress"
-            assignee="Sarah J."
-            dueDate="Tomorrow"
-          >
-            <div className="p-4">
-              <h2 className="text-lg font-semibold mb-2">Memory leak in websocket connection handler</h2>
-              <p className="text-sm text-[#a3a3a3] mb-4">Critical issue requiring immediate attention.</p>
-              <div className="space-y-2 text-sm">
-                <p><span className="text-[#737373]">Assignee:</span> Sarah J.</p>
-                <p><span className="text-[#737373]">Status:</span> In Progress</p>
-                <p><span className="text-[#737373]">Due:</span> Tomorrow</p>
-              </div>
-            </div>
-          </IssueItem>
-          <IssueItem
-            title="Database connection pool exhaustion"
-            severity="high"
-            status="open"
-            assignee="Mike T."
-            dueDate="Mar 10"
-          >
-            <div className="p-4">
-              <h2 className="text-lg font-semibold mb-2">Database connection pool exhaustion</h2>
-              <p className="text-sm text-[#a3a3a3] mb-4">High priority issue.</p>
-              <div className="space-y-2 text-sm">
-                <p><span className="text-[#737373]">Assignee:</span> Mike T.</p>
-                <p><span className="text-[#737373]">Status:</span> Open</p>
-                <p><span className="text-[#737373]">Due:</span> Mar 10</p>
-              </div>
-            </div>
-          </IssueItem>
-          <IssueItem
-            title="Authentication token refresh failing intermittently"
-            severity="high"
-            status="in_progress"
-            assignee="Lisa K."
-            dueDate="Mar 12"
-          >
-            <div className="p-4">
-              <h2 className="text-lg font-semibold mb-2">Authentication token refresh failing intermittently</h2>
-              <p className="text-sm text-[#a3a3a3] mb-4">High priority issue.</p>
-              <div className="space-y-2 text-sm">
-                <p><span className="text-[#737373]">Assignee:</span> Lisa K.</p>
-                <p><span className="text-[#737373]">Status:</span> In Progress</p>
-                <p><span className="text-[#737373]">Due:</span> Mar 12</p>
-              </div>
-            </div>
-          </IssueItem>
-          <IssueItem
-            title="Frontend build size exceeds 2MB limit"
-            severity="medium"
-            status="resolved"
-            assignee="Chris P."
-            dueDate="Mar 8"
-          >
-            <div className="p-4">
-              <h2 className="text-lg font-semibold mb-2">Frontend build size exceeds 2MB limit</h2>
-              <p className="text-sm text-[#a3a3a3] mb-4">Medium priority issue.</p>
-              <div className="space-y-2 text-sm">
-                <p><span className="text-[#737373]">Assignee:</span> Chris P.</p>
-                <p><span className="text-[#737373]">Status:</span> Resolved</p>
-                <p><span className="text-[#737373]">Due:</span> Mar 8</p>
-              </div>
-            </div>
-          </IssueItem>
-          <IssueItem
-            title="Tooltip text overlaps on small screens"
-            severity="low"
-            status="open"
-            assignee="Jamie L."
-            dueDate="Mar 18"
-          >
-            <div className="p-4">
-              <h2 className="text-lg font-semibold mb-2">Tooltip text overlaps on small screens</h2>
-              <p className="text-sm text-[#a3a3a3] mb-4">Low priority cosmetic issue on mobile viewports.</p>
-              <div className="space-y-2 text-sm">
-                <p><span className="text-[#737373]">Assignee:</span> Jamie L.</p>
-                <p><span className="text-[#737373]">Status:</span> Open</p>
-                <p><span className="text-[#737373]">Due:</span> Mar 18</p>
-              </div>
-            </div>
-          </IssueItem>
-          <IssueItem
-            title="Dark mode color mismatch on settings page"
-            severity="low"
-            status="resolved"
-            assignee="Taylor R."
-            dueDate="Mar 20"
-          >
-            <div className="p-4">
-              <h2 className="text-lg font-semibold mb-2">Dark mode color mismatch on settings page</h2>
-              <p className="text-sm text-[#a3a3a3] mb-4">Low priority styling inconsistency.</p>
-              <div className="space-y-2 text-sm">
-                <p><span className="text-[#737373]">Assignee:</span> Taylor R.</p>
-                <p><span className="text-[#737373]">Status:</span> Resolved</p>
-                <p><span className="text-[#737373]">Due:</span> Mar 20</p>
-              </div>
-            </div>
-          </IssueItem>
+          <div className="rounded-xl border border-dashed border-[#2a2a2a] bg-[#1a1a1a] p-8 text-center">
+            <p className="text-sm font-medium text-[#e7e7e7]">No issues yet</p>
+            <p className="mt-1 text-xs text-[#737373]">
+              Issue data will appear here after backend fetching is connected.
+            </p>
+          </div>
         </div>
       </div>
 

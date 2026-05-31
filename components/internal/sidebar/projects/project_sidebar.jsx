@@ -17,6 +17,7 @@ import { SidebarOption } from "../sidebar_option";
 import { projectNav, settingsNav } from "./sidebar_data";
 import { useAddonRegistry, getAddonNavItems, mergeNavWithAddons } from "@/addons/registry";
 import { useProject } from "@/context/project-context";
+import { Button } from "@/components/ui/button";
 
 function MobileSidebarHeader() {
   const { isMobile, toggleSidebar } = useSidebar();
@@ -145,7 +146,7 @@ export function ProjectSidebar({
             }`}
           >
             <div className="px-2 pt-3 pb-2 border-b border-sidebar-border mb-2 bg-sidebar">
-              <button
+              <Button
                 type="button"
                 onClick={() => {
                   setActiveMenu("main");
@@ -155,8 +156,8 @@ export function ProjectSidebar({
               >
                 <ChevronLeft className="w-4 h-4" />
                 Settings
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 onClick={() => {
                   setActiveMenu("main");
@@ -165,7 +166,7 @@ export function ProjectSidebar({
                 className="hidden group-data-[collapsible=icon]:flex items-center justify-center w-full text-sidebar-foreground hover:text-white rounded-md hover:bg-sidebar-accent p-1"
               >
                 <ChevronLeft className="w-5 h-5" />
-              </button>
+              </Button>
             </div>
             <div className="flex-1 overflow-y-auto px-1 py-1 overflow-x-hidden bg-sidebar [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               <SidebarGroup>
@@ -187,13 +188,13 @@ export function ProjectSidebar({
         )}
       </SidebarContent>
       <SidebarFooter className="p-2 border-t border-sidebar-border mt-auto z-10 bg-sidebar">
-        <button
+        <Button
           type="button"
           onClick={toggleSidebar}
           className="flex items-center gap-3 p-2 w-full rounded-lg hover:bg-sidebar-accent transition-all text-sidebar-foreground hover:text-white group-data-[collapsible=icon]:justify-center"
         >
           <PanelLeft className="w-5 h-5 shrink-0" />
-        </button>
+        </Button>
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

@@ -19,6 +19,8 @@ import DigitalClock from "./DigitalClock";
 import NotificationDialog from "./NotificationDialog";
 import AppDialog from "./AppDialog";
 import HelpDialog from "./HelpDialog";
+import { SupabaseActivityLine } from "@/components/internal/topbar/supabase_activity_line";
+import { Button } from "@/components/ui/button";
 
 export default function Topbar({
   id,
@@ -58,14 +60,15 @@ export default function Topbar({
             }`}
           ></div>
         </div>
+        <SupabaseActivityLine />
         <div className="flex items-center gap-2">
-          <button
+          <Button
             onClick={onToggleSidebar}
             className="inline-flex items-center justify-center rounded-md text-[#a3a3a3] hover:text-white hover:bg-[#2a2a2a] h-7 w-7 md:hidden -ml-2 transition-colors"
             title="Toggle Sidebar"
           >
             <PanelLeft className="w-4 h-4" />
-          </button>
+          </Button>
           <a
             className="w-10 h-8 rounded flex items-center justify-center shrink-0 md:-ml-1.5 transition-colors"
             href={
@@ -114,22 +117,22 @@ export default function Topbar({
             </>
           )}
           <div className="flex items-center gap-0 text-[#a3a3a3]">
-            <button
+            <Button
               className="p-2 hover:bg-[#2a2a2a] rounded transition-colors hover:text-white"
               title="Undo"
             >
               <Undo2 className="w-4 h-4" />
-            </button>
-            <button
+            </Button>
+            <Button
               className="p-2 hover:bg-[#2a2a2a] rounded transition-colors hover:text-white"
               title="Redo"
             >
               <Redo2 className="w-4 h-4" />
-            </button>
+            </Button>
           </div>
           <div className="hidden sm:block h-5 w-[1px] bg-[#333333] mx-1"></div>
           <div className="flex items-center gap-0 sm:gap-1 text-[#a3a3a3]">
-            <button
+            <Button
               onClick={() => setIsCollaborateOpen(true)}
               className={`relative group p-2 rounded-lg transition-all duration-300`}
               title={
@@ -159,27 +162,27 @@ export default function Topbar({
                   strokeWidth={2}
                 />
               </div>
-            </button>
+            </Button>
           </div>
 
           <div className="hidden sm:block h-5 w-[1px] bg-[#333333] mx-1"></div>
 
           <div className="flex items-center gap-0 sm:gap-1">
-            <button
+            <Button
               onClick={() => setIsAppOpen(true)}
               className="w-8 h-8 rounded-sm border border-transparent hover:bg-[#2a2a2a] hidden sm:flex items-center justify-center transition-colors text-[#a3a3a3] hover:text-white"
               title="Mobile"
             >
               <Smartphone className="w-[18px] h-[18px]" strokeWidth={2} />
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => setIsHelpOpen(true)}
               className="w-8 h-8 rounded-sm border border-transparent hover:bg-[#2a2a2a] flex items-center justify-center transition-colors text-[#a3a3a3] hover:text-white"
               title="Help"
             >
               <HelpCircle className="w-[18px] h-[18px]" strokeWidth={2} />
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => setIsNotificationOpen(true)}
               className="w-8 h-8 rounded-sm border border-transparent hover:bg-[#2a2a2a] flex items-center justify-center transition-colors text-[#a3a3a3] hover:text-white relative"
               title="Notifications"
@@ -192,8 +195,8 @@ export default function Topbar({
                 role === "host" && (
                   <div className="absolute top-[6px] right-[7px] w-2 h-2 rounded-sm bg-[#3b82f6] border border-[#161616]"></div>
                 )}
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => setIsSettingsOpen(true)}
               className="w-8 h-8 rounded-sm border border-transparent hover:bg-[#2a2a2a] hidden sm:flex items-center justify-center transition-colors text-[#a3a3a3] hover:text-white"
               title="Settings"
@@ -201,7 +204,7 @@ export default function Topbar({
               <div className="w-full h-full flex items-center justify-center">
                 <Settings className="w-[18px] h-[18px]" strokeWidth={2} />
               </div>
-            </button>
+            </Button>
           </div>
         </div>
       </header>

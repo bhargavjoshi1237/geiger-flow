@@ -1,5 +1,7 @@
 import React from 'react';
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function LightPallet() {
   const surfaceColors = [
@@ -152,7 +154,7 @@ export default function LightPallet() {
 
                   <div className="p-5 space-y-5 bg-[#f9fafb] grow">
                     <div className="space-y-1.5">
-                      <label className="text-sm font-medium text-[#171717]">Framework Name</label>
+                      <Label className="text-sm font-medium text-[#171717]">Framework Name</Label>
                       <Input 
                         defaultValue="geiger-flow"
                         className="bg-white border-[#e5e5e5] text-[#171717] placeholder:text-[#a3a3a3] focus-visible:ring-0 focus-visible:border-[#d4d4d4]"
@@ -160,7 +162,7 @@ export default function LightPallet() {
                     </div>
                     
                     <div className="space-y-1.5">
-                      <label className="text-sm font-medium text-[#171717]">Environment Setup</label>
+                      <Label className="text-sm font-medium text-[#171717]">Environment Setup</Label>
                       <div className="rounded-lg border border-[#e5e5e5] bg-white overflow-hidden">
                         <div className="flex items-center justify-between p-3 border-b border-[#e5e5e5] hover:bg-[#f3f4f6] transition-colors cursor-pointer">
                           <div className="flex items-center gap-3">
@@ -181,12 +183,12 @@ export default function LightPallet() {
                   </div>
 
                   <div className="px-5 py-4 border-t border-[#e5e5e5] bg-white flex items-center justify-between mt-auto">
-                    <button className="text-sm font-medium text-[#525252] hover:text-[#171717] transition-colors duration-200 px-3 py-2">
+                    <Button variant="ghost" className="text-sm font-medium text-[#525252] hover:text-[#171717] transition-colors duration-200 px-3 py-2">
                       Cancel
-                    </button>
-                    <button className="bg-[#171717] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#262626] transition-colors duration-200 flex items-center gap-2">
+                    </Button>
+                    <Button className="bg-[#171717] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#262626] transition-colors duration-200 flex items-center gap-2">
                       Save Changes
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>

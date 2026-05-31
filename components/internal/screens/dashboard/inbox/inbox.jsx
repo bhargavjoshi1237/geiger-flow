@@ -7,7 +7,6 @@ import {
   Filter,
   MailOpen,
   Inbox,
-  User as UserIcon,
 } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -15,10 +14,16 @@ import { NotificationItem } from "./notification_item";
 import {
   Sheet,
   SheetContent,
-  SheetHeader,
   SheetTitle,
-  SheetDescription,
 } from "@/components/ui/sheet";
+import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
+import { SegmentedTabs } from "@/components/internal/shared/segmented_tabs";
+import { Button } from "@/components/ui/button";
+
+const INBOX_TABS = [
+  { label: "All", value: "all" },
+  { label: "Unread", value: "unread" },
+];
 
 export function InboxScreen() {
   const [notifications, setNotifications] = useState([]);
@@ -112,10 +117,20 @@ export function InboxScreen() {
       n.title.toLowerCase().includes(search.toLowerCase()) ||
       n.description.toLowerCase().includes(search.toLowerCase());
     const matchesTab =
-      activeTab === "all" ? true : activeTab === "unread" ? !n.read : true;     return matchesSearch && matchesTab;
+      activeTab === "all" ? true : activeTab === "unread" ? !n.read : true;
+    return matchesSearch && matchesTab;
   });
 
   const unreadCount = notifications.filter((n) => !n.read).length;
+  const hasFilters = search.trim().length > 0 || activeTab !== "all";
+  const emptyTitle = hasFilters
+    ? activeTab === "unread"
+      ? "No unread notifications"
+      : "No matching notifications"
+    : "No notifications yet";
+  const emptyDescription = hasFilters
+    ? "Try clearing your search or switching filters."
+    : "Workspace notifications and alerts will appear here once there is activity.";
 
   const DetailIconComponent =
     selectedNotification?.icon && LucideIcons[selectedNotification.icon]
@@ -142,8 +157,8 @@ export function InboxScreen() {
   } catch (e) {}
 
   return (
-    <div className="flex flex-col gap-8 w-full px-2 lg:px-0 lg:w-[75%] my-3 mx-auto text-[#e7e7e7] h-full overflow-hidden relative">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between shrink-0">
+    <MainScreenWrapper className="relative flex h-full min-h-0 flex-col gap-10 space-y-0 overflow-hidden text-[#e7e7e7]">
+      <div className="flex flex-col gap-4 border-b border-[#2a2a2a] pb-6 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h1 className="text-2xl md:text-3xl font-semibold text-[#e7e7e7] tracking-tight flex items-center gap-3">
             Inbox
@@ -155,47 +170,27 @@ export function InboxScreen() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button
+          <Button
             onClick={handleMarkAllAsRead}
             disabled={unreadCount === 0 || loading}
             className="text-sm font-medium text-[#a3a3a3] hover:text-[#e7e7e7] bg-[#202020] hover:bg-[#2a2a2a] border border-[#2a2a2a] px-3.5 py-2 rounded-lg transition-all disabled:opacity-50 disabled:hover:bg-[#202020] disabled:cursor-not-allowed flex items-center gap-2"
           >
             <MailOpen className="w-4 h-4" />
             Mark all read
-          </button>
+          </Button>
         </div>
       </div>
 
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between shrink-0 z-10 sticky top-0 pb-2">
-        <div className="flex items-center gap-1 bg-[#1a1a1a] rounded-lg p-1 border border-[#2a2a2a] self-start">
-          <button
-            onClick={() => setActiveTab("all")}
-            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${
-              activeTab === "all"
-                ? "bg-[#2a2a2a] text-[#e7e7e7] shadow-sm"
-                : "text-[#737373] hover:text-[#e7e7e7] hover:bg-[#202020]"
-            }`}
-          >
-            All
-          </button>
-          <button
-            onClick={() => setActiveTab("unread")}
-            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all flex items-center gap-2 ${
-              activeTab === "unread"
-                ? "bg-[#2a2a2a] text-[#e7e7e7] shadow-sm"
-                : "text-[#737373] hover:text-[#e7e7e7] hover:bg-[#202020]"
-            }`}
-          >
-            Unread
-            {unreadCount > 0 && (
-              <span
-                className={`w-2 h-2 rounded-full ${
-                  activeTab === "unread" ? "bg-blue-500" : "bg-blue-500/60"
-                }`}
-              ></span>
-            )}
-          </button>
-        </div>
+        <SegmentedTabs
+          tabs={INBOX_TABS.map((tab) => ({
+            ...tab,
+            label: tab.value === "unread" && unreadCount > 0 ? `Unread (${unreadCount})` : tab.label,
+          }))}
+          value={activeTab}
+          onChange={setActiveTab}
+          className="self-start"
+        />
 
         <div className="flex items-center gap-2 w-full md:w-auto md:flex-1 md:justify-end">
           <div className="relative flex-1 md:max-w-sm">
@@ -208,9 +203,9 @@ export function InboxScreen() {
               className="w-full !pl-9 !pr-4 !py-[7px] bg-[#1a1a1a] border border-[#2a2a2a] text-[#e7e7e7] text-sm rounded-lg focus:outline-none focus:border-[#474747] transition-all focus:ring-1 focus:ring-[#474747] placeholder:text-[#525252]"
             />
           </div>
-          <button className="flex items-center justify-center p-2 rounded-lg bg-[#1a1a1a] border border-[#2a2a2a] text-[#a3a3a3] hover:text-[#e7e7e7] hover:bg-[#202020] transition-colors shrink-0">
+          <Button className="flex items-center justify-center p-2 rounded-lg bg-[#1a1a1a] border border-[#2a2a2a] text-[#a3a3a3] hover:text-[#e7e7e7] hover:bg-[#202020] transition-colors shrink-0">
             <Filter className="w-[18px] h-[18px]" />
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -228,9 +223,9 @@ export function InboxScreen() {
               className="w-12 h-12 mb-4 text-[#404040]"
               strokeWidth={1.5}
             />
-            <p className="text-lg font-medium text-[#e7e7e7]">All caught up!</p>
+            <p className="text-lg font-medium text-[#e7e7e7]">{emptyTitle}</p>
             <p className="text-sm mt-1.5 text-[#a3a3a3]">
-              You don't have any notifications right now.
+              {emptyDescription}
             </p>
           </div>
         ) : (
@@ -341,12 +336,12 @@ export function InboxScreen() {
                     if (extraContent.type === "actions") {
                       return (
                         <div className="flex items-center gap-2 pt-2">
-                          <button className="flex-1 py-2 rounded-lg border border-[#2a2a2a] text-[13px] font-medium text-[#888888] hover:bg-[#1f1f1f] hover:text-white transition-colors">
+                          <Button className="flex-1 py-2 rounded-lg border border-[#2a2a2a] text-[13px] font-medium text-[#888888] hover:bg-[#1f1f1f] hover:text-white transition-colors">
                             {extraContent.options?.[0] || "Decline"}
-                          </button>
-                          <button className="flex-1 py-2 rounded-lg bg-white text-[13px] font-medium text-black hover:bg-gray-200 transition-colors">
+                          </Button>
+                          <Button className="flex-1 py-2 rounded-lg bg-white text-[13px] font-medium text-black hover:bg-gray-200 transition-colors">
                             {extraContent.options?.[1] || "Accept"}
-                          </button>
+                          </Button>
                         </div>
                       );
                     }
@@ -372,7 +367,7 @@ export function InboxScreen() {
 
               <div className="p-4 border-t border-[#1f1f1f] bg-[#171717] flex gap-2 shrink-0">
                 {!selectedNotification.read && (
-                  <button
+                  <Button
                     onClick={() => {
                       handleMarkAsRead(selectedNotification.id);
                       setIsSheetOpen(false);
@@ -381,20 +376,20 @@ export function InboxScreen() {
                   >
                     <MailOpen className="w-4 h-4" />
                     Mark as Read
-                  </button>
+                  </Button>
                 )}
-                <button
+                <Button
                   onClick={() => handleDelete(selectedNotification.id)}
                   className="w-10 h-10 border border-[#1f1f1f] text-[#666666] hover:text-red-400 hover:border-red-400/30 hover:bg-red-500/5 rounded-lg flex items-center justify-center transition-colors"
                   title="Delete"
                 >
                   <LucideIcons.Trash2 className="w-4 h-4" />
-                </button>
+                </Button>
               </div>
             </>
           )}
         </SheetContent>
       </Sheet>
-    </div>
+    </MainScreenWrapper>
   );
 }

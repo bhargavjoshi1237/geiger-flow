@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export const COLORS = [
   "#e2e2e2",
@@ -46,7 +47,7 @@ export default function ColorPicker({
       >
         <div className="grid grid-cols-5 gap-2 mb-3">
           {COLORS.map((color) => (
-            <button
+            <Button
               key={color}
               className="w-8 h-8 rounded-lg border border-zinc-700/50 hover:scale-110 hover:border-white transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-white/20"
               style={{ backgroundColor: color }}

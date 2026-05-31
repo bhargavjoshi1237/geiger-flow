@@ -328,7 +328,7 @@ export default function CollaborateDilouge({
           ]
             .filter(Boolean)
             .map((tab) => (
-              <button
+              <Button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
@@ -339,7 +339,7 @@ export default function CollaborateDilouge({
                 )}
               >
                 {tab.label}
-              </button>
+              </Button>
             ))}
         </div>
 

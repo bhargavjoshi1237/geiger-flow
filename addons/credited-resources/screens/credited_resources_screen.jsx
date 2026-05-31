@@ -36,115 +36,11 @@ import {
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { cn } from "@/lib/utils";
 
-const CREDIT_POOLS = [
-  {
-    id: "pool_tokens",
-    name: "AI Token Credits",
-    period: "May 2026",
-    reset: "May 31",
-    unit: "tokens",
-    total: 10_000_000_000_000,
-    allocated: 7_600_000_000_000,
-    used: 4_250_000_000_000,
-    status: "on_track",
-  },
-  {
-    id: "pool_agent_runs",
-    name: "Agent Run Credits",
-    period: "May 2026",
-    reset: "May 31",
-    unit: "runs",
-    total: 18_000,
-    allocated: 12_500,
-    used: 9_100,
-    status: "watch",
-  },
-  {
-    id: "pool_review_compute",
-    name: "Review Compute",
-    period: "May 2026",
-    reset: "May 31",
-    unit: "minutes",
-    total: 4_000,
-    allocated: 3_050,
-    used: 2_300,
-    status: "on_track",
-  },
-];
+const CREDIT_POOLS = [];
 
-const INITIAL_ALLOCATIONS = [
-  {
-    id: "alloc_101",
-    poolId: "pool_tokens",
-    target: "Sam Lee",
-    targetType: "User",
-    scope: "Vault permission audit",
-    planned: 1_200_000_000_000,
-    used: 790_000_000_000,
-    status: "on_track",
-  },
-  {
-    id: "alloc_102",
-    poolId: "pool_tokens",
-    target: "Custom fields rollout",
-    targetType: "Milestone",
-    scope: "Builder implementation",
-    planned: 2_000_000_000_000,
-    used: 1_420_000_000_000,
-    status: "on_track",
-  },
-  {
-    id: "alloc_103",
-    poolId: "pool_agent_runs",
-    target: "Release readiness",
-    targetType: "Goal",
-    scope: "Regression automation",
-    planned: 4_500,
-    used: 3_900,
-    status: "watch",
-  },
-  {
-    id: "alloc_104",
-    poolId: "pool_review_compute",
-    target: "Security review queue",
-    targetType: "Module",
-    scope: "Access checks",
-    planned: 1_100,
-    used: 720,
-    status: "on_track",
-  },
-];
+const INITIAL_ALLOCATIONS = [];
 
-const USAGE_PLAN = [
-  {
-    range: "May 1-7",
-    focus: "Setup and discovery",
-    planned: "1.8T tokens",
-    used: "1.2T",
-    status: "on_track",
-  },
-  {
-    range: "May 8-14",
-    focus: "Build support",
-    planned: "2.4T tokens",
-    used: "2.1T",
-    status: "on_track",
-  },
-  {
-    range: "May 15-21",
-    focus: "QA and review",
-    planned: "3.0T tokens",
-    used: "Planned",
-    status: "watch",
-  },
-  {
-    range: "May 22-31",
-    focus: "Buffer before reset",
-    planned: "2.8T tokens",
-    used: "Planned",
-    status: "draft",
-  },
-];
+const USAGE_PLAN = [];
 
 const STATUS_META = {
   on_track: {

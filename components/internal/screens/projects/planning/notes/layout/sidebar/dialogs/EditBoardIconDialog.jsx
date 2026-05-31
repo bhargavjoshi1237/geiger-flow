@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import * as LucideIcons from "lucide-react";
 import ColorPicker from "../../../edges/ColorePicker";
+import { Label } from "@/components/ui/label";
 
 const COMMON_ICONS = [
   "LayoutDashboard",
@@ -86,16 +87,16 @@ export default function EditBoardIconDialog({
         </DialogHeader>
         <div className="py-4 space-y-5">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-zinc-300">
+            <Label className="text-sm font-medium text-zinc-300">
               Select Icon
-            </label>
+            </Label>
             <div className="flex flex-wrap gap-1.5 max-h-[180px] overflow-y-auto p-2 border border-zinc-800/60 rounded-lg bg-zinc-900/20">
               {COMMON_ICONS.map((name) => {
                 const Icon = LucideIcons[name];
                 if (!Icon) return null;
                 const isSelected = iconName === name;
                 return (
-                  <button
+                  <Button
                     key={name}
                     onClick={() => setIconName(name)}
                     className={`p-2 rounded-md transition-all ${
@@ -106,7 +107,7 @@ export default function EditBoardIconDialog({
                     title={name}
                   >
                     <Icon className="w-4 h-4" />
-                  </button>
+                  </Button>
                 );
               })}
             </div>
@@ -141,7 +142,7 @@ export default function EditBoardIconDialog({
                   onChange={setLightAccent}
                   align="center"
                 >
-                  <button className="flex flex-col items-center gap-2 group cursor-pointer">
+                  <Button className="flex flex-col items-center gap-2 group cursor-pointer">
                     <div
                       className="w-12 h-6 rounded-md border border-zinc-700 hover:border-zinc-500 transition-all shadow-sm"
                       style={{ backgroundColor: lightAccent }}
@@ -149,7 +150,7 @@ export default function EditBoardIconDialog({
                     <span className="text-[11px] font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">
                       Background
                     </span>
-                  </button>
+                  </Button>
                 </ColorPicker>
 
                 <ColorPicker
@@ -157,7 +158,7 @@ export default function EditBoardIconDialog({
                   onChange={setDarkAccent}
                   align="center"
                 >
-                  <button className="flex flex-col items-center gap-2 group cursor-pointer">
+                  <Button className="flex flex-col items-center gap-2 group cursor-pointer">
                     <div
                       className="w-12 h-6 rounded-md border border-zinc-700 hover:border-zinc-500 transition-all shadow-sm"
                       style={{ backgroundColor: darkAccent }}
@@ -165,7 +166,7 @@ export default function EditBoardIconDialog({
                     <span className="text-[11px] font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">
                       Icon Color
                     </span>
-                  </button>
+                  </Button>
                 </ColorPicker>
               </div>
             </div>
