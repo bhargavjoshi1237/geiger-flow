@@ -35,15 +35,15 @@ function MobileSidebarHeader() {
             <img
               src="/logo1.svg"
               alt=""
-              className="w-5 h-5"
+              className="geiger-logo w-5 h-5"
               onError={(e) => {
                 e.currentTarget.style.display = "none";
                 e.currentTarget.parentElement.innerHTML =
-                  '<div class="w-2 h-2 bg-white rounded-full"></div>';
+                  '<div class="w-2 h-2 bg-foreground rounded-full"></div>';
               }}
             />
           </div>
-          <span className="text-white font-semibold text-sm truncate max-w-full">
+          <span className="text-foreground font-semibold text-sm truncate max-w-full">
             {project?.name || "Project"}
           </span>
         </div>
@@ -148,22 +148,24 @@ export function ProjectSidebar({
             <div className="px-2 pt-3 pb-2 border-b border-sidebar-border mb-2 bg-sidebar">
               <Button
                 type="button"
+                variant="ghost"
                 onClick={() => {
                   setActiveMenu("main");
                   onTabChange("Overview");
                 }}
-                className="flex items-center gap-2 text-sidebar-foreground hover:text-white transition-colors text-sm font-medium w-full group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:hidden px-2 py-1 rounded-md hover:bg-sidebar-accent"
+                className="flex items-center gap-2 text-sidebar-foreground hover:text-foreground transition-colors text-sm font-medium w-full group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:hidden px-2 py-1 rounded-md hover:bg-sidebar-accent"
               >
                 <ChevronLeft className="w-4 h-4" />
                 Settings
               </Button>
               <Button
                 type="button"
+                variant="ghost"
                 onClick={() => {
                   setActiveMenu("main");
                   onTabChange("Overview");
                 }}
-                className="hidden group-data-[collapsible=icon]:flex items-center justify-center w-full text-sidebar-foreground hover:text-white rounded-md hover:bg-sidebar-accent p-1"
+                className="hidden group-data-[collapsible=icon]:flex items-center justify-center w-full text-sidebar-foreground hover:text-foreground rounded-md hover:bg-sidebar-accent p-1"
               >
                 <ChevronLeft className="w-5 h-5" />
               </Button>
@@ -190,8 +192,9 @@ export function ProjectSidebar({
       <SidebarFooter className="p-2 border-t border-sidebar-border mt-auto z-10 bg-sidebar">
         <Button
           type="button"
+          variant="ghost"
           onClick={toggleSidebar}
-          className="flex items-center gap-3 p-2 w-full rounded-lg hover:bg-sidebar-accent transition-all text-sidebar-foreground hover:text-white group-data-[collapsible=icon]:justify-center"
+          className="flex items-center gap-3 p-2 w-full rounded-lg hover:bg-sidebar-accent transition-all text-sidebar-foreground hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:justify-center"
         >
           <PanelLeft className="w-5 h-5 shrink-0" />
         </Button>

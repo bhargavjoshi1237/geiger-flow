@@ -18,27 +18,27 @@ const LEVEL_CONFIG = {
   info: {
     label: "Info",
     icon: Info,
-    className: "bg-zinc-500/10 border-zinc-500/20 text-zinc-400",
+    className: "bg-zinc-500/10 border-zinc-500/20 text-muted-foreground",
   },
   warning: {
     label: "Warning",
     icon: AlertTriangle,
-    className: "bg-zinc-500/10 border-zinc-500/20 text-zinc-400",
+    className: "bg-zinc-500/10 border-zinc-500/20 text-muted-foreground",
   },
   error: {
     label: "Error",
     icon: AlertCircle,
-    className: "bg-zinc-500/10 border-zinc-500/20 text-zinc-400",
+    className: "bg-zinc-500/10 border-zinc-500/20 text-muted-foreground",
   },
   debug: {
     label: "Debug",
     icon: Bug,
-    className: "bg-zinc-500/10 border-zinc-500/20 text-zinc-400",
+    className: "bg-zinc-500/10 border-zinc-500/20 text-muted-foreground",
   },
   system: {
     label: "System",
     icon: Terminal,
-    className: "bg-zinc-500/10 border-zinc-500/20 text-zinc-400",
+    className: "bg-zinc-500/10 border-zinc-500/20 text-muted-foreground",
   },
 };
 
@@ -97,7 +97,7 @@ export function LogEntry({ log, onClick }) {
       onClick={() => onClick(log)}
       className={cn(
         "group flex items-start gap-4 px-4 py-3 rounded-xl border transition-all duration-200 cursor-pointer",
-        "bg-[#191919] border-[#333333] hover:border-[#474747] hover:bg-[#202020]",
+        "bg-surface-subtle border-border hover:border-border-strong hover:bg-surface-card",
       )}
     >
       <div className="flex-shrink-0 mt-0.5">
@@ -113,16 +113,16 @@ export function LogEntry({ log, onClick }) {
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-3 mb-1">
-          <h3 className="text-[13px] font-medium text-[#e7e7e7] truncate group-hover:text-white transition-colors">
+          <h3 className="text-[13px] font-medium text-foreground truncate group-hover:text-foreground transition-colors">
             {log.title}
           </h3>
           <div className="flex items-center gap-2 flex-shrink-0">
-            <span className="text-[11px] text-[#737373] whitespace-nowrap">
+            <span className="text-[11px] text-text-secondary whitespace-nowrap">
               {formatExactTime(log.timestamp)}  ({formatRelativeTime(log.timestamp)})
             </span></div>
         </div>
 
-        <p className="text-[12px] text-[#737373] leading-relaxed line-clamp-2 mb-2.5">
+        <p className="text-[12px] text-text-secondary leading-relaxed line-clamp-2 mb-2.5">
           {log.message}
         </p>
       </div>

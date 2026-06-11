@@ -25,11 +25,11 @@ import { LogEntry, LevelBadge, LEVEL_CONFIG, formatExactTime } from "./log_entry
 
 function MetadataRow({ label, value }) {
   return (
-    <div className="flex items-center justify-between py-2 border-b border-[#333333] last:border-b-0">
-      <span className="text-[11px] text-[#737373] uppercase tracking-wider font-medium">
+    <div className="flex items-center justify-between py-2 border-b border-border last:border-b-0">
+      <span className="text-[11px] text-text-secondary uppercase tracking-wider font-medium">
         {label}
       </span>
-      <span className="text-[13px] text-[#a3a3a3] font-mono">{value}</span>
+      <span className="text-[13px] text-muted-foreground font-mono">{value}</span>
     </div>
   );
 }
@@ -54,9 +54,9 @@ function LogDetailSheet({ log, open, onOpenChange }) {
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="right"
-        className="w-full sm:max-w-lg bg-[#1a1a1a] border-l border-[#333333] p-0"
+        className="w-full sm:max-w-lg bg-surface-subtle border-l border-border p-0"
       >
-        <SheetHeader className="p-6 pb-4 border-b border-[#333333] gap-3">
+        <SheetHeader className="p-6 pb-4 border-b border-border gap-3">
           <div className="flex items-center gap-3">
             <div
               className={cn(
@@ -67,10 +67,10 @@ function LogDetailSheet({ log, open, onOpenChange }) {
               <Icon className="w-4 h-4" />
             </div>
             <div className="flex-1 min-w-0">
-              <SheetTitle className="text-[15px] font-medium text-[#e7e7e7] leading-snug">
+              <SheetTitle className="text-[15px] font-medium text-foreground leading-snug">
                 {log.title}
               </SheetTitle>
-              <SheetDescription className="text-[11px] text-[#737373] mt-0.5">
+              <SheetDescription className="text-[11px] text-text-secondary mt-0.5">
                 {formatExactTime(log.timestamp)}
               </SheetDescription>
             </div>
@@ -80,7 +80,7 @@ function LogDetailSheet({ log, open, onOpenChange }) {
             {log.tags?.map((tag) => (
               <span
                 key={tag}
-                className="text-[10px] font-medium text-[#737373] bg-[#202020] px-2 py-0.5 rounded-md border border-[#333333]"
+                className="text-[10px] font-medium text-text-secondary bg-surface-card px-2 py-0.5 rounded-md border border-border"
               >
                 {tag}
               </span>
@@ -90,20 +90,20 @@ function LogDetailSheet({ log, open, onOpenChange }) {
 
         <div className="flex-1 overflow-y-auto">
           <div className="p-6 pb-4">
-            <h3 className="text-[11px] uppercase tracking-wider text-[#737373] font-semibold mb-3">
+            <h3 className="text-[11px] uppercase tracking-wider text-text-secondary font-semibold mb-3">
               Description
             </h3>
-            <p className="text-[13px] text-[#a3a3a3] leading-relaxed">
+            <p className="text-[13px] text-muted-foreground leading-relaxed">
               {log.message}
             </p>
           </div>
 
           {log.metadata && (
             <div className="px-6 pb-4">
-              <h3 className="text-[11px] uppercase tracking-wider text-[#737373] font-semibold mb-3">
+              <h3 className="text-[11px] uppercase tracking-wider text-text-secondary font-semibold mb-3">
                 Metadata
               </h3>
-              <div className="bg-[#202020] border border-[#333333] rounded-lg p-3 divide-y divide-[#333333]">
+              <div className="bg-surface-card border border-border rounded-lg p-3 divide-y divide-border">
                 {Object.entries(log.metadata).map(([key, value]) => (
                   <MetadataRow key={key} label={key} value={String(value)} />
                 ))}
@@ -112,10 +112,10 @@ function LogDetailSheet({ log, open, onOpenChange }) {
           )}
 
           <div className="px-6 pb-4">
-            <h3 className="text-[11px] uppercase tracking-wider text-[#737373] font-semibold mb-3">
+            <h3 className="text-[11px] uppercase tracking-wider text-text-secondary font-semibold mb-3">
               Source
             </h3>
-            <div className="bg-[#202020] border border-[#333333] rounded-lg p-3 divide-y divide-[#333333]">
+            <div className="bg-surface-card border border-border rounded-lg p-3 divide-y divide-border">
               <MetadataRow label="Actor" value={log.actor} />
               <MetadataRow label="Source" value={log.source} />
               <MetadataRow label="Log ID" value={log.id} />
@@ -123,11 +123,11 @@ function LogDetailSheet({ log, open, onOpenChange }) {
           </div>
 
           <div className="px-6 pb-6">
-            <h3 className="text-[11px] uppercase tracking-wider text-[#737373] font-semibold mb-3">
+            <h3 className="text-[11px] uppercase tracking-wider text-text-secondary font-semibold mb-3">
               Raw
             </h3>
             <div className="relative">
-              <pre className="bg-[#161616] border border-[#333333] rounded-lg p-4 text-[11px] text-[#737373] font-mono overflow-x-auto leading-relaxed max-h-[240px] [&::-webkit-scrollbar]:hidden [&]:-ms-overflow-style:none [&]:scrollbar-width:none">
+              <pre className="bg-background border border-border rounded-lg p-4 text-[11px] text-text-secondary font-mono overflow-x-auto leading-relaxed max-h-[240px] [&::-webkit-scrollbar]:hidden [&]:-ms-overflow-style:none [&]:scrollbar-width:none">
                 {JSON.stringify(log, null, 2)}
               </pre>
               <Button
@@ -136,7 +136,7 @@ function LogDetailSheet({ log, open, onOpenChange }) {
                   "absolute top-2 right-2 p-1.5 rounded-md border transition-colors",
                   copied
                     ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
-                    : "bg-[#202020] border-[#333333] text-[#737373] hover:text-[#a3a3a3] hover:border-[#474747]",
+                    : "bg-surface-card border-border text-text-secondary hover:text-muted-foreground hover:border-border-strong",
                 )}
               >
                 {copied ? (
@@ -165,14 +165,14 @@ export function LogsScreen() {
 
   return (
     <MainScreenWrapper>
-      <div className="flex items-center justify-between border-b border-[#333333] pb-6">
+      <div className="flex items-center justify-between border-b border-border pb-6">
         <div>
-          <h1 className="text-3xl font-bold text-[#e7e7e7]">Logs</h1>
-          <p className="text-[#a3a3a3] mt-1">
+          <h1 className="text-3xl font-bold text-foreground">Logs</h1>
+          <p className="text-muted-foreground mt-1">
             View and analyze your project activity logs.
           </p>
         </div>
-        <Button className="bg-white text-black hover:bg-[#e7e7e7]">
+        <Button className="bg-primary text-primary-foreground hover:bg-primary">
           <Download className="w-4 h-4 mr-2" />
           Export Logs
         </Button>
@@ -180,10 +180,10 @@ export function LogsScreen() {
 
       <div className="space-y-2">
         {logs.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-[#333333] bg-[#1a1a1a] p-10 text-center">
-            <Terminal className="mx-auto mb-3 h-6 w-6 text-[#525252]" />
-            <p className="text-sm font-medium text-[#e7e7e7]">No logs yet</p>
-            <p className="mt-1 text-xs text-[#737373]">
+          <div className="rounded-xl border border-dashed border-border bg-surface-subtle p-10 text-center">
+            <Terminal className="mx-auto mb-3 h-6 w-6 text-text-tertiary" />
+            <p className="text-sm font-medium text-foreground">No logs yet</p>
+            <p className="mt-1 text-xs text-text-secondary">
               Project logs will appear here once events are recorded.
             </p>
           </div>

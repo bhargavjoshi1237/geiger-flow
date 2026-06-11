@@ -53,7 +53,7 @@ const STATUS_META = {
   },
   draft: {
     label: "Planned",
-    className: "bg-zinc-500/15 text-zinc-300 border-zinc-500/30",
+    className: "bg-zinc-500/15 text-foreground border-zinc-500/30",
   },
 };
 
@@ -116,10 +116,10 @@ function CreditStats({ pools, allocations }) {
       {stats.map((item) => (
         <span
           key={item.label}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] px-3 py-1.5 text-xs text-[#737373]"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-subtle px-3 py-1.5 text-xs text-text-secondary"
         >
           {item.label}
-          <span className="font-semibold tabular-nums text-[#e7e7e7]">{item.value}</span>
+          <span className="font-semibold tabular-nums text-foreground">{item.value}</span>
         </span>
       ))}
     </div>
@@ -128,10 +128,10 @@ function CreditStats({ pools, allocations }) {
 
 function PoolTable({ pools }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-[#2a2a2a] bg-[#202020]">
+    <div className="overflow-hidden rounded-2xl border border-border bg-surface-card">
       <Table>
         <TableHeader>
-          <TableRow className="border-[#2a2a2a] bg-[#1a1a1a]">
+          <TableRow className="border-border bg-surface-subtle">
             <TableHead>Credit Resource</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Total</TableHead>
@@ -145,11 +145,11 @@ function PoolTable({ pools }) {
             const usedPercent = Math.round((pool.used / pool.total) * 100);
 
             return (
-              <TableRow key={pool.id} className="border-[#2a2a2a] hover:bg-[#242424]">
+              <TableRow key={pool.id} className="border-border hover:bg-surface-active">
                 <TableCell>
                   <div className="flex flex-col gap-1">
-                    <span className="font-medium text-[#ededed]">{pool.name}</span>
-                    <p className="line-clamp-1 text-xs text-[#737373]">
+                    <span className="font-medium text-foreground">{pool.name}</span>
+                    <p className="line-clamp-1 text-xs text-text-secondary">
                       {pool.period} | {pool.unit}
                     </p>
                   </div>
@@ -157,24 +157,24 @@ function PoolTable({ pools }) {
                 <TableCell className="whitespace-nowrap">
                   <StatusBadge status={pool.status} />
                 </TableCell>
-                <TableCell className="text-sm font-medium text-[#ededed]">
+                <TableCell className="text-sm font-medium text-foreground">
                   {formatCredits(pool.total, pool.unit)}
                 </TableCell>
-                <TableCell className="text-sm text-[#a3a3a3]">
+                <TableCell className="text-sm text-muted-foreground">
                   {formatCredits(pool.allocated, pool.unit)}
                 </TableCell>
                 <TableCell>
                   <div className="w-[130px] space-y-1.5">
                     <Progress
                       value={usedPercent}
-                      className="h-1.5 rounded-full bg-[#2a2a2a] [&_[data-slot=progress-indicator]]:bg-[#ededed]"
+                      className="h-1.5 rounded-full bg-surface-hover [&_[data-slot=progress-indicator]]:bg-primary"
                     />
-                    <p className="text-xs text-[#737373]">{formatCredits(pool.used, pool.unit)} used</p>
+                    <p className="text-xs text-text-secondary">{formatCredits(pool.used, pool.unit)} used</p>
                   </div>
                 </TableCell>
                 <TableCell>
-                  <span className="inline-flex items-center gap-1.5 text-sm text-[#a3a3a3]">
-                    <CalendarClock className="h-3.5 w-3.5 text-[#737373]" />
+                  <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
+                    <CalendarClock className="h-3.5 w-3.5 text-text-secondary" />
                     {pool.reset}
                   </span>
                 </TableCell>
@@ -189,10 +189,10 @@ function PoolTable({ pools }) {
 
 function AllocationTable({ allocations }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-[#2a2a2a] bg-[#202020]">
+    <div className="overflow-hidden rounded-2xl border border-border bg-surface-card">
       <Table>
         <TableHeader>
-          <TableRow className="border-[#2a2a2a] bg-[#1a1a1a]">
+          <TableRow className="border-border bg-surface-subtle">
             <TableHead>Allocation</TableHead>
             <TableHead>Target</TableHead>
             <TableHead>Status</TableHead>
@@ -209,35 +209,35 @@ function AllocationTable({ allocations }) {
             const remaining = allocation.planned - allocation.used;
 
             return (
-              <TableRow key={allocation.id} className="border-[#2a2a2a] hover:bg-[#242424]">
+              <TableRow key={allocation.id} className="border-border hover:bg-surface-active">
                 <TableCell>
                   <div className="flex flex-col gap-1">
-                    <span className="font-medium text-[#ededed]">{pool.name}</span>
-                    <p className="line-clamp-1 text-xs text-[#737373]">{allocation.scope}</p>
+                    <span className="font-medium text-foreground">{pool.name}</span>
+                    <p className="line-clamp-1 text-xs text-text-secondary">{allocation.scope}</p>
                   </div>
                 </TableCell>
                 <TableCell>
-                  <span className="inline-flex max-w-[220px] items-center gap-1.5 text-sm text-[#a3a3a3]">
-                    <TargetIcon className="h-3.5 w-3.5 shrink-0 text-[#737373]" />
+                  <span className="inline-flex max-w-[220px] items-center gap-1.5 text-sm text-muted-foreground">
+                    <TargetIcon className="h-3.5 w-3.5 shrink-0 text-text-secondary" />
                     <span className="truncate">{allocation.target}</span>
                   </span>
                 </TableCell>
                 <TableCell className="whitespace-nowrap">
                   <StatusBadge status={allocation.status} />
                 </TableCell>
-                <TableCell className="text-sm text-[#a3a3a3]">
+                <TableCell className="text-sm text-muted-foreground">
                   {formatCredits(allocation.planned, pool.unit)}
                 </TableCell>
                 <TableCell>
                   <div className="w-[130px] space-y-1.5">
                     <Progress
                       value={usedPercent}
-                      className="h-1.5 rounded-full bg-[#2a2a2a] [&_[data-slot=progress-indicator]]:bg-[#ededed]"
+                      className="h-1.5 rounded-full bg-surface-hover [&_[data-slot=progress-indicator]]:bg-primary"
                     />
-                    <p className="text-xs text-[#737373]">{formatCredits(allocation.used, pool.unit)} used</p>
+                    <p className="text-xs text-text-secondary">{formatCredits(allocation.used, pool.unit)} used</p>
                   </div>
                 </TableCell>
-                <TableCell className="text-sm font-medium text-[#ededed]">
+                <TableCell className="text-sm font-medium text-foreground">
                   {formatCredits(remaining, pool.unit)}
                 </TableCell>
               </TableRow>
@@ -251,15 +251,15 @@ function AllocationTable({ allocations }) {
 
 function UsagePlanAccordion() {
   return (
-    <Accordion type="single" collapsible className="overflow-hidden rounded-2xl border border-[#2a2a2a] bg-[#202020]">
+    <Accordion type="single" collapsible className="overflow-hidden rounded-2xl border border-border bg-surface-card">
       <AccordionItem value="usage-plan" className="border-0">
         <AccordionTrigger className="px-4 py-3 hover:no-underline">
           <div className="flex w-full items-center justify-between gap-4 pr-2">
             <div className="min-w-0 text-left">
-              <h2 className="text-sm font-semibold text-[#e7e7e7]">Usage Plan</h2>
-              <p className="mt-1 text-xs font-normal text-[#737373]">Plan consumption before the next credit reset.</p>
+              <h2 className="text-sm font-semibold text-foreground">Usage Plan</h2>
+              <p className="mt-1 text-xs font-normal text-text-secondary">Plan consumption before the next credit reset.</p>
             </div>
-            <span className="hidden shrink-0 items-center rounded-md border border-[#333333] bg-[#1a1a1a] px-2 py-0.5 text-xs font-medium text-[#a3a3a3] sm:inline-flex">
+            <span className="hidden shrink-0 items-center rounded-md border border-border bg-surface-subtle px-2 py-0.5 text-xs font-medium text-muted-foreground sm:inline-flex">
               {USAGE_PLAN.length} windows
             </span>
           </div>
@@ -267,16 +267,16 @@ function UsagePlanAccordion() {
         <AccordionContent className="px-4 pb-4">
           <div className="space-y-2">
             {USAGE_PLAN.map((item) => (
-              <div key={item.range} className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] px-4 py-3">
+              <div key={item.range} className="rounded-xl border border-border bg-surface-subtle px-4 py-3">
                 <div className="flex flex-col gap-2 md:flex-row md:items-center">
                   <div className="min-w-0 flex-1">
                     <div className="mb-1 flex items-center gap-2">
-                      <p className="text-sm font-semibold text-[#e7e7e7]">{item.range}</p>
+                      <p className="text-sm font-semibold text-foreground">{item.range}</p>
                       <StatusBadge status={item.status} />
                     </div>
-                    <p className="text-xs text-[#737373]">{item.focus}</p>
+                    <p className="text-xs text-text-secondary">{item.focus}</p>
                   </div>
-                  <div className="flex flex-wrap items-center gap-3 text-xs text-[#a3a3a3]">
+                  <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                     <span>Plan: {item.planned}</span>
                     <span>Used: {item.used}</span>
                   </div>
@@ -332,14 +332,14 @@ export function CreditedResourcesScreen() {
 
   return (
     <MainScreenWrapper>
-      <div className="flex flex-col gap-4 border-b border-[#2a2a2a] pb-6 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-4 border-b border-border pb-6 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#e7e7e7] md:text-3xl">Credited Resources</h1>
-          <p className="mt-1 text-[#a3a3a3]">
+          <h1 className="text-2xl font-bold text-foreground md:text-3xl">Credited Resources</h1>
+          <p className="mt-1 text-muted-foreground">
             Manage limited org credits across people, tasks, goals, and usage windows.
           </p>
         </div>
-        <Button className="bg-white text-black hover:bg-[#e7e7e7]" onClick={addAllocation}>
+        <Button className="bg-primary text-primary-foreground hover:bg-primary" onClick={addAllocation}>
           <Plus className="mr-2 h-4 w-4" />
           New Allocation
         </Button>
@@ -356,8 +356,8 @@ export function CreditedResourcesScreen() {
               className={cn(
                 "h-8 rounded-lg border px-3 text-xs",
                 activeFilter === filter.id
-                  ? "border-[#3a3a3a] bg-[#2a2a2a] text-white"
-                  : "border-[#2a2a2a] bg-[#1a1a1a] text-[#737373] hover:bg-[#202020] hover:text-[#e7e7e7]",
+                  ? "border-border-strong bg-surface-hover text-foreground"
+                  : "border-border bg-surface-subtle text-text-secondary hover:bg-surface-card hover:text-foreground",
               )}
               onClick={() => setActiveFilter(filter.id)}
             >
@@ -371,22 +371,22 @@ export function CreditedResourcesScreen() {
 
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h2 className="text-sm font-semibold text-[#e7e7e7]">Allocations</h2>
-          <p className="mt-1 text-xs text-[#737373]">Credits assigned to users and project work.</p>
+          <h2 className="text-sm font-semibold text-foreground">Allocations</h2>
+          <p className="mt-1 text-xs text-text-secondary">Credits assigned to users and project work.</p>
         </div>
         <div className="relative w-full lg:w-[320px]">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#737373]" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
           <Input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search allocations"
-            className="!pl-10 !pr-4 bg-[#1a1a1a] border-[#2a2a2a] text-white text-sm placeholder:text-[#737373] focus-visible:ring-0 focus-visible:border-[#474747]"
+            className="!pl-10 !pr-4 bg-surface-subtle border-border text-foreground text-sm placeholder:text-text-secondary focus-visible:ring-0 focus-visible:border-border-strong"
           />
         </div>
       </div>
 
       {filteredAllocations.length === 0 ? (
-        <div className="flex h-[260px] flex-col items-center justify-center rounded-xl border border-dashed border-[#2a2a2a] bg-[#1a1a1a] text-[#737373]">
+        <div className="flex h-[260px] flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface-subtle text-text-secondary">
           <Bot className="h-10 w-10 opacity-30" />
           <p className="mt-3 text-sm">No credit allocations match your current filters.</p>
         </div>

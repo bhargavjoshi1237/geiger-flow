@@ -154,18 +154,18 @@ export function AddTaskDialog({
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       {children ? <DialogTrigger asChild>{children}</DialogTrigger> : null}
-      <DialogContent className="sm:max-w-3xl max-h-[88vh] overflow-y-auto bg-[#1e1e1e] border-zinc-800 text-zinc-100 p-0 gap-0 sm:rounded-lg shadow-xl">
-        <DialogHeader className="p-4 border-b border-zinc-800 ">
-          <DialogTitle className="text-base font-medium text-zinc-100 flex items-center gap-2">
-            {task ? <Edit3 className="w-4 h-4 text-zinc-400" /> : <Plus className="w-4 h-4 text-zinc-400" />}
+      <DialogContent className="sm:max-w-3xl max-h-[88vh] overflow-y-auto bg-surface-dialog border-border text-foreground p-0 gap-0 sm:rounded-lg shadow-xl">
+        <DialogHeader className="p-4 border-b border-border ">
+          <DialogTitle className="text-base font-medium text-foreground flex items-center gap-2">
+            {task ? <Edit3 className="w-4 h-4 text-muted-foreground" /> : <Plus className="w-4 h-4 text-muted-foreground" />}
             {dialogTitle}
           </DialogTitle>
-          <DialogDescription className="text-zinc-500 text-xs">
+          <DialogDescription className="text-text-secondary text-xs">
             Configure core attributes for this task.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="px-8 py-4 bg-[#1e1e1e]">
+        <div className="px-8 py-4 bg-surface-dialog">
           <TaskCoreTab
             formData={formData}
             handleInputChange={handleInputChange}
@@ -174,12 +174,12 @@ export function AddTaskDialog({
           />
         </div>
 
-        <DialogFooter className="p-4 border-t border-zinc-800 bg-[#1e1e1e] gap-2 sm:justify-end">
+        <DialogFooter className="p-4 border-t border-border bg-surface-dialog gap-2 sm:justify-end">
           <Button
             type="button"
             variant="outline"
             onClick={() => setDialogOpen(false)}
-            className="border-zinc-700 text-zinc-300 hover:text-zinc-100 hover:bg-zinc-800"
+            className="border-border-strong text-foreground hover:text-foreground hover:bg-surface-card"
             disabled={saving}
           >
             Cancel
@@ -187,7 +187,7 @@ export function AddTaskDialog({
           <Button
             type="button"
             onClick={handleSubmit}
-            className="bg-zinc-100 text-black hover:bg-zinc-300 min-w-[120px]"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 min-w-[120px]"
             disabled={!formData.title.trim() || saving}
           >
             {saving ? "Saving..." : task ? "Save Changes" : "Create Task"}

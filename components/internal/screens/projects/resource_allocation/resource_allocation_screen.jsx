@@ -116,10 +116,10 @@ function AllocationStats({ allocations, requests }) {
       {stats.map((item) => (
         <span
           key={item.label}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] px-3 py-1.5 text-xs text-[#737373]"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-subtle px-3 py-1.5 text-xs text-text-secondary"
         >
           {item.label}
-          <span className="font-semibold tabular-nums text-[#e7e7e7]">{item.value}</span>
+          <span className="font-semibold tabular-nums text-foreground">{item.value}</span>
         </span>
       ))}
     </div>
@@ -128,10 +128,10 @@ function AllocationStats({ allocations, requests }) {
 
 function AllocationTable({ allocations }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-[#2a2a2a] bg-[#202020]">
+    <div className="overflow-hidden rounded-2xl border border-border bg-surface-card">
       <Table>
         <TableHeader>
-          <TableRow className="border-[#2a2a2a] bg-[#1a1a1a]">
+          <TableRow className="border-border bg-surface-subtle">
             <TableHead>Resource</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Linked Work</TableHead>
@@ -149,16 +149,16 @@ function AllocationTable({ allocations }) {
             return (
               <ContextMenu key={resource.id}>
                 <ContextMenuTrigger asChild>
-                  <TableRow className="border-[#2a2a2a] hover:bg-[#242424]">
+                  <TableRow className="border-border hover:bg-surface-active">
                     <TableCell>
                       <div className="flex flex-col gap-1">
                         <div className="flex items-center gap-2">
-                          <span className="font-medium text-[#ededed]">{resource.name}</span>
+                          <span className="font-medium text-foreground">{resource.name}</span>
                           {resource.status === "at_risk" ? (
                             <AlertTriangle className="h-3.5 w-3.5 text-amber-300" />
                           ) : null}
                         </div>
-                        <p className="line-clamp-1 text-xs text-[#737373]">{resource.role}</p>
+                        <p className="line-clamp-1 text-xs text-text-secondary">{resource.role}</p>
                       </div>
                     </TableCell>
                     <TableCell className="whitespace-nowrap">
@@ -166,8 +166,8 @@ function AllocationTable({ allocations }) {
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col gap-1">
-                        <span className="text-sm text-[#d4d4d4]">{resource.work}</span>
-                        <span className="inline-flex items-center gap-1 text-xs text-[#737373]">
+                        <span className="text-sm text-foreground">{resource.work}</span>
+                        <span className="inline-flex items-center gap-1 text-xs text-text-secondary">
                           <StatusIcon className="h-3 w-3" />
                           {resource.workType}
                         </span>
@@ -175,16 +175,16 @@ function AllocationTable({ allocations }) {
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col gap-1">
-                        <span className="text-sm text-[#d4d4d4]">{resource.work}</span>
-                        <span className="inline-flex items-center gap-1 text-xs text-[#737373]">
+                        <span className="text-sm text-foreground">{resource.work}</span>
+                        <span className="inline-flex items-center gap-1 text-xs text-text-secondary">
                           <StatusIcon className="h-3 w-3" />
                           {resource.workType}
                         </span>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <span className="inline-flex items-center gap-1.5 text-sm text-[#a3a3a3]">
-                        <Calendar className="h-3.5 w-3.5 text-[#737373]" />
+                      <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
+                        <Calendar className="h-3.5 w-3.5 text-text-secondary" />
                         {resource.due}
                       </span>
                     </TableCell>
@@ -192,31 +192,31 @@ function AllocationTable({ allocations }) {
                       <div className="w-[130px] space-y-1.5">
                         <Progress
                           value={resource.allocation}
-                          className="h-1.5 rounded-full bg-[#2a2a2a] [&_[data-slot=progress-indicator]]:bg-[#ededed]"
+                          className="h-1.5 rounded-full bg-surface-hover [&_[data-slot=progress-indicator]]:bg-primary"
                         />
-                        <p className="text-xs text-[#737373]">{resource.allocation}%</p>
+                        <p className="text-xs text-text-secondary">{resource.allocation}%</p>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <span className="max-w-[150px] truncate text-xs text-[#a3a3a3]">{resource.access}</span>
+                      <span className="max-w-[150px] truncate text-xs text-muted-foreground">{resource.access}</span>
                     </TableCell>
                   </TableRow>
                 </ContextMenuTrigger>
-                <ContextMenuContent className="w-52 bg-[#202020] border-[#333333] shadow-xl">
-                  <ContextMenuItem className="text-[#a3a3a3] focus:bg-[#2a2a2a] focus:text-white cursor-pointer gap-2">
+                <ContextMenuContent className="w-52 bg-surface-card border-border shadow-xl">
+                  <ContextMenuItem className="text-muted-foreground focus:bg-surface-hover focus:text-foreground cursor-pointer gap-2">
                     <CheckCircle2 className="h-3.5 w-3.5" />
                     Review allocation
                   </ContextMenuItem>
-                  <ContextMenuItem className="text-[#a3a3a3] focus:bg-[#2a2a2a] focus:text-white cursor-pointer gap-2">
+                  <ContextMenuItem className="text-muted-foreground focus:bg-surface-hover focus:text-foreground cursor-pointer gap-2">
                     <UserPlus className="h-3.5 w-3.5" />
                     Create request
                   </ContextMenuItem>
-                  <ContextMenuItem className="text-[#a3a3a3] focus:bg-[#2a2a2a] focus:text-white cursor-pointer gap-2">
+                  <ContextMenuItem className="text-muted-foreground focus:bg-surface-hover focus:text-foreground cursor-pointer gap-2">
                     <Copy className="h-3.5 w-3.5" />
                     Copy linked work
                   </ContextMenuItem>
-                  <ContextMenuSeparator className="bg-[#333333]" />
-                  <ContextMenuItem className="text-[#737373] focus:bg-[#2a2a2a] focus:text-white cursor-pointer gap-2">
+                  <ContextMenuSeparator className="bg-surface-strong" />
+                  <ContextMenuItem className="text-text-secondary focus:bg-surface-hover focus:text-foreground cursor-pointer gap-2">
                     <AlertTriangle className="h-3.5 w-3.5" />
                     Mark at risk
                   </ContextMenuItem>
@@ -235,18 +235,18 @@ function RequestItem({ item }) {
   const TypeIcon = item.type === "Hiring" ? UserPlus : item.type === "Position" ? BriefcaseBusiness : ClipboardList;
 
   return (
-    <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] px-4 py-4 transition-colors hover:border-[#3a3a3a]">
+    <div className="rounded-xl border border-border bg-surface-subtle px-4 py-4 transition-colors hover:border-border-strong">
       <div className="flex flex-col gap-3 md:flex-row md:items-center">
         <div className="min-w-0 flex-1">
           <div className="mb-1 flex items-center gap-2">
-            <TypeIcon className="h-3.5 w-3.5 shrink-0 text-[#737373]" />
-            <h3 className="truncate text-sm font-semibold text-[#e7e7e7]">{item.title}</h3> 
+            <TypeIcon className="h-3.5 w-3.5 shrink-0 text-text-secondary" />
+            <h3 className="truncate text-sm font-semibold text-foreground">{item.title}</h3>
           </div>
-          <p className="text-xs text-[#737373]">
+          <p className="text-xs text-text-secondary">
             {item.type} | Owner: {item.owner} | Due {item.due}
           </p>
         </div>
-        <Button variant="ghost" size="sm" className="h-8 text-xs text-[#a3a3a3] hover:bg-[#242424] hover:text-white">
+        <Button variant="ghost" size="sm" className="h-8 text-xs text-muted-foreground hover:bg-surface-active hover:text-foreground">
           Review
         </Button>
       </div>
@@ -311,14 +311,14 @@ export function ResourceAllocationScreen() {
 
   return (
     <MainScreenWrapper>
-      <div className="flex flex-col gap-4 border-b border-[#2a2a2a] pb-6 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-4 border-b border-border pb-6 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#e7e7e7] md:text-3xl">Resource Allocation</h1>
-          <p className="mt-1 text-[#a3a3a3]">
+          <h1 className="text-2xl font-bold text-foreground md:text-3xl">Resource Allocation</h1>
+          <p className="mt-1 text-muted-foreground">
             Assign people to project work and track resource requests.
           </p>
         </div>
-        <Button className="bg-white text-black hover:bg-[#e7e7e7]" onClick={addRequest}>
+        <Button className="bg-primary text-primary-foreground hover:bg-primary" onClick={addRequest}>
           <Plus className="mr-2 h-4 w-4" />
           New Request
         </Button>
@@ -337,8 +337,8 @@ export function ResourceAllocationScreen() {
                 className={cn(
                   "h-8 rounded-lg border px-3 text-xs",
                   activeFilter === filter.id
-                    ? "border-[#3a3a3a] bg-[#2a2a2a] text-white"
-                    : "border-[#2a2a2a] bg-[#1a1a1a] text-[#737373] hover:bg-[#202020] hover:text-[#e7e7e7]",
+                    ? "border-border-strong bg-surface-hover text-foreground"
+                    : "border-border bg-surface-subtle text-text-secondary hover:bg-surface-card hover:text-foreground",
                 )}
                 onClick={() => setActiveFilter(filter.id)}
               >
@@ -350,7 +350,7 @@ export function ResourceAllocationScreen() {
       </div>
 
       {filteredAllocations.length === 0 ? (
-        <div className="flex h-[260px] flex-col items-center justify-center rounded-xl border border-dashed border-[#2a2a2a] bg-[#1a1a1a] text-[#737373]">
+        <div className="flex h-[260px] flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface-subtle text-text-secondary">
           <BriefcaseBusiness className="h-10 w-10 opacity-30" />
           <p className="mt-3 text-sm">No resources match your current filters.</p>
         </div>

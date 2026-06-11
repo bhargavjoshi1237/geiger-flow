@@ -61,14 +61,14 @@ const createQuestion = (index = 1) => ({
 function TypeSelect({ value, onChange }) {
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className="h-9 w-full border-[#2a2a2a] bg-[#181818] text-xs text-[#ededed] sm:w-[180px]">
+      <SelectTrigger className="h-9 w-full border-border bg-surface-subtle text-xs text-foreground sm:w-[180px]">
         <SelectValue />
       </SelectTrigger>
-      <SelectContent className="border-[#2a2a2a] bg-[#1a1a1a]">
+      <SelectContent className="border-border bg-surface-subtle">
         {Object.entries(QUESTION_TYPES).map(([key, type]) => {
           const Icon = type.Icon;
           return (
-            <SelectItem key={key} value={key} className="text-xs text-[#d4d4d4] focus:bg-[#2a2a2a]">
+            <SelectItem key={key} value={key} className="text-xs text-foreground focus:bg-surface-hover">
               <span className="inline-flex items-center gap-2">
                 <Icon className="h-3.5 w-3.5" />
                 {type.label}
@@ -89,19 +89,19 @@ function QuestionCard({ question, index, active, onSelect, onChange, onDuplicate
   return (
     <article
       className={cn(
-        "border bg-[#1a1a1a] transition-colors",
-        active ? "border-[#525252]" : "border-[#2a2a2a] hover:border-[#3a3a3a]",
+        "border bg-surface-subtle transition-colors",
+        active ? "border-border-strong" : "border-border hover:border-border-strong",
       )}
       onClick={onSelect}
     >
       <div className="flex items-start gap-3 p-4">
-        <GripVertical className="mt-2 h-4 w-4 shrink-0 text-[#525252]" />
+        <GripVertical className="mt-2 h-4 w-4 shrink-0 text-text-tertiary" />
         <div className="min-w-0 flex-1 space-y-3">
           <div className="grid gap-3 lg:grid-cols-[1fr_auto]">
             <Input
               value={question.title}
               onChange={(event) => onChange({ ...question, title: event.target.value })}
-              className="!h-10 border-[#2a2a2a] bg-[#202020] text-sm font-medium text-[#ededed]"
+              className="!h-10 border-border bg-surface-card text-sm font-medium text-foreground"
             />
             <TypeSelect
               value={question.type}
@@ -123,14 +123,14 @@ function QuestionCard({ question, index, active, onSelect, onChange, onDuplicate
             value={question.description}
             onChange={(event) => onChange({ ...question, description: event.target.value })}
             placeholder="Help text"
-            className="!h-9 border-[#2a2a2a] bg-[#181818] text-xs text-[#a3a3a3] placeholder:text-[#525252]"
+            className="!h-9 border-border bg-surface-subtle text-xs text-muted-foreground placeholder:text-text-tertiary"
           />
 
           {usesOptions ? (
             <div className="space-y-2">
               {question.options.map((option, optionIndex) => (
                 <div key={`${question.id}-${optionIndex}`} className="flex items-center gap-2">
-                  <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full border border-[#3a3a3a] text-[10px] text-[#737373]">
+                  <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full border border-border-strong text-[10px] text-text-secondary">
                     {optionIndex + 1}
                   </span>
                   <Input
@@ -140,13 +140,13 @@ function QuestionCard({ question, index, active, onSelect, onChange, onDuplicate
                       nextOptions[optionIndex] = event.target.value;
                       onChange({ ...question, options: nextOptions });
                     }}
-                    className="!h-8 border-[#2a2a2a] bg-[#181818] text-xs text-[#ededed]"
+                    className="!h-8 border-border bg-surface-subtle text-xs text-foreground"
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon-sm"
-                    className="text-[#737373] hover:bg-[#242424] hover:text-red-300"
+                    className="text-text-secondary hover:bg-surface-active hover:text-red-300"
                     onClick={(event) => {
                       event.stopPropagation();
                       onChange({
@@ -164,7 +164,7 @@ function QuestionCard({ question, index, active, onSelect, onChange, onDuplicate
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="h-8 text-xs text-[#a3a3a3] hover:bg-[#242424] hover:text-white"
+                className="h-8 text-xs text-muted-foreground hover:bg-surface-active hover:text-foreground"
                 onClick={(event) => {
                   event.stopPropagation();
                   onChange({ ...question, options: [...question.options, `Option ${question.options.length + 1}`] });
@@ -175,7 +175,7 @@ function QuestionCard({ question, index, active, onSelect, onChange, onDuplicate
               </Button>
             </div>
           ) : (
-            <div className="border border-dashed border-[#2a2a2a] bg-[#181818] px-3 py-2 text-xs text-[#737373]">
+            <div className="border border-dashed border-border bg-surface-subtle px-3 py-2 text-xs text-text-secondary">
               <TypeIcon className="mr-2 inline h-3.5 w-3.5" />
               {typeMeta.placeholder}
             </div>
@@ -183,14 +183,14 @@ function QuestionCard({ question, index, active, onSelect, onChange, onDuplicate
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 border-t border-[#2a2a2a] px-4 py-2 sm:flex-row sm:items-center sm:justify-between">
-        <span className="text-xs text-[#525252]">Question {index + 1}</span>
+      <div className="flex flex-col gap-3 border-t border-border px-4 py-2 sm:flex-row sm:items-center sm:justify-between">
+        <span className="text-xs text-text-tertiary">Question {index + 1}</span>
         <div className="flex flex-wrap items-center gap-2">
           <Button
             type="button"
             variant="ghost"
             size="icon-sm"
-            className="text-[#737373] hover:bg-[#242424] hover:text-white"
+            className="text-text-secondary hover:bg-surface-active hover:text-foreground"
             onClick={(event) => {
               event.stopPropagation();
               onDuplicate();
@@ -203,7 +203,7 @@ function QuestionCard({ question, index, active, onSelect, onChange, onDuplicate
             type="button"
             variant="ghost"
             size="icon-sm"
-            className="text-[#737373] hover:bg-[#242424] hover:text-red-300"
+            className="text-text-secondary hover:bg-surface-active hover:text-red-300"
             onClick={(event) => {
               event.stopPropagation();
               onDelete();
@@ -212,8 +212,8 @@ function QuestionCard({ question, index, active, onSelect, onChange, onDuplicate
           >
             <Trash2 className="h-3.5 w-3.5" />
           </Button>
-          <div className="flex items-center gap-2 border-l border-[#2a2a2a] pl-3">
-            <span className="text-xs text-[#737373]">Required</span>
+          <div className="flex items-center gap-2 border-l border-border pl-3">
+            <span className="text-xs text-text-secondary">Required</span>
             <Switch checked={question.required} onCheckedChange={(required) => onChange({ ...question, required })} />
           </div>
         </div>
@@ -224,15 +224,15 @@ function QuestionCard({ question, index, active, onSelect, onChange, onDuplicate
 
 function FormPreview({ title, description, questions }) {
   return (
-    <aside className="border border-[#2a2a2a] bg-[#202020]">
-      <div className="border-b border-[#2a2a2a] bg-[#1a1a1a] p-4">
+    <aside className="border border-border bg-surface-card">
+      <div className="border-b border-border bg-surface-subtle p-4">
         <div className="flex items-start gap-3">
           <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-teal-500/25 bg-teal-500/10">
             <LockKeyhole className="h-4 w-4 text-teal-300" />
           </div>
           <div className="min-w-0">
-            <h2 className="break-words text-base font-semibold text-[#ededed]">{title || "Untitled form"}</h2>
-            <p className="mt-1 text-xs leading-5 text-[#737373]">{description || "No description"}</p>
+            <h2 className="break-words text-base font-semibold text-foreground">{title || "Untitled form"}</h2>
+            <p className="mt-1 text-xs leading-5 text-text-secondary">{description || "No description"}</p>
           </div>
         </div>
       </div>
@@ -240,23 +240,23 @@ function FormPreview({ title, description, questions }) {
         {questions.map((question) => (
           <div key={question.id} className="space-y-2">
             <div className="flex items-center gap-1.5">
-              <p className="break-words text-sm font-medium text-[#ededed]">{question.title || "Untitled question"}</p>
+              <p className="break-words text-sm font-medium text-foreground">{question.title || "Untitled question"}</p>
               {question.required ? <span className="text-red-300">*</span> : null}
             </div>
-            {question.description ? <p className="text-xs text-[#737373]">{question.description}</p> : null}
+            {question.description ? <p className="text-xs text-text-secondary">{question.description}</p> : null}
             {question.options.length > 0 ? (
               <div className="space-y-2">
                 {question.options.map((option) => (
-                  <div key={option} className="flex items-center gap-2 border border-[#2a2a2a] bg-[#181818] px-3 py-2 text-sm text-[#a3a3a3]">
-                    <span className="h-2 w-2 rounded-full bg-[#3a3a3a]" />
+                  <div key={option} className="flex items-center gap-2 border border-border bg-surface-subtle px-3 py-2 text-sm text-muted-foreground">
+                    <span className="h-2 w-2 rounded-full bg-surface-strong" />
                     {option || "Untitled option"}
                   </div>
                 ))}
               </div>
             ) : question.type === "paragraph" ? (
-              <Textarea readOnly placeholder="Paragraph response" className="min-h-20 border-[#2a2a2a] bg-[#181818]" />
+              <Textarea readOnly placeholder="Paragraph response" className="min-h-20 border-border bg-surface-subtle" />
             ) : (
-              <Input readOnly placeholder="Response" className="!h-9 border-[#2a2a2a] bg-[#181818]" />
+              <Input readOnly placeholder="Response" className="!h-9 border-border bg-surface-subtle" />
             )}
           </div>
         ))}
@@ -273,16 +273,16 @@ function SettingsPanel({ settings, onChange }) {
   ];
 
   return (
-    <section className="border border-[#2a2a2a] bg-[#202020] p-4">
+    <section className="border border-border bg-surface-card p-4">
       <div className="mb-3 flex items-center gap-2">
-        <Settings2 className="h-4 w-4 text-[#a3a3a3]" />
-        <h2 className="text-sm font-semibold text-[#ededed]">Settings</h2>
+        <Settings2 className="h-4 w-4 text-muted-foreground" />
+        <h2 className="text-sm font-semibold text-foreground">Settings</h2>
       </div>
-      <div className="divide-y divide-[#2a2a2a]">
+      <div className="divide-y divide-border">
         {rows.map(({ key, label, Icon }) => (
           <div key={key} className="flex items-center gap-3 py-3">
-            <Icon className="h-4 w-4 text-[#737373]" />
-            <span className="min-w-0 flex-1 text-sm text-[#d4d4d4]">{label}</span>
+            <Icon className="h-4 w-4 text-text-secondary" />
+            <span className="min-w-0 flex-1 text-sm text-foreground">{label}</span>
             <Switch checked={settings[key]} onCheckedChange={(checked) => onChange({ ...settings, [key]: checked })} />
           </div>
         ))}
@@ -370,11 +370,11 @@ export function FormBuilderScreen({ projectId }) {
   };
 
   return (
-    <div className="h-full overflow-y-auto bg-[#161616] p-4 text-[#e7e7e7] md:p-8">
+    <div className="h-full overflow-y-auto bg-background p-4 text-foreground md:p-8">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-5">
-        <header className="flex flex-col gap-4 border-b border-[#2a2a2a] pb-5 lg:flex-row lg:items-center lg:justify-between">
+        <header className="flex flex-col gap-4 border-b border-border pb-5 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex min-w-0 items-center gap-3">
-            <Button asChild variant="ghost" size="icon" className="h-9 w-9 text-[#a3a3a3] hover:bg-[#242424] hover:text-white">
+            <Button asChild variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:bg-surface-active hover:text-foreground">
               <Link href={`/project/${encodeURIComponent(projectId)}?Forms`} aria-label="Back to forms">
                 <ArrowLeft className="h-4 w-4" />
               </Link>
@@ -383,8 +383,8 @@ export function FormBuilderScreen({ projectId }) {
               <FileQuestion className="h-5 w-5 text-teal-300" />
             </div>
             <div className="min-w-0">
-              <h1 className="text-2xl font-bold text-[#ededed]">Form builder</h1>
-              <p className="mt-1 text-sm text-[#a3a3a3]">{validQuestionCount} questions</p>
+              <h1 className="text-2xl font-bold text-foreground">Form builder</h1>
+              <p className="mt-1 text-sm text-muted-foreground">{validQuestionCount} questions</p>
             </div>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -392,7 +392,7 @@ export function FormBuilderScreen({ projectId }) {
             <Button
               type="button"
               variant="outline"
-              className="border-[#2a2a2a] bg-transparent text-[#a3a3a3] hover:bg-[#242424] hover:text-white"
+              className="border-border bg-transparent text-muted-foreground hover:bg-surface-active hover:text-foreground"
               onClick={() => saveForm("draft")}
               disabled={Boolean(savingMode)}
             >
@@ -401,7 +401,7 @@ export function FormBuilderScreen({ projectId }) {
             </Button>
             <Button
               type="button"
-              className="bg-white text-black hover:bg-[#e7e7e7]"
+              className="bg-primary text-primary-foreground hover:bg-primary"
               onClick={() => saveForm("published")}
               disabled={Boolean(savingMode)}
             >
@@ -413,18 +413,18 @@ export function FormBuilderScreen({ projectId }) {
 
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
           <main className="min-w-0 space-y-4">
-            <section className="border border-[#2a2a2a] bg-[#202020] p-4">
+            <section className="border border-border bg-surface-card p-4">
               <div className="space-y-3">
                 <Input
                   value={title}
                   onChange={(event) => setTitle(event.target.value)}
-                  className="!h-11 border-[#2a2a2a] bg-[#1a1a1a] text-lg font-semibold text-[#ededed]"
+                  className="!h-11 border-border bg-surface-subtle text-lg font-semibold text-foreground"
                   placeholder="Form title"
                 />
                 <Textarea
                   value={description}
                   onChange={(event) => setDescription(event.target.value)}
-                  className="min-h-20 border-[#2a2a2a] bg-[#1a1a1a] text-sm leading-6 text-[#a3a3a3]"
+                  className="min-h-20 border-border bg-surface-subtle text-sm leading-6 text-muted-foreground"
                   placeholder="Form description"
                 />
               </div>
@@ -466,7 +466,7 @@ export function FormBuilderScreen({ projectId }) {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full border-dashed border-[#3a3a3a] bg-transparent text-[#a3a3a3] hover:bg-[#242424] hover:text-white"
+                className="w-full border-dashed border-border-strong bg-transparent text-muted-foreground hover:bg-surface-active hover:text-foreground"
                 onClick={addQuestion}
               >
                 <Plus className="h-4 w-4" />
@@ -476,8 +476,8 @@ export function FormBuilderScreen({ projectId }) {
           </main>
 
           <div className="space-y-4 xl:sticky xl:top-4 xl:self-start">
-            <div className="flex items-center gap-2 text-sm font-semibold text-[#ededed]">
-              <Eye className="h-4 w-4 text-[#a3a3a3]" />
+            <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+              <Eye className="h-4 w-4 text-muted-foreground" />
               Preview
             </div>
             <FormPreview title={title} description={description} questions={questions} />

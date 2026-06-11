@@ -34,8 +34,8 @@ function AddonCard({ addon, enabled, positionOptions, selectValue, currentColor,
       className={cn(
         "rounded-xl border transition-all duration-300",
         enabled
-          ? "border-[#2c2c2c] bg-[#181818] hover:border-[#3c3c3c] shadow-sm"
-          : "border-[#222] bg-[#161616] opacity-60 hover:opacity-75"
+          ? "border-border bg-surface-subtle hover:border-border-strong shadow-sm"
+          : "border-border bg-background opacity-60 hover:opacity-75"
       )}
     >
       <div className="flex items-center gap-4 p-5">
@@ -44,7 +44,7 @@ function AddonCard({ addon, enabled, positionOptions, selectValue, currentColor,
             "w-11 h-11 rounded-lg flex items-center justify-center shrink-0 border transition-all duration-300",
             enabled
               ? ""
-              : "border-[#2c2c2c] bg-[#1a1a1a]"
+              : "border-border bg-surface-subtle"
           )}
           style={
             enabled
@@ -58,24 +58,24 @@ function AddonCard({ addon, enabled, positionOptions, selectValue, currentColor,
           {Icon && (
             <Icon
               className="w-5 h-5 transition-colors duration-300"
-              style={{ color: enabled ? effectiveColor : "#666" }}
+              style={{ color: enabled ? effectiveColor : "var(--muted-foreground)" }}
             />
           )}
         </div>
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="font-medium text-[#e7e7e7] text-[15px]">
+            <span className="font-medium text-foreground text-[15px]">
               {addon.name}
             </span>
-            <Badge className="text-[9px] h-4 px-1.5 font-medium border-[#2c2c2c] text-[#666] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <Badge className="text-[9px] h-4 px-1.5 font-medium border-border text-muted-foreground bg-surface-subtle hover:bg-surface-subtle">
               v{addon.version}
             </Badge>
-            <Badge className="text-[9px] h-4 px-1.5 font-medium border-[#2c2c2c] text-[#666] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+            <Badge className="text-[9px] h-4 px-1.5 font-medium border-border text-muted-foreground bg-surface-subtle hover:bg-surface-subtle">
               {addon.category}
             </Badge>
           </div>
-          <p className="text-sm text-[#666] mt-0.5 leading-relaxed truncate">
+          <p className="text-sm text-muted-foreground mt-0.5 leading-relaxed truncate">
             {addon.description}
           </p>
         </div>
@@ -94,25 +94,25 @@ function AddonCard({ addon, enabled, positionOptions, selectValue, currentColor,
       <Button
         type="button"
         onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-center gap-1.5 py-2.5 border-t border-[#222] hover:bg-[#1a1a1a] transition-colors duration-200"
+        className="w-full flex items-center justify-center gap-1.5 py-2.5 border-t border-border hover:bg-surface-subtle transition-colors duration-200"
       >
         {expanded ? (
-          <ChevronDown className="w-3.5 h-3.5 text-[#555]" />
+          <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
         ) : (
-          <ChevronRight className="w-3.5 h-3.5 text-[#555]" />
+          <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
         )}
-        <span className="text-[11px] text-[#555] font-medium">
+        <span className="text-[11px] text-muted-foreground font-medium">
           {expanded ? "Less details" : "More details"}
         </span>
       </Button>
 
       {expanded && (
-        <div className="border-t border-[#222] p-5 space-y-5">
+        <div className="border-t border-border p-5 space-y-5">
           <div>
-            <span className="text-[11px] font-semibold text-[#555] uppercase tracking-wider">
+            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
               Features
             </span>
-            <p className="text-[13px] text-[#999] leading-relaxed mt-3">
+            <p className="text-[13px] text-muted-foreground leading-relaxed mt-3">
               {addon.features.join(". ") + "."}
             </p>
           </div>
@@ -120,15 +120,15 @@ function AddonCard({ addon, enabled, positionOptions, selectValue, currentColor,
           {enabled && (
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <div className="w-4 h-4 rounded-full border-2 border-[#444] shrink-0 overflow-hidden">
+                <div className="w-4 h-4 rounded-full border-2 border-border-strong shrink-0 overflow-hidden">
                   <div
                     className="w-full h-full"
                     style={{ backgroundColor: effectiveColor }}
                   />
                 </div>
                 <div className="flex-1">
-                  <span className="text-[12px] text-[#e7e7e7]">Accent color</span>
-                  <p className="text-[11px] text-[#555] mt-0.5">
+                  <span className="text-[12px] text-foreground">Accent color</span>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
                     Custom color for the sidebar icon and UI accents
                   </p>
                 </div>
@@ -141,8 +141,8 @@ function AddonCard({ addon, enabled, positionOptions, selectValue, currentColor,
                       className={cn(
                         "w-6 h-6 rounded-full border-2 transition-all hover:scale-110",
                         effectiveColor === color
-                          ? "border-white scale-110 shadow-lg"
-                          : "border-[#333] hover:border-[#555]"
+                          ? "border-foreground scale-110 shadow-lg"
+                          : "border-border hover:border-border-strong"
                       )}
                       style={{ backgroundColor: color }}
                     />
@@ -152,23 +152,23 @@ function AddonCard({ addon, enabled, positionOptions, selectValue, currentColor,
 
               {addon.navItem && (
                 <div className="flex items-center gap-3">
-                  <GripVertical className="w-4 h-4 text-[#444] shrink-0" />
+                  <GripVertical className="w-4 h-4 text-text-tertiary shrink-0" />
                   <div className="flex-1">
-                    <span className="text-[12px] text-[#e7e7e7]">Sidebar position</span>
-                    <p className="text-[11px] text-[#555] mt-0.5">
+                    <span className="text-[12px] text-foreground">Sidebar position</span>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
                       Choose where this add-on appears in the navigation sidebar
                     </p>
                   </div>
                   <Select value={selectValue} onValueChange={onPositionChange}>
-                    <SelectTrigger className="h-8 text-xs w-auto min-w-[180px] bg-[#1e1e1e] border-[#2c2c2c] text-[#e7e7e7] focus:ring-[#333] focus:border-[#444]">
+                    <SelectTrigger className="h-8 text-xs w-auto min-w-[180px] bg-surface-dialog border-border text-foreground focus:ring-ring focus:border-border-strong">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-[#1e1e1e] border-[#2c2c2c]">
+                    <SelectContent className="bg-surface-dialog border-border">
                       {positionOptions.map((opt) => (
                         <SelectItem
                           key={opt.value}
                           value={opt.value}
-                          className="text-xs text-[#ccc] focus:bg-[#2c2c2c] focus:text-white"
+                          className="text-xs text-foreground focus:bg-surface-hover focus:text-foreground"
                         >
                           {opt.label}
                         </SelectItem>
@@ -193,8 +193,8 @@ export function AddonsViewToggle({ compactView, onToggle }) {
       className={cn(
         "w-8 h-8 rounded-lg border flex items-center justify-center transition-all duration-200",
         compactView
-          ? "border-[#2c2c2c] bg-[#e7e7e7] text-[#111]"
-          : "border-[#2c2c2c] bg-[#1e1e1e] text-[#666] hover:text-[#999] hover:bg-[#222]"
+          ? "border-border bg-primary text-primary-foreground"
+          : "border-border bg-surface-dialog text-muted-foreground hover:text-muted-foreground hover:bg-surface-card"
       )}
       title={compactView ? "Switch to list view" : "Switch to grid view"}
     >
@@ -229,17 +229,17 @@ export function AddonsSettingsScreen({ compactView: controlledCompactView }) {
   });
 
   return (
-    <div className="space-y-8 border-t border-[#2a2a2a] pt-6">
+    <div className="space-y-8 border-t border-border pt-6">
       {installedAddons.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-[#2c2c2c] bg-[#161616] p-12 flex flex-col items-center justify-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-[#1e1e1e] border border-[#2c2c2c] flex items-center justify-center">
-            <LucidePackagePlus className="w-6 h-6 text-[#555]" />
+        <div className="rounded-xl border border-dashed border-border bg-background p-12 flex flex-col items-center justify-center gap-3">
+          <div className="w-12 h-12 rounded-full bg-surface-dialog border border-border flex items-center justify-center">
+            <LucidePackagePlus className="w-6 h-6 text-muted-foreground" />
           </div>
           <div className="text-center">
-            <p className="text-sm font-medium text-[#999]">
+            <p className="text-sm font-medium text-muted-foreground">
               No add-ons available
             </p>
-            <p className="text-xs text-[#555] mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Add-ons will appear here when installed.
             </p>
           </div>

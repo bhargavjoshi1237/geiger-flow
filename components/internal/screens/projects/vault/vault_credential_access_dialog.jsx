@@ -126,13 +126,13 @@ export function VaultCredentialAccessDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[560px] max-h-[85vh] overflow-y-auto bg-[#161616] text-[#ededed] border border-[#2a2a2a]">
+      <DialogContent className="sm:max-w-[560px] max-h-[85vh] overflow-y-auto bg-background text-foreground border border-border">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-white">
-            <ShieldCheck className="size-5 text-[#a3a3a3]" />
+          <DialogTitle className="flex items-center gap-2 text-foreground">
+            <ShieldCheck className="size-5 text-muted-foreground" />
             Access Secret
           </DialogTitle>
-          <DialogDescription className="text-xs text-[#737373]">
+          <DialogDescription className="text-xs text-text-secondary">
             Verify with the method configured for {item?.name || "this secret"}.
           </DialogDescription>
         </DialogHeader>
@@ -155,7 +155,7 @@ export function VaultCredentialAccessDialog({
                         <InputOTPSlot
                           key={index}
                           index={index}
-                          className="size-11 border-[#2a2a2a] bg-[#161616] text-[#ededed] data-[active=true]:ring-[#474747]"
+                          className="size-11 border-border bg-background text-foreground data-[active=true]:ring-ring"
                         />
                       ))}
                     </InputOTPGroup>
@@ -169,7 +169,7 @@ export function VaultCredentialAccessDialog({
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={isLockedOut}
-                    className="bg-[#161616] border-[#2a2a2a] text-[#ededed] placeholder:text-[#525252] h-9"
+                    className="bg-background border-border text-foreground placeholder:text-text-tertiary h-9"
                   />
                 )}
 
@@ -178,7 +178,7 @@ export function VaultCredentialAccessDialog({
                     type="button"
                     onClick={handlePasskeyUnlock}
                     disabled={isLockedOut}
-                    className="w-full bg-[#ededed] text-[#161616] hover:bg-white h-9"
+                    className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-9"
                   >
                     <Fingerprint className="mr-2 size-4" />
                     Verify passkey
@@ -196,13 +196,13 @@ export function VaultCredentialAccessDialog({
           ) : (
             <div className="space-y-3 rounded-xl">
              
-              <div className="flex rounded-lg border border-[#2a2a2a] bg-[#111111] px-3 py-2.5">
-                <code className="block truncate font-mono text-xs text-[#ededed]">
+              <div className="flex rounded-lg border border-border bg-background px-3 py-2.5">
+                <code className="block truncate font-mono text-xs text-foreground">
                   {secretValue || "No secret saved"}
                 </code>
-                <Copy className="absolute right-3 top-3 size-4 text-[#737373] cursor-pointer hover:text-[#a3a3a3]" />
+                <Copy className="absolute right-3 top-3 size-4 text-text-secondary cursor-pointer hover:text-muted-foreground" />
               </div>
-              <p className="text-xs leading-5 text-[#737373]">
+              <p className="text-xs leading-5 text-text-secondary">
                 Secret access is recorded with method, timestamp, and session TTL for audit review.
               </p>
             </div>
@@ -214,7 +214,7 @@ export function VaultCredentialAccessDialog({
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
-            className="flex-1 border-[#2a2a2a] text-[#737373] hover:text-white hover:bg-[#202020] hover:border-[#3a3a3a] h-9"
+            className="flex-1 border-border text-text-secondary hover:text-foreground hover:bg-surface-card hover:border-border-strong h-9"
           >
             Close
           </Button>
@@ -223,7 +223,7 @@ export function VaultCredentialAccessDialog({
               type="button"
               onClick={handleUnlock}
               disabled={isLockedOut}
-              className="flex-1 bg-[#ededed] text-[#161616] hover:bg-white h-9"
+              className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 h-9"
             >
               Access Secret
             </Button>

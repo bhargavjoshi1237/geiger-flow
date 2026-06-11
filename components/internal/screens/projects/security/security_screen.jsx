@@ -52,7 +52,7 @@ const STATUS_CLASS = {
 
 function ViewSwitch({ activeView, onChange }) {
   return (
-    <div className="flex w-full items-center overflow-x-auto rounded-lg border border-[#2a2a2a] bg-[#202020] p-0.5 xl:w-auto">
+    <div className="flex w-full items-center overflow-x-auto rounded-lg border border-border bg-surface-card p-0.5 xl:w-auto">
       {SECURITY_VIEWS.map((view) => (
         <Button
           key={view}
@@ -63,8 +63,8 @@ function ViewSwitch({ activeView, onChange }) {
           className={cn(
             "h-7 rounded-md px-3 text-xs",
             activeView === view
-              ? "bg-[#2a2a2a] text-white"
-              : "text-[#737373] hover:bg-transparent hover:text-[#a3a3a3]",
+              ? "bg-surface-hover text-foreground"
+              : "text-text-secondary hover:bg-transparent hover:text-muted-foreground",
           )}
         >
           {view}
@@ -76,7 +76,7 @@ function ViewSwitch({ activeView, onChange }) {
 
 function SecuritySummary() {
   return (
-    <section className="rounded-2xl border border-[#2a2a2a] bg-[#1a1a1a] p-5">
+    <section className="rounded-2xl border border-border bg-surface-subtle p-5">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
         <div className="flex items-start gap-4">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-300">
@@ -84,28 +84,28 @@ function SecuritySummary() {
           </div>
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-base font-semibold text-[#ededed]">Security posture is healthy</h2>
+              <h2 className="text-base font-semibold text-foreground">Security posture is healthy</h2>
               <span className="text-xs font-medium text-emerald-300">
                 Live
               </span>
             </div>
-            <p className="mt-1 max-w-3xl text-sm leading-6 text-[#a3a3a3]">
+            <p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">
               Core protections are enabled. Two vulnerabilities still need owners, and one stale API key should be rotated.
             </p>
           </div>
         </div>
         <div className="grid grid-cols-3 gap-3 text-center">
-          <div className="rounded-xl border border-[#2a2a2a] bg-[#202020] px-4 py-3">
-            <p className="text-lg font-semibold text-[#ededed]">3/4</p>
-            <p className="text-[11px] text-[#737373]">Policies on</p>
+          <div className="rounded-xl border border-border bg-surface-card px-4 py-3">
+            <p className="text-lg font-semibold text-foreground">3/4</p>
+            <p className="text-[11px] text-text-secondary">Policies on</p>
           </div>
-          <div className="rounded-xl border border-[#2a2a2a] bg-[#202020] px-4 py-3">
-            <p className="text-lg font-semibold text-[#ededed]">2</p>
-            <p className="text-[11px] text-[#737373]">Open risks</p>
+          <div className="rounded-xl border border-border bg-surface-card px-4 py-3">
+            <p className="text-lg font-semibold text-foreground">2</p>
+            <p className="text-[11px] text-text-secondary">Open risks</p>
           </div>
-          <div className="rounded-xl border border-[#2a2a2a] bg-[#202020] px-4 py-3">
-            <p className="text-lg font-semibold text-[#ededed]">1</p>
-            <p className="text-[11px] text-[#737373]">Key to rotate</p>
+          <div className="rounded-xl border border-border bg-surface-card px-4 py-3">
+            <p className="text-lg font-semibold text-foreground">1</p>
+            <p className="text-[11px] text-text-secondary">Key to rotate</p>
           </div>
         </div>
       </div>
@@ -115,26 +115,26 @@ function SecuritySummary() {
 
 function PolicyCard({ policy }) {
   return (
-    <div className="flex items-center justify-between gap-4 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-4">
+    <div className="flex items-center justify-between gap-4 rounded-xl border border-border bg-surface-subtle p-4">
       <div className="flex min-w-0 items-start gap-3">
         <div
           className={cn(
             "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border",
             policy.enabled
               ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-300"
-              : "border-[#333333] bg-[#202020] text-[#737373]",
+              : "border-border bg-surface-card text-text-secondary",
           )}
         >
           {policy.enabled ? <ShieldCheck className="h-4 w-4" /> : <Shield className="h-4 w-4" />}
         </div>
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-sm font-semibold text-[#ededed]">{policy.name}</h3>
-            <span className="text-xs text-[#a3a3a3]">
+            <h3 className="text-sm font-semibold text-foreground">{policy.name}</h3>
+            <span className="text-xs text-muted-foreground">
               {policy.state}
             </span>
           </div>
-          <p className="mt-1 text-xs leading-5 text-[#737373]">{policy.description}</p>
+          <p className="mt-1 text-xs leading-5 text-text-secondary">{policy.description}</p>
         </div>
       </div>
       <Switch checked={policy.enabled} />
@@ -144,14 +144,14 @@ function PolicyCard({ policy }) {
 
 function VulnerabilityItem({ item }) {
   return (
-    <article className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-4 transition-colors hover:border-[#3a3a3a]">
+    <article className="rounded-xl border border-border bg-surface-subtle p-4 transition-colors hover:border-border-strong">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="truncate text-sm font-semibold text-[#ededed]">{item.title}</h3>
-            <span className="font-mono text-[10px] text-[#737373]">{item.id}</span>
+            <h3 className="truncate text-sm font-semibold text-foreground">{item.title}</h3>
+            <span className="font-mono text-[10px] text-text-secondary">{item.id}</span>
           </div>
-          <p className="mt-1 text-xs text-[#737373]">{item.area}</p>
+          <p className="mt-1 text-xs text-text-secondary">{item.area}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Badge className={cn("border px-2 py-0.5 text-[10px]", SEVERITY_CLASS[item.severity])}>
@@ -160,12 +160,12 @@ function VulnerabilityItem({ item }) {
           <Badge className={cn("border px-2 py-0.5 text-[10px]", STATUS_CLASS[item.status])}>
             {item.status}
           </Badge>
-          <span className="inline-flex items-center gap-1.5 text-xs text-[#a3a3a3]">
-            <UserRound className="h-3.5 w-3.5 text-[#737373]" />
+          <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+            <UserRound className="h-3.5 w-3.5 text-text-secondary" />
             {item.owner}
           </span>
-          <span className="text-xs text-[#737373]">{item.due}</span>
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-[#737373] hover:bg-[#242424] hover:text-white">
+          <span className="text-xs text-text-secondary">{item.due}</span>
+          <Button variant="ghost" size="icon" className="h-7 w-7 text-text-secondary hover:bg-surface-active hover:text-foreground">
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
@@ -178,14 +178,14 @@ function AccessEvent({ event }) {
   const blocked = event.state === "Blocked";
 
   return (
-    <div className="grid grid-cols-1 gap-2 border-b border-[#2a2a2a] px-4 py-3 last:border-b-0 md:grid-cols-[1.2fr_1fr_1fr_0.7fr_auto] md:items-center">
+    <div className="grid grid-cols-1 gap-2 border-b border-border px-4 py-3 last:border-b-0 md:grid-cols-[1.2fr_1fr_1fr_0.7fr_auto] md:items-center">
       <div className="min-w-0">
-        <p className={cn("truncate text-sm font-medium", blocked ? "text-red-300" : "text-[#ededed]")}>{event.actor}</p>
-        <p className="mt-0.5 truncate text-xs text-[#737373]">{event.action}</p>
+        <p className={cn("truncate text-sm font-medium", blocked ? "text-red-300" : "text-foreground")}>{event.actor}</p>
+        <p className="mt-0.5 truncate text-xs text-text-secondary">{event.action}</p>
       </div>
-      <span className="text-xs text-[#a3a3a3]">{event.device}</span>
-      <span className="text-xs text-[#737373]">{event.location}</span>
-      <span className="text-xs text-[#737373]">{event.time}</span>
+      <span className="text-xs text-muted-foreground">{event.device}</span>
+      <span className="text-xs text-text-secondary">{event.location}</span>
+      <span className="text-xs text-text-secondary">{event.time}</span>
       <span className={cn("text-xs font-medium", blocked ? "text-red-300" : "text-emerald-300")}>
         {event.state}
       </span>
@@ -195,20 +195,20 @@ function AccessEvent({ event }) {
 
 function KeyItem({ apiKey }) {
   return (
-    <article className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-4 transition-colors hover:border-[#3a3a3a]">
+    <article className="rounded-xl border border-border bg-surface-subtle p-4 transition-colors hover:border-border-strong">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
         <div className="flex min-w-0 flex-1 items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#333333] bg-[#202020] text-[#a3a3a3]">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-card text-muted-foreground">
             <KeyRound className="h-4 w-4" />
           </div>
           <div className="min-w-0">
-            <h3 className="truncate text-sm font-semibold text-[#ededed]">{apiKey.name}</h3>
-            <p className="mt-0.5 font-mono text-xs text-[#737373]">{apiKey.key}</p>
+            <h3 className="truncate text-sm font-semibold text-foreground">{apiKey.name}</h3>
+            <p className="mt-0.5 font-mono text-xs text-text-secondary">{apiKey.key}</p>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs text-[#a3a3a3]">{apiKey.scopes.join(", ")}</span>
-          <span className="text-xs text-[#737373]">Last used {apiKey.lastUsed}</span>
+          <span className="text-xs text-muted-foreground">{apiKey.scopes.join(", ")}</span>
+          <span className="text-xs text-text-secondary">Last used {apiKey.lastUsed}</span>
           <Badge className={cn("border px-2 py-0.5 text-[10px]", STATUS_CLASS[apiKey.state])}>
             {apiKey.state}
           </Badge>
@@ -240,20 +240,20 @@ export function SecurityScreen() {
   const showKeys = activeView === "Keys" || showOverview;
 
   return (
-    <MainScreenWrapper className="text-[#e7e7e7]">
-      <div className="flex flex-col gap-4 border-b border-[#2a2a2a] pb-6 lg:flex-row lg:items-center lg:justify-between">
+    <MainScreenWrapper className="text-foreground">
+      <div className="flex flex-col gap-4 border-b border-border pb-6 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#e7e7e7] md:text-3xl">Security</h1>
-          <p className="mt-1 text-[#a3a3a3]">
+          <h1 className="text-2xl font-bold text-foreground md:text-3xl">Security</h1>
+          <p className="mt-1 text-muted-foreground">
             Review access, fix risks, and manage project credentials.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" className="border-[#2a2a2a] bg-transparent text-[#a3a3a3] hover:bg-[#242424] hover:text-[#e7e7e7]">
+          <Button variant="outline" className="border-border bg-transparent text-muted-foreground hover:bg-surface-active hover:text-foreground">
             <Eye className="mr-2 h-4 w-4" />
             Audit log
           </Button>
-          <Button className="bg-white text-black hover:bg-[#e7e7e7]">
+          <Button className="bg-primary text-primary-foreground hover:bg-primary">
             <Lock className="mr-2 h-4 w-4" />
             Create key
           </Button>
@@ -265,12 +265,12 @@ export function SecurityScreen() {
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <ViewSwitch activeView={activeView} onChange={setActiveView} />
         <div className="relative w-full lg:w-[320px]">
-          <Search className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-[#737373]" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-text-secondary" />
           <Input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search security items"
-            className="!h-10 border-[#2a2a2a] bg-[#1a1a1a] !pl-10 !pr-3 text-sm text-[#ededed] placeholder:text-[#737373]"
+            className="!h-10 border-border bg-surface-subtle !pl-10 !pr-3 text-sm text-foreground placeholder:text-text-secondary"
           />
         </div>
       </div>
@@ -279,8 +279,8 @@ export function SecurityScreen() {
         <section className="space-y-4">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <h2 className="text-lg font-semibold text-[#ededed]">Access Controls</h2>
-              <p className="mt-1 text-sm text-[#737373]">Policies that decide who can enter, merge, and act.</p>
+              <h2 className="text-lg font-semibold text-foreground">Access Controls</h2>
+              <p className="mt-1 text-sm text-text-secondary">Policies that decide who can enter, merge, and act.</p>
             </div>
             <span className="text-sm font-medium text-emerald-300">
               3 enabled
@@ -298,10 +298,10 @@ export function SecurityScreen() {
         <section className="space-y-4">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <h2 className="text-lg font-semibold text-[#ededed]">Risk Queue</h2>
-              <p className="mt-1 text-sm text-[#737373]">Actionable findings with owner, status, and next due date.</p>
+              <h2 className="text-lg font-semibold text-foreground">Risk Queue</h2>
+              <p className="mt-1 text-sm text-text-secondary">Actionable findings with owner, status, and next due date.</p>
             </div>
-            <Button variant="ghost" size="sm" className="text-[#737373] hover:bg-[#242424] hover:text-white">
+            <Button variant="ghost" size="sm" className="text-text-secondary hover:bg-surface-active hover:text-foreground">
               Export
               <ExternalLink className="ml-2 h-3.5 w-3.5" />
             </Button>
@@ -317,10 +317,10 @@ export function SecurityScreen() {
       {showAccess ? (
         <section className="space-y-4">
           <div>
-            <h2 className="text-lg font-semibold text-[#ededed]">Recent Access</h2>
-            <p className="mt-1 text-sm text-[#737373]">Recent authentication and sensitive project actions.</p>
+            <h2 className="text-lg font-semibold text-foreground">Recent Access</h2>
+            <p className="mt-1 text-sm text-text-secondary">Recent authentication and sensitive project actions.</p>
           </div>
-          <div className="overflow-hidden rounded-xl border border-[#2a2a2a] bg-[#1a1a1a]">
+          <div className="overflow-hidden rounded-xl border border-border bg-surface-subtle">
             {ACCESS_EVENTS.map((event) => (
               <AccessEvent key={`${event.actor}-${event.time}`} event={event} />
             ))}
@@ -332,8 +332,8 @@ export function SecurityScreen() {
         <section className="space-y-4">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <h2 className="text-lg font-semibold text-[#ededed]">Keys & Tokens</h2>
-              <p className="mt-1 text-sm text-[#737373]">Project credentials and automation tokens that need periodic review.</p>
+              <h2 className="text-lg font-semibold text-foreground">Keys & Tokens</h2>
+              <p className="mt-1 text-sm text-text-secondary">Project credentials and automation tokens that need periodic review.</p>
             </div>
             <span className="text-sm font-medium text-amber-300">
               1 rotate
@@ -349,26 +349,26 @@ export function SecurityScreen() {
 
       {showOverview ? (
         <section className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-4">
-            <div className="flex items-center gap-2 text-sm font-medium text-[#ededed]">
-              <Fingerprint className="h-4 w-4 text-[#737373]" />
+          <div className="rounded-xl border border-border bg-surface-subtle p-4">
+            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+              <Fingerprint className="h-4 w-4 text-text-secondary" />
               Data protection
             </div>
-            <p className="mt-2 text-xs leading-5 text-[#737373]">AES-256 at rest, TLS 1.3 in transit, partial masking on sensitive fields.</p>
+            <p className="mt-2 text-xs leading-5 text-text-secondary">AES-256 at rest, TLS 1.3 in transit, partial masking on sensitive fields.</p>
           </div>
-          <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-4">
-            <div className="flex items-center gap-2 text-sm font-medium text-[#ededed]">
-              <ShieldAlert className="h-4 w-4 text-[#737373]" />
+          <div className="rounded-xl border border-border bg-surface-subtle p-4">
+            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+              <ShieldAlert className="h-4 w-4 text-text-secondary" />
               Compliance
             </div>
-            <p className="mt-2 text-xs leading-5 text-[#737373]">SOC 2 Type II and GDPR controls are active. Next audit window opens in September.</p>
+            <p className="mt-2 text-xs leading-5 text-text-secondary">SOC 2 Type II and GDPR controls are active. Next audit window opens in September.</p>
           </div>
-          <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-4">
-            <div className="flex items-center gap-2 text-sm font-medium text-[#ededed]">
-              <Terminal className="h-4 w-4 text-[#737373]" />
+          <div className="rounded-xl border border-border bg-surface-subtle p-4">
+            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+              <Terminal className="h-4 w-4 text-text-secondary" />
               Automation
             </div>
-            <p className="mt-2 text-xs leading-5 text-[#737373]">CI/CD keys are scoped to deploy actions and should be reviewed every 30 days.</p>
+            <p className="mt-2 text-xs leading-5 text-text-secondary">CI/CD keys are scoped to deploy actions and should be reviewed every 30 days.</p>
           </div>
         </section>
       ) : null}

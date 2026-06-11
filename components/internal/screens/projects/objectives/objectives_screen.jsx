@@ -42,19 +42,19 @@ import { NewObjectiveDialog } from "@/components/internal/dilouges/objectives/ne
 const STATUS_META = {
   not_started: {
     label: "Not Started",
-    className: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
+    className: "bg-zinc-500/10 text-muted-foreground border-zinc-500/20",
   },
   on_track: {
     label: "On Track",
-    className: "bg-zinc-500/10 text-zinc-300 border-zinc-500/20",
+    className: "bg-zinc-500/10 text-foreground border-zinc-500/20",
   },
   at_risk: {
     label: "At Risk",
-    className: "bg-zinc-500/10 text-zinc-300 border-zinc-500/20",
+    className: "bg-zinc-500/10 text-foreground border-zinc-500/20",
   },
   completed: {
     label: "Completed",
-    className: "bg-zinc-500/10 text-zinc-300 border-zinc-500/20",
+    className: "bg-zinc-500/10 text-foreground border-zinc-500/20",
   },
 };
 
@@ -93,13 +93,13 @@ function ObjectiveCard({ objective, onSelect, onEdit, onDelete, onDuplicate, onC
 
   return (
     <Card
-      className="bg-[#1a1a1a] border-[#2a2a2a] text-[#e7e7e7] hover:border-[#3a3a3a] transition-colors duration-200 rounded-xl py-0 gap-0 group"
+      className="bg-surface-subtle border-border text-foreground hover:border-border-strong transition-colors duration-200 rounded-xl py-0 gap-0 group"
     >
       <CardContent className="p-5 space-y-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0 space-y-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-sm font-semibold text-[#e7e7e7] leading-snug group-hover:text-white transition-colors">
+              <h3 className="text-sm font-semibold text-foreground leading-snug group-hover:text-foreground transition-colors">
                 {objective.title}
               </h3>
               <Badge
@@ -111,7 +111,7 @@ function ObjectiveCard({ objective, onSelect, onEdit, onDelete, onDuplicate, onC
                 {STATUS_META[objective.status]?.label}
               </Badge>
             </div>
-            <p className="text-xs text-[#737373] line-clamp-2">
+            <p className="text-xs text-text-secondary line-clamp-2">
               {objective.description}
             </p>
           </div>
@@ -121,7 +121,7 @@ function ObjectiveCard({ objective, onSelect, onEdit, onDelete, onDuplicate, onC
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="w-7 h-7 text-[#525252] hover:text-[#a3a3a3] hover:bg-[#242424]"
+                  className="w-7 h-7 text-text-tertiary hover:text-muted-foreground hover:bg-surface-active"
                   onClick={(e) => { e.stopPropagation(); }}
                 >
                   <MoreHorizontal className="w-4 h-4" />
@@ -129,36 +129,36 @@ function ObjectiveCard({ objective, onSelect, onEdit, onDelete, onDuplicate, onC
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
-                className="bg-[#1a1a1a] border-[#2a2a2a] text-[#e7e7e7] rounded-lg w-48"
+                className="bg-surface-subtle border-border text-foreground rounded-lg w-48"
               >
                 <DropdownMenuItem
-                  className="text-xs gap-2 focus:bg-[#242424] focus:text-[#e7e7e7] cursor-pointer"
+                  className="text-xs gap-2 focus:bg-surface-active focus:text-foreground cursor-pointer"
                   onSelect={(e) => { e.stopPropagation(); onEdit?.(objective); }}
                 >
                   <Pencil className="w-3.5 h-3.5" />
                   Edit Objective
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  className="text-xs gap-2 focus:bg-[#242424] focus:text-[#e7e7e7] cursor-pointer"
+                  className="text-xs gap-2 focus:bg-surface-active focus:text-foreground cursor-pointer"
                   onSelect={(e) => { e.stopPropagation(); onDuplicate?.(objective); }}
                 >
                   <Copy className="w-3.5 h-3.5" />
                   Duplicate
                 </DropdownMenuItem>
                 <DropdownMenuSub>
-                  <DropdownMenuSubTrigger className="text-xs gap-2 focus:bg-[#242424] focus:text-[#e7e7e7] cursor-pointer">
+                  <DropdownMenuSubTrigger className="text-xs gap-2 focus:bg-surface-active focus:text-foreground cursor-pointer">
                     <Target className="w-3.5 h-3.5" />
                     Change Status
                   </DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent className="bg-[#1a1a1a] border-[#2a2a2a] text-[#e7e7e7] rounded-lg">
+                  <DropdownMenuSubContent className="bg-surface-subtle border-border text-foreground rounded-lg">
                     {Object.entries(STATUS_META).map(([key, meta]) => {
                       const SIcon = STATUS_ICON[key];
                       return (
                         <DropdownMenuItem
                           key={key}
                           className={cn(
-                            "text-xs gap-2 focus:bg-[#242424] focus:text-[#e7e7e7] cursor-pointer",
-                            objective.status === key && "bg-[#242424]"
+                            "text-xs gap-2 focus:bg-surface-active focus:text-foreground cursor-pointer",
+                            objective.status === key && "bg-surface-active"
                           )}
                           onSelect={(e) => { e.stopPropagation(); onChangeStatus?.(objective.id, key); }}
                         >
@@ -172,7 +172,7 @@ function ObjectiveCard({ objective, onSelect, onEdit, onDelete, onDuplicate, onC
                     })}
                   </DropdownMenuSubContent>
                 </DropdownMenuSub>
-                <DropdownMenuSeparator className="bg-[#2a2a2a]" />
+                <DropdownMenuSeparator className="bg-surface-hover" />
                 <DropdownMenuItem
                   variant="destructive"
                   className="text-xs gap-2 focus:bg-red-500/10 focus:text-red-400 cursor-pointer"
@@ -186,7 +186,7 @@ function ObjectiveCard({ objective, onSelect, onEdit, onDelete, onDuplicate, onC
             <Button
               variant="ghost"
               size="icon"
-              className="w-7 h-7 text-[#3a3a3a] hover:text-white hover:bg-[#2a2a2a] cursor-pointer"
+              className="w-7 h-7 text-text-tertiary hover:text-foreground hover:bg-surface-hover cursor-pointer"
               onClick={(e) => { e.stopPropagation(); onSelect(objective); }}
             >
               <ArrowRight className="w-4 h-4" />
@@ -194,7 +194,7 @@ function ObjectiveCard({ objective, onSelect, onEdit, onDelete, onDuplicate, onC
           </div>
         </div>
 
-        <div className="flex items-center gap-4  text-xs text-[#737373]">
+        <div className="flex items-center gap-4  text-xs text-text-secondary">
           <span className="inline-flex items-center gap-1">
             <Circle className="w-3 h-3" />
             {objective.owner}
@@ -203,7 +203,7 @@ function ObjectiveCard({ objective, onSelect, onEdit, onDelete, onDuplicate, onC
             <Calendar className="w-3 h-3" />
             {formatDate(objective.startDate)} — {formatDate(objective.targetDate)}
           </span>
-          <span className="ml-auto inline-flex items-center gap-1 text-[#525252]">
+          <span className="ml-auto inline-flex items-center gap-1 text-text-tertiary">
             <Target className="w-3 h-3" />
             {completedKR}/{totalKR} key results
           </span>
@@ -211,24 +211,24 @@ function ObjectiveCard({ objective, onSelect, onEdit, onDelete, onDuplicate, onC
 
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase tracking-wider text-[#525252] font-medium">
+            <span className="text-[10px] uppercase tracking-wider text-text-tertiary font-medium">
               Progress
             </span>
-            <span className="text-xs text-[#a3a3a3] tabular-nums">
+            <span className="text-xs text-muted-foreground tabular-nums">
               {objective.progress}%
             </span>
           </div>
           <Progress
             value={objective.progress}
             className={cn(
-              "h-1.5 bg-[#2a2a2a] rounded-full",
+              "h-1.5 bg-surface-hover rounded-full",
               progressBarColor
             )}
           />
         </div>
 
         {objective.keyResults && objective.keyResults.length > 0 && (
-          <div className="border-t border-[#222] pt-2">
+          <div className="border-t border-border pt-2">
             <Button
               type="button"
               onClick={(e) => {
@@ -237,12 +237,12 @@ function ObjectiveCard({ objective, onSelect, onEdit, onDelete, onDuplicate, onC
               }}
               className="flex items-center justify-between w-full gap-2 group/acc cursor-pointer"
             >
-              <span className="text-[10px] uppercase tracking-wider text-[#3a3a3a] font-medium">
+              <span className="text-[10px] uppercase tracking-wider text-text-tertiary font-medium">
                 Key Results
               </span>
               <ChevronDown
                 className={cn(
-                  "w-3 h-3 text-[#3a3a3a] transition-transform duration-200",
+                  "w-3 h-3 text-text-tertiary transition-transform duration-200",
                   goalsOpen && "rotate-180"
                 )}
               />
@@ -261,17 +261,17 @@ function ObjectiveCard({ objective, onSelect, onEdit, onDelete, onDuplicate, onC
                     {kr.done ? (
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                     ) : (
-                      <Circle className="w-3.5 h-3.5 text-[#3a3a3a] shrink-0" />
+                      <Circle className="w-3.5 h-3.5 text-text-tertiary shrink-0" />
                     )}
                     <span
                       className={cn(
                         "text-xs flex-1 truncate",
-                        kr.done ? "text-[#a3a3a3] line-through" : "text-[#737373]"
+                        kr.done ? "text-muted-foreground line-through" : "text-text-secondary"
                       )}
                     >
                       {kr.label}
                     </span>
-                    <span className="text-[10px] tabular-nums text-[#525252] shrink-0">
+                    <span className="text-[10px] tabular-nums text-text-tertiary shrink-0">
                       {kr.progress}%
                     </span>
                   </div>
@@ -298,11 +298,11 @@ function ObjectiveListItem({ objective, onSelect, onEdit, onDelete, onDuplicate,
 
   return (
     <div
-      className="flex items-center gap-4 px-4 py-3 rounded-lg bg-[#1a1a1a] border border-[#2a2a2a] hover:border-[#3a3a3a] transition-colors group"
+      className="flex items-center gap-4 px-4 py-3 rounded-lg bg-surface-subtle border border-border hover:border-border-strong transition-colors group"
     >
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
-          <h3 className="text-sm font-medium text-[#e7e7e7] group-hover:text-white transition-colors truncate">
+          <h3 className="text-sm font-medium text-foreground group-hover:text-foreground transition-colors truncate">
             {objective.title}
           </h3>
           <Badge
@@ -314,7 +314,7 @@ function ObjectiveListItem({ objective, onSelect, onEdit, onDelete, onDuplicate,
             {STATUS_META[objective.status]?.label}
           </Badge>
         </div>
-        <div className="flex items-center gap-3 text-xs text-[#737373]">
+        <div className="flex items-center gap-3 text-xs text-text-secondary">
           <span className="inline-flex items-center gap-1">
             <Circle className="w-3 h-3" />
             {objective.owner}
@@ -323,7 +323,7 @@ function ObjectiveListItem({ objective, onSelect, onEdit, onDelete, onDuplicate,
             <Calendar className="w-3 h-3" />
             {formatDate(objective.startDate)} — {formatDate(objective.targetDate)}
           </span>
-          <span className="inline-flex items-center gap-1 text-[#525252]">
+          <span className="inline-flex items-center gap-1 text-text-tertiary">
             <Target className="w-3 h-3" />
             {completedKR}/{totalKR} KRs
           </span>
@@ -332,12 +332,12 @@ function ObjectiveListItem({ objective, onSelect, onEdit, onDelete, onDuplicate,
 
       <div className="w-32 shrink-0 space-y-1">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] text-[#525252]">Progress</span>
-          <span className="text-xs text-[#a3a3a3] tabular-nums">{objective.progress}%</span>
+          <span className="text-[10px] text-text-tertiary">Progress</span>
+          <span className="text-xs text-muted-foreground tabular-nums">{objective.progress}%</span>
         </div>
         <Progress
           value={objective.progress}
-          className={cn("h-1 bg-[#2a2a2a] rounded-full", progressBarColor)}
+          className={cn("h-1 bg-surface-hover rounded-full", progressBarColor)}
         />
       </div>
 
@@ -346,7 +346,7 @@ function ObjectiveListItem({ objective, onSelect, onEdit, onDelete, onDuplicate,
           <Button
             variant="ghost"
             size="icon"
-            className="w-7 h-7 text-[#525252] hover:text-[#a3a3a3] hover:bg-[#242424] shrink-0"
+            className="w-7 h-7 text-text-tertiary hover:text-muted-foreground hover:bg-surface-active shrink-0"
             onClick={(e) => { e.stopPropagation(); }}
           >
             <MoreHorizontal className="w-4 h-4" />
@@ -354,36 +354,36 @@ function ObjectiveListItem({ objective, onSelect, onEdit, onDelete, onDuplicate,
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="end"
-          className="bg-[#1a1a1a] border-[#2a2a2a] text-[#e7e7e7] rounded-lg w-48"
+          className="bg-surface-subtle border-border text-foreground rounded-lg w-48"
         >
           <DropdownMenuItem
-            className="text-xs gap-2 focus:bg-[#242424] focus:text-[#e7e7e7] cursor-pointer"
+            className="text-xs gap-2 focus:bg-surface-active focus:text-foreground cursor-pointer"
             onSelect={(e) => { e.stopPropagation(); onEdit?.(objective); }}
           >
             <Pencil className="w-3.5 h-3.5" />
             Edit Objective
           </DropdownMenuItem>
           <DropdownMenuItem
-            className="text-xs gap-2 focus:bg-[#242424] focus:text-[#e7e7e7] cursor-pointer"
+            className="text-xs gap-2 focus:bg-surface-active focus:text-foreground cursor-pointer"
             onSelect={(e) => { e.stopPropagation(); onDuplicate?.(objective); }}
           >
             <Copy className="w-3.5 h-3.5" />
             Duplicate
           </DropdownMenuItem>
           <DropdownMenuSub>
-            <DropdownMenuSubTrigger className="text-xs gap-2 focus:bg-[#242424] focus:text-[#e7e7e7] cursor-pointer">
+            <DropdownMenuSubTrigger className="text-xs gap-2 focus:bg-surface-active focus:text-foreground cursor-pointer">
               <Target className="w-3.5 h-3.5" />
               Change Status
             </DropdownMenuSubTrigger>
-            <DropdownMenuSubContent className="bg-[#1a1a1a] border-[#2a2a2a] text-[#e7e7e7] rounded-lg">
+            <DropdownMenuSubContent className="bg-surface-subtle border-border text-foreground rounded-lg">
               {Object.entries(STATUS_META).map(([key, meta]) => {
                 const SIcon = STATUS_ICON[key];
                 return (
                   <DropdownMenuItem
                     key={key}
                     className={cn(
-                      "text-xs gap-2 focus:bg-[#242424] focus:text-[#e7e7e7] cursor-pointer",
-                      objective.status === key && "bg-[#242424]"
+                      "text-xs gap-2 focus:bg-surface-active focus:text-foreground cursor-pointer",
+                      objective.status === key && "bg-surface-active"
                     )}
                     onSelect={(e) => { e.stopPropagation(); onChangeStatus?.(objective.id, key); }}
                   >
@@ -397,7 +397,7 @@ function ObjectiveListItem({ objective, onSelect, onEdit, onDelete, onDuplicate,
               })}
             </DropdownMenuSubContent>
           </DropdownMenuSub>
-          <DropdownMenuSeparator className="bg-[#2a2a2a]" />
+          <DropdownMenuSeparator className="bg-surface-hover" />
           <DropdownMenuItem
             variant="destructive"
             className="text-xs gap-2 focus:bg-red-500/10 focus:text-red-400 cursor-pointer"
@@ -412,7 +412,7 @@ function ObjectiveListItem({ objective, onSelect, onEdit, onDelete, onDuplicate,
       <Button
         variant="ghost"
         size="icon"
-        className="w-7 h-7 text-[#3a3a3a] hover:text-white hover:bg-[#2a2a2a] cursor-pointer shrink-0"
+        className="w-7 h-7 text-text-tertiary hover:text-foreground hover:bg-surface-hover cursor-pointer shrink-0"
         onClick={(e) => { e.stopPropagation(); onSelect(objective); }}
       >
         <ArrowRight className="w-4 h-4" />
@@ -496,23 +496,23 @@ export function ObjectivesScreen() {
 
   return (
     <MainScreenWrapper>
-      <div className="flex items-center justify-between border-b border-[#2a2a2a] pb-6">
+      <div className="flex items-center justify-between border-b border-border pb-6">
         <div>
-          <h1 className="text-3xl font-bold text-[#e7e7e7]">Objectives</h1>
-          <p className="text-[#a3a3a3] mt-1">
+          <h1 className="text-3xl font-bold text-foreground">Objectives</h1>
+          <p className="text-muted-foreground mt-1">
             Define high level measurable objectives and track key results across the project.
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-0.5">
+          <div className="flex items-center bg-surface-subtle border border-border rounded-lg p-0.5">
             <Button
               variant="ghost"
               size="icon"
               className={cn(
                 "w-8 h-7 rounded-md",
                 view === "grid"
-                  ? "bg-[#2a2a2a] text-white"
-                  : "text-[#525252] hover:text-[#a3a3a3] hover:bg-transparent"
+                  ? "bg-surface-hover text-foreground"
+                  : "text-text-tertiary hover:text-muted-foreground hover:bg-transparent"
               )}
               onClick={() => setView("grid")}
             >
@@ -524,8 +524,8 @@ export function ObjectivesScreen() {
               className={cn(
                 "w-8 h-7 rounded-md",
                 view === "list"
-                  ? "bg-[#2a2a2a] text-white"
-                  : "text-[#525252] hover:text-[#a3a3a3] hover:bg-transparent"
+                  ? "bg-surface-hover text-foreground"
+                  : "text-text-tertiary hover:text-muted-foreground hover:bg-transparent"
               )}
               onClick={() => setView("list")}
             >
@@ -533,7 +533,7 @@ export function ObjectivesScreen() {
             </Button>
           </div>
           <NewObjectiveDialog onCreate={handleCreateObjective}>
-            <Button className="bg-white text-black hover:bg-[#e7e7e7]">
+            <Button className="bg-primary text-primary-foreground hover:bg-primary">
               <Plus className="w-4 h-4 mr-2" />
               New Objective
             </Button>

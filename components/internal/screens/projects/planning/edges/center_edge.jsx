@@ -29,7 +29,7 @@ function CenterEdge({
       path={edgePath}
       markerEnd={markerEnd}
       style={{
-        stroke: "#3a3a3a",
+        stroke: "var(--edge-stroke)",
         strokeWidth: 1.5,
         ...style,
       }}

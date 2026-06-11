@@ -50,7 +50,7 @@ const SECONDARY_ROWS = {};
 
 const STATUS_META = {
   "To Do": {
-    className: "border-zinc-500/25 bg-zinc-500/10 text-zinc-300",
+    className: "border-zinc-500/25 bg-zinc-500/10 text-foreground",
     Icon: Circle,
   },
   "In Progress": {
@@ -73,22 +73,22 @@ const OWNER_META = {};
 
 function HeaderAction() {
   return (
-    <Button className="bg-white text-black hover:bg-[#e7e7e7]">
+    <Button className="bg-primary text-primary-foreground hover:bg-primary">
       <Plus className="mr-2 h-4 w-4" />
       Add Work
     </Button>
   );
 }
 
-function SummaryCard({ label, value, detail, Icon, tone = "text-[#737373]" }) {
+function SummaryCard({ label, value, detail, Icon, tone = "text-text-secondary" }) {
   return (
-    <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-4">
-      <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-wide text-[#525252]">
+    <div className="rounded-xl border border-border bg-surface-subtle p-4">
+      <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-wide text-text-tertiary">
         <Icon className={cn("h-3.5 w-3.5", tone)} />
         {label}
       </div>
-      <p className="mt-2 text-xl font-semibold tabular-nums text-[#e7e7e7]">{value}</p>
-      <p className="mt-1 text-xs text-[#737373]">{detail}</p>
+      <p className="mt-2 text-xl font-semibold tabular-nums text-foreground">{value}</p>
+      <p className="mt-1 text-xs text-text-secondary">{detail}</p>
     </div>
   );
 }
@@ -104,14 +104,14 @@ function QueueFilters({ activeView, onChange }) {
           className={cn(
             "h-8 rounded-lg border px-3 text-xs",
             activeView === label
-              ? "border-[#3a3a3a] bg-[#2a2a2a] text-white"
-              : "border-[#2a2a2a] bg-[#1a1a1a] text-[#737373] hover:bg-[#202020] hover:text-[#e7e7e7]",
+              ? "border-border-strong bg-surface-hover text-foreground"
+              : "border-border bg-surface-subtle text-text-secondary hover:bg-surface-card hover:text-foreground",
           )}
           onClick={() => onChange(label)}
         >
           <Icon className="h-3.5 w-3.5" />
           <span>{label}</span>
-          <span className="ml-1 rounded bg-[#242424] px-1.5 py-0.5 text-[10px] text-[#737373]">
+          <span className="ml-1 rounded bg-surface-active px-1.5 py-0.5 text-[10px] text-text-secondary">
             {count}
           </span>
         </Button>
@@ -121,14 +121,14 @@ function QueueFilters({ activeView, onChange }) {
 }
 
 function OwnerPill({ owner }) {
-  const meta = OWNER_META[owner] || { name: owner, color: "bg-zinc-300 text-zinc-950" };
+  const meta = OWNER_META[owner] || { name: owner, color: "bg-zinc-300 text-primary-foreground" };
 
   return (
     <span className="inline-flex items-center gap-2 whitespace-nowrap">
       <span className={cn("grid h-6 w-6 place-items-center rounded-full text-[10px] font-bold", meta.color)}>
         {owner}
       </span>
-      <span className="hidden truncate text-xs font-medium text-[#ededed] 2xl:inline">{meta.name}</span>
+      <span className="hidden truncate text-xs font-medium text-foreground 2xl:inline">{meta.name}</span>
     </span>
   );
 }
@@ -154,7 +154,7 @@ function TasksTable({ tasks }) {
   return (
     <Table>
       <TableHeader>
-        <TableRow className="bg-[#1a1a1a] border-[#2a2a2a]">
+        <TableRow className="bg-surface-subtle border-border">
           <TableHead>Work</TableHead>
           <TableHead>Status</TableHead>
           <TableHead>Priority</TableHead>
@@ -166,17 +166,17 @@ function TasksTable({ tasks }) {
       </TableHeader>
       <TableBody>
         {tasks.map((task) => (
-          <TableRow key={task.id} className="border-[#2a2a2a] hover:bg-[#242424]">
+          <TableRow key={task.id} className="border-border hover:bg-surface-active">
             <TableCell>
               <div className="flex min-w-[220px] flex-col gap-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-[#ededed]">{task.title}</span>
-                  <span className="shrink-0 rounded-md border border-[#333333] px-1.5 py-0.5 font-mono text-[10px] text-[#737373]">
+                  <span className="text-sm font-medium text-foreground">{task.title}</span>
+                  <span className="shrink-0 rounded-md border border-border px-1.5 py-0.5 font-mono text-[10px] text-text-secondary">
                     {task.id}
                   </span>
                 </div>
-                <p className="line-clamp-1 text-xs text-[#737373]">{task.description}</p>
-                <div className="flex min-w-0 items-center gap-3 text-xs text-[#737373]">
+                <p className="line-clamp-1 text-xs text-text-secondary">{task.description}</p>
+                <div className="flex min-w-0 items-center gap-3 text-xs text-text-secondary">
                   <span className="inline-flex items-center gap-1.5">
                     <Inbox className="h-3.5 w-3.5" />
                     {task.project}
@@ -199,16 +199,16 @@ function TasksTable({ tasks }) {
             <TableCell>
               <OwnerPill owner={task.owner} />
             </TableCell>
-            <TableCell className="whitespace-nowrap text-sm text-[#a3a3a3]">
+            <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
               {task.due}
             </TableCell>
             <TableCell>
               <div className="w-[130px] space-y-1.5">
                 <Progress
                   value={task.progress}
-                  className="h-1.5 bg-[#2a2a2a] [&_[data-slot=progress-indicator]]:bg-[#ededed]"
+                  className="h-1.5 bg-surface-hover [&_[data-slot=progress-indicator]]:bg-primary"
                 />
-                <p className="text-xs tabular-nums text-[#737373]">{task.progress}%</p>
+                <p className="text-xs tabular-nums text-text-secondary">{task.progress}%</p>
               </div>
             </TableCell>
             <TableCell className="text-right">
@@ -216,7 +216,7 @@ function TasksTable({ tasks }) {
                 type="button"
                 variant="ghost"
                 size="icon-sm"
-                className="text-[#525252] hover:bg-[#242424] hover:text-[#a3a3a3]"
+                className="text-text-tertiary hover:bg-surface-active hover:text-muted-foreground"
               >
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
@@ -238,19 +238,19 @@ function TaskCards({ tasks }) {
         return (
           <div
             key={task.id}
-            className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-4"
+            className="rounded-xl border border-border bg-surface-subtle p-4"
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <h3 className="truncate text-sm font-semibold text-[#e7e7e7]">{task.title}</h3>
-                  <span className="shrink-0 rounded-md border border-[#333333] px-1.5 py-0.5 font-mono text-[10px] text-[#737373]">
+                  <h3 className="truncate text-sm font-semibold text-foreground">{task.title}</h3>
+                  <span className="shrink-0 rounded-md border border-border px-1.5 py-0.5 font-mono text-[10px] text-text-secondary">
                     {task.id}
                   </span>
                 </div>
-                <p className="mt-1 line-clamp-2 text-xs text-[#737373]">{task.description}</p>
+                <p className="mt-1 line-clamp-2 text-xs text-text-secondary">{task.description}</p>
               </div>
-              <StatusIcon className="mt-0.5 h-4 w-4 shrink-0 text-[#737373]" />
+              <StatusIcon className="mt-0.5 h-4 w-4 shrink-0 text-text-secondary" />
             </div>
 
             <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -258,7 +258,7 @@ function TaskCards({ tasks }) {
                 {task.status}
               </Badge>
               <PriorityBadge priority={task.priority} />
-              <span className="inline-flex items-center gap-1 text-xs text-[#737373]">
+              <span className="inline-flex items-center gap-1 text-xs text-text-secondary">
                 <CalendarDays className="h-3.5 w-3.5" />
                 {task.due}
               </span>
@@ -269,9 +269,9 @@ function TaskCards({ tasks }) {
               <div className="min-w-0 flex-1 space-y-1">
                 <Progress
                   value={task.progress}
-                  className="h-1.5 bg-[#2a2a2a] [&_[data-slot=progress-indicator]]:bg-[#ededed]"
+                  className="h-1.5 bg-surface-hover [&_[data-slot=progress-indicator]]:bg-primary"
                 />
-                <p className="text-xs tabular-nums text-[#737373]">{task.progress}% complete</p>
+                <p className="text-xs tabular-nums text-text-secondary">{task.progress}% complete</p>
               </div>
             </div>
           </div>
@@ -283,14 +283,14 @@ function TaskCards({ tasks }) {
 
 function SecondaryList({ activeView, rows }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-[#2a2a2a] bg-[#202020]">
-      <div className="border-b border-[#2a2a2a] bg-[#1a1a1a] px-5 py-4">
-        <h2 className="text-sm font-semibold text-[#e7e7e7]">{activeView}</h2>
-        <p className="mt-1 text-xs text-[#737373]">
+    <div className="overflow-hidden rounded-2xl border border-border bg-surface-card">
+      <div className="border-b border-border bg-surface-subtle px-5 py-4">
+        <h2 className="text-sm font-semibold text-foreground">{activeView}</h2>
+        <p className="mt-1 text-xs text-text-secondary">
           Related queue items grouped by the selected project activity.
         </p>
       </div>
-      <div className="divide-y divide-[#2a2a2a]">
+      <div className="divide-y divide-border">
         {rows.length > 0 ? (
           rows.map((row, rowIndex) => (
             <div
@@ -301,13 +301,13 @@ function SecondaryList({ activeView, rows }) {
                 <span
                   key={`${cell}-${index}`}
                   className={cn(
-                    index === 0 ? "text-sm font-medium text-[#ededed]" : "text-sm text-[#a3a3a3]",
+                    index === 0 ? "text-sm font-medium text-foreground" : "text-sm text-muted-foreground",
                     index > 1 && "md:text-right",
                   )}
                 >
                   {index === 0 ? (
                     <span className="inline-flex items-center gap-2">
-                      <span className="flex h-6 w-6 items-center justify-center rounded-md border border-[#333333] bg-[#1a1a1a] text-[11px] text-[#737373]">
+                      <span className="flex h-6 w-6 items-center justify-center rounded-md border border-border bg-surface-subtle text-[11px] text-text-secondary">
                         {rowIndex + 1}
                       </span>
                       {cell}
@@ -320,7 +320,7 @@ function SecondaryList({ activeView, rows }) {
             </div>
           ))
         ) : (
-          <div className="flex h-[220px] flex-col items-center justify-center text-[#737373]">
+          <div className="flex h-[220px] flex-col items-center justify-center text-text-secondary">
             <UserRound className="h-10 w-10 opacity-30" />
             <p className="mt-3 text-sm">No {activeView.toLowerCase()} items match your search.</p>
           </div>
@@ -370,11 +370,11 @@ export function WorkQueueScreen() {
   }, []);
 
   return (
-    <MainScreenWrapper className="text-[#e7e7e7]">
-      <div className="flex flex-col gap-4 border-b border-[#2a2a2a] pb-6 md:flex-row md:items-center md:justify-between">
+    <MainScreenWrapper className="text-foreground">
+      <div className="flex flex-col gap-4 border-b border-border pb-6 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#e7e7e7] md:text-3xl">Work Queue</h1>
-          <p className="mt-1 text-[#a3a3a3]">Review assigned work, follow-ups, and project activity in one queue.</p>
+          <h1 className="text-2xl font-bold text-foreground md:text-3xl">Work Queue</h1>
+          <p className="mt-1 text-muted-foreground">Review assigned work, follow-ups, and project activity in one queue.</p>
         </div>
         <HeaderAction />
       </div>
@@ -422,12 +422,12 @@ export function WorkQueueScreen() {
         filteredTasks.length > 0 ? (
           <>
             <TaskCards tasks={filteredTasks} />
-            <div className="hidden overflow-hidden rounded-2xl border border-[#2a2a2a] bg-[#202020] md:block">
+            <div className="hidden overflow-hidden rounded-2xl border border-border bg-surface-card md:block">
               <TasksTable tasks={filteredTasks} />
             </div>
           </>
         ) : (
-          <div className="flex h-[260px] flex-col items-center justify-center rounded-xl border border-dashed border-[#2a2a2a] bg-[#1a1a1a] text-[#737373]">
+          <div className="flex h-[260px] flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface-subtle text-text-secondary">
             <UserRound className="h-10 w-10 opacity-30" />
             <p className="mt-3 text-sm">No work matches your current search.</p>
           </div>

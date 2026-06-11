@@ -50,20 +50,20 @@ import { cn } from "@/lib/utils";
 import { ExternalLinkIcon } from "@/components/internal/externals/external_links";
 
 const CHART_COLORS = {
-  primary: "#ffffff",
-  secondary: "#a3a3a3",
-  muted: "#737373",
-  borderStrong: "#474747",
-  borderSubtle: "#333333",
-  grid: "#2a2a2a",
-  surface2: "#242424",
-  ringBackground: "#333333",
-  appBackground: "#161616",
+  primary: "var(--foreground)",
+  secondary: "var(--text-secondary)",
+  muted: "var(--muted-foreground)",
+  borderStrong: "var(--border-strong)",
+  borderSubtle: "var(--border)",
+  grid: "var(--divider)",
+  surface2: "var(--surface-active)",
+  ringBackground: "var(--surface-strong)",
+  appBackground: "var(--background)",
 };
 
 const CHART_SERIES_COLORS = [
   CHART_COLORS.primary,
-  "#e5e5e5",
+  "var(--text-secondary)",
   CHART_COLORS.secondary,
   CHART_COLORS.muted,
   CHART_COLORS.borderStrong,
@@ -85,26 +85,26 @@ function MetricCard({ title, subtitle, value, data }) {
   };
 
   return (
-    <Card className="bg-[#1a1a1a] border-[#2a2a2a] text-[#e7e7e7] overflow-hidden group hover:border-[#474747] transition-all duration-300">
+    <Card className="bg-surface-subtle border-border text-foreground overflow-hidden group hover:border-border-strong transition-all duration-300">
       <CardHeader className="pb-2 space-y-1">
-        <div className="flex items-center gap-2 text-[#a3a3a3]">
-          <div className="w-5 h-5 rounded bg-[#2a2a2a] flex items-center justify-center">
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <div className="w-5 h-5 rounded bg-surface-hover flex items-center justify-center">
             {title === "Productivity" && (
-              <Activity className="w-3 h-3 text-[#737373]" />
+              <Activity className="w-3 h-3 text-text-secondary" />
             )}
             {title === "New Features" && (
-              <Sparkles className="w-3 h-3 text-[#737373]" />
+              <Sparkles className="w-3 h-3 text-text-secondary" />
             )}
             {title === "Issues Solved" && (
-              <Bug className="w-3 h-3 text-[#737373]" />
+              <Bug className="w-3 h-3 text-text-secondary" />
             )}
             {title === "PR Merged" && (
-              <GitMerge className="w-3 h-3 text-[#737373]" />
+              <GitMerge className="w-3 h-3 text-text-secondary" />
             )}
           </div>
           <span className="text-sm font-medium">{title}</span>
         </div>
-        <p className="text-xs text-[#525252]">{subtitle}</p>
+        <p className="text-xs text-text-tertiary">{subtitle}</p>
         <div className="text-2xl font-bold mt-1">{value}</div>
       </CardHeader>
       <CardContent className="p-0 h-32 relative transition-colors -mb-2">
@@ -139,7 +139,7 @@ function MetricCard({ title, subtitle, value, data }) {
             </AreaChart>
           </ChartContainer>
         </div>
-        <div className="absolute bottom-2 left-4 text-[10px] text-[#404040] flex justify-between w-[calc(100%-32px)]">
+        <div className="absolute bottom-2 left-4 text-[10px] text-text-tertiary flex justify-between w-[calc(100%-32px)]">
           <span>No start timestamp</span>
           <span>No end timestamp</span>
         </div>
@@ -214,7 +214,7 @@ const DASHBOARD_ACTIVITY = [];
 
 function WidgetShell({ children, className, contentClassName }) {
   return (
-    <Card className={cn("bg-[#1a1a1a] border-[#2a2a2a] text-[#e7e7e7] rounded-xl py-0 gap-0 overflow-hidden", className)}>
+    <Card className={cn("bg-surface-subtle border-border text-foreground rounded-xl py-0 gap-0 overflow-hidden", className)}>
       <CardContent className={cn("p-4", contentClassName)}>{children}</CardContent>
     </Card>
   );
@@ -253,8 +253,8 @@ function TaskStatusShowcaseWidget() {
       <div className="flex h-full flex-col">
         <div className="flex w-full items-start justify-between gap-3">
           <div className="flex min-w-0 flex-1 flex-col">
-            <h3 className="text-base font-semibold text-[#ededed]">Task Breakout by Status</h3>
-            <p className="text-sm text-[#a3a3a3]">Current task distribution across active statuses.</p>
+            <h3 className="text-base font-semibold text-foreground">Task Breakout by Status</h3>
+            <p className="text-sm text-muted-foreground">Current task distribution across active statuses.</p>
           </div>
           <FilterDropdown
             value={selectedStatus}
@@ -289,15 +289,15 @@ function TaskStatusShowcaseWidget() {
             </PieChart>
           </ChartContainer>
           <div className="pointer-events-none absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center">
-            <span className="text-3xl font-bold leading-none text-[#ffffff]">{selectedItem?.value ?? total}</span>
-            <span className="mt-1 text-xs font-medium text-[#a3a3a3]">{selectedItem?.label || "Total Tasks"}</span>
+            <span className="text-3xl font-bold leading-none text-foreground">{selectedItem?.value ?? total}</span>
+            <span className="mt-1 text-xs font-medium text-muted-foreground">{selectedItem?.label || "Total Tasks"}</span>
           </div>
         </div>
         <div className="mt-2 min-h-[44px] text-center">
-          <p className="text-sm font-semibold text-[#ededed]">
+          <p className="text-sm font-semibold text-foreground">
             {selectedItem?.label || "Tasks"} accounts for {total ? Math.round(((selectedItem?.value || 0) / total) * 100) : PLACEHOLDER_COUNT}% of tasks
           </p>
-          <p className="mt-1 text-sm text-[#737373]">Current project status mix</p>
+          <p className="mt-1 text-sm text-text-secondary">Current project status mix</p>
         </div>
       </div>
     </WidgetShell>
@@ -327,8 +327,8 @@ function YearlyRadarWidget() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-center gap-2 justify-between w-full">
             <div className="flex flex-col w-full">
-              <h3 className="text-base font-semibold text-[#ededed]">Radar Chart</h3>
-              <p className="text-sm text-[#a3a3a3]">{selected.description}</p>
+              <h3 className="text-base font-semibold text-foreground">Radar Chart</h3>
+              <p className="text-sm text-muted-foreground">{selected.description}</p>
             </div>
 
             <FilterDropdown
@@ -366,10 +366,10 @@ function YearlyRadarWidget() {
         </div>
 
         <div className="mt-2 min-h-[44px] text-center">
-          <p className="text-sm font-semibold text-[#ededed]">
+          <p className="text-sm font-semibold text-foreground">
             Trending up by {selected.trend} this year
           </p>
-          <p className="mt-1 text-sm text-[#737373]">January - November 2026</p>
+          <p className="mt-1 text-sm text-text-secondary">January - November 2026</p>
         </div>
       </div>
     </WidgetShell>
@@ -416,8 +416,8 @@ function ResourcePerformanceWidget() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-center gap-2 justify-between w-full">
             <div className="flex flex-col w-full">
-              <h3 className="text-base font-semibold text-[#ededed]">Resource Performance</h3>
-              <p className="text-sm text-[#a3a3a3]">
+              <h3 className="text-base font-semibold text-foreground">Resource Performance</h3>
+              <p className="text-sm text-muted-foreground">
                 Weekly team performance.
               </p>
             </div>
@@ -434,7 +434,7 @@ function ResourcePerformanceWidget() {
           <div className="relative h-[260px] w-[260px] shrink-0">
             <ChartContainer
               config={chartConfig}
-              className="h-full w-full [&_.recharts-radial-bar-background-sector]:fill-[#333333]"
+              className="h-full w-full [&_.recharts-radial-bar-background-sector]:fill-muted-foreground"
             >
               <RadialBarChart
                 data={rings}
@@ -460,7 +460,7 @@ function ResourcePerformanceWidget() {
               </RadialBarChart>
             </ChartContainer>
             <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-              <span className="text-[28px] font-extrabold leading-none text-[#ffffff]">
+              <span className="text-[28px] font-extrabold leading-none text-foreground">
                 {max}
               </span>
             </div>
@@ -468,12 +468,12 @@ function ResourcePerformanceWidget() {
         </div>
 
         <div className="mt-2 min-h-[44px] text-center">
-          <p className="text-sm font-semibold text-[#ededed]">
+          <p className="text-sm font-semibold text-foreground">
             {people.length > 0
               ? `Trending up by ${selected.trend} this week`
               : "No resource performance data yet"}
           </p>
-          <p className="mt-1 text-sm text-[#737373]">
+          <p className="mt-1 text-sm text-text-secondary">
             {people.length > 0
               ? "Compared with last week across active resources"
               : "Backend resource metrics will replace this zero baseline."}
@@ -508,44 +508,44 @@ export function ProjectDetailsScreen({ externalLinks = [] }) {
     <MainScreenWrapper>
       <div className="flex flex-col md:flex-row md:items-center justify-between mt-2 gap-4">
         <div className="flex items-center justify-center md:justify-start gap-3 w-full md:w-auto text-center md:text-left">
-          <h1 className="text-2xl font-bold text-white tracking-tight">
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">
             {project?.name}
           </h1>
-          <span className="bg-[#1a1a1a] text-[#737373] text-[9px] px-1.5 py-0.5 rounded border border-[#2a2a2a] font-mono tracking-widest shrink-0">
+          <span className="bg-surface-subtle text-text-secondary text-[9px] px-1.5 py-0.5 rounded border border-border font-mono tracking-widest shrink-0">
             NANO
           </span>
         </div>
         <div className="w-full md:w-auto">
           <div className="flex w-full md:w-auto md:gap-0">
             <div className="flex-1 md:flex-none flex flex-col items-center md:pr-8">
-              <span className="text-[#737373] text-[11px] uppercase tracking-wider font-medium">
+              <span className="text-text-secondary text-[11px] uppercase tracking-wider font-medium">
                 Members
               </span>
-              <span className="text-white font-bold text-2xl mt-0.5">6</span>
+              <span className="text-foreground font-bold text-2xl mt-0.5">6</span>
             </div>
-            <div className="flex-1 md:flex-none flex flex-col items-center border-l border-[#2a2a2a] md:px-8">
-              <span className="text-[#737373] text-[11px] uppercase tracking-wider font-medium">
+            <div className="flex-1 md:flex-none flex flex-col items-center border-l border-border md:px-8">
+              <span className="text-text-secondary text-[11px] uppercase tracking-wider font-medium">
                 Goals
               </span>
-              <span className="text-white font-bold text-2xl mt-0.5">0</span>
+              <span className="text-foreground font-bold text-2xl mt-0.5">0</span>
             </div>
-            <div className="flex-1 md:flex-none flex flex-col items-center border-l border-[#2a2a2a] md:pl-8">
-              <span className="text-[#737373] text-[11px] uppercase tracking-wider font-medium">
+            <div className="flex-1 md:flex-none flex flex-col items-center border-l border-border md:pl-8">
+              <span className="text-text-secondary text-[11px] uppercase tracking-wider font-medium">
                 Milestones
               </span>
-              <span className="text-white font-bold text-2xl mt-0.5">0</span>
+              <span className="text-foreground font-bold text-2xl mt-0.5">0</span>
             </div>
           </div>
         </div>
       </div>
       <div className="w-full mt-2 mb-6 md:mb-6">
-        <p className="text-zinc-500 text-sm text-center md:text-left">
+        <p className="text-text-secondary text-sm text-center md:text-left">
           Geiger Flow Lightweight creative project manager. Kanban, Timeline
           view, Process, End Node Progress Hiring Templets , Project Templets
           Staging. Milestones. Comments/Discussions , Dropdown Stack of Nodes
         </p>
       </div>
-      <div className="pt-4 border-t border-[#242424]">
+      <div className="pt-4 border-t border-border">
         <FilterDropdown
           value={filterValue}
           onValueChange={setFilterValue}
@@ -555,8 +555,8 @@ export function ProjectDetailsScreen({ externalLinks = [] }) {
       {dashboardLinks.length > 0 ? (
         <section className="space-y-4">
           <div>
-            <h2 className="text-lg font-medium text-[#e7e7e7]">External links</h2>
-            <p className="text-sm text-[#737373]">Pinned project resources</p>
+            <h2 className="text-lg font-medium text-foreground">External links</h2>
+            <p className="text-sm text-text-secondary">Pinned project resources</p>
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {dashboardLinks.map((link) => (
@@ -565,23 +565,23 @@ export function ProjectDetailsScreen({ externalLinks = [] }) {
                 href={link.url}
                 target={link.openInNewTab ? "_blank" : undefined}
                 rel={link.openInNewTab ? "noreferrer" : undefined}
-                className="group flex min-h-20 items-center gap-3 rounded-lg border border-[#2a2a2a] bg-[#202020] p-4 transition-colors hover:border-[#3a3a3a] hover:bg-[#242424]"
+                className="group flex min-h-20 items-center gap-3 rounded-lg border border-border bg-surface-card p-4 transition-colors hover:border-border-strong hover:bg-surface-active"
               >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-[#333333] bg-[#1a1a1a]">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-border bg-surface-subtle">
                   <ExternalLinkIcon
                     iconName={link.icon}
                     className="h-5 w-5"
-                    style={{ color: link.textColor || "#ededed" }}
+                    style={{ color: link.textColor || "var(--foreground)" }}
                   />
                 </div>
                 <div className="min-w-0">
                   <p
                     className="truncate text-sm font-medium"
-                    style={{ color: link.textColor || "#ededed" }}
+                    style={{ color: link.textColor || "var(--foreground)" }}
                   >
                     {link.title}
                   </p>
-                  <p className="mt-1 truncate text-xs text-[#737373] group-hover:text-[#a3a3a3]">
+                  <p className="mt-1 truncate text-xs text-text-secondary group-hover:text-muted-foreground">
                     {link.url}
                   </p>
                 </div>
@@ -635,21 +635,21 @@ export function ProjectDetailsScreen({ externalLinks = [] }) {
       <div className="py-4 space-y-4">
         <div className="flex items-center justify-between">
           <div className="px-1">
-            <h2 className="text-lg font-semibold text-[#e7e7e7] tracking-tight leading-tight">
+            <h2 className="text-lg font-semibold text-foreground tracking-tight leading-tight">
               Top Issues
             </h2>
-            <p className="text-xs text-[#737373]">
+            <p className="text-xs text-text-secondary">
               Tasks requiring immediate attention
             </p>
           </div>
-          <Button className="text-xs font-medium text-[#737373] hover:text-[#e7e7e7] px-3 py-1.5 rounded-lg transition-colors hover:border-[#474747] flex items-center gap-2">
+          <Button className="text-xs font-medium text-text-secondary hover:text-foreground px-3 py-1.5 rounded-lg transition-colors hover:border-border-strong flex items-center gap-2">
           View Issues <ChevronRight className="w-3 h-3" />
         </Button>
         </div>
         <div className="space-y-2">
-          <div className="rounded-xl border border-dashed border-[#2a2a2a] bg-[#1a1a1a] p-8 text-center">
-            <p className="text-sm font-medium text-[#e7e7e7]">No issues yet</p>
-            <p className="mt-1 text-xs text-[#737373]">
+          <div className="rounded-xl border border-dashed border-border bg-surface-subtle p-8 text-center">
+            <p className="text-sm font-medium text-foreground">No issues yet</p>
+            <p className="mt-1 text-xs text-text-secondary">
               Issue data will appear here after backend fetching is connected.
             </p>
           </div>

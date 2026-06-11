@@ -24,10 +24,10 @@ const throughputData = [
 
 function EmptyPanel({ icon: Icon, title, description, className }) {
   return (
-    <div className={`rounded-2xl border border-dashed border-[#2a2a2a] bg-[#202020] p-10 text-center ${className}`}>
-      <Icon className="mx-auto mb-3 h-6 w-6 text-[#525252]" />
-      <p className="text-sm font-medium text-[#e7e7e7]">{title}</p>
-      <p className="mt-1 text-xs text-[#737373]">{description}</p>
+    <div className={`rounded-2xl border border-dashed border-border bg-surface-card p-10 text-center ${className}`}>
+      <Icon className="mx-auto mb-3 h-6 w-6 text-text-tertiary" />
+      <p className="text-sm font-medium text-foreground">{title}</p>
+      <p className="mt-1 text-xs text-text-secondary">{description}</p>
     </div>
   );
 }
@@ -37,7 +37,7 @@ export function OverviewScreen() {
 
   return (
     <div className="w-[90%] ml-auto mr-auto">
-      <MainScreenWrapper className="flex flex-col gap-10 space-y-0 text-[#e7e7e7]">
+      <MainScreenWrapper className="flex flex-col gap-10 space-y-0 text-foreground">
         <EmptyPanel
           icon={BarChart3}
           title="No overview metrics yet"
@@ -49,11 +49,11 @@ export function OverviewScreen() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 z-10 relative">
-          <div className="lg:col-span-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded-2xl p-6 min-h-96 flex flex-col min-w-0">
+          <div className="lg:col-span-2 bg-surface-subtle border border-border rounded-2xl p-6 min-h-96 flex flex-col min-w-0">
             <div className="flex items-center justify-between mb-8">
               <div>
-                <h3 className="text-[#e7e7e7] font-medium">Throughput Analysis</h3>
-                <p className="text-sm text-[#737373]">Live requests across regions</p>
+                <h3 className="text-foreground font-medium">Throughput Analysis</h3>
+                <p className="text-sm text-text-secondary">Live requests across regions</p>
               </div>
               <FilterDropdown value={filterValue} onValueChange={setFilterValue} />
             </div>
@@ -74,18 +74,18 @@ export function OverviewScreen() {
                       <stop offset="95%" stopColor="var(--color-requests)" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid stroke="#2a2a2a" strokeDasharray="3 3" vertical={false} />
+                  <CartesianGrid stroke="var(--divider)" strokeDasharray="3 3" vertical={false} />
                   <XAxis
                     dataKey="time"
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: "#737373", fontSize: 12 }}
+                    tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
                   />
                   <YAxis
                     width={28}
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: "#737373", fontSize: 12 }}
+                    tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
                     domain={[0, 1]}
                   />
                   <ChartTooltip content={<ChartTooltipContent />} />
@@ -101,10 +101,10 @@ export function OverviewScreen() {
                 </AreaChart>
               </ChartContainer>
               <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a]/90 px-5 py-4 text-center shadow-sm">
-                  <Activity className="mx-auto mb-2 h-5 w-5 text-[#525252]" />
-                  <p className="text-sm font-medium text-[#e7e7e7]">No throughput yet</p>
-                  <p className="mt-1 max-w-[260px] text-xs text-[#737373]">
+                <div className="rounded-xl border border-border bg-surface-subtle/90 px-5 py-4 text-center shadow-sm">
+                  <Activity className="mx-auto mb-2 h-5 w-5 text-text-tertiary" />
+                  <p className="text-sm font-medium text-foreground">No throughput yet</p>
+                  <p className="mt-1 max-w-[260px] text-xs text-text-secondary">
                     The chart is ready. Backend telemetry will replace this zero baseline.
                   </p>
                 </div>
@@ -112,14 +112,14 @@ export function OverviewScreen() {
             </div>
           </div>
 
-          <div className="bg-[#202020] border border-[#2a2a2a] rounded-2xl p-6 flex flex-col min-w-0">
+          <div className="bg-surface-card border border-border rounded-2xl p-6 flex flex-col min-w-0">
             <div className="mb-6 flex items-center justify-between">
               <div>
-                <h3 className="text-[#e7e7e7] font-medium">Activity Log</h3>
-                <p className="text-sm text-[#737373]">Recent workspace actions</p>
+                <h3 className="text-foreground font-medium">Activity Log</h3>
+                <p className="text-sm text-text-secondary">Recent workspace actions</p>
               </div>
               {/* <AddActivityDialog onSave={() => {}}>
-                <Button variant="outline" size="sm" className="bg-[#1a1a1a] border-[#2a2a2a] text-[#a3a3a3] hover:text-[#ededed] h-8">
+                <Button variant="outline" size="sm" className="bg-surface-subtle border-border text-muted-foreground hover:text-foreground h-8">
                   <Plus className="w-3.5 h-3.5 mr-1.5" />
                   Add Activity
                 </Button>

@@ -65,7 +65,7 @@ export const MainSidebar = () => {
       <SidebarButton icon={MoreHorizontal} label="More" />
 
       <div className="w-full px-2 py-2">
-        <div className="w-full h-[1px] bg-[#333333]/60"></div>
+        <div className="w-full h-[1px] bg-surface-strong/60"></div>
       </div>
       <SidebarButton
         icon={Calendar}

@@ -99,13 +99,13 @@ export function TeamScreen() {
   if (!loading && members.length === 0) {
     const avatarStack = (
       <div className="flex -space-x-4 items-center -mr-0.5">
-        <Avatar className="w-12 h-12 bg-[#2a2a2a] ring-4 ring-[#121212]">
+        <Avatar className="w-12 h-12 bg-surface-hover ring-4 ring-ring">
           <AvatarFallback>JD</AvatarFallback>
         </Avatar>
-        <Avatar className="w-12 h-12 bg-[#2a2a2a] ring-4 ring-[#121212]">
+        <Avatar className="w-12 h-12 bg-surface-hover ring-4 ring-ring">
           <AvatarFallback>MK</AvatarFallback>
         </Avatar>
-        <Avatar className="w-12 h-12 bg-[#2a2a2a] ring-4 ring-[#121212]">
+        <Avatar className="w-12 h-12 bg-surface-hover ring-4 ring-ring">
            <AvatarFallback>R</AvatarFallback>
         </Avatar>
       </div>
@@ -161,27 +161,27 @@ export function TeamScreen() {
   };
 
   return (
-    <MainScreenWrapper className="text-[#e7e7e7]">
-      <div className="flex items-center justify-between border-b border-[#2a2a2a] pb-6">
+    <MainScreenWrapper className="text-foreground">
+      <div className="flex items-center justify-between border-b border-border pb-6">
         <div>
-          <h1 className="text-3xl font-bold text-[#e7e7e7]">Team</h1>
-          <p className="text-[#a3a3a3] mt-1">
+          <h1 className="text-3xl font-bold text-foreground">Team</h1>
+          <p className="text-muted-foreground mt-1">
             Manage your team members and their roles.
           </p>
         </div>
         <InviteMemberDialog onInvite={handleInvite}>
-          <Button className="bg-[#e7e7e7] hover:bg-zinc-200 text-black px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors">
-            <Plus className="w-4 h-4 text-black font-bold stroke-[3]" />
+          <Button className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors">
+            <Plus className="w-4 h-4 text-primary-foreground font-bold stroke-[3]" />
             Invite member
           </Button>
         </InviteMemberDialog>
       </div>
        
 
-      <div className="bg-[#202020] border border-[#2a2a2a] rounded-2xl overflow-hidden w-full">
+      <div className="bg-surface-card border border-border rounded-2xl overflow-hidden w-full">
         <Table>
           <TableHeader>
-            <TableRow className="bg-[#1a1a1a] border-[#2a2a2a]">
+            <TableRow className="bg-surface-subtle border-border">
               <TableHead>Member</TableHead>
               <TableHead>Access</TableHead>
               <TableHead>Status</TableHead>
@@ -193,7 +193,7 @@ export function TeamScreen() {
               <TableRow>
                 <TableCell
                   colSpan={4}
-                  className="text-center py-8 text-zinc-500"
+                  className="text-center py-8 text-text-secondary"
                 >
                   Loading team members...
                 </TableCell>
@@ -202,7 +202,7 @@ export function TeamScreen() {
               <TableRow>
                 <TableCell
                   colSpan={4}
-                  className="text-center py-8 text-zinc-500"
+                  className="text-center py-8 text-text-secondary"
                 >
                   No members found. Invite someone to your team.
                 </TableCell>
@@ -211,18 +211,18 @@ export function TeamScreen() {
               members.map((member, i) => (
                 <TableRow
                   key={i}
-                  className="border-[#2a2a2a] hover:bg-[#242424]"
+                  className="border-border hover:bg-surface-active"
                 >
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-[#333333] flex items-center justify-center text-xs font-medium text-white ring-1 ring-[#474747] uppercase">
+                      <div className="w-8 h-8 rounded-full bg-surface-strong flex items-center justify-center text-xs font-medium text-foreground ring-1 ring-ring uppercase">
                         {member.name ? member.name.charAt(0) : "?"}
                       </div>
                       <div>
-                        <div className="text-sm font-medium text-[#e7e7e7] capitalize">
+                        <div className="text-sm font-medium text-foreground capitalize">
                           {member.name}
                         </div>
-                        <div className="text-xs text-[#a3a3a3] flex items-center gap-1">
+                        <div className="text-xs text-muted-foreground flex items-center gap-1">
                           <Mail className="w-3 h-3 opacity-50" />
                           {member.email}
                         </div>
@@ -252,13 +252,13 @@ export function TeamScreen() {
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button className="text-zinc-400 hover:text-white transition-colors p-1 rounded-md hover:bg-zinc-800">
+                        <Button className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-md hover:bg-surface-card">
                           <MoreHorizontal className="w-4 h-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent
                         align="end"
-                        className="bg-[#1a1a1a] border-[#2a2a2a] text-[#ededed]"
+                        className="bg-surface-subtle border-border text-foreground"
                       >
                         <InviteMemberDialog
                           defaultEmail={member.email}
@@ -268,12 +268,12 @@ export function TeamScreen() {
                             handleEditRole(email, role)
                           }
                         >
-                          <Button className="w-full text-left flex gap-2 px-2 py-1.5 text-sm hover:bg-[#2a2a2a] hover:text-white transition-colors rounded-sm cursor-default">
+                          <Button className="w-full text-left flex gap-2 px-2 py-1.5 text-sm hover:bg-surface-hover hover:text-foreground transition-colors rounded-sm cursor-default">
                             <Edit className="w-4 h-4" /> Edit Role
                           </Button>
                         </InviteMemberDialog>
                         <DropdownMenuItem
-                          className="hover:bg-[#2a2a2a]  flex gap-2 focus:bg-[#2a2a2a] focus:text-white cursor-pointer text-red-700 focus:text-red-400"
+                          className="hover:bg-surface-hover  flex gap-2 focus:bg-surface-hover focus:text-foreground cursor-pointer text-red-700 focus:text-red-400"
                           onClick={() => handleRemove(member.email)}
                         >
                           <Trash className="w-4 h-4  text-red-700" /> Remove

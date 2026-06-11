@@ -26,12 +26,12 @@ const issues = [];
 
 function InfoTile({ icon: Icon, label, value }) {
   return (
-    <div className="rounded-lg border border-[#333333] bg-[#202020] p-3">
-      <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-wider text-[#737373]">
+    <div className="rounded-lg border border-border bg-surface-card p-3">
+      <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-wider text-text-secondary">
         <Icon className="h-3.5 w-3.5" />
         {label}
       </div>
-      <p className="mt-2 text-sm font-medium text-[#e7e7e7]">{value}</p>
+      <p className="mt-2 text-sm font-medium text-foreground">{value}</p>
     </div>
   );
 }
@@ -39,7 +39,7 @@ function InfoTile({ icon: Icon, label, value }) {
 function DetailSection({ title, children }) {
   return (
     <section className="space-y-3">
-      <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[#737373]">
+      <h3 className="text-[11px] font-semibold uppercase tracking-wider text-text-secondary">
         {title}
       </h3>
       {children}
@@ -49,21 +49,21 @@ function DetailSection({ title, children }) {
 
 function IssueCaseDetails({ issue }) {
   return (
-    <div className="flex h-full flex-col bg-[#1a1a1a] text-[#e7e7e7]">
-      <div className="border-b border-[#333333] p-6 pr-12">
+    <div className="flex h-full flex-col bg-surface-subtle text-foreground">
+      <div className="border-b border-border p-6 pr-12">
         <div className="mb-4 flex items-center gap-2">
-          <span className="rounded-md border border-[#333333] bg-[#202020] px-2 py-1 text-xs font-mono text-[#a3a3a3]">
+          <span className="rounded-md border border-border bg-surface-card px-2 py-1 text-xs font-mono text-muted-foreground">
             {issue.id}
           </span>
           <IssueSeverityBadge severity={issue.severity} className="py-1" />
-          <span className="rounded-md border border-[#333333] bg-[#202020] px-2 py-1 text-xs text-[#a3a3a3]">
+          <span className="rounded-md border border-border bg-surface-card px-2 py-1 text-xs text-muted-foreground">
             {statusLabels[issue.status]}
           </span>
         </div>
-        <h2 className="text-xl font-semibold leading-tight text-white">
+        <h2 className="text-xl font-semibold leading-tight text-foreground">
           {issue.title}
         </h2>
-        <p className="mt-3 text-sm leading-relaxed text-[#a3a3a3]">
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
           {issue.caseSummary}
         </p>
       </div>
@@ -78,31 +78,31 @@ function IssueCaseDetails({ issue }) {
 
         <div className="mt-6 space-y-6">
           <DetailSection title="Case Details">
-            <div className="rounded-lg border border-[#333333] bg-[#202020] p-4 text-sm text-[#a3a3a3]">
+            <div className="rounded-lg border border-border bg-surface-card p-4 text-sm text-muted-foreground">
               <div className="grid gap-3 sm:grid-cols-2">
                 <p>
-                  <span className="block text-[11px] uppercase tracking-wider text-[#737373]">
+                  <span className="block text-[11px] uppercase tracking-wider text-text-secondary">
                     Reporter
                   </span>
-                  <span className="text-[#d4d4d4]">{issue.reporter}</span>
+                  <span className="text-foreground">{issue.reporter}</span>
                 </p>
                 <p>
-                  <span className="block text-[11px] uppercase tracking-wider text-[#737373]">
+                  <span className="block text-[11px] uppercase tracking-wider text-text-secondary">
                     Owner Team
                   </span>
-                  <span className="text-[#d4d4d4]">{issue.ownerTeam}</span>
+                  <span className="text-foreground">{issue.ownerTeam}</span>
                 </p>
                 <p>
-                  <span className="block text-[11px] uppercase tracking-wider text-[#737373]">
+                  <span className="block text-[11px] uppercase tracking-wider text-text-secondary">
                     Environment
                   </span>
-                  <span className="text-[#d4d4d4]">{issue.environment}</span>
+                  <span className="text-foreground">{issue.environment}</span>
                 </p>
                 <p>
-                  <span className="block text-[11px] uppercase tracking-wider text-[#737373]">
+                  <span className="block text-[11px] uppercase tracking-wider text-text-secondary">
                     Created
                   </span>
-                  <span className="text-[#d4d4d4]">{issue.createdAt}</span>
+                  <span className="text-foreground">{issue.createdAt}</span>
                 </p>
               </div>
             </div>
@@ -129,12 +129,12 @@ function IssueCaseDetails({ issue }) {
               {issue.signals.map((signal) => (
                 <div
                   key={signal.label}
-                  className="rounded-lg border border-[#333333] bg-[#202020] p-3"
+                  className="rounded-lg border border-border bg-surface-card p-3"
                 >
-                  <p className="text-[11px] uppercase tracking-wider text-[#737373]">
+                  <p className="text-[11px] uppercase tracking-wider text-text-secondary">
                     {signal.label}
                   </p>
-                  <p className="mt-1 text-sm font-semibold text-[#e7e7e7]">
+                  <p className="mt-1 text-sm font-semibold text-foreground">
                     {signal.value}
                   </p>
                 </div>
@@ -147,9 +147,9 @@ function IssueCaseDetails({ issue }) {
               {issue.reproduction.map((step, index) => (
                 <li
                   key={step}
-                  className="flex gap-3 rounded-lg border border-[#333333] bg-[#202020] p-3 text-sm text-[#a3a3a3]"
+                  className="flex gap-3 rounded-lg border border-border bg-surface-card p-3 text-sm text-muted-foreground"
                 >
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#2a2a2a] text-[11px] font-semibold text-[#e7e7e7]">
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-surface-hover text-[11px] font-semibold text-foreground">
                     {index + 1}
                   </span>
                   <span>{step}</span>
@@ -163,18 +163,18 @@ function IssueCaseDetails({ issue }) {
               {issue.activity.map((item, index) => (
                 <div key={item} className="flex gap-3">
                   <div className="flex flex-col items-center">
-                    <span className="flex h-7 w-7 items-center justify-center rounded-full border border-[#333333] bg-[#202020]">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full border border-border bg-surface-card">
                       {index === issue.activity.length - 1 ? (
                         <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
                       ) : (
-                        <GitCommitHorizontal className="h-3.5 w-3.5 text-[#a3a3a3]" />
+                        <GitCommitHorizontal className="h-3.5 w-3.5 text-muted-foreground" />
                       )}
                     </span>
                     {index < issue.activity.length - 1 && (
-                      <span className="h-5 w-px bg-[#333333]" />
+                      <span className="h-5 w-px bg-surface-strong" />
                     )}
                   </div>
-                  <p className="pt-1 text-sm text-[#a3a3a3]">{item}</p>
+                  <p className="pt-1 text-sm text-muted-foreground">{item}</p>
                 </div>
               ))}
             </div>
@@ -182,14 +182,14 @@ function IssueCaseDetails({ issue }) {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3 border-t border-[#333333] p-4">
-        <Button className="bg-white text-black hover:bg-[#e7e7e7]">
+      <div className="flex flex-wrap items-center gap-3 border-t border-border p-4">
+        <Button className="bg-primary text-primary-foreground hover:bg-primary">
           <MessageSquareText className="mr-2 h-4 w-4" />
           Add Comment
         </Button>
         <Button
           variant="outline"
-          className="border-[#333333] bg-[#202020] text-[#e7e7e7] hover:bg-[#2a2a2a] hover:text-white"
+          className="border-border bg-surface-card text-foreground hover:bg-surface-hover hover:text-foreground"
         >
              <UserRound className="mr-2 h-4 w-4" />
           Assign Owner
@@ -202,14 +202,14 @@ function IssueCaseDetails({ issue }) {
 export function WorkflowsScreen() {
   return (
     <MainScreenWrapper>
-      <div className="flex items-center justify-between border-b border-[#2a2a2a] pb-6">
+      <div className="flex items-center justify-between border-b border-border pb-6">
         <div>
-          <h1 className="text-3xl font-bold text-[#e7e7e7]">Issues</h1>
-          <p className="mt-1 text-[#a3a3a3]">
+          <h1 className="text-3xl font-bold text-foreground">Issues</h1>
+          <p className="mt-1 text-muted-foreground">
             Design and manage your automation issues.
           </p>
         </div>
-        <Button className="bg-white text-black hover:bg-[#e7e7e7]">
+        <Button className="bg-primary text-primary-foreground hover:bg-primary">
           <Plus className="mr-2 h-4 w-4" />
           Create New Issue
         </Button>
@@ -224,7 +224,7 @@ export function WorkflowsScreen() {
             status={issue.status}
             assignee={issue.assignee}
             dueDate={issue.dueDate}
-            sheetContentClassName="w-full p-0 sm:max-w-2xl border-l border-[#333333] bg-[#1a1a1a] text-[#e7e7e7] [&>button]:right-5 [&>button]:top-5 [&>button]:text-[#737373] hover:[&>button]:text-white"
+            sheetContentClassName="w-full p-0 sm:max-w-2xl border-l border-border bg-surface-subtle text-foreground [&>button]:right-5 [&>button]:top-5 [&>button]:text-text-secondary hover:[&>button]:text-foreground"
           >
             <IssueCaseDetails issue={issue} />
           </IssueItem>

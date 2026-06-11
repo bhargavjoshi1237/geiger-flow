@@ -17,15 +17,15 @@ function BuilderContent({ id }) {
 
   if (loading || !project) {
     return (
-      <div className="flex h-[100dvh] w-full flex-col items-center justify-center gap-3 bg-[#161616]">
-        <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#474747] border-t-[#e7e7e7]" />
-        <span className="text-sm text-[#525252]">Loading builder...</span>
+      <div className="flex h-[100dvh] w-full flex-col items-center justify-center gap-3 bg-background">
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-border-strong border-t-foreground" />
+        <span className="text-sm text-text-tertiary">Loading builder...</span>
       </div>
     );
   }
 
   return (
-    <div className="flex h-[100dvh] w-full flex-col overflow-hidden bg-[#161616] text-[#ededed]">
+    <div className="flex h-[100dvh] w-full flex-col overflow-hidden bg-background text-foreground">
       <SidebarProvider className="!flex h-full flex-col" style={{ flexDirection: "column" }}>
         <ProjectTopbar />
         <FormBuilderScreen projectId={id} />
@@ -41,9 +41,9 @@ export default function ProjectFormBuilderPage({ params: paramsPromise }) {
     <ProjectProvider>
       <Suspense
         fallback={
-          <div className="flex h-[100dvh] w-full flex-col items-center justify-center gap-3 bg-[#161616]">
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#474747] border-t-[#e7e7e7]" />
-            <span className="text-sm text-[#525252]">Loading...</span>
+          <div className="flex h-[100dvh] w-full flex-col items-center justify-center gap-3 bg-background">
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-border-strong border-t-foreground" />
+            <span className="text-sm text-text-tertiary">Loading...</span>
           </div>
         }
       >

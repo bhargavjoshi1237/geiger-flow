@@ -69,8 +69,8 @@ const CommentNode = ({ id, data, selected }) => {
     <div className="relative group">
       <div
         className={`
-          relative flex items-center p-3 gap-3 min-w-[300px] bg-[#2A3441] rounded-lg shadow-lg transition-all duration-200
-          ${selected ? "ring-2 ring-blue-500" : "hover:ring-1 hover:ring-zinc-600"}
+          relative flex items-center p-3 gap-3 min-w-[300px] bg-comment-bg rounded-lg shadow-lg transition-all duration-200
+          ${selected ? "ring-2 ring-blue-500" : "hover:ring-1 hover:ring-ring"}
         `}
       >
         <Avatar initials="JJ" className="shrink-0" />
@@ -86,7 +86,7 @@ const CommentNode = ({ id, data, selected }) => {
           >
             <Input
               type="text"
-              className="w-full bg-[#3B4654] text-zinc-200 text-sm rounded px-3 py-2 pr-10 focus-visible:ring-1 focus-visible:ring-zinc-500 placeholder:text-zinc-500"
+              className="w-full bg-comment-input text-foreground text-sm rounded px-3 py-2 pr-10 focus-visible:ring-1 focus-visible:ring-ring placeholder:text-text-secondary"
               placeholder="Write a comment..."
               value={comment}
               onChange={handleChange}

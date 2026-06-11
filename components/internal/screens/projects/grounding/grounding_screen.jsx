@@ -59,8 +59,8 @@ function ChannelButton({ channel, active, collapsed, onClick }) {
         className={cn(
           "relative flex h-10 w-10 items-center justify-center rounded-lg border transition-colors",
           active
-            ? "border-[#3a3a3a] bg-[#242424] text-[#ededed]"
-            : "border-transparent text-[#a3a3a3] hover:border-[#2a2a2a] hover:bg-[#202020] hover:text-[#ededed]",
+            ? "border-border-strong bg-surface-active text-foreground"
+            : "border-transparent text-muted-foreground hover:border-border hover:bg-surface-card hover:text-foreground",
         )}
       >
         <ChannelIcon className="h-4 w-4" />
@@ -81,12 +81,12 @@ function ChannelButton({ channel, active, collapsed, onClick }) {
       className={cn(
         "h-auto w-full flex-col items-stretch justify-start rounded-lg border px-3 py-2.5 text-left transition-colors",
         active
-          ? "border-[#3a3a3a] bg-[#242424] text-[#ededed]"
-          : "border-transparent text-[#a3a3a3] hover:border-[#2a2a2a] hover:bg-[#202020] hover:text-[#ededed]",
+          ? "border-border-strong bg-surface-active text-foreground"
+          : "border-transparent text-muted-foreground hover:border-border hover:bg-surface-card hover:text-foreground",
       )}
     >
       <div className="flex items-center gap-2.5">
-        <ChannelIcon className="h-3.5 w-3.5 shrink-0 text-[#737373]" />
+        <ChannelIcon className="h-3.5 w-3.5 shrink-0 text-text-secondary" />
         <span className="min-w-0 flex-1 truncate text-sm font-medium">{channel.name}</span>
         {channel.unread > 0 ? (
           <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-emerald-400 px-1.5 text-[10px] font-bold text-emerald-950">
@@ -94,7 +94,7 @@ function ChannelButton({ channel, active, collapsed, onClick }) {
           </span>
         ) : null}
       </div>
-      <p className="mt-1 truncate pl-6 text-xs text-[#737373]">
+      <p className="mt-1 truncate pl-6 text-xs text-text-secondary">
         {channel.description} | {channel.members} members | {channel.lastActive}
       </p>
     </Button>
@@ -110,7 +110,7 @@ function ChannelRail({ selectedChannel, collapsed, onToggleCollapsed, onSelectCh
           variant="ghost"
           size="icon"
           onClick={onToggleCollapsed}
-          className="h-9 w-9 rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] text-[#a3a3a3] shadow-sm hover:bg-[#242424] hover:text-white"
+          className="h-9 w-9 rounded-lg border border-border bg-surface-subtle text-muted-foreground shadow-sm hover:bg-surface-active hover:text-foreground"
           title="Expand channels"
           aria-label="Expand channels"
         >
@@ -122,20 +122,20 @@ function ChannelRail({ selectedChannel, collapsed, onToggleCollapsed, onSelectCh
 
   return (
     <aside
-      className="hidden h-full w-[286px] shrink-0 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] transition-[width] duration-200 xl:flex xl:flex-col"
+      className="hidden h-full w-[286px] shrink-0 rounded-xl border border-border bg-surface-subtle transition-[width] duration-200 xl:flex xl:flex-col"
     >
-      <div className="shrink-0 border-b border-[#2a2a2a] p-4">
+      <div className="shrink-0 border-b border-border p-4">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h2 className="text-sm font-semibold text-[#ededed]">Channels</h2>
-            <p className="mt-0.5 text-xs text-[#737373]">Project-wide context</p>
+            <h2 className="text-sm font-semibold text-foreground">Channels</h2>
+            <p className="mt-0.5 text-xs text-text-secondary">Project-wide context</p>
           </div>
           <Button
             type="button"
             variant="ghost"
             size="icon"
             onClick={onToggleCollapsed}
-            className="h-8 w-8 text-[#737373] hover:bg-[#242424] hover:text-white"
+            className="h-8 w-8 text-text-secondary hover:bg-surface-active hover:text-foreground"
             title="Collapse channels"
             aria-label="Collapse channels"
           >
@@ -143,16 +143,16 @@ function ChannelRail({ selectedChannel, collapsed, onToggleCollapsed, onSelectCh
           </Button>
         </div>
         <div className="relative mt-4">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#737373]" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-secondary" />
           <Input
             placeholder="Search channels..."
-            className="h-9 w-full border-[#333333] bg-[#202020] py-2 pl-9 pr-3 text-sm text-[#ededed] placeholder:text-[#737373] focus-visible:border-[#474747] focus-visible:ring-[#333333]/50"
+            className="h-9 w-full border-border bg-surface-card py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-text-secondary focus-visible:border-border-strong focus-visible:ring-ring/50"
           />
         </div>
       </div>
       <div className="min-h-0 flex-1 space-y-1 overflow-y-auto p-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {CHANNELS.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-[#2a2a2a] bg-[#202020] px-3 py-6 text-center text-xs text-[#737373]">
+          <div className="rounded-lg border border-dashed border-border bg-surface-card px-3 py-6 text-center text-xs text-text-secondary">
             Channels will appear here after backend data is connected.
           </div>
         ) : (
@@ -167,8 +167,8 @@ function ChannelRail({ selectedChannel, collapsed, onToggleCollapsed, onSelectCh
           ))
         )}
       </div>
-      <div className="border-t border-[#2a2a2a] p-2">
-        <Button variant="ghost" className="h-8 w-full justify-start gap-2 text-xs text-[#737373] hover:bg-[#242424] hover:text-white">
+      <div className="border-t border-border p-2">
+        <Button variant="ghost" className="h-8 w-full justify-start gap-2 text-xs text-text-secondary hover:bg-surface-active hover:text-foreground">
           <Plus className="h-3.5 w-3.5" />
           Add channel
         </Button>
@@ -181,19 +181,19 @@ function MobileChannelPicker({ selectedChannel, onSelectChannel }) {
   const activeChannel = CHANNELS.find((channel) => channel.id === selectedChannel);
 
   return (
-    <div className="mb-3 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-3 xl:hidden">
+    <div className="mb-3 rounded-xl border border-border bg-surface-subtle p-3 xl:hidden">
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[10px] uppercase tracking-wider text-[#525252]">Channel</p>
-          <h2 className="mt-1 truncate text-sm font-semibold text-[#ededed]">
+          <p className="text-[10px] uppercase tracking-wider text-text-tertiary">Channel</p>
+          <h2 className="mt-1 truncate text-sm font-semibold text-foreground">
             {activeChannel?.name || "No channels"}
           </h2>
         </div>
-        <ChevronDown className="h-4 w-4 text-[#737373]" />
+        <ChevronDown className="h-4 w-4 text-text-secondary" />
       </div>
       <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
         {CHANNELS.length === 0 ? (
-          <span className="text-xs text-[#737373]">Backend channels are not connected yet.</span>
+          <span className="text-xs text-text-secondary">Backend channels are not connected yet.</span>
         ) : (
           CHANNELS.map((channel) => (
             <Button
@@ -205,8 +205,8 @@ function MobileChannelPicker({ selectedChannel, onSelectChannel }) {
               className={cn(
                 "h-8 shrink-0 rounded-md border px-3 text-xs font-medium",
                 selectedChannel === channel.id
-                  ? "border-[#3a3a3a] bg-[#2a2a2a] text-white"
-                  : "border-[#2a2a2a] bg-[#202020] text-[#a3a3a3]",
+                  ? "border-border-strong bg-surface-hover text-foreground"
+                  : "border-border bg-surface-card text-muted-foreground",
               )}
             >
               {channel.name}
@@ -220,7 +220,7 @@ function MobileChannelPicker({ selectedChannel, onSelectChannel }) {
 
 function MessageItem({ message }) {
   return (
-    <article className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] px-4 py-3 transition-colors hover:border-[#3a3a3a]">
+    <article className="rounded-xl border border-border bg-surface-subtle px-4 py-3 transition-colors hover:border-border-strong">
       <div className="flex items-start gap-3">
         <Avatar className="h-8 w-8 rounded-md">
           <AvatarFallback className={cn("rounded-md text-[11px] font-bold", toneClasses[message.tone])}>
@@ -230,25 +230,25 @@ function MessageItem({ message }) {
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 items-start justify-between gap-3">
             <div className="flex min-w-0 items-center gap-2">
-              <h3 className="truncate text-sm font-semibold text-[#ededed]">{message.author}</h3>
-              <span className="text-xs text-[#525252]">|</span>
-              <p className="truncate text-xs text-[#737373]">{message.role}</p>
+              <h3 className="truncate text-sm font-semibold text-foreground">{message.author}</h3>
+              <span className="text-xs text-text-tertiary">|</span>
+              <p className="truncate text-xs text-text-secondary">{message.role}</p>
             </div>
             <div className="flex shrink-0 items-center gap-2">
-              <span className="rounded-md border border-[#333333] px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[#a3a3a3]">
+              <span className="rounded-md border border-border px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
                 {message.type}
               </span>
-              <span className="text-xs text-[#525252]">|</span>
-              <span className="text-xs text-[#737373]">{message.time}</span>
+              <span className="text-xs text-text-tertiary">|</span>
+              <span className="text-xs text-text-secondary">{message.time}</span>
               {message.pinned ? (
                 <Pin className="h-3.5 w-3.5 text-emerald-300" />
               ) : null}
             </div>
           </div>
 
-          <p className="mt-2 text-sm leading-6 text-[#d4d4d4]">{message.body}</p>
+          <p className="mt-2 text-sm leading-6 text-foreground">{message.body}</p>
 
-          <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-[#737373]">
+          <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-text-secondary">
             <span className="inline-flex items-center gap-1 tabular-nums">
               <MessageSquare className="h-3 w-3" />
               {message.replies} replies
@@ -257,32 +257,32 @@ function MessageItem({ message }) {
               <Check className="h-3 w-3" />
               {message.acknowledgements} acknowledged
             </span>
-            <Button variant="ghost" size="sm" className="ml-auto h-6 px-2 text-xs text-[#a3a3a3] hover:bg-[#242424] hover:text-white">
+            <Button variant="ghost" size="sm" className="ml-auto h-6 px-2 text-xs text-muted-foreground hover:bg-surface-active hover:text-foreground">
               Reply
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-6 w-6 text-[#737373] hover:bg-[#242424] hover:text-white">
+                <Button variant="ghost" size="icon" className="h-6 w-6 text-text-secondary hover:bg-surface-active hover:text-foreground">
                   <MoreHorizontal className="h-3.5 w-3.5" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
-                className="w-44 rounded-lg border-[#2a2a2a] bg-[#1a1a1a] text-[#e7e7e7]"
+                className="w-44 rounded-lg border-border bg-surface-subtle text-foreground"
               >
-                <DropdownMenuItem className="cursor-pointer gap-2 text-xs focus:bg-[#242424] focus:text-[#e7e7e7]">
+                <DropdownMenuItem className="cursor-pointer gap-2 text-xs focus:bg-surface-active focus:text-foreground">
                   <Reply className="h-3.5 w-3.5" />
                   Reply in thread
                 </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer gap-2 text-xs focus:bg-[#242424] focus:text-[#e7e7e7]">
+                <DropdownMenuItem className="cursor-pointer gap-2 text-xs focus:bg-surface-active focus:text-foreground">
                   <Pin className="h-3.5 w-3.5" />
                   {message.pinned ? "Unpin message" : "Pin message"}
                 </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer gap-2 text-xs focus:bg-[#242424] focus:text-[#e7e7e7]">
+                <DropdownMenuItem className="cursor-pointer gap-2 text-xs focus:bg-surface-active focus:text-foreground">
                   <Copy className="h-3.5 w-3.5" />
                   Copy link
                 </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-[#2a2a2a]" />
+                <DropdownMenuSeparator className="bg-surface-hover" />
                 <DropdownMenuItem className="cursor-pointer gap-2 text-xs text-red-400 focus:bg-red-500/10 focus:text-red-300">
                   <Trash2 className="h-3.5 w-3.5" />
                   Archive
@@ -342,25 +342,25 @@ export function GroundingScreen() {
   };
 
   return (
-    <MainScreenWrapper className="text-[#e7e7e7]">
-      <div className="flex flex-col gap-4 border-b border-[#2a2a2a] pb-6 lg:flex-row lg:items-center lg:justify-between">
+    <MainScreenWrapper className="text-foreground">
+      <div className="flex flex-col gap-4 border-b border-border pb-6 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <div className="flex items-center gap-3">
             <div>
-              <h1 className="text-3xl font-bold text-[#e7e7e7]">Grounding</h1>
-              <p className="mt-1 text-[#a3a3a3]">Project broadcasts, decisions, blockers, and admin-moderated context.</p>
+              <h1 className="text-3xl font-bold text-foreground">Grounding</h1>
+              <p className="mt-1 text-muted-foreground">Project broadcasts, decisions, blockers, and admin-moderated context.</p>
             </div>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button
             variant="outline"
-            className="border-[#2a2a2a] bg-transparent text-[#a3a3a3] hover:bg-[#242424] hover:text-[#e7e7e7]"
+            className="border-border bg-transparent text-muted-foreground hover:bg-surface-active hover:text-foreground"
           >
             <Settings className="mr-2 h-4 w-4" />
             Settings
           </Button>
-          <Button className="bg-white text-black hover:bg-[#e7e7e7]">
+          <Button className="bg-primary text-primary-foreground hover:bg-primary">
             <Megaphone className="mr-2 h-4 w-4" />
             Broadcast
           </Button>
@@ -385,18 +385,18 @@ export function GroundingScreen() {
                   <MessageItem key={item.id} message={item} />
                 ))
               ) : (
-                <div className="flex h-full min-h-[240px] items-center justify-center rounded-xl border border-dashed border-[#2a2a2a] bg-[#1a1a1a] text-center">
+                <div className="flex h-full min-h-[240px] items-center justify-center rounded-xl border border-dashed border-border bg-surface-subtle text-center">
                   <div>
-                    <p className="text-sm font-medium text-[#ededed]">No messages yet</p>
-                    <p className="mt-1 text-xs text-[#737373]">Messages will appear here after backend data is connected.</p>
+                    <p className="text-sm font-medium text-foreground">No messages yet</p>
+                    <p className="mt-1 text-xs text-text-secondary">Messages will appear here after backend data is connected.</p>
                   </div>
                 </div>
               )
             ) : (
-              <div className="flex h-full min-h-[240px] items-center justify-center rounded-xl border border-dashed border-[#2a2a2a] bg-[#1a1a1a] text-center">
+              <div className="flex h-full min-h-[240px] items-center justify-center rounded-xl border border-dashed border-border bg-surface-subtle text-center">
                 <div>
-                  <p className="text-sm font-medium text-[#ededed]">No channels yet</p>
-                  <p className="mt-1 text-xs text-[#737373]">Create or fetch channels from the backend to start grounding discussions.</p>
+                  <p className="text-sm font-medium text-foreground">No channels yet</p>
+                  <p className="mt-1 text-xs text-text-secondary">Create or fetch channels from the backend to start grounding discussions.</p>
                 </div>
               </div>
             )}
@@ -407,12 +407,12 @@ export function GroundingScreen() {
               value={message}
               onChange={(event) => setMessage(event.target.value)}
               placeholder={activeChannel ? `Write a ${mode} for ${activeChannel.name}...` : "Connect backend channels to start messaging..."}
-              className="min-h-[50px] resize-none border-[#333333] bg-[#202020] text-[#ededed] placeholder:text-[#737373]"
+              className="min-h-[50px] resize-none border-border bg-surface-card text-foreground placeholder:text-text-secondary"
             />
              <div className="flex flex-wrap items-center justify-between ">
               <Button
                 type="button"
-                className="h-full bg-white text-sm text-black hover:bg-[#e7e7e7]"
+                className="h-full bg-primary text-sm text-primary-foreground hover:bg-primary/90"
                 disabled={!message.trim() || !activeChannel || activeChannel.locked}
                 onClick={handleSendMessage}
               >

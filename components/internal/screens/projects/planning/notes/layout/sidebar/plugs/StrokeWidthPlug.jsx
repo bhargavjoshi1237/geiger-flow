@@ -27,10 +27,10 @@ export const StrokeWidthPlug = ({ value, onChange }) => {
         side="right"
         align="start"
         sideOffset={8}
-        className="w-40 bg-[#1e1e1e] border-zinc-800 p-1 shadow-xl rounded-xl"
+        className="w-40 bg-surface-dialog border-border p-1 shadow-xl rounded-xl"
       >
         <div className="flex flex-col gap-0.5">
-          <Label className="px-2 py-1.5 text-[10px] uppercase tracking-wider text-zinc-500 font-semibold">
+          <Label className="px-2 py-1.5 text-[10px] uppercase tracking-wider text-text-secondary font-semibold">
             Thickness
           </Label>
           {STROKE_WIDTHS.map((sw) => (
@@ -38,7 +38,7 @@ export const StrokeWidthPlug = ({ value, onChange }) => {
               key={sw.label}
               onClick={() => onChange(sw.value)}
               className={`flex items-center gap-3 px-2 py-2 rounded-lg text-sm transition-colors
-                ${value === sw.value ? "bg-zinc-800 text-white" : "text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200"}
+                ${value === sw.value ? "bg-surface-card text-foreground" : "text-muted-foreground hover:bg-surface-card/50 hover:text-foreground"}
             `}
             >
               <div

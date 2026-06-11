@@ -20,49 +20,49 @@ export function OrganizationSettingsScreen() {
   };
 
   return (
-    <MainScreenWrapper className="flex flex-col gap-10 space-y-0 text-[#e7e7e7]">
-      <div className="flex flex-col gap-4 border-b border-[#2a2a2a] pb-6 lg:flex-row lg:items-center lg:justify-between">
+    <MainScreenWrapper className="flex flex-col gap-10 space-y-0 text-foreground">
+      <div className="flex flex-col gap-4 border-b border-border pb-6 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1 className="text-2xl md:text-3xl font-semibold text-[#e7e7e7] tracking-tight">
+          <h1 className="text-2xl md:text-3xl font-semibold text-foreground tracking-tight">
             Organization Settings
           </h1>
-          <p className="text-[#a3a3a3] text-sm mt-1">
+          <p className="text-muted-foreground text-sm mt-1">
             General configuration, privacy, and lifecycle controls
           </p>
         </div>
       </div>
       <div className="space-y-4">
-        <h3 className="text-lg font-medium text-[#e7e7e7]">
+        <h3 className="text-lg font-medium text-foreground">
           Organization details
         </h3>
-        <Card className="bg-[#181818] border-[#2c2c2c] text-[#e7e7e7] rounded-xl overflow-hidden shadow-sm">
+        <Card className="bg-surface-subtle border-border text-foreground rounded-xl overflow-hidden shadow-sm">
           <div className="flex flex-col">
-            <div className="flex flex-col md:flex-row md:items-center gap-4 py-4 px-6 border-b border-[#2c2c2c]">
-              <div className="md:w-[250px] shrink-0 text-sm font-medium text-[#e7e7e7]">
+            <div className="flex flex-col md:flex-row md:items-center gap-4 py-4 px-6 border-b border-border">
+              <div className="md:w-[250px] shrink-0 text-sm font-medium text-foreground">
                 Organization name
               </div>
               <div className="flex-1">
                 <Input
-                  className="bg-[#121212] border-[#2c2c2c] h-9 text-sm text-[#e7e7e7] focus-visible:ring-1 focus-visible:ring-[#474747]"
+                  className="bg-background border-border h-9 text-sm text-foreground focus-visible:ring-1 focus-visible:ring-ring"
                   defaultValue="bhargavjoshi1237's Org"
                 />
               </div>
             </div>
 
             <div className="flex flex-col md:flex-row md:items-center gap-4 py-4 px-6">
-              <div className="md:w-[250px] shrink-0 text-sm font-medium text-[#e7e7e7]">
+              <div className="md:w-[250px] shrink-0 text-sm font-medium text-foreground">
                 Organization slug
               </div>
               <div className="flex-1 flex gap-2">
                 <Input
-                  className="bg-[#121212] border-[#2c2c2c] h-9 text-sm text-[#a3a3a3] focus-visible:ring-1 focus-visible:ring-[#474747] font-mono"
+                  className="bg-background border-border h-9 text-sm text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring font-mono"
                   defaultValue={orgSlug}
                   readOnly
                 />
                 <Button
                   variant="outline"
                   size="icon"
-                  className="bg-[#181818] border-[#2c2c2c] h-9 w-9 shrink-0 hover:bg-[#2c2c2c] text-[#a3a3a3] hover:text-[#e7e7e7]"
+                  className="bg-surface-subtle border-border h-9 w-9 shrink-0 hover:bg-surface-hover text-muted-foreground hover:text-foreground"
                   onClick={handleCopy}
                 >
                   {copied ? (
@@ -74,10 +74,10 @@ export function OrganizationSettingsScreen() {
               </div>
             </div>
           </div>
-          <div className="py-3 px-6 flex justify-end gap-3 border-t border-[#2c2c2c]">
+          <div className="py-3 px-6 flex justify-end gap-3 border-t border-border">
             <Button
               variant="ghost"
-              className="h-8 text-sm hover:bg-[#2c2c2c] text-[#a3a3a3] hover:text-[#e7e7e7]"
+              className="h-8 text-sm hover:bg-surface-hover text-muted-foreground hover:text-foreground"
             >
               Cancel
             </Button>
@@ -89,19 +89,19 @@ export function OrganizationSettingsScreen() {
       </div>
 
       <div className="space-y-4">
-        <h3 className="text-lg font-medium text-[#e7e7e7]">Data privacy</h3>
-        <Card className="bg-[#181818] border-[#2c2c2c] text-[#e7e7e7] p-6 rounded-xl flex flex-col lg:flex-row gap-6 lg:gap-8 shadow-sm">
+        <h3 className="text-lg font-medium text-foreground">Data privacy</h3>
+        <Card className="bg-surface-subtle border-border text-foreground p-6 rounded-xl flex flex-col lg:flex-row gap-6 lg:gap-8 shadow-sm">
           <div className="lg:w-5/12 shrink-0">
-            <h4 className="text-sm font-medium mb-3 text-[#e7e7e7]">
+            <h4 className="text-sm font-medium mb-3 text-foreground">
               Supabase Assistant Opt-in Level
             </h4>
-            <p className="text-sm text-[#8b8b8b] mb-4 leading-[1.6]">
+            <p className="text-sm text-muted-foreground mb-4 leading-[1.6]">
               Supabase AI can provide more relevant answers if you choose to
               share different levels of data. This feature is powered by
               third-party AI providers. This is an organization-wide setting, so
               please select the level of data you are comfortable sharing.
             </p>
-            <p className="text-sm text-[#8b8b8b] mb-6 leading-[1.6]">
+            <p className="text-sm text-muted-foreground mb-6 leading-[1.6]">
               For organizations with HIPAA compliance enabled in their Supabase
               configuration, any consented information will only be shared with
               third-party AI providers with whom Supabase has established a
@@ -109,7 +109,7 @@ export function OrganizationSettingsScreen() {
             </p>
             <Button
               variant="outline"
-              className="h-8 text-xs bg-transparent border-[#2c2c2c] text-[#a3a3a3] hover:bg-[#2c2c2c] hover:text-[#e7e7e7] transition-colors"
+              className="h-8 text-xs bg-transparent border-border text-muted-foreground hover:bg-surface-hover hover:text-foreground transition-colors"
             >
               Learn more about data privacy
             </Button>
@@ -119,10 +119,10 @@ export function OrganizationSettingsScreen() {
             <Label className="flex gap-4 items-start cursor-pointer group">
               <RadioGroupItem value="disabled" className="mt-0.5 border-[var(--primary,white)] text-[var(--primary,white)]" />
               <span>
-                <span className="block text-sm font-medium text-[#e7e7e7] mb-1">
+                <span className="block text-sm font-medium text-foreground mb-1">
                   Disabled
                 </span>
-                <span className="block text-[13px] text-[#8b8b8b] leading-[1.5]">
+                <span className="block text-[13px] text-muted-foreground leading-[1.5]">
                   You do not consent to sharing any database information with
                   third-party AI providers and understand that responses will be
                   generic and not tailored to your database
@@ -131,12 +131,12 @@ export function OrganizationSettingsScreen() {
             </Label>
 
             <Label className="flex gap-4 items-start cursor-pointer group">
-              <RadioGroupItem value="schema" className="mt-0.5 border-[#474747] group-hover:border-[#a3a3a3]" />
+              <RadioGroupItem value="schema" className="mt-0.5 border-border-strong group-hover:border-border-strong" />
               <span>
-                <span className="block text-sm font-medium text-[#e7e7e7] mb-1">
+                <span className="block text-sm font-medium text-foreground mb-1">
                   Schema Only
                 </span>
-                <span className="block text-[13px] text-[#8b8b8b] leading-[1.5]">
+                <span className="block text-[13px] text-muted-foreground leading-[1.5]">
                   You consent to sharing your database schema metadata (such
                   as table and column names, data types, and relationships, but
                   not actual database data) with third-party AI providers
@@ -145,12 +145,12 @@ export function OrganizationSettingsScreen() {
             </Label>
 
             <Label className="flex gap-4 items-start cursor-pointer group">
-              <RadioGroupItem value="schema_logs" className="mt-0.5 border-[#474747] group-hover:border-[#a3a3a3]" />
+              <RadioGroupItem value="schema_logs" className="mt-0.5 border-border-strong group-hover:border-border-strong" />
               <span>
-                <span className="block text-sm font-medium text-[#e7e7e7] mb-1">
+                <span className="block text-sm font-medium text-foreground mb-1">
                   Schema & Logs
                 </span>
-                <span className="block text-[13px] text-[#8b8b8b] leading-[1.5]">
+                <span className="block text-[13px] text-muted-foreground leading-[1.5]">
                   You consent to sharing your schema and logs (which may contain
                   PII/database data) with third-party AI providers for better
                   results
@@ -159,12 +159,12 @@ export function OrganizationSettingsScreen() {
             </Label>
 
             <Label className="flex gap-4 items-start cursor-pointer group">
-              <RadioGroupItem value="schema_logs_data" className="mt-0.5 border-[#474747] group-hover:border-[#a3a3a3]" />
+              <RadioGroupItem value="schema_logs_data" className="mt-0.5 border-border-strong group-hover:border-border-strong" />
               <span>
-                <span className="block text-sm font-medium text-[#e7e7e7] mb-1">
+                <span className="block text-sm font-medium text-foreground mb-1">
                   Schema, Logs & Database Data
                 </span>
-                <span className="block text-[13px] text-[#8b8b8b] leading-[1.5]">
+                <span className="block text-[13px] text-muted-foreground leading-[1.5]">
                   You consent to give third-party AI providers full access to
                   run database read-only queries and analyze results for optimal
                   results

@@ -37,25 +37,25 @@ function QueryHistoryItem({ query, timestamp, result, onClick }) {
       type="button"
       variant="ghost"
       onClick={onClick}
-      className="h-auto w-full justify-start text-left px-3 py-2.5 rounded-lg hover:bg-[#2a2a2a] transition-colors group cursor-pointer"
+      className="h-auto w-full justify-start text-left px-3 py-2.5 rounded-lg hover:bg-surface-hover transition-colors group cursor-pointer"
     >
       <div className="flex items-start gap-2">
         {isSuccess && <CheckCircle2 className="w-3.5 h-3.5 text-green-500 mt-0.5 shrink-0" />}
         {isError && <AlertCircle className="w-3.5 h-3.5 text-red-400 mt-0.5 shrink-0" />}
-        {!isSuccess && !isError && <Database className="w-3.5 h-3.5 text-[#737373] mt-0.5 shrink-0" />}
+        {!isSuccess && !isError && <Database className="w-3.5 h-3.5 text-text-secondary mt-0.5 shrink-0" />}
         <div className="min-w-0 flex-1">
-          <p className="text-xs text-[#e5e5e5] font-mono truncate leading-relaxed">
+          <p className="text-xs text-foreground font-mono truncate leading-relaxed">
             {query}
           </p>
           <div className="flex items-center gap-2 mt-1">
-            <span className="text-[10px] text-[#525252]">
+            <span className="text-[10px] text-text-tertiary">
               {timestamp}
             </span>
             {isSuccess && result?.rowCount !== undefined && (
-              <span className="text-[10px] text-[#525252]">{result.rowCount} rows</span>
+              <span className="text-[10px] text-text-tertiary">{result.rowCount} rows</span>
             )}
             {isSuccess && result?.duration && (
-              <span className="text-[10px] text-[#525252]">{result.duration}ms</span>
+              <span className="text-[10px] text-text-tertiary">{result.duration}ms</span>
             )}
           </div>
         </div>
@@ -173,15 +173,15 @@ export function SqlEditorScreen() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight mb-1">
+            <h1 className="text-2xl font-bold text-foreground tracking-tight mb-1">
               SQL Editor
             </h1>
-            <p className="text-[#a3a3a3] text-sm">
+            <p className="text-muted-foreground text-sm">
               Write and execute SQL queries against your project database
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="bg-[#202020] border-[#2a2a2a] text-[#737373] text-[10px] font-mono">
+            <Badge variant="outline" className="bg-surface-card border-border text-text-secondary text-[10px] font-mono">
               {history.length} queries run
             </Badge>
           </div>
@@ -190,11 +190,11 @@ export function SqlEditorScreen() {
         <div className="flex gap-4 min-h-[calc(100vh-280px)]">
           <div className={`transition-all duration-300 ${showHistory ? "w-64 shrink-0" : "w-0 overflow-hidden"}`}>
             {showHistory && (
-              <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl h-full flex flex-col">
-                <div className="flex items-center justify-between px-4 py-3 border-b border-[#2a2a2a]">
+              <div className="bg-surface-subtle border border-border rounded-xl h-full flex flex-col">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-border">
                   <div className="flex items-center gap-2">
-                    <Clock className="w-3.5 h-3.5 text-[#737373]" />
-                    <span className="text-xs font-medium text-[#e5e5e5]">History</span>
+                    <Clock className="w-3.5 h-3.5 text-text-secondary" />
+                    <span className="text-xs font-medium text-foreground">History</span>
                   </div>
                   {history.length > 0 && (
                     <Button
@@ -202,7 +202,7 @@ export function SqlEditorScreen() {
                       variant="ghost"
                       size="sm"
                       onClick={clearHistory}
-                      className="text-[10px] text-[#525252] hover:text-red-400 transition-colors cursor-pointer"
+                      className="text-[10px] text-text-tertiary hover:text-red-400 transition-colors cursor-pointer"
                     >
                       Clear
                     </Button>
@@ -211,7 +211,7 @@ export function SqlEditorScreen() {
                 <ScrollArea className="flex-1">
                   <div className="p-2 space-y-0.5">
                     {history.length === 0 ? (
-                      <p className="text-[11px] text-[#525252] px-2 py-4 text-center leading-relaxed">
+                      <p className="text-[11px] text-text-tertiary px-2 py-4 text-center leading-relaxed">
                         No queries executed yet
                       </p>
                     ) : (
@@ -232,11 +232,11 @@ export function SqlEditorScreen() {
           </div>
 
           <div className="flex-1 flex flex-col gap-4 min-w-0">
-            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl overflow-hidden flex flex-col">
-              <div className="flex items-center justify-between px-4 py-2.5 border-b border-[#2a2a2a] bg-[#1a1a1a]">
+            <div className="bg-surface-subtle border border-border rounded-xl overflow-hidden flex flex-col">
+              <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-surface-subtle">
                 <div className="flex items-center gap-2">
-                  <Database className="w-3.5 h-3.5 text-[#737373]" />
-                  <span className="text-xs font-medium text-[#e5e5e5]">Query</span>
+                  <Database className="w-3.5 h-3.5 text-text-secondary" />
+                  <span className="text-xs font-medium text-foreground">Query</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <TooltipProvider>
@@ -247,12 +247,12 @@ export function SqlEditorScreen() {
                           variant="ghost"
                           size="icon-sm"
                           onClick={() => setShowHistory((prev) => !prev)}
-                          className={`p-1.5 rounded-md transition-colors cursor-pointer ${showHistory ? "bg-[#2a2a2a] text-[#e5e5e5]" : "text-[#525252] hover:text-[#737373]"}`}
+                          className={`p-1.5 rounded-md transition-colors cursor-pointer ${showHistory ? "bg-surface-hover text-foreground" : "text-text-tertiary hover:text-text-secondary"}`}
                         >
                           <ChevronLeft className="w-3.5 h-3.5" />
                         </Button>
                       </TooltipTrigger>
-                      <TooltipContent side="bottom" className="bg-[#2a2a2a] border-[#333] text-[#e5e5e5] text-[11px]">
+                      <TooltipContent side="bottom" className="bg-surface-hover border-border text-foreground text-[11px]">
                         Toggle history
                       </TooltipContent>
                     </Tooltip>
@@ -265,12 +265,12 @@ export function SqlEditorScreen() {
                           variant="ghost"
                           size="icon-sm"
                           onClick={clearEditor}
-                          className="p-1.5 rounded-md text-[#525252] hover:text-[#737373] hover:bg-[#2a2a2a] transition-colors cursor-pointer"
+                          className="p-1.5 rounded-md text-text-tertiary hover:text-text-secondary hover:bg-surface-hover transition-colors cursor-pointer"
                         >
                           <RotateCcw className="w-3.5 h-3.5" />
                         </Button>
                       </TooltipTrigger>
-                      <TooltipContent side="bottom" className="bg-[#2a2a2a] border-[#333] text-[#e5e5e5] text-[11px]">
+                      <TooltipContent side="bottom" className="bg-surface-hover border-border text-foreground text-[11px]">
                         Clear editor
                       </TooltipContent>
                     </Tooltip>
@@ -284,21 +284,21 @@ export function SqlEditorScreen() {
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Enter your SQL query here... (Ctrl+Enter to execute)"
-                className="min-h-[140px] max-h-[300px] rounded-none border-0 bg-[#161616] p-4 font-mono text-xs leading-relaxed text-[#e5e5e5] placeholder:text-[#525252] resize-y focus-visible:ring-0 focus-visible:ring-offset-0"
+                className="min-h-[140px] max-h-[300px] rounded-none border-0 bg-background p-4 font-mono text-xs leading-relaxed text-foreground placeholder:text-text-tertiary resize-y focus-visible:ring-0 focus-visible:ring-offset-0"
                 spellCheck={false}
               />
 
-              <div className="flex items-center justify-between px-4 py-2.5 border-t border-[#2a2a2a] bg-[#1a1a1a]">
+              <div className="flex items-center justify-between px-4 py-2.5 border-t border-border bg-surface-subtle">
                 <div />
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] text-[#525252] hidden sm:inline">
+                  <span className="text-[10px] text-text-tertiary hidden sm:inline">
                     Ctrl+Enter to run
                   </span>
                   <Button
                     onClick={() => executeQuery()}
                     disabled={loading || !query.trim()}
                     size="sm"
-                    className="bg-white text-black hover:bg-[#e5e5e5] text-xs font-medium rounded-md h-7 px-3 gap-1.5"
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 text-xs font-medium rounded-md h-7 px-3 gap-1.5"
                   >
                     {loading ? (
                       <div className="w-3 h-3 border-2 border-black/30 border-t-black rounded-full animate-spin" />
@@ -311,8 +311,8 @@ export function SqlEditorScreen() {
               </div>
             </div>
 
-            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl overflow-hidden flex-1 flex flex-col min-h-[200px]">
-              <div className="flex items-center justify-between px-4 py-2.5 border-b border-[#2a2a2a]">
+            <div className="bg-surface-subtle border border-border rounded-xl overflow-hidden flex-1 flex flex-col min-h-[200px]">
+              <div className="flex items-center justify-between px-4 py-2.5 border-b border-border">
                 <div className="flex items-center gap-1">
                   <Button
                     type="button"
@@ -321,11 +321,11 @@ export function SqlEditorScreen() {
                     onClick={() => setActiveTab("results")}
                     className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
                       activeTab === "results"
-                        ? "bg-[#2a2a2a] text-[#e5e5e5]"
-                        : "text-[#525252] hover:text-[#737373]"
+                        ? "bg-surface-hover text-foreground"
+                        : "text-text-tertiary hover:text-text-secondary"
                     }`}
                   >
-                    Results {results && <span className="text-[#525252] ml-1">({results.rowCount})</span>}
+                    Results {results && <span className="text-text-tertiary ml-1">({results.rowCount})</span>}
                   </Button>
                   <Button
                     type="button"
@@ -334,8 +334,8 @@ export function SqlEditorScreen() {
                     onClick={() => setActiveTab("messages")}
                     className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer relative ${
                       activeTab === "messages"
-                        ? "bg-[#2a2a2a] text-[#e5e5e5]"
-                        : "text-[#525252] hover:text-[#737373]"
+                        ? "bg-surface-hover text-foreground"
+                        : "text-text-tertiary hover:text-text-secondary"
                     }`}
                   >
                     Messages
@@ -347,10 +347,10 @@ export function SqlEditorScreen() {
 
                 {results && (
                   <div className="flex items-center gap-3">
-                    <span className="text-[10px] text-[#525252] font-mono">
+                    <span className="text-[10px] text-text-tertiary font-mono">
                       {results.rowCount} rows
                     </span>
-                    <span className="text-[10px] text-[#525252] font-mono">
+                    <span className="text-[10px] text-text-tertiary font-mono">
                       {results.duration}ms
                     </span>
                     <TooltipProvider>
@@ -363,12 +363,12 @@ export function SqlEditorScreen() {
                             onClick={() => {
                               navigator.clipboard.writeText(JSON.stringify(results.rows, null, 2));
                             }}
-                            className="p-1 rounded text-[#525252] hover:text-[#737373] hover:bg-[#2a2a2a] transition-colors cursor-pointer"
+                            className="p-1 rounded text-text-tertiary hover:text-text-secondary hover:bg-surface-hover transition-colors cursor-pointer"
                           >
                             <Copy className="w-3 h-3" />
                           </Button>
                         </TooltipTrigger>
-                        <TooltipContent side="bottom" className="bg-[#2a2a2a] border-[#333] text-[#e5e5e5] text-[11px]">
+                        <TooltipContent side="bottom" className="bg-surface-hover border-border text-foreground text-[11px]">
                           Copy as JSON
                         </TooltipContent>
                       </Tooltip>
@@ -381,24 +381,24 @@ export function SqlEditorScreen() {
                 {activeTab === "results" ? (
                   loading ? (
                     <div className="p-6 space-y-3">
-                      <Skeleton className="h-4 w-3/4 bg-[#202020]" />
-                      <Skeleton className="h-4 w-1/2 bg-[#202020]" />
-                      <Skeleton className="h-4 w-5/6 bg-[#202020]" />
-                      <Skeleton className="h-4 w-2/3 bg-[#202020]" />
+                      <Skeleton className="h-4 w-3/4 bg-surface-card" />
+                      <Skeleton className="h-4 w-1/2 bg-surface-card" />
+                      <Skeleton className="h-4 w-5/6 bg-surface-card" />
+                      <Skeleton className="h-4 w-2/3 bg-surface-card" />
                     </div>
                   ) : results ? (
                     results.rows.length > 0 ? (
                       <div className="overflow-auto h-full">
                         <Table>
                           <TableHeader>
-                            <TableRow className="border-b border-[#2a2a2a] hover:bg-transparent">
-                              <TableHead className="text-[#525252] text-[10px] font-medium w-12 pl-4">
+                            <TableRow className="border-b border-border hover:bg-transparent">
+                              <TableHead className="text-text-tertiary text-[10px] font-medium w-12 pl-4">
                                 #
                               </TableHead>
                               {results.columns.map((col) => (
                                 <TableHead
                                   key={col}
-                                  className="text-[#737373] text-[11px] font-semibold uppercase tracking-wider whitespace-nowrap"
+                                  className="text-text-secondary text-[11px] font-semibold uppercase tracking-wider whitespace-nowrap"
                                 >
                                   {col}
                                 </TableHead>
@@ -407,23 +407,23 @@ export function SqlEditorScreen() {
                           </TableHeader>
                           <TableBody>
                             {results.rows.map((row, idx) => (
-                              <TableRow key={idx} className="border-b border-[#2a2a2a]/50 hover:bg-[#1a1a1a]">
-                                <TableCell className="text-[#525252] text-[11px] font-mono pl-4">
+                              <TableRow key={idx} className="border-b border-border/50 hover:bg-surface-subtle">
+                                <TableCell className="text-text-tertiary text-[11px] font-mono pl-4">
                                   {idx + 1}
                                 </TableCell>
                                 {results.columns.map((col) => (
                                   <TableCell
                                     key={col}
-                                    className="text-[#e5e5e5] text-xs font-mono max-w-[300px] truncate"
+                                    className="text-foreground text-xs font-mono max-w-[300px] truncate"
                                   >
                                     {row[col] === null ? (
-                                      <span className="text-[#525252] italic">null</span>
+                                      <span className="text-text-tertiary italic">null</span>
                                     ) : typeof row[col] === "boolean" ? (
-                                      <span className={row[col] ? "text-green-400" : "text-[#525252]"}>
+                                      <span className={row[col] ? "text-green-400" : "text-text-tertiary"}>
                                         {row[col].toString()}
                                       </span>
                                     ) : typeof row[col] === "object" ? (
-                                      <span className="text-[#737373]">{JSON.stringify(row[col])}</span>
+                                      <span className="text-text-secondary">{JSON.stringify(row[col])}</span>
                                     ) : (
                                       String(row[col])
                                     )}
@@ -436,16 +436,16 @@ export function SqlEditorScreen() {
                       </div>
                     ) : (
                       <div className="flex flex-col items-center justify-center py-16 text-center">
-                        <CheckCircle2 className="w-8 h-8 text-[#2a2a2a] mb-3" />
-                        <p className="text-sm text-[#525252]">Query executed successfully</p>
-                        <p className="text-xs text-[#333] mt-1">No rows returned</p>
+                        <CheckCircle2 className="w-8 h-8 text-text-tertiary mb-3" />
+                        <p className="text-sm text-text-tertiary">Query executed successfully</p>
+                        <p className="text-xs text-text-tertiary mt-1">No rows returned</p>
                       </div>
                     )
                   ) : (
                     <div className="flex flex-col items-center justify-center py-16 text-center">
-                      <Database className="w-8 h-8 text-[#2a2a2a] mb-3" />
-                      <p className="text-sm text-[#525252]">No results yet</p>
-                      <p className="text-xs text-[#333] mt-1">Write a query and click Run</p>
+                      <Database className="w-8 h-8 text-text-tertiary mb-3" />
+                      <p className="text-sm text-text-tertiary">No results yet</p>
+                      <p className="text-xs text-text-tertiary mt-1">Write a query and click Run</p>
                     </div>
                   )
                 ) : (
@@ -469,7 +469,7 @@ export function SqlEditorScreen() {
                           <div>
                             <p className="text-sm font-medium text-green-300">Query executed successfully</p>
                             {results.duration && (
-                              <p className="text-xs text-[#525252] mt-1">
+                              <p className="text-xs text-text-tertiary mt-1">
                                 Completed in {results.duration}ms
                                 {results.rowCount > 0 && ` · ${results.rowCount} rows returned`}
                               </p>
@@ -478,7 +478,7 @@ export function SqlEditorScreen() {
                         </div>
                       </div>
                     ) : (
-                      <p className="text-xs text-[#525252] text-center py-8">
+                      <p className="text-xs text-text-tertiary text-center py-8">
                         No messages yet
                       </p>
                     )}

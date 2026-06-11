@@ -74,28 +74,28 @@ export function TaskCoreTab({
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-[1fr_160px] gap-3">
         <div className="space-y-1.5">
-          <Label className="text-sm font-medium text-zinc-300">Title</Label>
+          <Label className="text-sm font-medium text-foreground">Title</Label>
           <Input
             value={formData.title}
             onChange={(event) => handleInputChange("title", event.target.value)}
             placeholder="Implement dependency graph for release tasks"
-            className="bg-[#202020] border-[#333333] text-white h-9 focus-visible:ring-zinc-600 focus-visible:ring-offset-0 focus-visible:ring-1"
+            className="bg-surface-card border-border text-foreground h-9 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1"
             autoFocus
           />
         </div>
 
         <div className="space-y-1.5">
-          <Label className="text-sm font-medium text-zinc-300">Type</Label>
+          <Label className="text-sm font-medium text-foreground">Type</Label>
           <Select
             value={formData.type}
             onValueChange={(value) => handleInputChange("type", value)}
           >
-            <SelectTrigger className="w-full bg-[#202020] border-[#333333] text-white h-9 focus-visible:ring-zinc-600 focus-visible:ring-offset-0 focus-visible:ring-1">
+            <SelectTrigger className="w-full bg-surface-card border-border text-foreground h-9 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-[#1a1a1a] border-[#2a2a2a] text-[#ededed]">
+            <SelectContent className="bg-surface-subtle border-border text-foreground">
               {TASK_TYPES.map((option) => (
-                <SelectItem key={option.value} value={option.value} className="!focus:bg-[#2a2a2a]">
+                <SelectItem key={option.value} value={option.value} className="!focus:bg-surface-hover">
                   <option.Icon className="w-3.5 h-3.5 mr-2" />
                   <span className="font-medium">{option.label}</span>
                 </SelectItem>
@@ -106,28 +106,28 @@ export function TaskCoreTab({
       </div>
 
       <div className="space-y-1.5">
-        <Label className="text-sm font-medium text-zinc-300">Description</Label>
+        <Label className="text-sm font-medium text-foreground">Description</Label>
         <Textarea
           value={formData.description}
           onChange={(event) => handleInputChange("description", event.target.value)}
           placeholder="Rich text/markdown ready notes for implementation details and acceptance criteria."
-          className="bg-[#202020] border-[#333333] text-white min-h-[88px] resize-none text-sm focus-visible:ring-zinc-600 focus-visible:ring-offset-0 focus-visible:ring-1"
+          className="bg-surface-card border-border text-foreground min-h-[88px] resize-none text-sm focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1"
         />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <div className="space-y-1.5">
-          <Label className="text-sm font-medium text-zinc-300">Status</Label>
+          <Label className="text-sm font-medium text-foreground">Status</Label>
           <Select
             value={formData.status}
             onValueChange={(value) => handleInputChange("status", value)}
           >
-            <SelectTrigger className="w-full bg-[#202020] border-[#333333] text-white h-9 focus-visible:ring-zinc-600 focus-visible:ring-offset-0 focus-visible:ring-1">
+            <SelectTrigger className="w-full bg-surface-card border-border text-foreground h-9 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="!bg-[#1a1a1a] !border-[#2a2a2a] !text-[#ededed]">
+            <SelectContent className="!bg-surface-subtle !border-border !text-foreground">
               {STATUS_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value} className="!focus:bg-[#2a2a2a]">
+                <SelectItem key={option.value} value={option.value} className="!focus:bg-surface-hover">
                   <option.Icon className="w-3.5 h-3.5 mr-2" />
                   <span className="font-medium">{option.label}</span>
                 </SelectItem>
@@ -137,17 +137,17 @@ export function TaskCoreTab({
         </div>
 
         <div className="space-y-1.5">
-          <Label className="text-sm font-medium text-zinc-300">Priority</Label>
+          <Label className="text-sm font-medium text-foreground">Priority</Label>
           <Select
             value={formData.priority}
             onValueChange={(value) => handleInputChange("priority", value)}
           >
-            <SelectTrigger className="w-full bg-[#202020] border-[#333333] text-white h-9 focus-visible:ring-zinc-600 focus-visible:ring-offset-0 focus-visible:ring-1">
+            <SelectTrigger className="w-full bg-surface-card border-border text-foreground h-9 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="!bg-[#1a1a1a] !border-[#2a2a2a] !text-[#ededed]">
+            <SelectContent className="!bg-surface-subtle !border-border !text-foreground">
               {PRIORITY_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value} className="!focus:bg-[#2a2a2a]">
+                <SelectItem key={option.value} value={option.value} className="!focus:bg-surface-hover">
                   <option.Icon className="w-3.5 h-3.5 mr-2" />
                   <span className="font-medium">{option.label}</span>
                 </SelectItem>
@@ -157,19 +157,19 @@ export function TaskCoreTab({
         </div>
 
         <div className="space-y-1.5">
-          <Label className="text-sm font-medium text-zinc-300">Stage</Label>
+          <Label className="text-sm font-medium text-foreground">Stage</Label>
           <StageSelect
             value={formData.stage}
             onValueChange={(value) => handleInputChange("stage", value)}
-            triggerClassName="w-full bg-[#202020] border-[#333333] text-white h-9 focus-visible:ring-zinc-600 focus-visible:ring-offset-0 focus-visible:ring-1"
+            triggerClassName="w-full bg-surface-card border-border text-foreground h-9 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1"
           />
         </div>
       </div>
 
       <div className="space-y-1.5">
-        <Label className="text-sm font-medium text-zinc-300 flex items-center justify-between">
+        <Label className="text-sm font-medium text-foreground flex items-center justify-between">
           <span>Progress</span>
-          <span className="text-[#737373] text-xs font-mono">{formData.progress}%</span>
+          <span className="text-text-secondary text-xs font-mono">{formData.progress}%</span>
         </Label>
         <div className="relative pt-1 pb-2">
           <Slider
@@ -177,39 +177,39 @@ export function TaskCoreTab({
             max={100}
             value={[formData.progress || 0]}
             onValueChange={([value]) => handleInputChange("progress", value)}
-            className="[&_[data-slot=slider-range]]:bg-[#ededed] [&_[data-slot=slider-track]]:bg-[#2a2a2a] [&_[data-slot=slider-thumb]]:border-[#ededed]"
+            className="[&_[data-slot=slider-range]]:bg-primary [&_[data-slot=slider-track]]:bg-surface-hover [&_[data-slot=slider-thumb]]:border-foreground"
           />
         </div>
       </div>
 
       <div className="space-y-1.5">
-        <Label className="text-sm font-medium text-zinc-300">Labels (comma separated)</Label>
+        <Label className="text-sm font-medium text-foreground">Labels (comma separated)</Label>
         <Input
           value={formData.labels}
           onChange={(event) => handleInputChange("labels", event.target.value)}
           placeholder="frontend, release, urgent"
-          className="bg-[#202020] border-[#333333] text-white h-9 focus-visible:ring-zinc-600 focus-visible:ring-offset-0 focus-visible:ring-1"
+          className="bg-surface-card border-border text-foreground h-9 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1"
         />
       </div>
 
       <div className="space-y-1.5">
-        <Label className="text-sm font-medium text-zinc-300">Linked Goal</Label>
+        <Label className="text-sm font-medium text-foreground">Linked Goal</Label>
         <Select
           value={formData.parentLink || "none"}
           onValueChange={(value) => handleInputChange("parentLink", value)}
         >
-          <SelectTrigger className="w-full bg-[#202020] border-[#333333] text-white h-9 focus-visible:ring-zinc-600 focus-visible:ring-offset-0 focus-visible:ring-1">
+          <SelectTrigger className="w-full bg-surface-card border-border text-foreground h-9 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent className="!bg-[#1a1a1a] !border-[#2a2a2a] !text-[#ededed]">
-            <SelectItem value="none" className="!focus:bg-[#2a2a2a]">
+          <SelectContent className="!bg-surface-subtle !border-border !text-foreground">
+            <SelectItem value="none" className="!focus:bg-surface-hover">
               No linked goal
             </SelectItem>
             {goalOptions.map((goal) => (
               <SelectItem
                 key={goal.value}
                 value={goal.value}
-                className="!focus:bg-[#2a2a2a]"
+                className="!focus:bg-surface-hover"
               >
                 {goal.label}
               </SelectItem>
@@ -273,7 +273,7 @@ function StageSelect({ value, onValueChange, triggerClassName }) {
       <PopoverContent
         align="start"
         sideOffset={4}
-        className="w-52 p-1 border border-[#2a2a2a] bg-[#1a1a1a] shadow-xl text-[#ededed] z-50 rounded-md"
+        className="w-52 p-1 border border-border bg-surface-subtle shadow-xl text-foreground z-50 rounded-md"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         {ungrouped.map((option) => (
@@ -283,10 +283,10 @@ function StageSelect({ value, onValueChange, triggerClassName }) {
             variant="ghost"
             onClick={() => handleSelect(option.value)}
             className={cn(
-              "relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-hidden select-none transition-colors hover:bg-[#2a2a2a] hover:text-[#ededed] data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+              "relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-hidden select-none transition-colors hover:bg-surface-hover hover:text-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
               value === option.value
-                ? "bg-[#2a2a2a] text-[#ededed]"
-                : "text-[#ededed]"
+                ? "bg-surface-hover text-foreground"
+                : "text-foreground"
             )}
           >
             <option.Icon className="w-3.5 h-3.5 shrink-0" />
@@ -309,8 +309,8 @@ function StageSelect({ value, onValueChange, triggerClassName }) {
                 className={cn(
                   "relative w-full flex items-center gap-2 rounded-sm py-1.5 pl-2 pr-7 text-sm transition-colors",
                   hoveredGroup === group
-                    ? "bg-[#2a2a2a] text-[#ededed]"
-                    : "text-[#ededed] hover:bg-[#2a2a2a]"
+                    ? "bg-surface-hover text-foreground"
+                    : "text-foreground hover:bg-surface-hover"
                 )}
               >
                 <GroupIcon className="w-3.5 h-3.5 shrink-0" />
@@ -319,7 +319,7 @@ function StageSelect({ value, onValueChange, triggerClassName }) {
               </Button>
 
               {hoveredGroup === group && (
-                <div className="absolute left-full top-0 ml-1 w-40 border border-[#2a2a2a] bg-[#1a1a1a] shadow-xl rounded-md z-50 p-1 text-[#ededed]">
+                <div className="absolute left-full top-0 ml-1 w-40 border border-border bg-surface-subtle shadow-xl rounded-md z-50 p-1 text-foreground">
                   {items.map((item) => (
                     <Button
                       key={item.value}
@@ -330,10 +330,10 @@ function StageSelect({ value, onValueChange, triggerClassName }) {
                         handleSelect(item.value);
                       }}
                       className={cn(
-                        "relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-hidden select-none transition-colors hover:bg-[#2a2a2a] hover:text-[#ededed] data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+                        "relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-hidden select-none transition-colors hover:bg-surface-hover hover:text-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
                         value === item.value
-                          ? "bg-[#2a2a2a] text-[#ededed]"
-                          : "text-[#ededed]"
+                          ? "bg-surface-hover text-foreground"
+                          : "text-foreground"
                       )}
                     >
                       <item.Icon className="w-3.5 h-3.5 shrink-0" />
@@ -374,7 +374,7 @@ function AssigneeDropdown({ selected, onToggle }) {
         <Button
           type="button"
           variant="outline"
-          className="flex items-center gap-1.5 px-3 py-1.5 h-[30px] rounded-full border border-dashed border-[#474747] text-xs font-medium text-[#a3a3a3] hover:text-zinc-100 hover:border-[#737373] hover:bg-[#202020] transition-all bg-transparent"
+          className="flex items-center gap-1.5 px-3 py-1.5 h-[30px] rounded-full border border-dashed border-border-strong text-xs font-medium text-muted-foreground hover:text-foreground hover:border-border-strong hover:bg-surface-card transition-all bg-transparent"
         >
           <Plus className="w-3.5 h-3.5" />
           Add Assignee
@@ -383,22 +383,22 @@ function AssigneeDropdown({ selected, onToggle }) {
       <PopoverContent
         align="start"
         sideOffset={6}
-        className="w-56 p-0 border border-[#2a2a2a] bg-[#161616] shadow-xl text-zinc-200"
+        className="w-56 p-0 border border-border bg-background shadow-xl text-foreground"
       >
-        <div className="p-2 border-b border-[#2a2a2a]">
+        <div className="p-2 border-b border-border">
           <div className="relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#737373]" />
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-secondary" />
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search members…"
-              className="!pl-8 !pr-3 !py-1 !h-8 bg-[#202020] border-[#2a2a2a] text-white text-xs placeholder:text-[#474747] focus-visible:ring-1 focus-visible:ring-zinc-600 focus-visible:ring-offset-0"
+              className="!pl-8 !pr-3 !py-1 !h-8 bg-surface-card border-border text-foreground text-xs placeholder:text-text-tertiary focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-0"
             />
           </div>
         </div>
         <div className="max-h-[200px] overflow-y-auto p-1">
           {filtered.length === 0 ? (
-            <p className="text-xs text-[#737373] text-center py-4">No members found</p>
+            <p className="text-xs text-text-secondary text-center py-4">No members found</p>
           ) : (
             filtered.map((member) => {
               const isSelected = selected.includes(member.id);
@@ -411,8 +411,8 @@ function AssigneeDropdown({ selected, onToggle }) {
                   className={cn(
                     "w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-xs transition-colors",
                     isSelected
-                      ? "bg-[#242424] text-zinc-100"
-                      : "text-[#a3a3a3] hover:bg-[#202020] hover:text-zinc-200",
+                      ? "bg-surface-active text-foreground"
+                      : "text-muted-foreground hover:bg-surface-card hover:text-foreground",
                   )}
                 >
                   <Avatar className="h-6 w-6">
@@ -420,8 +420,8 @@ function AssigneeDropdown({ selected, onToggle }) {
                       className={cn(
                         "text-[10px] font-semibold",
                         isSelected
-                          ? "bg-[#ededed] text-[#161616]"
-                          : "bg-[#2a2a2a] text-[#737373]",
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-surface-hover text-text-secondary",
                       )}
                     >
                       {member.name.charAt(0).toUpperCase()}

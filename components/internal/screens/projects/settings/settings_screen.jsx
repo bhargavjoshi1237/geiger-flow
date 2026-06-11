@@ -35,7 +35,7 @@ export function SettingsScreen({ activeSettingsTab = "General" }) {
         return <EnterpriseSettingsScreen />;
       default:
         return (
-          <div className="h-[400px] flex items-center justify-center border-2 border-dashed border-[#2a2a2a] rounded-lg text-[#a3a3a3]">
+          <div className="h-[400px] flex items-center justify-center border-2 border-dashed border-border rounded-lg text-muted-foreground">
             <div className="flex flex-col items-center gap-2">
               <span>{activeSettingsTab} settings placeholder</span>
             </div>
@@ -48,10 +48,10 @@ export function SettingsScreen({ activeSettingsTab = "General" }) {
     <SecondaryScreenWrapper>
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight mb-2">
+          <h1 className="text-2xl font-bold text-foreground tracking-tight mb-2">
             {activeSettingsTab}
           </h1>
-          <p className="text-[#a3a3a3] text-sm">
+          <p className="text-muted-foreground text-sm">
             Manage your {activeSettingsTab.toLowerCase()} settings for this
             project.
           </p>

@@ -57,24 +57,24 @@ const projectSummaryMetrics = [
 
 export function UsageScreen() {
   return (
-    <MainScreenWrapper className="flex flex-col gap-8 space-y-0 text-[#e7e7e7]">
-     <div className="flex w-full justify-between flex-col gap-4 border-b border-[#2a2a2a] pb-6 lg:flex-row lg:items-center lg:justify-between">
+    <MainScreenWrapper className="flex flex-col gap-8 space-y-0 text-foreground">
+     <div className="flex w-full justify-between flex-col gap-4 border-b border-border pb-6 lg:flex-row lg:items-center lg:justify-between">
       
       <div className="space-y-4 w-full">
         <div className="space-y-4 flex w-full justify-between -mb-4">
          <div>
-           <h1 className="text-2xl font-semibold tracking-tight text-[#e7e7e7] md:text-3xl">
+           <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
             Usage
           </h1>
-          <p className="text-[#a3a3a3] text-sm mt-1">
+          <p className="text-muted-foreground text-sm mt-1">
             General configuration, privacy, and lifecycle controls
           </p>
          </div>
           <div className="flex gap-3 lg:flex-row lg:items-center">
-            <div className="flex flex-wrap items-center gap-2 text-xs text-[#8b8b8b] lg:justify-end">
+            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground lg:justify-end">
               <span>No billing period</span>
               <div className="flex items-center gap-2 whitespace-nowrap">
-                <div className="h-1.5 w-16 overflow-hidden rounded-full bg-[#2c2c2c]">
+                <div className="h-1.5 w-16 overflow-hidden rounded-full bg-surface-hover">
                   <div className="h-full w-full bg-primary" />
                 </div>
                 <span className="text-xs font-medium text-foreground">
@@ -86,20 +86,20 @@ export function UsageScreen() {
 
              <div className="flex flex-wrap items-center gap-3">
               <Select defaultValue="billing">
-                <SelectTrigger className="h-8 w-full border-[#2c2c2c] bg-[#181818] text-xs text-[#a3a3a3] sm:w-[180px]">
+                <SelectTrigger className="h-8 w-full border-border bg-surface-subtle text-xs text-muted-foreground sm:w-[180px]">
                   <SelectValue placeholder="Select period" />
                 </SelectTrigger>
-                <SelectContent className="border-[#2c2c2c] bg-[#181818] text-[#e7e7e7]">
+                <SelectContent className="border-border bg-surface-subtle text-foreground">
                   <SelectItem value="billing">This billing cycle</SelectItem>
                   <SelectItem value="monthly">Past 30 days</SelectItem>
                 </SelectContent>
               </Select>
 
               <Select defaultValue="all">
-                <SelectTrigger className="h-8 w-full border-[#2c2c2c] bg-[#181818] text-xs text-[#a3a3a3] sm:w-[180px]">
+                <SelectTrigger className="h-8 w-full border-border bg-surface-subtle text-xs text-muted-foreground sm:w-[180px]">
                   <SelectValue placeholder="All projects" />
                 </SelectTrigger>
-                <SelectContent className="border-[#2c2c2c] bg-[#181818] text-[#e7e7e7]">
+                <SelectContent className="border-border bg-surface-subtle text-foreground">
                   <SelectItem value="all">All projects</SelectItem>
                 </SelectContent>
               </Select>
@@ -110,10 +110,10 @@ export function UsageScreen() {
 </div>
       <div className="space-y-3">
         <div>
-          <h3 className="text-xl font-medium text-[#e7e7e7]">
+          <h3 className="text-xl font-medium text-foreground">
             Project summary
           </h3>
-          <p className="mt-1 max-w-5xl text-[13px] text-[#8b8b8b]">
+          <p className="mt-1 max-w-5xl text-[13px] text-muted-foreground">
             Total usage for all projects across all regions. Select a project above to narrow the
             usage view.
           </p>
@@ -123,31 +123,31 @@ export function UsageScreen() {
           {projectSummaryMetrics.map((metric) => (
             <Card
               key={metric.label}
-              className="gap-3 rounded-lg border-[#2c2c2c] bg-[#181818] p-4 shadow-sm"
+              className="gap-3 rounded-lg border-border bg-surface-subtle p-4 shadow-sm"
             >
               <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-1.5 text-[13px] font-medium text-[#a3a3a3]">
+                <div className="flex items-center gap-1.5 text-[13px] font-medium text-muted-foreground">
                   {metric.label}
-                  <Info className="h-3.5 w-3.5 text-[#7a7a7a]" />
+                  <Info className="h-3.5 w-3.5 text-muted-foreground" />
                 </div>
                 {metric.limitLabel !== "" && (
-                  <span className="text-xs text-[#666]">
+                  <span className="text-xs text-muted-foreground">
                     {metric.limitLabel || metric.limit}
                   </span>
                 )}
               </div>
 
               <div className="flex items-end gap-2">
-                <span className="text-2xl font-semibold leading-none text-[#e7e7e7]">
+                <span className="text-2xl font-semibold leading-none text-foreground">
                   {metric.value}
                 </span>
-                <span className="text-xs leading-none text-[#666]">
+                <span className="text-xs leading-none text-muted-foreground">
                   {metric.progress ? `of ${metric.limit}` : metric.limit}
                 </span>
               </div>
 
               {metric.progress && (
-                <div className="h-1.5 w-full overflow-hidden rounded-full border border-[#333] bg-[#2c2c2c]">
+                <div className="h-1.5 w-full overflow-hidden rounded-full border border-border bg-surface-hover">
                   <div
                     className="h-full bg-primary"
                     style={{ width: metric.progress }}
@@ -159,26 +159,26 @@ export function UsageScreen() {
         </div>
       </div>
 
-      <div className="w-full border-b border-[#2c2c2c]" />
+      <div className="w-full border-b border-border" />
 
       <div className="space-y-6">
         <div>
-          <h3 className="text-xl font-medium text-[#e7e7e7]">
+          <h3 className="text-xl font-medium text-foreground">
             Database & Storage Size
           </h3>
-          <p className="mt-1 text-[13px] text-[#8b8b8b]">
+          <p className="mt-1 text-[13px] text-muted-foreground">
             Storage consumed across all projects in this organization
           </p>
         </div>
 
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
           <div className="space-y-4">
-            <div className="mb-2 flex items-center justify-between border-b border-[#2c2c2c] pb-2">
-              <div className="text-[13px] font-medium text-[#e7e7e7]">
+            <div className="mb-2 flex items-center justify-between border-b border-border pb-2">
+              <div className="text-[13px] font-medium text-foreground">
                 Database size
               </div>
-              <div className="text-[13px] font-medium text-[#e7e7e7]">
-                0 MB <span className="font-normal text-[#666]">/ 0 MB</span>
+              <div className="text-[13px] font-medium text-foreground">
+                0 MB <span className="font-normal text-muted-foreground">/ 0 MB</span>
               </div>
             </div>
             <div className="mb-3 text-[13px] font-medium text-primary">
@@ -207,12 +207,12 @@ export function UsageScreen() {
           </div>
 
           <div className="space-y-4">
-            <div className="mb-2 flex items-center justify-between border-b border-[#2c2c2c] pb-2">
-              <div className="text-[13px] font-medium text-[#e7e7e7]">
+            <div className="mb-2 flex items-center justify-between border-b border-border pb-2">
+              <div className="text-[13px] font-medium text-foreground">
                 Storage size
               </div>
-              <div className="text-[13px] font-medium text-[#e7e7e7]">
-                0 MB <span className="font-normal text-[#666]">/ 0 MB</span>
+              <div className="text-[13px] font-medium text-foreground">
+                0 MB <span className="font-normal text-muted-foreground">/ 0 MB</span>
               </div>
             </div>
             <div className="mb-3 text-[13px] font-medium text-primary">
@@ -243,24 +243,24 @@ export function UsageScreen() {
         </div>
       </div>
 
-      <div className="w-full border-b border-[#2c2c2c]" />
+      <div className="w-full border-b border-border" />
 
       <div className="space-y-6">
         <div>
-          <h3 className="text-xl font-medium text-[#e7e7e7]">Activity</h3>
-          <p className="mt-1 text-[13px] text-[#8b8b8b]">
+          <h3 className="text-xl font-medium text-foreground">Activity</h3>
+          <p className="mt-1 text-[13px] text-muted-foreground">
             Usage associated with active users of your projects
           </p>
         </div>
 
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
           <div className="space-y-4">
-            <div className="mb-2 flex items-center justify-between border-b border-[#2c2c2c] pb-2">
-              <div className="text-[13px] font-medium text-[#e7e7e7]">
+            <div className="mb-2 flex items-center justify-between border-b border-border pb-2">
+              <div className="text-[13px] font-medium text-foreground">
                 Monthly Active Users
               </div>
-              <div className="text-[13px] font-medium text-[#e7e7e7]">
-                0 <span className="font-normal text-[#666]">/ 0</span>
+              <div className="text-[13px] font-medium text-foreground">
+                0 <span className="font-normal text-muted-foreground">/ 0</span>
               </div>
             </div>
             <div className="mb-3 text-[13px] font-medium text-primary">
@@ -293,12 +293,12 @@ export function UsageScreen() {
           </div>
 
           <div className="space-y-4">
-            <div className="mb-2 flex items-center justify-between border-b border-[#2c2c2c] pb-2">
-              <div className="text-[13px] font-medium text-[#e7e7e7]">
+            <div className="mb-2 flex items-center justify-between border-b border-border pb-2">
+              <div className="text-[13px] font-medium text-foreground">
                 Sessions
               </div>
-              <div className="text-[13px] font-medium text-[#e7e7e7]">
-                0 <span className="font-normal text-[#666]">/ 0</span>
+              <div className="text-[13px] font-medium text-foreground">
+                0 <span className="font-normal text-muted-foreground">/ 0</span>
               </div>
             </div>
             <div className="mb-3 text-[13px] font-medium text-primary">

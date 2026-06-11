@@ -72,7 +72,7 @@ const RESPONSE_ANSWERS = {
 const STATUS_CLASS = {
   Published: "border-emerald-500/30 bg-emerald-500/15 text-emerald-300",
   Draft: "border-blue-500/30 bg-blue-500/15 text-blue-300",
-  Closed: "border-zinc-500/30 bg-zinc-500/15 text-zinc-300",
+  Closed: "border-zinc-500/30 bg-zinc-500/15 text-foreground",
   "Needs review": "border-amber-500/30 bg-amber-500/15 text-amber-300",
   Approved: "border-emerald-500/30 bg-emerald-500/15 text-emerald-300",
   Flagged: "border-red-500/30 bg-red-500/15 text-red-300",
@@ -80,14 +80,14 @@ const STATUS_CLASS = {
 
 function Metric({ label, value, detail, Icon }) {
   return (
-    <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-4">
+    <div className="rounded-xl border border-border bg-surface-subtle p-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-sm text-[#a3a3a3]">{label}</p>
-          <p className="mt-2 text-2xl font-semibold tracking-tight text-[#e7e7e7]">{value}</p>
-          <p className="mt-1 text-xs text-[#737373]">{detail}</p>
+          <p className="text-sm text-muted-foreground">{label}</p>
+          <p className="mt-2 text-2xl font-semibold tracking-tight text-foreground">{value}</p>
+          <p className="mt-1 text-xs text-text-secondary">{detail}</p>
         </div>
-        <Icon className="h-4 w-4 text-[#737373]" />
+        <Icon className="h-4 w-4 text-text-secondary" />
       </div>
     </div>
   );
@@ -95,38 +95,38 @@ function Metric({ label, value, detail, Icon }) {
 
 function FormList({ forms, selectedFormId, onSelect, onCreateForm }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-[#2a2a2a] bg-[#202020]">
-      <div className="flex items-center justify-between border-b border-[#2a2a2a] px-4 py-3">
+    <div className="overflow-hidden rounded-2xl border border-border bg-surface-card">
+      <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div>
-          <p className="text-sm font-semibold text-[#ededed]">Project forms</p>
-          <p className="text-xs text-[#737373]">Confidential collection spaces</p>
+          <p className="text-sm font-semibold text-foreground">Project forms</p>
+          <p className="text-xs text-text-secondary">Confidential collection spaces</p>
         </div>
-        <Button type="button" size="sm" className="h-8 bg-white text-black hover:bg-[#e7e7e7]" onClick={onCreateForm}>
+        <Button type="button" size="sm" className="h-8 bg-primary text-primary-foreground hover:bg-primary" onClick={onCreateForm}>
           <Plus className="mr-1.5 h-3.5 w-3.5" />
           New
         </Button>
       </div>
-      <div className="divide-y divide-[#2a2a2a]">
+      <div className="divide-y divide-border">
         {forms.map((form) => (
           <Button
             key={form.id}
             type="button"
             onClick={() => onSelect(form.id)}
             className={cn(
-              "w-full px-4 py-3 text-left transition-colors hover:bg-[#242424]",
-              selectedFormId === form.id && "bg-[#242424]",
+              "w-full px-4 py-3 text-left transition-colors hover:bg-surface-active",
+              selectedFormId === form.id && "bg-surface-active",
             )}
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-[#ededed]">{form.title}</p>
-                <p className="mt-1 line-clamp-2 text-xs leading-5 text-[#737373]">{form.description}</p>
+                <p className="truncate text-sm font-medium text-foreground">{form.title}</p>
+                <p className="mt-1 line-clamp-2 text-xs leading-5 text-text-secondary">{form.description}</p>
               </div>
               <Badge className={cn("shrink-0 border px-2 py-0.5 text-[11px]", STATUS_CLASS[form.status])}>
                 {form.status}
               </Badge>
             </div>
-            <div className="mt-3 flex items-center gap-3 text-xs text-[#737373]">
+            <div className="mt-3 flex items-center gap-3 text-xs text-text-secondary">
               <span>{form.responses} responses</span>
               <span>{form.confidentiality}</span>
             </div>
@@ -140,14 +140,14 @@ function FormList({ forms, selectedFormId, onSelect, onCreateForm }) {
 function TypeSelect({ value, onChange }) {
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className="h-9 w-[170px] border-[#2a2a2a] bg-[#181818] text-xs text-[#ededed]">
+      <SelectTrigger className="h-9 w-[170px] border-border bg-surface-subtle text-xs text-foreground">
         <SelectValue />
       </SelectTrigger>
-      <SelectContent className="border-[#2a2a2a] bg-[#1a1a1a]">
+      <SelectContent className="border-border bg-surface-subtle">
         {Object.entries(QUESTION_TYPES).map(([key, type]) => {
           const Icon = type.Icon;
           return (
-            <SelectItem key={key} value={key} className="text-xs text-[#d4d4d4] focus:bg-[#2a2a2a]">
+            <SelectItem key={key} value={key} className="text-xs text-foreground focus:bg-surface-hover">
               <span className="inline-flex items-center gap-2">
                 <Icon className="h-3.5 w-3.5" />
                 {type.label}
@@ -168,19 +168,19 @@ function QuestionEditor({ question, index, active, onSelect, onChange, onDuplica
   return (
     <article
       className={cn(
-        "rounded-xl border bg-[#1a1a1a] transition-colors",
-        active ? "border-[#4a4a4a]" : "border-[#2a2a2a] hover:border-[#3a3a3a]",
+        "rounded-xl border bg-surface-subtle transition-colors",
+        active ? "border-border-strong" : "border-border hover:border-border-strong",
       )}
       onClick={onSelect}
     >
       <div className="flex items-start gap-3 p-4">
-        <GripVertical className="mt-2 h-4 w-4 shrink-0 text-[#525252]" />
+        <GripVertical className="mt-2 h-4 w-4 shrink-0 text-text-tertiary" />
         <div className="min-w-0 flex-1 space-y-3">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
             <Input
               value={question.title}
               onChange={(event) => onChange({ ...question, title: event.target.value })}
-              className="!h-10 border-[#2a2a2a] bg-[#202020] text-sm font-medium text-[#ededed]"
+              className="!h-10 border-border bg-surface-card text-sm font-medium text-foreground"
             />
             <TypeSelect
               value={question.type}
@@ -202,14 +202,14 @@ function QuestionEditor({ question, index, active, onSelect, onChange, onDuplica
             value={question.description}
             onChange={(event) => onChange({ ...question, description: event.target.value })}
             placeholder="Help text or clause note"
-            className="!h-9 border-[#2a2a2a] bg-[#181818] text-xs text-[#a3a3a3] placeholder:text-[#525252]"
+            className="!h-9 border-border bg-surface-subtle text-xs text-muted-foreground placeholder:text-text-tertiary"
           />
 
           {usesOptions ? (
             <div className="space-y-2">
               {question.options.map((option, optionIndex) => (
                 <div key={`${question.id}-${optionIndex}`} className="flex items-center gap-2">
-                  <span className="grid h-5 w-5 place-items-center rounded-full border border-[#3a3a3a] text-[10px] text-[#737373]">
+                  <span className="grid h-5 w-5 place-items-center rounded-full border border-border-strong text-[10px] text-text-secondary">
                     {optionIndex + 1}
                   </span>
                   <Input
@@ -219,7 +219,7 @@ function QuestionEditor({ question, index, active, onSelect, onChange, onDuplica
                       nextOptions[optionIndex] = event.target.value;
                       onChange({ ...question, options: nextOptions });
                     }}
-                    className="!h-8 border-[#2a2a2a] bg-[#181818] text-xs text-[#ededed]"
+                    className="!h-8 border-border bg-surface-subtle text-xs text-foreground"
                   />
                 </div>
               ))}
@@ -227,7 +227,7 @@ function QuestionEditor({ question, index, active, onSelect, onChange, onDuplica
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="h-8 text-xs text-[#a3a3a3] hover:bg-[#242424] hover:text-white"
+                className="h-8 text-xs text-muted-foreground hover:bg-surface-active hover:text-foreground"
                 onClick={(event) => {
                   event.stopPropagation();
                   onChange({ ...question, options: [...question.options, `Option ${question.options.length + 1}`] });
@@ -238,7 +238,7 @@ function QuestionEditor({ question, index, active, onSelect, onChange, onDuplica
               </Button>
             </div>
           ) : (
-            <div className="rounded-lg border border-dashed border-[#2a2a2a] bg-[#181818] px-3 py-2 text-xs text-[#737373]">
+            <div className="rounded-lg border border-dashed border-border bg-surface-subtle px-3 py-2 text-xs text-text-secondary">
               <TypeIcon className="mr-2 inline h-3.5 w-3.5" />
               {typeMeta.placeholder}
             </div>
@@ -246,14 +246,14 @@ function QuestionEditor({ question, index, active, onSelect, onChange, onDuplica
         </div>
       </div>
 
-      <div className="flex items-center justify-between border-t border-[#2a2a2a] px-4 py-2">
-        <span className="text-xs text-[#525252]">Question {index + 1}</span>
+      <div className="flex items-center justify-between border-t border-border px-4 py-2">
+        <span className="text-xs text-text-tertiary">Question {index + 1}</span>
         <div className="flex items-center gap-2">
           <Button
             type="button"
             variant="ghost"
             size="icon"
-            className="h-8 w-8 text-[#737373] hover:bg-[#242424] hover:text-white"
+            className="h-8 w-8 text-text-secondary hover:bg-surface-active hover:text-foreground"
             onClick={(event) => {
               event.stopPropagation();
               onDuplicate();
@@ -265,7 +265,7 @@ function QuestionEditor({ question, index, active, onSelect, onChange, onDuplica
             type="button"
             variant="ghost"
             size="icon"
-            className="h-8 w-8 text-[#737373] hover:bg-[#242424] hover:text-red-300"
+            className="h-8 w-8 text-text-secondary hover:bg-surface-active hover:text-red-300"
             onClick={(event) => {
               event.stopPropagation();
               onDelete();
@@ -273,8 +273,8 @@ function QuestionEditor({ question, index, active, onSelect, onChange, onDuplica
           >
             <Trash2 className="h-3.5 w-3.5" />
           </Button>
-          <div className="flex items-center gap-2 border-l border-[#2a2a2a] pl-3">
-            <span className="text-xs text-[#737373]">Required</span>
+          <div className="flex items-center gap-2 border-l border-border pl-3">
+            <span className="text-xs text-text-secondary">Required</span>
             <Switch
               checked={question.required}
               onCheckedChange={(required) => onChange({ ...question, required })}
@@ -288,15 +288,15 @@ function QuestionEditor({ question, index, active, onSelect, onChange, onDuplica
 
 function FormPreview({ form, questions }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-[#2a2a2a] bg-[#202020]">
-      <div className="border-b border-[#2a2a2a] bg-[#1a1a1a] p-4">
+    <div className="overflow-hidden rounded-2xl border border-border bg-surface-card">
+      <div className="border-b border-border bg-surface-subtle p-4">
         <div className="flex items-start gap-3">
           <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-teal-500/25 bg-teal-500/10">
             <LockKeyhole className="h-4 w-4 text-teal-300" />
           </div>
           <div className="min-w-0">
-            <h3 className="text-base font-semibold text-[#ededed]">{form.title}</h3>
-            <p className="mt-1 text-xs leading-5 text-[#737373]">{form.description}</p>
+            <h3 className="text-base font-semibold text-foreground">{form.title}</h3>
+            <p className="mt-1 text-xs leading-5 text-text-secondary">{form.description}</p>
           </div>
         </div>
         <div className="mt-4 rounded-lg border border-teal-500/20 bg-teal-500/10 px-3 py-2 text-xs leading-5 text-teal-200">
@@ -309,17 +309,17 @@ function FormPreview({ form, questions }) {
           return (
             <div key={question.id}>
               <div className="flex items-center gap-1.5">
-                <p className="text-sm font-medium text-[#ededed]">{question.title}</p>
+                <p className="text-sm font-medium text-foreground">{question.title}</p>
                 {question.required ? <span className="text-red-300">*</span> : null}
               </div>
               {question.description ? (
-                <p className="mt-1 text-xs text-[#737373]">{question.description}</p>
+                <p className="mt-1 text-xs text-text-secondary">{question.description}</p>
               ) : null}
               {question.type === "paragraph" ? (
                 <Textarea
                   value={value || ""}
                   readOnly
-                  className="mt-2 min-h-20 border-[#2a2a2a] bg-[#181818] text-sm text-[#a3a3a3]"
+                  className="mt-2 min-h-20 border-border bg-surface-subtle text-sm text-muted-foreground"
                 />
               ) : question.options.length > 0 ? (
                 <div className="mt-2 space-y-2">
@@ -332,10 +332,10 @@ function FormPreview({ form, questions }) {
                           "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm",
                           selected
                             ? "border-teal-500/30 bg-teal-500/10 text-teal-200"
-                            : "border-[#2a2a2a] bg-[#181818] text-[#737373]",
+                            : "border-border bg-surface-subtle text-text-secondary",
                         )}
                       >
-                        <span className={cn("h-2 w-2 rounded-full", selected ? "bg-teal-300" : "bg-[#3a3a3a]")} />
+                        <span className={cn("h-2 w-2 rounded-full", selected ? "bg-teal-300" : "bg-surface-strong")} />
                         {option}
                       </div>
                     );
@@ -345,7 +345,7 @@ function FormPreview({ form, questions }) {
                 <Input
                   value={value || ""}
                   readOnly
-                  className="mt-2 !h-9 border-[#2a2a2a] bg-[#181818] text-sm text-[#a3a3a3]"
+                  className="mt-2 !h-9 border-border bg-surface-subtle text-sm text-muted-foreground"
                 />
               )}
             </div>
@@ -358,19 +358,19 @@ function FormPreview({ form, questions }) {
 
 function ResponsesPanel() {
   return (
-    <div className="overflow-hidden rounded-2xl border border-[#2a2a2a] bg-[#202020]">
-      <div className="flex items-center justify-between border-b border-[#2a2a2a] px-4 py-3">
+    <div className="overflow-hidden rounded-2xl border border-border bg-surface-card">
+      <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div>
-          <p className="text-sm font-semibold text-[#ededed]">Responses</p>
-          <p className="text-xs text-[#737373]">Review submissions before access or export.</p>
+          <p className="text-sm font-semibold text-foreground">Responses</p>
+          <p className="text-xs text-text-secondary">Review submissions before access or export.</p>
         </div>
-        <Button variant="outline" size="sm" className="h-8 border-[#2a2a2a] bg-transparent text-[#a3a3a3] hover:bg-[#242424] hover:text-white">
+        <Button variant="outline" size="sm" className="h-8 border-border bg-transparent text-muted-foreground hover:bg-surface-active hover:text-foreground">
           Export
         </Button>
       </div>
       <Table className="table-fixed">
         <TableHeader>
-          <TableRow className="border-[#2a2a2a] bg-[#1a1a1a]">
+          <TableRow className="border-border bg-surface-subtle">
             <TableHead className="px-4">Respondent</TableHead>
             <TableHead className="hidden px-4 md:table-cell">Access</TableHead>
             <TableHead className="hidden px-4 lg:table-cell">Clause</TableHead>
@@ -379,13 +379,13 @@ function ResponsesPanel() {
         </TableHeader>
         <TableBody>
           {RESPONSES.map((response) => (
-            <TableRow key={response.id} className="border-[#2a2a2a] hover:bg-[#242424]">
+            <TableRow key={response.id} className="border-border hover:bg-surface-active">
               <TableCell className="px-4 py-3">
-                <p className="truncate text-sm font-medium text-[#ededed]">{response.respondent}</p>
-                <p className="mt-1 text-xs text-[#737373]">{response.submitted}</p>
+                <p className="truncate text-sm font-medium text-foreground">{response.respondent}</p>
+                <p className="mt-1 text-xs text-text-secondary">{response.submitted}</p>
               </TableCell>
-              <TableCell className="hidden px-4 py-3 text-sm text-[#a3a3a3] md:table-cell">{response.access}</TableCell>
-              <TableCell className="hidden px-4 py-3 text-sm text-[#a3a3a3] lg:table-cell">{response.clause}</TableCell>
+              <TableCell className="hidden px-4 py-3 text-sm text-muted-foreground md:table-cell">{response.access}</TableCell>
+              <TableCell className="hidden px-4 py-3 text-sm text-muted-foreground lg:table-cell">{response.clause}</TableCell>
               <TableCell className="px-4 py-3">
                 <Badge className={cn("border px-2 py-0.5 text-[11px]", STATUS_CLASS[response.status])}>
                   {response.status}
@@ -428,25 +428,25 @@ function SettingsPanel({ settings, onChange }) {
   ];
 
   return (
-    <div className="rounded-2xl border border-[#2a2a2a] bg-[#202020] p-4">
+    <div className="rounded-2xl border border-border bg-surface-card p-4">
       <div className="flex items-start gap-3">
-        <div className="grid h-9 w-9 place-items-center rounded-lg border border-[#2a2a2a] bg-[#1a1a1a]">
-          <Settings2 className="h-4 w-4 text-[#a3a3a3]" />
+        <div className="grid h-9 w-9 place-items-center rounded-lg border border-border bg-surface-subtle">
+          <Settings2 className="h-4 w-4 text-muted-foreground" />
         </div>
         <div>
-          <p className="text-sm font-semibold text-[#ededed]">Collection controls</p>
-          <p className="mt-1 text-xs leading-5 text-[#737373]">
+          <p className="text-sm font-semibold text-foreground">Collection controls</p>
+          <p className="mt-1 text-xs leading-5 text-text-secondary">
             Configure how confidential submissions are accepted, traced, and reviewed.
           </p>
         </div>
       </div>
-      <div className="mt-4 divide-y divide-[#2a2a2a]">
+      <div className="mt-4 divide-y divide-border">
         {rows.map(({ key, label, detail, Icon }) => (
           <div key={key} className="flex items-center gap-3 py-3">
-            <Icon className="h-4 w-4 shrink-0 text-[#737373]" />
+            <Icon className="h-4 w-4 shrink-0 text-text-secondary" />
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-[#ededed]">{label}</p>
-              <p className="mt-0.5 text-xs text-[#737373]">{detail}</p>
+              <p className="text-sm font-medium text-foreground">{label}</p>
+              <p className="mt-0.5 text-xs text-text-secondary">{detail}</p>
             </div>
             <Switch checked={settings[key]} onCheckedChange={(checked) => onChange({ ...settings, [key]: checked })} />
           </div>
@@ -465,7 +465,7 @@ function ViewSwitch({ activeView, onChange }) {
   ];
 
   return (
-    <div className="flex flex-wrap items-center rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] p-0.5">
+    <div className="flex flex-wrap items-center rounded-lg border border-border bg-surface-subtle p-0.5">
       {views.map(({ id, Icon }) => (
         <Button
           key={id}
@@ -475,7 +475,7 @@ function ViewSwitch({ activeView, onChange }) {
           onClick={() => onChange(id)}
           className={cn(
             "h-8 rounded-md px-3 text-xs",
-            activeView === id ? "bg-[#2a2a2a] text-white" : "text-[#737373] hover:bg-transparent hover:text-[#a3a3a3]",
+            activeView === id ? "bg-surface-hover text-foreground" : "text-text-secondary hover:bg-transparent hover:text-muted-foreground",
           )}
         >
           <Icon className="mr-1.5 h-3.5 w-3.5" />
@@ -547,33 +547,33 @@ export function FormsScreen() {
 
   if (!selectedForm) {
     return (
-      <MainScreenWrapper className="space-y-6 text-[#e7e7e7]">
-        <div className="flex flex-col gap-4 border-b border-[#2a2a2a] pb-6 md:flex-row md:items-center md:justify-between">
+      <MainScreenWrapper className="space-y-6 text-foreground">
+        <div className="flex flex-col gap-4 border-b border-border pb-6 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">
             <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-teal-500/25 bg-teal-500/10">
               <FileQuestion className="h-5 w-5 text-teal-300" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-[#e7e7e7] md:text-3xl">Forms</h1>
-              <p className="mt-1 text-[#a3a3a3]">Create confidential forms for project-bound submissions.</p>
+              <h1 className="text-2xl font-bold text-foreground md:text-3xl">Forms</h1>
+              <p className="mt-1 text-muted-foreground">Create confidential forms for project-bound submissions.</p>
             </div>
           </div>
-          <Button type="button" className="bg-white text-black hover:bg-[#e7e7e7]" onClick={openBuilder}>
+          <Button type="button" className="bg-primary text-primary-foreground hover:bg-primary" onClick={openBuilder}>
             <Plus className="mr-2 h-4 w-4" />
             New form
           </Button>
         </div>
 
-        <div className="grid min-h-[360px] place-items-center border border-dashed border-[#333333] bg-[#1a1a1a] p-6 text-center">
+        <div className="grid min-h-[360px] place-items-center border border-dashed border-border bg-surface-subtle p-6 text-center">
           <div className="max-w-sm">
-            <div className="mx-auto grid h-12 w-12 place-items-center rounded-lg border border-[#2a2a2a] bg-[#202020]">
-              <FileQuestion className="h-5 w-5 text-[#a3a3a3]" />
+            <div className="mx-auto grid h-12 w-12 place-items-center rounded-lg border border-border bg-surface-card">
+              <FileQuestion className="h-5 w-5 text-muted-foreground" />
             </div>
-            <h2 className="mt-4 text-lg font-semibold text-[#ededed]">No forms yet</h2>
-            <p className="mt-2 text-sm leading-6 text-[#737373]">
+            <h2 className="mt-4 text-lg font-semibold text-foreground">No forms yet</h2>
+            <p className="mt-2 text-sm leading-6 text-text-secondary">
               Start with a draft and publish it when the project intake is ready.
             </p>
-            <Button type="button" className="mt-4 bg-white text-black hover:bg-[#e7e7e7]" onClick={openBuilder}>
+            <Button type="button" className="mt-4 bg-primary text-primary-foreground hover:bg-primary" onClick={openBuilder}>
               <Plus className="mr-2 h-4 w-4" />
               Create form
             </Button>
@@ -584,19 +584,19 @@ export function FormsScreen() {
   }
 
   return (
-    <MainScreenWrapper className="space-y-6 text-[#e7e7e7]">
-      <div className="flex flex-col gap-4 border-b border-[#2a2a2a] pb-6 md:flex-row md:items-center md:justify-between">
+    <MainScreenWrapper className="space-y-6 text-foreground">
+      <div className="flex flex-col gap-4 border-b border-border pb-6 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">
           <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-teal-500/25 bg-teal-500/10">
             <FileQuestion className="h-5 w-5 text-teal-300" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-[#e7e7e7] md:text-3xl">Forms</h1>
-            <p className="mt-1 text-[#a3a3a3]">Create confidential forms for project-bound submissions.</p>
+            <h1 className="text-2xl font-bold text-foreground md:text-3xl">Forms</h1>
+            <p className="mt-1 text-muted-foreground">Create confidential forms for project-bound submissions.</p>
           </div>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <Button type="button" className="bg-white text-black hover:bg-[#e7e7e7]" onClick={openBuilder}>
+          <Button type="button" className="bg-primary text-primary-foreground hover:bg-primary" onClick={openBuilder}>
             <Plus className="mr-2 h-4 w-4" />
             New form
           </Button>
@@ -614,19 +614,19 @@ export function FormsScreen() {
         <FormList forms={forms} selectedFormId={selectedForm.id} onSelect={setSelectedFormId} onCreateForm={openBuilder} />
 
         <section className="min-w-0 space-y-4">
-          <div className="overflow-hidden rounded-2xl border border-[#2a2a2a] bg-[#202020]">
-            <div className="space-y-4 border-b border-[#2a2a2a] p-4">
+          <div className="overflow-hidden rounded-2xl border border-border bg-surface-card">
+            <div className="space-y-4 border-b border-border p-4">
               <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
                 <div className="min-w-0 flex-1 space-y-3">
                   <Input
                     value={selectedForm.title}
                     onChange={(event) => updateSelectedForm({ title: event.target.value })}
-                    className="!h-11 border-[#2a2a2a] bg-[#1a1a1a] text-lg font-semibold text-[#ededed]"
+                    className="!h-11 border-border bg-surface-subtle text-lg font-semibold text-foreground"
                   />
                   <Textarea
                     value={selectedForm.description}
                     onChange={(event) => updateSelectedForm({ description: event.target.value })}
-                    className="min-h-20 border-[#2a2a2a] bg-[#1a1a1a] text-sm leading-6 text-[#a3a3a3]"
+                    className="min-h-20 border-border bg-surface-subtle text-sm leading-6 text-muted-foreground"
                   />
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -641,13 +641,13 @@ export function FormsScreen() {
               </div>
               <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
                 <ViewSwitch activeView={activeView} onChange={setActiveView} />
-                <div className="flex flex-wrap items-center gap-2 text-xs text-[#737373]">
-                  <span className="inline-flex items-center gap-1.5 rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] px-3 py-2">
+                <div className="flex flex-wrap items-center gap-2 text-xs text-text-secondary">
+                  <span className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-subtle px-3 py-2">
                     <ShieldCheck className="h-3.5 w-3.5 text-teal-300" />
                     Verified identity
                   </span>
-                  <span className="inline-flex items-center gap-1.5 rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] px-3 py-2">
-                    <Sparkles className="h-3.5 w-3.5 text-[#a3a3a3]" />
+                  <span className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-subtle px-3 py-2">
+                    <Sparkles className="h-3.5 w-3.5 text-muted-foreground" />
                     Autosaved draft
                   </span>
                 </div>
@@ -684,7 +684,7 @@ export function FormsScreen() {
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full border-dashed border-[#3a3a3a] bg-transparent text-[#a3a3a3] hover:bg-[#242424] hover:text-white"
+                  className="w-full border-dashed border-border-strong bg-transparent text-muted-foreground hover:bg-surface-active hover:text-foreground"
                   onClick={addQuestion}
                 >
                   <Plus className="mr-2 h-4 w-4" />

@@ -10,20 +10,20 @@ const featureIconMap = { Layers, File, Eye, HardDrive };
 
 export function DamCard() {
   return (
-    <Card className="bg-[#1a1a1a] border-[#2a2a2a] text-[#e7e7e7] hover:border-[#474747] transition-all duration-300">
+    <Card className="bg-surface-subtle border-border text-foreground hover:border-border-strong transition-all duration-300">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-base">Digital Asset Manager</CardTitle>
-            <CardDescription className="text-[#525252] text-xs mt-1">
+            <CardDescription className="text-text-tertiary text-xs mt-1">
               Advanced asset management
             </CardDescription>
           </div>
-          <Package className="w-4 h-4 text-[#525252]" />
+          <Package className="w-4 h-4 text-text-tertiary" />
         </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        <Button className="w-full bg-white text-black hover:bg-[#e7e7e7]" asChild>
+        <Button className="w-full bg-primary text-primary-foreground hover:bg-primary" asChild>
           <a href="#">
             <ExternalLink className="w-4 h-4 mr-2" />
             Open In DAM
@@ -33,9 +33,9 @@ export function DamCard() {
           {damFeatures.map((feature) => {
             const Icon = featureIconMap[feature.iconKey];
             return (
-              <div key={feature.label} className="flex items-center gap-2 p-2 rounded-md bg-[#242424] border border-[#2a2a2a]">
-                <Icon className="w-3.5 h-3.5 text-[#525252]" />
-                <span className="text-xs text-[#737373]">{feature.label}</span>
+              <div key={feature.label} className="flex items-center gap-2 p-2 rounded-md bg-surface-active border border-border">
+                <Icon className="w-3.5 h-3.5 text-text-tertiary" />
+                <span className="text-xs text-text-secondary">{feature.label}</span>
               </div>
             );
           })}

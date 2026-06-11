@@ -26,6 +26,7 @@ import { LogsScreen } from "@/components/internal/screens/projects/logs/logs_scr
 import { AssetsScreen } from "@/components/internal/screens/projects/assets/assets_screen";
 import { PlanningScreen } from "@/components/internal/screens/projects/planning/planning_screen";
 import { ExternalsScreen } from "@/components/internal/screens/projects/externals/externals_screen";
+import { OfficeScreen } from "@/components/internal/screens/projects/office/office_screen";
 import { ProjectProvider, useProject } from "@/context/project-context";
 import { ProjectBudgetProvider } from "@/context/project-budget-context";
 import { settingsNav } from "@/components/internal/sidebar/projects/sidebar_data";
@@ -151,6 +152,10 @@ function ProjectLayoutContent({ id }) {
         );
       case "Assets":
         return <AssetsScreen />;
+      case "Recent Files":
+      case "Folders":
+      case "Shared with Project":
+        return <OfficeScreen activeTab={currentTab} />;
       case "Logs":
         return <LogsScreen />;
       case "Security":
@@ -162,21 +167,21 @@ function ProjectLayoutContent({ id }) {
 
   if (loading || !project) {
     return (
-      <div className="flex flex-col h-[100dvh] w-full bg-[#161616] items-center justify-center gap-3">
-        <div className="w-5 h-5 rounded-full border-2 border-[#474747] border-t-[#e7e7e7] animate-spin" />
-        <span className="text-[#525252] text-sm">Loading project...</span>
+      <div className="flex flex-col h-[100dvh] w-full bg-background items-center justify-center gap-3">
+        <div className="w-5 h-5 rounded-full border-2 border-border-strong border-t-foreground animate-spin" />
+        <span className="text-text-tertiary text-sm">Loading project...</span>
       </div>
     );
   }
 
   return (
-    <div className="flex-col h-[100dvh] w-full bg-[#161616] text-[#ededed] font-sans overflow-hidden selection:bg-[#333333] flex">
+    <div className="flex-col h-[100dvh] w-full bg-background text-foreground font-sans overflow-hidden selection:bg-surface-strong flex">
       <SidebarProvider className="flex-col !flex h-full min-w-0" style={{flexDirection: 'column'}}>
         <ProjectTopbar externalLinks={externalLinks} />
         <div className="flex flex-1 overflow-hidden relative">
           <ProjectSidebar activeTab={currentTab} onTabChange={setCurrentTab} />
           <SidebarInset className="flex-1 flex flex-col h-full bg-transparent overflow-hidden relative border-none">
-            <div className="absolute top-0 right-0 w-[500px] h-[300px] bg-white/[0.02] blur-[120px] pointer-events-none rounded-full"></div>
+            <div className="absolute top-0 right-0 w-[500px] h-[300px] bg-foreground/[0.02] blur-[120px] pointer-events-none rounded-full"></div>
             <main className={`flex-1 relative z-10 w-full min-w-0 [&::-webkit-scrollbar]:hidden [&]:-ms-overflow-style:none [&]:scrollbar-width:none ${isFullBleedScreen ? "min-h-0 overflow-hidden p-0" : "overflow-y-auto p-4 md:p-8"}`}>
               {renderScreen()}
             </main>
@@ -197,9 +202,9 @@ export default function ProjectPage({ params: paramsPromise }) {
         <AddonRegistryProvider>
           <Suspense
             fallback={
-              <div className="flex flex-col h-[100dvh] w-full bg-[#161616] items-center justify-center gap-3">
-                <div className="w-5 h-5 rounded-full border-2 border-[#474747] border-t-[#e7e7e7] animate-spin" />
-                <span className="text-[#525252] text-sm">Loading...</span>
+              <div className="flex flex-col h-[100dvh] w-full bg-background items-center justify-center gap-3">
+                <div className="w-5 h-5 rounded-full border-2 border-border-strong border-t-foreground animate-spin" />
+                <span className="text-text-tertiary text-sm">Loading...</span>
               </div>
             }
           >

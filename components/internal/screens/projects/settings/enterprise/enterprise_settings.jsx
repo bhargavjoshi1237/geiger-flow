@@ -17,17 +17,17 @@ import { cn } from "@/lib/utils";
 
 function ToggleRow({ label, description, checked, onCheckedChange, badge }) {
   return (
-    <div className="flex items-center justify-between border-b border-[#2c2c2c] px-5 py-3.5 last:border-0">
+    <div className="flex items-center justify-between border-b border-border px-5 py-3.5 last:border-0">
       <div className="pr-4">
         <div className="flex items-center gap-2">
-          <span className="text-[13px] font-medium text-[#e7e7e7]">{label}</span>
+          <span className="text-[13px] font-medium text-foreground">{label}</span>
           {badge ? (
             <Badge
               className={cn(
                 "h-4 px-1.5 text-[9px]",
                 badge.variant === "green"
                   ? "border-green-500/20 bg-green-500/10 text-green-400"
-                  : "border-[#3c3c3c] bg-[#2c2c2c] text-[#a3a3a3]",
+                  : "border-border-strong bg-surface-hover text-muted-foreground",
               )}
             >
               {badge.text}
@@ -35,7 +35,7 @@ function ToggleRow({ label, description, checked, onCheckedChange, badge }) {
           ) : null}
         </div>
         {description ? (
-          <p className="mt-0.5 text-[12px] text-[#666]">{description}</p>
+          <p className="mt-0.5 text-[12px] text-muted-foreground">{description}</p>
         ) : null}
       </div>
       <Switch checked={checked} onCheckedChange={onCheckedChange} />
@@ -45,26 +45,26 @@ function ToggleRow({ label, description, checked, onCheckedChange, badge }) {
 
 function EmptyPanel({ title, description }) {
   return (
-    <div className="rounded-xl border border-dashed border-[#2c2c2c] bg-[#181818] p-8 text-center">
-      <p className="text-sm font-medium text-[#ededed]">{title}</p>
-      <p className="mt-1 text-xs text-[#737373]">{description}</p>
+    <div className="rounded-xl border border-dashed border-border bg-surface-subtle p-8 text-center">
+      <p className="text-sm font-medium text-foreground">{title}</p>
+      <p className="mt-1 text-xs text-text-secondary">{description}</p>
     </div>
   );
 }
 
 function StatCard({ icon: Icon, label, helper }) {
   return (
-    <div className="rounded-xl border border-[#2c2c2c] bg-[#181818] p-4 shadow-sm">
+    <div className="rounded-xl border border-border bg-surface-subtle p-4 shadow-sm">
       <div className="mb-2 flex items-center gap-2.5">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#3c3c3c] bg-[#2c2c2c] text-[#a3a3a3]">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-border-strong bg-surface-hover text-muted-foreground">
           <Icon className="h-4 w-4" strokeWidth={1.8} />
         </div>
-        <div className="text-[11px] font-medium uppercase tracking-wider text-[#666]">
+        <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
           {label}
         </div>
       </div>
-      <div className="text-xl font-semibold text-[#e7e7e7]">0</div>
-      <p className="mt-0.5 text-[11px] text-[#555]">{helper}</p>
+      <div className="text-xl font-semibold text-foreground">0</div>
+      <p className="mt-0.5 text-[11px] text-muted-foreground">{helper}</p>
     </div>
   );
 }
@@ -81,16 +81,16 @@ export function EnterpriseSettingsScreen() {
 
   return (
     <div className="space-y-12">
-      <div className="rounded-2xl border border-[#2c2c2c] bg-[#181818] p-5 shadow-sm">
+      <div className="rounded-2xl border border-border bg-surface-subtle p-5 shadow-sm">
         <div className="flex items-start gap-3">
           <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-primary/20 bg-primary/10 text-primary">
             <Building2 className="h-4 w-4" strokeWidth={1.8} />
           </div>
           <div>
-            <div className="mb-1 text-[14px] font-semibold text-[#e7e7e7]">
+            <div className="mb-1 text-[14px] font-semibold text-foreground">
               Enterprise Plan
             </div>
-            <div className="text-[13px] leading-relaxed text-[#8b8b8b]">
+            <div className="text-[13px] leading-relaxed text-muted-foreground">
               Enterprise plan and governance details will appear here after backend data is connected.
             </div>
           </div>
@@ -105,7 +105,7 @@ export function EnterpriseSettingsScreen() {
           </p>
         </div>
 
-        <Card className="overflow-hidden rounded-xl border-[#2c2c2c] bg-[#181818] text-[#e7e7e7] shadow-sm">
+        <Card className="overflow-hidden rounded-xl border-border bg-surface-subtle text-foreground shadow-sm">
           <div className="-my-6">
             <ToggleRow
               label="Single Sign-On (SSO)"
@@ -141,7 +141,7 @@ export function EnterpriseSettingsScreen() {
           </p>
         </div>
 
-        <Card className="overflow-hidden rounded-xl border-[#2c2c2c] bg-[#181818] text-[#e7e7e7] shadow-sm">
+        <Card className="overflow-hidden rounded-xl border-border bg-surface-subtle text-foreground shadow-sm">
           <div className="-my-6">
             <ToggleRow
               label="Encryption at Rest"
@@ -200,20 +200,20 @@ export function EnterpriseSettingsScreen() {
           </p>
         </div>
 
-        <Card className="overflow-hidden rounded-xl border-[#2c2c2c] bg-[#181818] text-[#e7e7e7] shadow-sm">
+        <Card className="overflow-hidden rounded-xl border-border bg-surface-subtle text-foreground shadow-sm">
           <div className="-my-6">
             <div className="px-5 py-8 text-center">
-              <p className="text-sm font-medium text-[#ededed]">No audit events yet</p>
-              <p className="mt-1 text-xs text-[#737373]">
+              <p className="text-sm font-medium text-foreground">No audit events yet</p>
+              <p className="mt-1 text-xs text-text-secondary">
                 Security and access events will appear here after backend data is connected.
               </p>
             </div>
-            <div className="flex items-center justify-between bg-[#161616]/50 px-5 py-3">
-              <span className="text-[12px] text-[#555]">Showing 0 events</span>
+            <div className="flex items-center justify-between bg-background/50 px-5 py-3">
+              <span className="text-[12px] text-muted-foreground">Showing 0 events</span>
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-7 text-[12px] text-[#a3a3a3] hover:bg-[#2c2c2c] hover:text-[#e7e7e7]"
+                className="h-7 text-[12px] text-muted-foreground hover:bg-surface-hover hover:text-foreground"
               >
                 View Full Audit Log
                 <ChevronRight className="ml-1 h-3 w-3" />

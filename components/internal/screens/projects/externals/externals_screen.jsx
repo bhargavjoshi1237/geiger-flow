@@ -42,7 +42,7 @@ const DEFAULT_FORM = {
   title: "",
   url: "",
   icon: "ExternalLink",
-  textColor: "#ededed",
+  textColor: "#737373",
   showOnTopbar: true,
   showOnDashboard: true,
   openInNewTab: true,
@@ -54,8 +54,8 @@ function VisibilityBadge({ active, children }) {
       variant="outline"
       className={
         active
-          ? "border-[#3a3a3a] bg-[#242424] text-[#e7e7e7]"
-          : "border-[#2a2a2a] bg-transparent text-[#737373]"
+          ? "border-border-strong bg-surface-active text-foreground"
+          : "border-border bg-transparent text-text-secondary"
       }
     >
       {children}
@@ -98,36 +98,36 @@ export function ExternalsScreen({ links = [], onCreateLink, onDeleteLink }) {
   };
 
   return (
-    <MainScreenWrapper className="flex flex-col gap-8 space-y-0 text-[#e7e7e7]">
-      <div className="flex flex-col gap-4 border-b border-[#2a2a2a] pb-6 lg:flex-row lg:items-center lg:justify-between">
+    <MainScreenWrapper className="flex flex-col gap-8 space-y-0 text-foreground">
+      <div className="flex flex-col gap-4 border-b border-border pb-6 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1 className="text-2xl md:text-3xl font-semibold text-[#e7e7e7] tracking-tight">
+          <h1 className="text-2xl md:text-3xl font-semibold text-foreground tracking-tight">
             Externals
           </h1>
-          <p className="text-[#a3a3a3] text-sm mt-1">
+          <p className="text-muted-foreground text-sm mt-1">
             Save app-related external links and choose where they appear.
           </p>
         </div>
 
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button className="h-9 bg-[#ededed] text-[#161616] hover:bg-white">
+            <Button className="h-9 bg-primary text-primary-foreground hover:bg-primary/90">
               <Plus className="h-4 w-4" />
               Create external
             </Button>
           </DialogTrigger>
-          <DialogContent className="border-[#2a2a2a] bg-[#1a1a1a] text-[#ededed] sm:max-w-xl">
+          <DialogContent className="border-border bg-surface-subtle text-foreground sm:max-w-xl">
             <form onSubmit={handleSubmit} className="space-y-5">
               <DialogHeader>
                 <DialogTitle>Create external link</DialogTitle>
-                <DialogDescription className="text-[#a3a3a3]">
+                <DialogDescription className="text-muted-foreground">
                   Add a link, choose its icon, and decide where it should be shown.
                 </DialogDescription>
               </DialogHeader>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2 sm:col-span-2">
-                  <Label htmlFor="external-title" className="text-[#d4d4d4]">
+                  <Label htmlFor="external-title" className="text-foreground">
                     Name
                   </Label>
                   <Input
@@ -135,13 +135,13 @@ export function ExternalsScreen({ links = [], onCreateLink, onDeleteLink }) {
                     value={form.title}
                     onChange={(event) => updateForm("title", event.target.value)}
                     placeholder="Documentation"
-                    className="border-[#333333] bg-[#202020] text-[#ededed] placeholder:text-[#737373]"
+                    className="border-border bg-surface-card text-foreground placeholder:text-text-secondary"
                     required
                   />
                 </div>
 
                 <div className="space-y-2 sm:col-span-2">
-                  <Label htmlFor="external-url" className="text-[#d4d4d4]">
+                  <Label htmlFor="external-url" className="text-foreground">
                     URL
                   </Label>
                   <Input
@@ -149,21 +149,21 @@ export function ExternalsScreen({ links = [], onCreateLink, onDeleteLink }) {
                     value={form.url}
                     onChange={(event) => updateForm("url", event.target.value)}
                     placeholder="https://example.com"
-                    className="border-[#333333] bg-[#202020] text-[#ededed] placeholder:text-[#737373]"
+                    className="border-border bg-surface-card text-foreground placeholder:text-text-secondary"
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-[#d4d4d4]">Icon</Label>
+                  <Label className="text-foreground">Icon</Label>
                   <Select
                     value={form.icon}
                     onValueChange={(value) => updateForm("icon", value)}
                   >
-                    <SelectTrigger className="w-full border-[#333333] bg-[#202020] text-[#ededed]">
+                    <SelectTrigger className="w-full border-border bg-surface-card text-foreground">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="border-[#333333] bg-[#202020] text-[#ededed]">
+                    <SelectContent className="border-border bg-surface-card text-foreground">
                       {EXTERNAL_ICON_OPTIONS.map((option) => (
                         <SelectItem key={option.value} value={option.value}>
                           <ExternalLinkIcon
@@ -178,10 +178,10 @@ export function ExternalsScreen({ links = [], onCreateLink, onDeleteLink }) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="external-color" className="text-[#d4d4d4]">
+                  <Label htmlFor="external-color" className="text-foreground">
                     Text color
                   </Label>
-                  <div className="flex h-10 items-center gap-2 rounded-md border border-[#333333] bg-[#202020] px-3">
+                  <div className="flex h-10 items-center gap-2 rounded-md border border-border bg-surface-card px-3">
                     <input
                       id="external-color"
                       type="color"
@@ -191,12 +191,12 @@ export function ExternalsScreen({ links = [], onCreateLink, onDeleteLink }) {
                       }
                       className="h-6 w-8 cursor-pointer rounded border-0 bg-transparent p-0"
                     />
-                    <span className="text-sm text-[#a3a3a3]">{form.textColor}</span>
+                    <span className="text-sm text-muted-foreground">{form.textColor}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="rounded-lg border border-[#2a2a2a] bg-[#202020]">
+              <div className="rounded-lg border border-border bg-surface-card">
                 {[
                   ["showOnTopbar", "Show on top bar"],
                   ["showOnDashboard", "Show on dashboard"],
@@ -204,9 +204,9 @@ export function ExternalsScreen({ links = [], onCreateLink, onDeleteLink }) {
                 ].map(([key, label]) => (
                   <label
                     key={key}
-                    className="flex items-center justify-between gap-4 border-b border-[#2a2a2a] px-4 py-3 last:border-b-0"
+                    className="flex items-center justify-between gap-4 border-b border-border px-4 py-3 last:border-b-0"
                   >
-                    <span className="text-sm text-[#d4d4d4]">{label}</span>
+                    <span className="text-sm text-foreground">{label}</span>
                     <Switch
                       checked={form[key]}
                       onCheckedChange={(checked) => updateForm(key, checked)}
@@ -215,8 +215,8 @@ export function ExternalsScreen({ links = [], onCreateLink, onDeleteLink }) {
                 ))}
               </div>
 
-              <div className="flex items-center gap-3 rounded-lg border border-[#2a2a2a] bg-[#202020] p-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-md border border-[#333333] bg-[#1a1a1a]">
+              <div className="flex items-center gap-3 rounded-lg border border-border bg-surface-card p-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-md border border-border bg-surface-subtle">
                   <ExternalLinkIcon
                     iconName={form.icon}
                     className="h-4 w-4"
@@ -232,12 +232,12 @@ export function ExternalsScreen({ links = [], onCreateLink, onDeleteLink }) {
                 <Button
                   type="button"
                   variant="outline"
-                  className="border-[#333333] bg-[#202020] text-[#ededed] hover:bg-[#2a2a2a]"
+                  className="border-border bg-surface-card text-foreground hover:bg-surface-hover"
                   onClick={() => setOpen(false)}
                 >
                   Cancel
                 </Button>
-                <Button type="submit" className="bg-[#ededed] text-[#161616] hover:bg-white">
+                <Button type="submit" className="bg-primary text-primary-foreground hover:bg-primary/90">
                   Save external
                 </Button>
               </DialogFooter>
@@ -246,12 +246,12 @@ export function ExternalsScreen({ links = [], onCreateLink, onDeleteLink }) {
         </Dialog>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-[#2a2a2a] bg-[#202020]">
+      <div className="overflow-hidden rounded-lg border border-border bg-surface-card">
         {links.length === 0 ? (
           <div className="p-12 text-center">
-            <ExternalLink className="mx-auto mb-3 h-7 w-7 text-[#525252]" />
-            <p className="text-sm font-medium text-[#e7e7e7]">No external links yet</p>
-            <p className="mt-1 text-xs text-[#737373]">
+            <ExternalLink className="mx-auto mb-3 h-7 w-7 text-text-tertiary" />
+            <p className="text-sm font-medium text-foreground">No external links yet</p>
+            <p className="mt-1 text-xs text-text-secondary">
               Create one to surface it on the top bar or dashboard.
             </p>
           </div>
@@ -271,7 +271,7 @@ export function ExternalsScreen({ links = [], onCreateLink, onDeleteLink }) {
                   <TableRow key={link.id}>
                     <TableCell>
                       <div className="flex min-w-0 items-center gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-md border border-[#333333] bg-[#1a1a1a]">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-md border border-border bg-surface-subtle">
                           <ExternalLinkIcon
                             iconName={link.icon}
                             className="h-4 w-4"
@@ -291,7 +291,7 @@ export function ExternalsScreen({ links = [], onCreateLink, onDeleteLink }) {
                         href={link.url}
                         target={link.openInNewTab ? "_blank" : undefined}
                         rel={link.openInNewTab ? "noreferrer" : undefined}
-                        className="block max-w-[360px] truncate text-[#a3a3a3] hover:text-[#ededed]"
+                        className="block max-w-[360px] truncate text-muted-foreground hover:text-foreground"
                       >
                         {link.url}
                       </a>
@@ -314,7 +314,7 @@ export function ExternalsScreen({ links = [], onCreateLink, onDeleteLink }) {
                         type="button"
                         variant="ghost"
                         size="icon-sm"
-                        className="text-[#737373] hover:bg-[#2a2a2a] hover:text-[#ededed]"
+                        className="text-text-secondary hover:bg-surface-hover hover:text-foreground"
                         onClick={() => onDeleteLink?.(link.id)}
                         aria-label={`Delete ${link.title}`}
                       >

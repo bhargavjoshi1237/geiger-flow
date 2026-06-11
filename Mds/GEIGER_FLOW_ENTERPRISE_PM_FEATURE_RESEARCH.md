@@ -376,3 +376,155 @@ The biggest opportunity is to combine creative project management with enterpris
 - Strongest user pain signals: Reddit threads about visibility maintenance, capacity, dependencies, executive reporting, spreadsheet/manual reconciliation, and tool complexity.
 - Local confidence: high that Geiger Flow has UI coverage for many concepts, but low that those concepts are backed by enterprise-grade data and workflows, because current schema and several screens show mock/static data.
 
+## June 2026 Competitive App Inventory
+
+Purpose: create the competitor-by-competitor feature map needed to rank project management features from table-stakes to rare differentiators, then decide which features Geiger Flow should include at a more attractive price/value point.
+
+This pass treats "modern project management" as a broad collaborative work management market, not only classic project scheduling. The strongest competitors now blend tasks, views, dashboards, docs, automations, integrations, AI, resource planning, portfolios, and governance.
+
+### Market Selection Basis
+
+The current leading set is supported by three overlapping market signals:
+
+- Capterra's 2026 Project Management Shortlist names Asana, Jira, Notion, Trello, ClickUp, monday.com, and Smartsheet among shortlisted products.
+- Forrester's Q2 2025 Collaborative Work Management Wave evaluated Adobe, Airtable, Asana, Atlassian, ClickUp, monday.com, Quickbase, ServiceNow, Smartsheet, Wrike, and Zoho.
+- Current buyer guides and product pages repeatedly surface ClickUp, monday.com, Asana, Jira, Smartsheet, Wrike, Microsoft Planner/Project, Airtable, Notion, Teamwork, Zoho Projects, Basecamp, Trello, Linear, and Adobe Workfront.
+
+### App Families
+
+| Family | Representative apps | Why this matters for Geiger Flow |
+|---|---|---|
+| General work management | Asana, monday.com, ClickUp, Wrike | These set the modern default: multiple views, dashboards, automations, templates, AI, and cross-team visibility. |
+| Software/product execution | Jira, Linear | These set expectations for issues, roadmaps, sprints/cycles, releases, dependencies, PR/dev integrations, and fast keyboard-first work. |
+| Lightweight visual PM | Trello, Basecamp | These define the low-friction floor: simple boards, todos, communication, files, schedules, and low admin burden. |
+| Flexible workspace/database PM | Notion, Airtable, Coda, Quickbase | These compete by letting teams model their own workflows with databases, forms, interfaces, docs, formulas, and no-code automations. |
+| Enterprise PMO/portfolio | Smartsheet, Microsoft Planner/Project, Adobe Workfront, ServiceNow SPM, Planview | These define mature buyer requirements: portfolio governance, demand intake, resource planning, financials, approvals, auditability, and executive reporting. |
+| Client services / agency PM | Teamwork, Workfront, Basecamp | These compete around client collaboration, time, budgets, billing/profitability, approvals, and project delivery visibility. |
+| Value suite PM | Zoho Projects | This is the affordability benchmark: strong task/Gantt/time/reporting basics bundled into a wider business suite. |
+
+### Competitor Feature / Function List
+
+| Product | Core offer | Feature/function inventory | Strongest buyer fit | Price/value angle to study next |
+|---|---|---|---|---|
+| Asana | Cross-functional work management | Tasks, projects, boards/list/calendar/timeline, portfolios, goals, workload, custom fields, forms, rules, reporting dashboards, approvals, dependencies, templates, integrations, AI teammates/AI Studio/assistant. | Operations, marketing, HR, product, enterprise coordination. | Paid plans gate advanced portfolio/goals/reporting value; compare Geiger Flow by bundling execution intelligence earlier. |
+| monday.com | Visual Work OS / AI work platform | Boards, groups, columns, multiple views, dashboards, forms, automations, integrations, workload, Gantt/timeline, permissions, templates, AI agents, use-case products for work management/CRM/dev/service. | Teams wanting customizable visual workflows and broad department coverage. | Automation/integration action limits and per-seat pricing are key comparison points. |
+| ClickUp | "Everything app for work" | Tasks, custom statuses/fields, docs, whiteboards, goals, dashboards, time tracking, chat, forms, mind maps, dependencies, Gantt, sprints, workload, automations, templates, AI/Brain. | Teams wanting one bundled platform with many features. | Feature density is high; Geiger Flow must beat it on clarity, trust, performance, and pricing transparency. |
+| Jira | Issue/project management for software and cross-functional teams | Issues/work items, Scrum/Kanban boards, backlog, sprints, workflows, fields, automation, reports, roadmaps, goals, dependencies, approvals, forms, Atlassian integrations, Marketplace, AI/Rovo. | Software, IT, product, enterprise delivery. | Strongest dev ecosystem; Geiger Flow should integrate with Jira/GitHub rather than trying to replace Jira first. |
+| Linear | Modern product development system | Issues, projects, cycles, roadmaps, initiatives, triage, views, integrations, insights, AI workflows/agents, high-speed command interface. | Product/engineering teams that value speed and opinionated workflows. | Benchmark for UX sharpness and speed, not breadth. |
+| Trello | Simple visual Kanban project boards | Boards, lists, cards, checklists, due dates, labels, members, attachments, comments, Butler/no-code automation, templates, calendar/timeline/table/dashboard views on paid tiers, Power-Ups/integrations. | Individuals, small teams, simple workflows, lightweight cross-functional boards. | Free/simple UX sets adoption benchmark; Geiger Flow should avoid making simple work feel enterprise-heavy. |
+| Basecamp | Calm all-in-one project collaboration | Projects, message boards, todos, card tables, schedules, docs/files, group chat, direct messages, automatic check-ins, reports, client access, flat-package pricing options. | Small/mid teams and client work that prioritize communication over PM ceremony. | Flat pricing is a useful counter-position against per-seat enterprise tools. |
+| Smartsheet | Spreadsheet-style work and portfolio management | Sheets, Gantt, forms, dashboards, reports, workflow automation, resource management, budget tracking, portfolio visibility, Control Center templates/provisioning, intake/governance, proofing, integrations, AI insights. | PMO, operations, enterprise teams moving beyond spreadsheets. | Strong for governance and scale; Geiger Flow can compete with better UX plus trustworthy work graph. |
+| Wrike | Enterprise collaborative work management | Spaces/folders/projects/tasks, calendars, Gantt, dashboards, reports, request forms, proofing/approvals, resource planning, workload, time tracking, automation, custom item types/fields, AI risk/assistance, enterprise security. | Cross-functional enterprise teams, marketing, PMOs, professional services. | Strong mature feature set; compare Geiger Flow by faster setup and less admin overhead. |
+| Microsoft Planner / Project | Microsoft 365 task, project, and portfolio planning | Planner tasks/plans, Teams integration, list/grid/board/charts, premium Timeline/Gantt, dependencies, sprints, custom fields, goals, reports, portfolios, people/workload views; Project adds resource management and PPM depth. | Microsoft 365 organizations. | Bundling with Microsoft 365 is the price challenge; Geiger Flow needs differentiated intelligence/integrations. |
+| Notion Projects | Docs/wiki plus database-backed lightweight PM | Databases, tasks/projects, timeline, board/calendar/table views, dependencies, templates, docs/wiki, sprints/backlog, comments, permissions, Notion AI. | Product, startup, content, ops teams that want docs and work together. | Strong "workspace as PM" competitor; weak on enterprise governance compared with PMO tools. |
+| Airtable | Database/no-code app PM | Bases/tables, records, linked data, forms, interfaces, timeline/Gantt-like planning, dependencies, resource suggestions, dashboards/interfaces, automations, permissions, integrations, AI. | Teams needing custom project systems and operational apps. | Competes on flexibility; Geiger Flow can offer purpose-built PM depth without forcing users to design the app. |
+| Coda | Docs that behave like apps | Docs, tables, formulas, buttons, packs/integrations, automations, templates, AI table/content generation, interactive project trackers. | Teams that want lightweight custom apps and docs in one place. | Useful benchmark for formulas/buttons/no-code behavior, not enterprise PM depth. |
+| Quickbase | No-code operational/project apps | Custom project apps, dashboards, Gantt/scheduling, resource tracking, budgets/timelines, workflow automation, mobile forms/field updates, no-code customization, governance. | Operations, construction, field-heavy teams, enterprise process apps. | Strong for custom operational workflows; Geiger Flow should decide whether to support no-code app building or stay productized. |
+| Adobe Workfront | Enterprise marketing work management | Intake, project/work tracking, resource management, portfolio management, reporting, proofing, document review, approval workflows, Adobe/Frame.io/AEM integrations, AI reviewers/workers. | Marketing operations, creative teams, agencies, enterprise content supply chains. | Geiger Flow's asset/vault direction makes Workfront a high-value benchmark. |
+| Teamwork | Client project, resource, and financial management | Projects/tasks, milestones, time tracking, workload/resource management, budgets, profitability, reports, templates, client collaboration, billing/accounting integrations, AI project creation. | Agencies, consultancies, professional services. | Important for price/value because time, budget, and client features are monetizable but often expensive elsewhere. |
+| Zoho Projects | Affordable suite-connected PM | Tasks, subtasks, milestones, Gantt, dependencies, Kanban, time tracking, timesheets, issue tracking, automation/blueprints, reports/charts, custom fields/modules, integrations across Zoho. | SMBs and cost-conscious teams already in Zoho. | Affordability benchmark; Geiger Flow must justify higher price with stronger UX/intelligence or undercut on bundles. |
+| ServiceNow SPM | Strategic portfolio management | Strategy-to-delivery, demand intake, portfolio planning, roadmaps, resource optimization, financial planning, project execution, risk surfacing, AI/Now Assist for risks/resources. | Large enterprises with IT/business governance on ServiceNow. | More enterprise governance than team PM; useful as an upper-bound feature map. |
+| Planview | Enterprise portfolio/value stream management | Strategy/OKR alignment, investment prioritization, demand, capacity, scenario planning, financial planning, roadmaps, risks/dependencies, time/cost actuals, AI portfolio intelligence. | Enterprise PMO, product portfolio, value stream organizations. | Rare-feature benchmark for scenario, investment, and governance depth. |
+
+### Rarity Classification Framework
+
+Use this ranking model after the full spreadsheet is built. Counts are directional first-pass counts across the competitor set above, not final audited values.
+
+| Rarity class | Definition | Strategic meaning |
+|---|---|---|
+| Table stakes | Offered by almost everyone, roughly 14+ of 18 apps | Must exist, but should not be the main differentiation. |
+| Very common | Offered by roughly 11-13 apps | Expected by modern buyers; ship cleanly and price attractively. |
+| Common | Offered by roughly 8-10 apps | Useful buying criteria; good for package differentiation. |
+| Selective / mature | Offered by roughly 5-7 apps | Often gated to higher tiers; good value-bundle opportunities. |
+| Rare | Offered by roughly 2-4 apps | Differentiator if implemented well and connected to core workflows. |
+| Extremely rare | Offered by 0-1 apps in a complete, usable form | Strategic bet; build only if it strengthens Geiger Flow's unique position. |
+
+### First-Pass Feature Commonness Map
+
+| Feature/function | First-pass commonness | Competitors observed | Geiger Flow take |
+|---|---|---|---|
+| Tasks with owners, due dates, statuses, comments, attachments | Table stakes | Nearly all | Must be durable, fast, and permission-aware. |
+| Board/list/table/calendar/timeline views | Table stakes | Asana, monday, ClickUp, Jira, Trello, Smartsheet, Wrike, Planner, Notion, Airtable, Teamwork, Zoho, etc. | Geiger Flow should make view switching cheap and saveable. |
+| Templates | Table stakes / very common | Asana, monday, ClickUp, Jira, Trello, Smartsheet, Wrike, Planner, Notion, Airtable, Teamwork, Zoho, Workfront | Needed for onboarding and PMO consistency. |
+| Integrations | Table stakes | Nearly all, with Jira/Atlassian and monday/ClickUp/Wrike especially broad | Build connector health and sync logs, not just "connected" badges. |
+| Dashboards and reports | Very common | Asana, monday, ClickUp, Jira, Smartsheet, Wrike, Planner, Airtable, Quickbase, Workfront, Teamwork, Zoho, ServiceNow, Planview | Make reporting live, drillable, and source-explainable. |
+| Automations/rules/workflows | Very common | monday, ClickUp, Jira, Trello, Smartsheet, Wrike, Airtable, Coda, Quickbase, Zoho, Workfront, ServiceNow | Price lever: bundle enough automation without punitive action limits. |
+| Custom fields/schema | Very common | Asana, monday, ClickUp, Jira, Smartsheet, Wrike, Planner Premium, Notion, Airtable, Quickbase, Zoho | Needed before advanced reporting is trustworthy. |
+| Forms/intake | Common | Asana, monday, ClickUp, Jira, Smartsheet, Wrike, Airtable, Quickbase, Workfront, ServiceNow | Convert Geiger Forms into governed demand intake. |
+| AI writing/summaries/answers | Common / rapidly becoming very common | Asana, monday, ClickUp, Jira, Linear, Smartsheet, Wrike, Planner/Microsoft, Notion, Airtable, Coda, Workfront, ServiceNow, Planview | AI is no longer enough by itself; governed action and evidence are differentiators. |
+| Dependencies | Common | Asana, monday, ClickUp, Jira, Smartsheet, Wrike, Planner, Notion, Airtable, Zoho, Planview | Add dependency graph, lag types, cycle detection, and impact simulation. |
+| Portfolios/multi-project rollups | Common | Asana, monday, Jira Premium/planning, Smartsheet, Wrike, Planner portfolios, Workfront, ServiceNow, Planview | High-value package feature; likely relevant to Geiger Flow positioning. |
+| Resource/workload/capacity | Common / selective | Asana, monday, ClickUp, Smartsheet, Wrike, Planner/Project, Workfront, Teamwork, ServiceNow, Planview | Strong value feature, often expensive elsewhere. |
+| Time tracking/timesheets | Selective / mature | ClickUp, Wrike, Teamwork, Zoho, Workfront, Planview, some monday/Smartsheet configurations | Important if Geiger Flow targets agencies/services/PMOs. |
+| Budget/cost/profitability | Selective / mature | Smartsheet, Quickbase, Workfront, Teamwork, ServiceNow, Planview, Microsoft Project | Good paid-tier feature; pair with time/capacity. |
+| Approvals/proofing | Selective / mature | Wrike, Smartsheet, Workfront, Jira approvals, monday workflows, Basecamp/client comments, Teamwork client flows | Especially relevant because Geiger Flow has asset/vault direction. |
+| Goals/OKRs/strategic alignment | Selective / mature | Asana, Jira goals, ClickUp Goals, monday objectives-style workflows, ServiceNow, Planview, Aha | Should connect to execution, not sit as separate goal cards. |
+| Sprints/agile reports | Selective / mature | Jira, ClickUp, Linear, Notion Sprints, Planner Premium, Zoho Sprints/Projects, Planview | Add if product/software audience is important. |
+| Client portal / external stakeholder access | Selective / mature | Basecamp, Teamwork, ClickUp shareable dashboards, Smartsheet sharing, Workfront review flows, Wrike external collaborators | Useful if Geiger Flow targets client-facing creative/project work. |
+| Scenario/what-if planning | Rare | Planview, ServiceNow, Microsoft Project/PPM style planning, some Smartsheet/enterprise setups | Strong differentiator if simplified for normal PMs. |
+| Demand-to-portfolio governance | Rare | ServiceNow, Planview, Smartsheet Control Center, Workfront | Enterprise differentiator; probably not MVP unless targeting PMO. |
+| AI agents as governed project workers | Rare / emerging | Asana AI teammates, monday agents, Workfront AI workers/reviewers, Jira/Rovo, Linear AI workflows | Strategic bet for Geiger Flow if tied to approvals, audit, and project graph. |
+| Report data lineage and trust scoring | Extremely rare | Partial in BI/SPM tools; not obvious as a simple PM feature | Big Geiger Flow opportunity: make every KPI explain where it came from. |
+| Decision memory linked to scope/date/budget changes | Extremely rare | Partial in docs/wiki tools, not usually governed in PM flow | Differentiator: "why did this change?" should be first-class. |
+| Dependency intelligence beyond manual links | Extremely rare | Planview/enterprise AI direction; few usable team-level examples | Differentiator if Geiger Flow can infer hidden blockers from work graph signals. |
+| Minimum-admin update capture from Slack/email/meetings with evidence | Rare / extremely rare | Jira/Slack, ClickUp/AI reports, Asana AI, scattered integrations | This could define Geiger Flow: reduce PM maintenance burden instead of adding PM ceremony. |
+
+### Proposed Feature Scoring Columns
+
+Build the next artifact as a spreadsheet or markdown matrix with one row per feature and one column per competitor. Suggested columns:
+
+1. Feature category: task, planning, reporting, resource, financial, governance, AI, integration, collaboration, asset/client.
+2. Feature name.
+3. Apps offering it.
+4. Count and rarity class.
+5. Depth score: shallow, usable, advanced, enterprise.
+6. Geiger Flow current state: absent, UI shell, partial, implemented.
+7. Buyer value: low, medium, high, critical.
+8. Implementation effort: small, medium, large, platform.
+9. Pricing opportunity: free/core, paid team, pro, enterprise, add-on.
+10. Recommended Geiger package: Core, Plus, Enterprise, AI, Client Services.
+11. Differentiation note.
+12. Source URLs.
+
+### Early Packaging Hypothesis
+
+This is not final pricing, but it gives the later price/value work a starting shape.
+
+| Package | Should include | Why |
+|---|---|---|
+| Core | Durable tasks/projects, boards/list/calendar, comments, files, templates, basic dashboards, saved views, notifications, import/export basics | Matches table-stakes buyer expectations without making the app feel empty. |
+| Plus | Automations, forms/intake, custom fields, dependencies, timeline/Gantt, portfolio rollups, advanced dashboards, time tracking | Competes with common paid-tier features from Asana, monday, ClickUp, Wrike, Smartsheet. |
+| Enterprise | RBAC, audit logs, SSO/SCIM, portfolios, resource/capacity, approvals, budget/forecast/actuals, governance center, report subscriptions | Goes after mature PMO and operational buyers. |
+| Client Services | Client portal, budgets, rates, profitability, retainers, proofing/approvals, branded status pages | Competes with Teamwork, Basecamp, Workfront, agency workflows. |
+| AI Work Graph | Evidence-backed status reports, risk detection, ask-Geiger, AI project review, dependency suggestions, governed AI actions, AI action audit | Differentiates beyond generic AI summaries. |
+
+### Next Research Tasks
+
+1. Convert the first-pass feature map into a competitor matrix with one column per app and one row per feature.
+2. Add current official pricing and tier gates for each product, with special attention to automations, dashboards, portfolios, resource planning, AI, permissions, and guests.
+3. Mark Geiger Flow's current coverage by inspecting the implementation, not just navigation labels.
+4. Calculate rarity and price-opportunity scores.
+5. Select a deliberate Geiger Flow feature bundle: table stakes done well, common features priced aggressively, and 3-5 rare features that create a defensible identity.
+
+### New 2026 Source Anchors
+
+- Capterra 2026 Project Management Shortlist: https://www.capterra.com/project-management-software/shortlist/
+- Forrester Collaborative Work Management Tools Q2 2025 announcement: https://www.forrester.com/blogs/announcing-the-forrester-wave-collaborative-work-management-tools-q2-2025/
+- Asana features and pricing: https://asana.com/features and https://asana.com/pricing
+- monday.com work platform and plan docs: https://monday.com/ and https://support.monday.com/hc/en-us/articles/115005320209-Available-plan-types-on-Work-Management
+- ClickUp product and pricing: https://clickup.com/ and https://clickup.com/pricing
+- Jira features and pricing: https://www.atlassian.com/software/jira/features and https://www.atlassian.com/software/jira/pricing
+- Trello and Power-Ups: https://trello.com/ and https://trello.com/power-ups
+- Smartsheet project management: https://www.smartsheet.com/solutions/project-management
+- Wrike features: https://www.wrike.com/features/
+- Microsoft Planner project management and premium plan capabilities: https://www.microsoft.com/en-us/microsoft-365/planner/project-management and https://support.microsoft.com/en-us/planner/frequently-asked-questions-about-microsoft-planner
+- Notion Projects and Sprints: https://www.notion.com/product/projects and https://www.notion.com/help/sprints
+- Airtable project management: https://www.airtable.com/solutions/project-management
+- Linear and Linear features: https://linear.app/ and https://linear.app/features
+- Basecamp pricing/features: https://basecamp.com/pricing
+- Teamwork product/pricing: https://www.teamwork.com/ and https://www.teamwork.com/pricing/
+- Zoho Projects and pricing: https://www.zoho.com/projects/ and https://www.zoho.com/projects/zohoprojects-pricing.html
+- Adobe Workfront: https://business.adobe.com/products/workfront.html
+- ServiceNow Strategic Portfolio Management: https://www.servicenow.com/products/strategic-portfolio-management.html
+- Quickbase project management: https://www.quickbase.com/solutions/project-management-software
+- Coda workspace and AI: https://coda.io/ and https://coda.io/product/ai

@@ -4,14 +4,14 @@ import { FolderOpen, HardDrive, Download, Layers } from "lucide-react";
 
 export function StatsCard({ icon: Icon, label, value }) {
   return (
-    <Card className="gap-0 rounded-lg border-[#2a2a2a] bg-[#1a1a1a] p-3 text-[#e7e7e7] shadow-none transition-all duration-300 hover:border-[#474747]">
+    <Card className="gap-0 rounded-lg border-border bg-surface-subtle p-3 text-foreground shadow-none transition-all duration-300 hover:border-border-strong">
       <CardContent className="flex items-center gap-3 p-0">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-[#2a2a2a] bg-[#202020]">
-          <Icon className="h-3.5 w-3.5 text-[#a3a3a3]" />
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border bg-surface-card">
+          <Icon className="h-3.5 w-3.5 text-muted-foreground" />
         </div>
         <div className="min-w-0 flex-1">
-          <span className="truncate text-xs font-medium text-[#a3a3a3]">{label}</span>
-          <div className="mt-1 text-lg font-semibold leading-none text-[#f4f4f4]">{value}</div>
+          <span className="truncate text-xs font-medium text-muted-foreground">{label}</span>
+          <div className="mt-1 text-lg font-semibold leading-none text-foreground">{value}</div>
         </div>
       </CardContent>
     </Card>

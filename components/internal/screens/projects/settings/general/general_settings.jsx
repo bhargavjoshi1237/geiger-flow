@@ -120,7 +120,7 @@ export function GeneralSettingsScreen() {
 
       <IconButtonCard
         classNames={{
-          container: "bg-[#161616] shadow-none",
+          container: "bg-background shadow-none",
         }}
         banner="Project usage"
         icon={<BarChart2 className="w-5 h-5" />}
@@ -173,7 +173,7 @@ export function GeneralSettingsScreen() {
         classNames={{
           container: "bg-[#180505] border-[#4a1616]",
           iconWrapper: "bg-[#e55740] border-none mt-0.5",
-          title: "text-white font-semibold text-base",
+          title: "text-foreground font-semibold text-base",
           subtitle: "text-muted-foreground mt-0.5",
           endingComponent: "!block !ml-14 mt-4",
         }}

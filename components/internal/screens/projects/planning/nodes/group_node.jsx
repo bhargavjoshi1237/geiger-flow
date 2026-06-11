@@ -23,18 +23,18 @@ function GroupNode({ data, selected }) {
           height: 8,
           borderRadius: 4,
           backgroundColor: "#333",
-          border: "2px solid #161616",
+          border: "2px solid var(--background)",
         }}
       />
       <div
         className={cn(
-          "bg-[#161616]/50 border-2 border-dashed border-[#2a2a2a] rounded-xl min-w-[300px] min-h-[200px] transition-colors duration-200",
-          selected && "border-[#474747]"
+          "bg-background/50 border-2 border-dashed border-border rounded-xl min-w-[300px] min-h-[200px] transition-colors duration-200",
+          selected && "border-border-strong"
         )}
       >
         {label && (
-          <div className="px-4 py-2 border-b border-dashed border-[#2a2a2a]">
-            <span className="text-[11px] uppercase tracking-widest text-[#525252] font-medium">
+          <div className="px-4 py-2 border-b border-dashed border-border">
+            <span className="text-[11px] uppercase tracking-widest text-text-tertiary font-medium">
               {label}
             </span>
           </div>
@@ -42,12 +42,12 @@ function GroupNode({ data, selected }) {
         <Handle
           type="source"
           position={Position.Bottom}
-          className="!w-2 !h-2 !bg-[#333] !border-[#161616] !border-2 !-bottom-1 !rounded-full"
+          className="!w-2 !h-2 !bg-surface-strong !border-background !border-2 !-bottom-1 !rounded-full"
         />
         <Handle
           type="target"
           position={Position.Top}
-          className="!w-2 !h-2 !bg-[#333] !border-[#161616] !border-2 !-top-1 !rounded-full"
+          className="!w-2 !h-2 !bg-surface-strong !border-background !border-2 !-top-1 !rounded-full"
         />
       </div>
     </>

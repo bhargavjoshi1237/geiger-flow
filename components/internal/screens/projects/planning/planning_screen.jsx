@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
+import { useTheme } from "next-themes";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import NotesSidebar from "./notes/layout/Sidebar";
 import CustomNode from "./notes/nodes/CustomNode";
@@ -139,7 +140,6 @@ function getDefaultNodeData(type, defaultData = {}) {
       label: "Untitled Board",
       boardId,
       name: "Untitled Board",
-      backgroundColor: "#1e1e1e",
       ...defaultData,
     };
   }
@@ -157,7 +157,6 @@ function getDefaultNodeData(type, defaultData = {}) {
     return {
       calendarTheme: "light",
       calendarStyle: "default",
-      backgroundColor: "#2a2a2a",
       ...defaultData,
     };
   }
@@ -177,6 +176,7 @@ function getDefaultNodeData(type, defaultData = {}) {
 }
 
 export function PlanningScreen() {
+  const { resolvedTheme } = useTheme();
   const [planningFiles, setPlanningFiles] = useState(INITIAL_FILES);
   const [activeFileId, setActiveFileId] = useState(INITIAL_FILES[0].id);
   const [filesOpen, setFilesOpen] = useState(true);
@@ -557,7 +557,7 @@ export function PlanningScreen() {
 
   return (
     <MainScreenWrapper className="max-w-none space-y-0 px-0 py-0 lg:max-w-none">
-      <div className="relative h-[calc(100dvh-8rem)] min-h-[640px] overflow-hidden rounded-xl border border-[#2a2a2a] bg-[#161616] text-[#e7e7e7]">
+      <div className="relative h-[calc(100dvh-8rem)] min-h-[640px] overflow-hidden rounded-xl border border-border bg-background text-foreground">
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -583,36 +583,37 @@ export function PlanningScreen() {
           deleteKeyCode={["Backspace", "Delete"]}
           multiSelectionKeyCode="Shift"
           selectionMode={SelectionMode.Partial}
+          colorMode={resolvedTheme === "dark" ? "dark" : "light"}
           zoomOnDoubleClick={false}
-          className="planning-notes-canvas bg-[#161616]"
+          className="planning-notes-canvas bg-background"
           defaultEdgeOptions={{
             type: "center",
             markerEnd: { type: MarkerType.ArrowClosed, width: 20, height: 20 },
           }}
         >
-          <Background color="#373737" gap={14} size={1} variant="dots" />
+          <Background color="var(--canvas-dots)" gap={14} size={1} variant="dots" />
         </ReactFlow>
 
-        <header className="absolute left-0 right-0 top-0 z-40 flex h-14 items-center justify-between border-b border-[#2a2a2a]/60 bg-[#161616]/70 px-4 backdrop-blur-md">
+        <header className="absolute left-0 right-0 top-0 z-40 flex h-14 items-center justify-between border-b border-border/60 bg-background/70 px-4 backdrop-blur-md">
           <div className="flex min-w-0 items-center gap-3">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setFilesOpen((value) => !value)}
-              className="h-8 w-8 text-[#a3a3a3] hover:bg-[#2a2a2a] hover:text-white"
+              className="h-8 w-8 text-muted-foreground hover:bg-surface-hover hover:text-foreground"
               title="Toggle planning files"
             >
               <PanelLeft className="h-4 w-4" />
             </Button>
-            <div className="min-w-0 border-l border-[#333333] pl-3">
+            <div className="min-w-0 border-l border-border pl-3">
               <div className="flex items-center gap-2">
-                <h1 className="text-sm font-semibold text-white">Planning</h1>
-                <span className="hidden text-xs text-[#525252] sm:inline">/</span>
-                <span className="hidden max-w-[260px] truncate text-sm text-[#a3a3a3] sm:inline">
+                <h1 className="text-sm font-semibold text-foreground">Planning</h1>
+                <span className="hidden text-xs text-text-tertiary sm:inline">/</span>
+                <span className="hidden max-w-[260px] truncate text-sm text-muted-foreground sm:inline">
                   {activeFile?.name || "Planning file"}
                 </span>
               </div>
-              <p className="hidden text-xs text-[#737373] md:block">
+              <p className="hidden text-xs text-text-secondary md:block">
                 Map project dependencies on a clean shared canvas.
               </p>
             </div>
@@ -624,7 +625,7 @@ export function PlanningScreen() {
                 <Avatar
                   key={user.initials}
                   title={user.name}
-                  className="h-8 w-8 border-2 border-[#161616] shadow-sm"
+                  className="h-8 w-8 border-2 border-background shadow-sm"
                 >
                   <AvatarFallback className={cn("text-[11px] font-bold", user.color)}>
                     {user.initials}
@@ -654,21 +655,21 @@ export function PlanningScreen() {
 
         <aside
           className={cn(
-            "absolute bottom-4 left-20 top-[4.5rem] z-40 flex w-[292px] flex-col overflow-hidden rounded-xl border border-[#2a2a2a]/70 bg-[#161616]/70 backdrop-blur-md transition-transform duration-300",
+            "absolute bottom-4 left-20 top-[4.5rem] z-40 flex w-[292px] flex-col overflow-hidden rounded-xl border border-border/70 bg-background/70 backdrop-blur-md transition-transform duration-300",
             filesOpen ? "translate-x-0" : "-translate-x-[calc(100%+5rem)]",
           )}
         >
-          <div className="flex h-11 shrink-0 items-center justify-between border-b border-[#2a2a2a]/70 px-3">
+          <div className="flex h-11 shrink-0 items-center justify-between border-b border-border/70 px-3">
             <div className="flex items-center gap-2">
-              <Layers3 className="h-4 w-4 text-[#a3a3a3]" />
-              <span className="text-sm font-semibold text-[#ededed]">Files</span>
-              <span className="text-xs text-[#525252]">{planningFiles.length}</span>
+              <Layers3 className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-semibold text-foreground">Files</span>
+              <span className="text-xs text-text-tertiary">{planningFiles.length}</span>
             </div>
             <Button
               variant="ghost"
               size="icon"
               onClick={handleCreateFile}
-              className="h-7 w-7 text-[#737373] hover:bg-[#242424] hover:text-white"
+              className="h-7 w-7 text-text-secondary hover:bg-surface-active hover:text-foreground"
               title="Create file"
             >
               <Plus className="h-4 w-4" />
@@ -695,12 +696,12 @@ export function PlanningScreen() {
                   className={cn(
                     "rounded-lg border px-3 py-2 transition-colors",
                     isActive
-                      ? "border-[#3a3a3a] bg-[#242424]"
-                      : "border-transparent bg-transparent hover:border-[#2a2a2a] hover:bg-[#202020]",
+                      ? "border-border-strong bg-surface-active"
+                      : "border-transparent bg-transparent hover:border-border hover:bg-surface-card",
                   )}
                 >
                   <div className="flex items-center gap-2">
-                    <FileText className="h-4 w-4 shrink-0 text-[#737373]" />
+                    <FileText className="h-4 w-4 shrink-0 text-text-secondary" />
                     <div className="min-w-0 flex-1">
                       {isRenaming ? (
                         <Input
@@ -719,12 +720,12 @@ export function PlanningScreen() {
                             }
                           }}
                           autoFocus
-                          className="h-7 w-full border-[#333333] bg-[#111111] px-2 text-sm text-[#ededed] focus-visible:border-[#474747] focus-visible:ring-0"
+                          className="h-7 w-full border-border bg-background px-2 text-sm text-foreground focus-visible:border-border-strong focus-visible:ring-0"
                         />
                       ) : (
                         <>
-                          <p className="truncate text-sm font-medium text-[#ededed]">{file.name}</p>
-                          <p className="truncate text-[11px] text-[#525252]">
+                          <p className="truncate text-sm font-medium text-foreground">{file.name}</p>
+                          <p className="truncate text-[11px] text-text-tertiary">
                             {file.nodes.length} nodes | {file.edges.length} links | {dateFormatter.format(new Date(file.updatedAt))}
                           </p>
                         </>
@@ -741,7 +742,7 @@ export function PlanningScreen() {
                             event.stopPropagation();
                             handleCommitRename(file.id);
                           }}
-                          className="h-7 w-7 text-[#737373] hover:bg-[#242424] hover:text-[#ededed]"
+                          className="h-7 w-7 text-text-secondary hover:bg-surface-active hover:text-foreground"
                         >
                           <Check className="h-3.5 w-3.5" />
                         </Button>
@@ -753,7 +754,7 @@ export function PlanningScreen() {
                             event.stopPropagation();
                             handleCancelRename();
                           }}
-                          className="h-7 w-7 text-[#737373] hover:bg-[#242424] hover:text-[#ededed]"
+                          className="h-7 w-7 text-text-secondary hover:bg-surface-active hover:text-foreground"
                         >
                           <X className="h-3.5 w-3.5" />
                         </Button>
@@ -767,7 +768,7 @@ export function PlanningScreen() {
                             event.stopPropagation();
                             handleStartRename(file);
                           }}
-                          className="h-7 w-7 text-[#525252] hover:bg-[#2a2a2a] hover:text-[#ededed]"
+                          className="h-7 w-7 text-text-tertiary hover:bg-surface-hover hover:text-foreground"
                           title="Rename file"
                         >
                           <Pencil className="h-3.5 w-3.5" />
@@ -779,7 +780,7 @@ export function PlanningScreen() {
                             event.stopPropagation();
                             handleDuplicateFile(file.id);
                           }}
-                          className="h-7 w-7 text-[#525252] hover:bg-[#2a2a2a] hover:text-[#ededed]"
+                          className="h-7 w-7 text-text-tertiary hover:bg-surface-hover hover:text-foreground"
                           title="Duplicate file"
                         >
                           <Copy className="h-3.5 w-3.5" />
@@ -792,7 +793,7 @@ export function PlanningScreen() {
                             event.stopPropagation();
                             handleDeleteFile(file.id);
                           }}
-                          className="h-7 w-7 text-[#525252] hover:bg-red-500/10 hover:text-red-400 disabled:opacity-35"
+                          className="h-7 w-7 text-text-tertiary hover:bg-red-500/10 hover:text-red-400 disabled:opacity-35"
                           title="Delete file"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
@@ -808,7 +809,7 @@ export function PlanningScreen() {
 
         <div
           className={cn(
-            "absolute bottom-4 z-40 flex overflow-hidden rounded-lg border border-[#2a2a2a]/70 bg-[#333333]/60 shadow-xl backdrop-blur-md transition-all duration-300",
+            "absolute bottom-4 z-40 flex overflow-hidden rounded-lg border border-border/70 bg-surface-strong/60 shadow-xl backdrop-blur-md transition-all duration-300",
             filesOpen ? "left-[384px]" : "left-20",
           )}
         >
@@ -816,7 +817,7 @@ export function PlanningScreen() {
             variant="ghost"
             size="icon"
             onClick={onZoomOut}
-            className="h-9 w-9 rounded-none border-r border-[#2a2a2a]/70 text-[#a3a3a3] hover:bg-[#444444]/60 hover:text-white"
+            className="h-9 w-9 rounded-none border-r border-border/70 text-muted-foreground hover:bg-border-strong/60 hover:text-foreground"
             title="Zoom out"
           >
             <span className="text-lg leading-none">-</span>
@@ -824,7 +825,7 @@ export function PlanningScreen() {
           <Button
             type="button"
             onClick={onFitView}
-            className="h-9 min-w-14 border-r border-[#2a2a2a]/70 px-3 font-mono text-[11px] text-[#d4d4d4] hover:bg-[#444444]/60"
+            className="h-9 min-w-14 border-r border-border/70 px-3 font-mono text-[11px] text-foreground hover:bg-border-strong/60"
             title="Fit to view"
           >
             {Math.round(zoomLevel * 100)}%
@@ -833,7 +834,7 @@ export function PlanningScreen() {
             variant="ghost"
             size="icon"
             onClick={onZoomIn}
-            className="h-9 w-9 rounded-none text-[#a3a3a3] hover:bg-[#444444]/60 hover:text-white"
+            className="h-9 w-9 rounded-none text-muted-foreground hover:bg-border-strong/60 hover:text-foreground"
             title="Zoom in"
           >
             <Plus className="h-4 w-4" />

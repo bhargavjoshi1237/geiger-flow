@@ -21,19 +21,19 @@ export const NODE_TYPES = [
     type: "custom",
     label: "Note",
     icon: Square,
-    defaultData: { label: "", backgroundColor: "#333333" },
+    defaultData: { label: "" },
   },
   {
     type: "comment",
     label: "Comment",
     icon: MessageSquare,
-    defaultData: { label: "Comment", backgroundColor: "#2a2a2a" },
+    defaultData: { label: "Comment" },
   },
   {
     type: "link",
     label: "Link",
     icon: Link,
-    defaultData: { label: "Link", url: "", backgroundColor: "#1e1e1e" },
+    defaultData: { label: "Link", url: "" },
   },
   {
     type: "board",
@@ -63,7 +63,7 @@ export const NODE_TYPES = [
     type: "calendar",
     label: "Calendar",
     icon: Calendar,
-    defaultData: { calendarTheme: "light", calendarStyle: "default", backgroundColor: "#2a2a2a" },
+    defaultData: { calendarTheme: "light", calendarStyle: "default" },
   },
 ];
 
@@ -75,7 +75,7 @@ export function PlanningToolbar({
   canDeleteFile = false,
 }) {
   return (
-    <div className="inline-flex max-w-full flex-wrap items-center gap-1 rounded-xl border border-[#2a2a2a]/70 bg-[#1b1b1b]/80 p-1 shadow-xl shadow-black/20 backdrop-blur-md">
+    <div className="inline-flex max-w-full flex-wrap items-center gap-1 rounded-xl border border-border/70 bg-surface-subtle/80 p-1 shadow-xl shadow-black/20 backdrop-blur-md">
       <div className="flex items-center gap-0.5 px-1">
         {NODE_TYPES.map((nodeType) => {
           const Icon = nodeType.icon;
@@ -85,7 +85,7 @@ export function PlanningToolbar({
               key={nodeType.type}
               variant="ghost"
               size="icon-sm"
-              className="h-8 w-8 rounded-md border border-transparent p-0 text-[#737373] hover:border-[#2f2f2f] hover:bg-[#242424] hover:text-[#ededed]"
+              className="h-8 w-8 rounded-md border border-transparent p-0 text-text-secondary hover:border-border hover:bg-surface-active hover:text-foreground"
               onClick={() => onAddNode(nodeType)}
               title={`Add ${nodeType.label}`}
             >
@@ -95,11 +95,11 @@ export function PlanningToolbar({
         })}
       </div>
 
-      <div className="flex items-center gap-0.5 border-l border-[#2a2a2a] px-1 pl-2">
+      <div className="flex items-center gap-0.5 border-l border-border px-1 pl-2">
         <Button
           variant="ghost"
           size="icon-sm"
-          className="h-8 w-8 rounded-md border border-transparent p-0 text-[#737373] hover:border-[#2f2f2f] hover:bg-[#242424] hover:text-[#ededed]"
+          className="h-8 w-8 rounded-md border border-transparent p-0 text-text-secondary hover:border-border hover:bg-surface-active hover:text-foreground"
           onClick={onCreateFile}
           title="Create new file"
         >
@@ -108,7 +108,7 @@ export function PlanningToolbar({
         <Button
           variant="ghost"
           size="icon-sm"
-          className="h-8 w-8 rounded-md border border-transparent p-0 text-[#737373] hover:border-[#2f2f2f] hover:bg-[#242424] hover:text-[#ededed]"
+          className="h-8 w-8 rounded-md border border-transparent p-0 text-text-secondary hover:border-border hover:bg-surface-active hover:text-foreground"
           onClick={onDuplicateFile}
           title="Duplicate active file"
         >
@@ -117,7 +117,7 @@ export function PlanningToolbar({
         <Button
           variant="ghost"
           size="icon-sm"
-          className="h-8 w-8 rounded-md border border-transparent p-0 text-[#737373] hover:border-[#2f2f2f] hover:bg-[#242424] hover:text-[#ededed] disabled:opacity-40"
+          className="h-8 w-8 rounded-md border border-transparent p-0 text-text-secondary hover:border-border hover:bg-surface-active hover:text-foreground disabled:opacity-40"
           onClick={onDeleteFile}
           title="Delete active file"
           disabled={!canDeleteFile}

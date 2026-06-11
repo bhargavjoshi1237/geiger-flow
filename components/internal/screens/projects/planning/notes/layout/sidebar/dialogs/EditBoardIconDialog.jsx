@@ -81,16 +81,16 @@ export default function EditBoardIconDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-[#1e1e1e] border-zinc-800 text-white sm:max-w-[425px]">
+      <DialogContent className="bg-surface-dialog border-border text-foreground sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Edit Board Icon & Accent</DialogTitle>
         </DialogHeader>
         <div className="py-4 space-y-5">
           <div className="space-y-2">
-            <Label className="text-sm font-medium text-zinc-300">
+            <Label className="text-sm font-medium text-foreground">
               Select Icon
             </Label>
-            <div className="flex flex-wrap gap-1.5 max-h-[180px] overflow-y-auto p-2 border border-zinc-800/60 rounded-lg bg-zinc-900/20">
+            <div className="flex flex-wrap gap-1.5 max-h-[180px] overflow-y-auto p-2 border border-border/60 rounded-lg bg-surface-subtle/20">
               {COMMON_ICONS.map((name) => {
                 const Icon = LucideIcons[name];
                 if (!Icon) return null;
@@ -102,7 +102,7 @@ export default function EditBoardIconDialog({
                     className={`p-2 rounded-md transition-all ${
                       isSelected
                         ? "bg-purple-500/20 text-purple-400 border border-purple-500/50"
-                        : "text-zinc-400 hover:bg-zinc-800 hover:text-white border border-transparent"
+                        : "text-muted-foreground hover:bg-surface-card hover:text-foreground border border-transparent"
                     }`}
                     title={name}
                   >
@@ -113,9 +113,9 @@ export default function EditBoardIconDialog({
             </div>
           </div>
 
-          <div className="grid grid-cols-[auto_1fr] gap-4 p-4 rounded-lg border border-zinc-800/60 bg-zinc-900/30 items-center">
-            <div className="flex flex-col justify-center items-center gap-3 pr-4 border-r border-zinc-800/60">
-              <span className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
+          <div className="grid grid-cols-[auto_1fr] gap-4 p-4 rounded-lg border border-border/60 bg-surface-subtle/30 items-center">
+            <div className="flex flex-col justify-center items-center gap-3 pr-4 border-r border-border/60">
+              <span className="text-[10px] font-semibold text-text-secondary uppercase tracking-wider">
                 Preview
               </span>
               {(() => {
@@ -133,7 +133,7 @@ export default function EditBoardIconDialog({
             </div>
 
             <div className="flex flex-col gap-3 pl-2">
-              <span className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
+              <span className="text-[10px] font-semibold text-text-secondary uppercase tracking-wider">
                 Theme Colors
               </span>
               <div className="flex items-center gap-6">
@@ -144,10 +144,10 @@ export default function EditBoardIconDialog({
                 >
                   <Button className="flex flex-col items-center gap-2 group cursor-pointer">
                     <div
-                      className="w-12 h-6 rounded-md border border-zinc-700 hover:border-zinc-500 transition-all shadow-sm"
+                      className="w-12 h-6 rounded-md border border-border-strong hover:border-zinc-500 transition-all shadow-sm"
                       style={{ backgroundColor: lightAccent }}
                     />
-                    <span className="text-[11px] font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">
+                    <span className="text-[11px] font-medium text-muted-foreground group-hover:text-foreground transition-colors">
                       Background
                     </span>
                   </Button>
@@ -160,10 +160,10 @@ export default function EditBoardIconDialog({
                 >
                   <Button className="flex flex-col items-center gap-2 group cursor-pointer">
                     <div
-                      className="w-12 h-6 rounded-md border border-zinc-700 hover:border-zinc-500 transition-all shadow-sm"
+                      className="w-12 h-6 rounded-md border border-border-strong hover:border-zinc-500 transition-all shadow-sm"
                       style={{ backgroundColor: darkAccent }}
                     />
-                    <span className="text-[11px] font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">
+                    <span className="text-[11px] font-medium text-muted-foreground group-hover:text-foreground transition-colors">
                       Icon Color
                     </span>
                   </Button>
@@ -176,13 +176,13 @@ export default function EditBoardIconDialog({
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
-            className="border-zinc-700 text-zinc-400 hover:bg-zinc-800 hover:text-white"
+            className="border-border-strong text-muted-foreground hover:bg-surface-card hover:text-foreground"
           >
             Cancel
           </Button>
           <Button
             onClick={handleSave}
-            className="bg-white text-black hover:bg-zinc-200"
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
             Save
           </Button>

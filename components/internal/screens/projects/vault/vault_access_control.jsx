@@ -130,20 +130,20 @@ export function VaultAccessControl({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[520px] max-h-[85vh] overflow-y-auto bg-[#161616] text-[#ededed] border border-[#2a2a2a]">
+      <DialogContent className="sm:max-w-[520px] max-h-[85vh] overflow-y-auto bg-background text-foreground border border-border">
         <DialogHeader className="pb-2">
-          <DialogTitle className="font-semibold flex items-center gap-2.5 text-white">
-            <Shield className="w-5 h-5 text-[#737373] text-sm" />
+          <DialogTitle className="font-semibold flex items-center gap-2.5 text-foreground">
+            <Shield className="w-5 h-5 text-text-secondary text-sm" />
             Access Control
           </DialogTitle>
-          <DialogDescription className="text-[#737373] pt-1 text-xs">
+          <DialogDescription className="text-text-secondary pt-1 text-xs">
             Configure who can access {item?.name}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-5 ">
           <div className="space-y-3">
-            <Label className="text-xs font-semibold text-[#a3a3a3] tracking-wide">Access Type</Label>
+            <Label className="text-xs font-semibold text-muted-foreground tracking-wide">Access Type</Label>
             <div className="grid grid-cols-4 gap-2.5">
               {[
                 { value: "team", label: "Team", icon: Users },
@@ -161,17 +161,17 @@ export function VaultAccessControl({
                     className={cn(
                       "relative h-auto flex-col items-center justify-center gap-2 py-3.5 px-3 rounded-lg border text-xs font-medium",
                       isActive
-                        ? "border-[#404040] text-white"
-                        : "bg-[#1a1a1a] border-[#2a2a2a] text-[#737373] hover:border-[#3a3a3a] hover:text-[#a3a3a3]",
+                        ? "border-border-strong text-foreground"
+                        : "bg-surface-subtle border-border text-text-secondary hover:border-border-strong hover:text-muted-foreground",
                     )}
                   >
                     <div className={cn(
                       "relative p-1.5 rounded-md transition-all duration-300",
-                      isActive ? "" : "bg-transparent group-hover:bg-[#2a2a2a]/60"
+                      isActive ? "" : "bg-transparent group-hover:bg-surface-hover/60"
                     )}>
                       <option.icon className={cn(
                         "w-4 h-4 transition-all duration-300",
-                        isActive ? "text-white" : "text-[#666666] group-hover:text-[#999999]"
+                        isActive ? "text-foreground" : "text-text-secondary group-hover:text-muted-foreground"
                       )} />
                     </div>
                     <span className={cn(
@@ -189,10 +189,10 @@ export function VaultAccessControl({
 
           {accessControl.type === "roles" && (
             <div className="space-y-3">
-              <Label className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wide">Allowed Roles</Label>
+              <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Allowed Roles</Label>
               <div className="flex flex-wrap gap-2">
                 {roles.length === 0 ? (
-                  <p className="rounded-lg border border-dashed border-[#2a2a2a] bg-[#1a1a1a] px-3 py-3 text-xs text-[#737373]">
+                  <p className="rounded-lg border border-dashed border-border bg-surface-subtle px-3 py-3 text-xs text-text-secondary">
                     No roles available yet. Roles will appear here after backend data is connected.
                   </p>
                 ) : (
@@ -206,8 +206,8 @@ export function VaultAccessControl({
                       className={cn(
                         "px-3 py-1 rounded-md text-xs font-medium border transition-all duration-200",
                         accessControl.allowedRoles.includes(role)
-                          ? "bg-[#202020] border-[#474747] text-white shadow-sm"
-                          : "bg-[#1a1a1a] border-[#2a2a2a] text-[#737373] hover:border-[#3a3a3a] hover:text-[#a3a3a3] hover:bg-[#1f1f1f]",
+                          ? "bg-surface-card border-border-strong text-foreground shadow-sm"
+                          : "bg-surface-subtle border-border text-text-secondary hover:border-border-strong hover:text-muted-foreground hover:bg-surface-card",
                       )}
                     >
                       {role.charAt(0).toUpperCase() + role.slice(1)}
@@ -221,25 +221,25 @@ export function VaultAccessControl({
 
           {accessControl.type === "users" && (
             <div className="space-y-3">
-              <Label className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wide">Email Addresses</Label>
+              <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Email Addresses</Label>
               <div className="space-y-2.5">
                 {accessControl.allowedUsers.length > 0 && (
                   <div className="space-y-2">
                     {accessControl.allowedUsers.map((email, index) => (
                       <div
                         key={index}
-                        className="flex items-center gap-3 bg-[#1a1a1a] rounded-lg px-3.5 py-2 border border-[#2a2a2a] group hover:border-[#3a3a3a] transition-all duration-200"
+                        className="flex items-center gap-3 bg-surface-subtle rounded-lg px-3.5 py-2 border border-border group hover:border-border-strong transition-all duration-200"
                       >
-                        <div className="w-7 h-7 rounded-full bg-[#202020] border border-[#333333] flex items-center justify-center">
-                          <UserCheck className="w-3.5 h-3.5 text-[#737373]" />
+                        <div className="w-7 h-7 rounded-full bg-surface-card border border-border flex items-center justify-center">
+                          <UserCheck className="w-3.5 h-3.5 text-text-secondary" />
                         </div>
-                        <span className="flex-1 text-sm text-[#ededed]">{email}</span>
+                        <span className="flex-1 text-sm text-foreground">{email}</span>
                         <Button
                           type="button"
                           variant="ghost"
                           size="icon-xs"
                           onClick={() => handleUserRemove(email)}
-                          className="text-[#525252] hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
+                          className="text-text-tertiary hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
                         >
                           <X className="w-4 h-4" />
                         </Button>
@@ -250,7 +250,7 @@ export function VaultAccessControl({
                 <div 
                   data-slot="input-group" 
                   role="group" 
-                  className="group/input-group relative flex w-full min-w-0 items-center rounded-[var(--input-box-radius)] border border-[#2a2a2a] transition-colors outline-none hover:border-[#3a3a3a] has-[[data-slot=input-group-control]:focus-visible]:border-[#3a3a3a] has-[[data-slot=input-group-control]:focus-visible]:ring-1 has-[[data-slot=input-group-control]:focus-visible]:ring-[#3a3a3a]/50"
+                  className="group/input-group relative flex w-full min-w-0 items-center rounded-md border border-border transition-colors outline-none hover:border-border-strong has-[[data-slot=input-group-control]:focus-visible]:border-border-strong has-[[data-slot=input-group-control]:focus-visible]:ring-1 has-[[data-slot=input-group-control]:focus-visible]:ring-ring/50"
                 >
                   <Input
                     data-slot="input-group-control"
@@ -258,19 +258,19 @@ export function VaultAccessControl({
                     value={userInput}
                     onChange={(e) => setUserInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    className="flex-1 rounded-none border-0 bg-transparent px-[var(--input-box-padding-x)] py-[var(--input-box-padding-y)] text-sm leading-5 text-[#ededed] shadow-none placeholder:text-[#525252] focus-visible:ring-0"
+                    className="flex-1 rounded-none border-0 bg-transparent px-3 py-2 text-sm leading-5 text-foreground shadow-none placeholder:text-text-tertiary focus-visible:ring-0"
                   />
                   <div 
                     role="group" 
                     data-slot="input-group-addon" 
                     data-align="inline-end"
-                    className="flex h-auto cursor-text items-center justify-center gap-[var(--input-box-icon-gap)] py-[var(--input-box-padding-y)] pl-[var(--input-box-icon-gap)] text-sm font-medium text-[#737373] select-none order-last pr-[var(--input-box-padding-x)]"
+                    className="order-last flex cursor-text items-center justify-center gap-2 py-2 pl-2 pr-3 text-sm font-medium text-text-secondary select-none"
                   >
                     <Button
                       type="button"
                       size="icon-xs"
                       onClick={handleUserAdd}
-                      className="flex size-5 items-center justify-center rounded-full bg-[#ededed] text-[#161616] hover:bg-white transition-all duration-200"
+                      className="flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200"
                     >
                       <Plus className="size-3" />
                     </Button>
@@ -282,10 +282,10 @@ export function VaultAccessControl({
 
           {accessControl.type === "positions" && (
             <div className="space-y-3">
-              <Label className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wide">Positions</Label>
+              <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Positions</Label>
               <div className="flex flex-wrap gap-2">
                 {positions.length === 0 ? (
-                  <p className="rounded-lg border border-dashed border-[#2a2a2a] bg-[#1a1a1a] px-3 py-3 text-xs text-[#737373]">
+                  <p className="rounded-lg border border-dashed border-border bg-surface-subtle px-3 py-3 text-xs text-text-secondary">
                     No positions available yet. Positions will appear here after backend data is connected.
                   </p>
                 ) : (
@@ -299,8 +299,8 @@ export function VaultAccessControl({
                       className={cn(
                         "px-3 py-1 rounded-md text-xs font-medium border transition-all duration-200",
                         accessControl.allowedPositions.includes(position)
-                          ? "bg-[#202020] border-[#474747] text-white shadow-sm"
-                          : "bg-[#1a1a1a] border-[#2a2a2a] text-[#737373] hover:border-[#3a3a3a] hover:text-[#a3a3a3] hover:bg-[#1f1f1f]",
+                          ? "bg-surface-card border-border-strong text-foreground shadow-sm"
+                          : "bg-surface-subtle border-border text-text-secondary hover:border-border-strong hover:text-muted-foreground hover:bg-surface-card",
                       )}
                     >
                       {position}
@@ -316,22 +316,22 @@ export function VaultAccessControl({
             <div className="flex items-center justify-between mb-7">
               <div className="flex items-center gap-3">
                 <div>
-                  <Label className="text-sm text-[#a3a3a3]">Keyless Entry</Label>
+                  <Label className="text-sm text-muted-foreground">Keyless Entry</Label>
                 </div>
               </div>
               <Switch
                 checked={keylessEntry}
                 onCheckedChange={setKeylessEntry}
-                className="data-[state=checked]:bg-[#ededed] data-[state=unchecked]:bg-[#333333]"
+                className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-surface-strong"
               >
-                <Switch.Thumb className="data-[state=checked]:bg-[#161616] data-[state=unchecked]:bg-[#737373]" />
+                <Switch.Thumb className="data-[state=checked]:bg-background data-[state=unchecked]:bg-muted-foreground" />
               </Switch>
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center gap-2 justify-between">
 <div>
-                  <Label className="text-sm text-[#a3a3a3]">Time To Live</Label>
+                  <Label className="text-sm text-muted-foreground">Time To Live</Label>
                 </div>
                 <FilterDropdown
                 value={ttl}
@@ -350,13 +350,13 @@ export function VaultAccessControl({
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
-            className="flex-1 border-[#2a2a2a] text-[#737373] hover:text-white hover:bg-[#202020] hover:border-[#3a3a3a] h-9 text-sm font-medium transition-all duration-200"
+            className="flex-1 border-border text-text-secondary hover:text-foreground hover:bg-surface-card hover:border-border-strong h-9 text-sm font-medium transition-all duration-200"
           >
             Cancel
           </Button>
           <Button
             onClick={handleSave}
-            className="flex-1 bg-[#ededed] text-[#161616] hover:bg-white h-9 text-sm font-medium transition-all duration-200"
+            className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 h-9 text-sm font-medium transition-all duration-200"
           >
             Save Changes
           </Button>

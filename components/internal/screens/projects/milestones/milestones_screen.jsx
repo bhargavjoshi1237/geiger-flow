@@ -25,30 +25,30 @@ import { cn } from "@/lib/utils";
 const MILESTONE_STATUS_META = {
   not_started: {
     label: "Not Started",
-    className: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
-    progressClass: "[&_[data-slot=progress-indicator]]:bg-[#e7e7e7]",
+    className: "bg-zinc-500/10 text-muted-foreground border-zinc-500/20",
+    progressClass: "[&_[data-slot=progress-indicator]]:bg-primary",
   },
   on_track: {
     label: "On Track",
     className: "bg-blue-500/10 text-blue-300 border-blue-500/20",
-    progressClass: "[&_[data-slot=progress-indicator]]:bg-[#e7e7e7]",
+    progressClass: "[&_[data-slot=progress-indicator]]:bg-primary",
   },
   at_risk: {
     label: "At Risk",
     className: "bg-amber-500/10 text-amber-300 border-amber-500/20",
-    progressClass: "[&_[data-slot=progress-indicator]]:bg-[#e7e7e7]",
+    progressClass: "[&_[data-slot=progress-indicator]]:bg-primary",
   },
   completed: {
     label: "Completed",
     className: "bg-emerald-500/10 text-emerald-300 border-emerald-500/20",
-    progressClass: "[&_[data-slot=progress-indicator]]:bg-[#e7e7e7]",
+    progressClass: "[&_[data-slot=progress-indicator]]:bg-primary",
   },
 };
 
 const TASK_STATUS_META = {
   todo: {
     label: "To Do",
-    className: "bg-zinc-500/10 text-zinc-300 border-zinc-500/20",
+    className: "bg-zinc-500/10 text-foreground border-zinc-500/20",
   },
   in_progress: {
     label: "In Progress",
@@ -121,12 +121,12 @@ function MilestoneCard({ milestone, onToggleTask }) {
   const statusMeta = MILESTONE_STATUS_META[milestone.metrics.status];
 
   return (
-    <Card className="bg-[#1a1a1a] border-[#2a2a2a] text-[#e7e7e7] hover:border-[#3a3a3a] transition-colors duration-200 rounded-xl py-0 gap-0 flex flex-col">
+    <Card className="bg-surface-subtle border-border text-foreground hover:border-border-strong transition-colors duration-200 rounded-xl py-0 gap-0 flex flex-col">
       <CardContent className="p-5 space-y-4 flex-1 flex flex-col">
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1 min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap mb-4">
-              <h3 className="text-sm font-semibold text-[#e7e7e7] leading-snug">
+              <h3 className="text-sm font-semibold text-foreground leading-snug">
                 {milestone.title}
               </h3>
               <Badge className={cn("ml-auto border text-[10px] px-2 py-0", statusMeta.className)}>
@@ -138,11 +138,11 @@ function MilestoneCard({ milestone, onToggleTask }) {
                 </Badge>
               ) : null}
             </div>
-            <p className="text-xs text-[#737373] line-clamp-2">{milestone.description}</p>
+            <p className="text-xs text-text-secondary line-clamp-2">{milestone.description}</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 text-xs text-[#737373] flex-wrap">
+        <div className="flex items-center gap-3 text-xs text-text-secondary flex-wrap">
           <span className="inline-flex items-center gap-1">
             <Calendar className="w-3 h-3" />
             {formatDate(milestone.targetDate)}
@@ -155,25 +155,25 @@ function MilestoneCard({ milestone, onToggleTask }) {
             <Clock3 className="w-3 h-3" />
             {milestone.owner}
           </span>
-          <span className="ml-auto text-[#525252] tabular-nums">
+          <span className="ml-auto text-text-tertiary tabular-nums">
             {milestone.metrics.doneTasks}/{milestone.metrics.totalTasks} complete
           </span>
         </div>
 
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase tracking-wider text-[#525252] font-medium">
+            <span className="text-[10px] uppercase tracking-wider text-text-tertiary font-medium">
               Completion
             </span>
-            <span className="text-xs text-[#a3a3a3] tabular-nums">{milestone.metrics.progress}%</span>
+            <span className="text-xs text-muted-foreground tabular-nums">{milestone.metrics.progress}%</span>
           </div>
           <Progress
             value={milestone.metrics.progress}
-            className={cn("h-1.5 bg-[#2a2a2a] rounded-full", statusMeta.progressClass)}
+            className={cn("h-1.5 bg-surface-hover rounded-full", statusMeta.progressClass)}
           />
         </div>
 
-        <div className="border-t border-[#222] pt-2 space-y-1">
+        <div className="border-t border-border pt-2 space-y-1">
           {milestone.tasks.map((task) => {
             const taskMeta = TASK_STATUS_META[task.status] || TASK_STATUS_META.todo;
             const isDone = task.status === "done";
@@ -183,25 +183,25 @@ function MilestoneCard({ milestone, onToggleTask }) {
                 key={task.id}
                 type="button"
                 onClick={() => onToggleTask(milestone.id, task.id)}
-                className="w-full rounded-lg px-2 py-2 flex items-center gap-2.5 text-left hover:bg-[#202020] transition-colors"
+                className="w-full rounded-lg px-2 py-2 flex items-center gap-2.5 text-left hover:bg-surface-card transition-colors"
               >
                 {isDone ? (
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                 ) : task.status === "blocked" ? (
                   <AlertTriangle className="w-3.5 h-3.5 text-red-300 shrink-0" />
                 ) : (
-                  <Circle className="w-3.5 h-3.5 text-[#3a3a3a] shrink-0" />
+                  <Circle className="w-3.5 h-3.5 text-text-tertiary shrink-0" />
                 )}
                 <div className="min-w-0 flex-1">
                   <p
                     className={cn(
                       "text-xs truncate",
-                      isDone ? "text-[#a3a3a3] line-through" : "text-[#d4d4d4]"
+                      isDone ? "text-muted-foreground line-through" : "text-foreground"
                     )}
                   >
                     {task.title}
                   </p>
-                  <p className="text-[11px] text-[#525252]">{task.assignee}</p>
+                  <p className="text-[11px] text-text-tertiary">{task.assignee}</p>
                 </div>
                 <Badge className={cn("border text-[10px] px-2 py-0 shrink-0", taskMeta.className)}>
                   {taskMeta.label}
@@ -219,11 +219,11 @@ function MilestoneListItem({ milestone, onToggleTask }) {
   const statusMeta = MILESTONE_STATUS_META[milestone.metrics.status];
 
   return (
-    <div className="rounded-xl bg-[#1a1a1a] border border-[#2a2a2a] px-4 py-4 hover:border-[#3a3a3a] transition-colors">
+    <div className="rounded-xl bg-surface-subtle border border-border px-4 py-4 hover:border-border-strong transition-colors">
       <div className="flex flex-col xl:flex-row xl:items-center gap-4">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap mb-1">
-            <h3 className="text-sm font-semibold text-[#e7e7e7] truncate">{milestone.title}</h3>
+            <h3 className="text-sm font-semibold text-foreground truncate">{milestone.title}</h3>
             <Badge className={cn("border text-[10px] px-2 py-0", statusMeta.className)}>
               {statusMeta.label}
             </Badge>
@@ -233,8 +233,8 @@ function MilestoneListItem({ milestone, onToggleTask }) {
               </Badge>
             ) : null}
           </div>
-          <p className="text-xs text-[#737373] line-clamp-1">{milestone.description}</p>
-          <div className="mt-2 flex items-center gap-3 text-xs text-[#737373] flex-wrap">
+          <p className="text-xs text-text-secondary line-clamp-1">{milestone.description}</p>
+          <div className="mt-2 flex items-center gap-3 text-xs text-text-secondary flex-wrap">
             <span className="inline-flex items-center gap-1">
               <Calendar className="w-3 h-3" />
               {formatDate(milestone.targetDate)}
@@ -243,22 +243,22 @@ function MilestoneListItem({ milestone, onToggleTask }) {
               <ListTodo className="w-3 h-3" />
               {milestone.metrics.totalTasks} tasks
             </span>
-            <span className="text-[#525252]">Owner: {milestone.owner}</span>
+            <span className="text-text-tertiary">Owner: {milestone.owner}</span>
           </div>
         </div>
 
         <div className="w-full xl:w-[260px] space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase tracking-wider text-[#525252] font-medium">
+            <span className="text-[10px] uppercase tracking-wider text-text-tertiary font-medium">
               Completion
             </span>
-            <span className="text-xs text-[#a3a3a3] tabular-nums">
+            <span className="text-xs text-muted-foreground tabular-nums">
               {milestone.metrics.doneTasks}/{milestone.metrics.totalTasks}
             </span>
           </div>
           <Progress
             value={milestone.metrics.progress}
-            className={cn("h-1.5 bg-[#2a2a2a] rounded-full", statusMeta.progressClass)}
+            className={cn("h-1.5 bg-surface-hover rounded-full", statusMeta.progressClass)}
           />
         </div>
       </div>
@@ -271,14 +271,14 @@ function MilestoneListItem({ milestone, onToggleTask }) {
               key={task.id}
               type="button"
               onClick={() => onToggleTask(milestone.id, task.id)}
-              className="rounded-lg px-2.5 py-2 bg-[#202020] border border-[#2a2a2a] hover:border-[#3a3a3a] text-left flex items-center gap-2 transition-colors"
+              className="rounded-lg px-2.5 py-2 bg-surface-card border border-border hover:border-border-strong text-left flex items-center gap-2 transition-colors"
             >
               {isDone ? (
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
               ) : (
-                <Circle className="w-3.5 h-3.5 text-[#3a3a3a] shrink-0" />
+                <Circle className="w-3.5 h-3.5 text-text-tertiary shrink-0" />
               )}
-              <span className={cn("text-xs truncate", isDone ? "text-[#a3a3a3] line-through" : "text-[#d4d4d4]")}>{task.title}</span>
+              <span className={cn("text-xs truncate", isDone ? "text-muted-foreground line-through" : "text-foreground")}>{task.title}</span>
             </Button>
           );
         })}
@@ -376,23 +376,23 @@ export function MilestonesScreen() {
 
   return (
     <MainScreenWrapper>
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-[#2a2a2a] pb-6">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-border pb-6">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-[#e7e7e7]">Milestones</h1>
-          <p className="text-[#a3a3a3] mt-1">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">Milestones</h1>
+          <p className="text-muted-foreground mt-1">
             Organize milestones as task collections and monitor delivery health.
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-0.5">
+          <div className="flex items-center bg-surface-subtle border border-border rounded-lg p-0.5">
             <Button
               variant="ghost"
               size="icon"
               className={cn(
                 "w-8 h-7 rounded-md",
                 view === "grid"
-                  ? "bg-[#2a2a2a] text-white"
-                  : "text-[#525252] hover:text-[#a3a3a3] hover:bg-transparent"
+                  ? "bg-surface-hover text-foreground"
+                  : "text-text-tertiary hover:text-muted-foreground hover:bg-transparent"
               )}
               onClick={() => setView("grid")}
             >
@@ -404,15 +404,15 @@ export function MilestonesScreen() {
               className={cn(
                 "w-8 h-7 rounded-md",
                 view === "list"
-                  ? "bg-[#2a2a2a] text-white"
-                  : "text-[#525252] hover:text-[#a3a3a3] hover:bg-transparent"
+                  ? "bg-surface-hover text-foreground"
+                  : "text-text-tertiary hover:text-muted-foreground hover:bg-transparent"
               )}
               onClick={() => setView("list")}
             >
               <List className="w-3.5 h-3.5" />
             </Button>
           </div>
-          <Button className="bg-white text-black hover:bg-[#e7e7e7]">
+          <Button className="bg-primary text-primary-foreground hover:bg-primary">
             <Plus className="w-4 h-4 mr-2" />
             New Milestone
           </Button>
@@ -420,25 +420,25 @@ export function MilestonesScreen() {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-4">
-          <p className="text-[11px] uppercase tracking-wide text-[#525252]">Milestones</p>
-          <p className="text-xl font-semibold text-[#e7e7e7] mt-1 tabular-nums">{summary.totalMilestones}</p>
-          <p className="text-xs text-[#737373] mt-1">{summary.completedMilestones} completed</p>
+        <div className="rounded-xl border border-border bg-surface-subtle p-4">
+          <p className="text-[11px] uppercase tracking-wide text-text-tertiary">Milestones</p>
+          <p className="text-xl font-semibold text-foreground mt-1 tabular-nums">{summary.totalMilestones}</p>
+          <p className="text-xs text-text-secondary mt-1">{summary.completedMilestones} completed</p>
         </div>
-        <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-4">
-          <p className="text-[11px] uppercase tracking-wide text-[#525252]">Task Completion</p>
-          <p className="text-xl font-semibold text-[#e7e7e7] mt-1 tabular-nums">{summary.taskProgress}%</p>
-          <p className="text-xs text-[#737373] mt-1">{summary.doneTasks}/{summary.totalTasks} tasks done</p>
+        <div className="rounded-xl border border-border bg-surface-subtle p-4">
+          <p className="text-[11px] uppercase tracking-wide text-text-tertiary">Task Completion</p>
+          <p className="text-xl font-semibold text-foreground mt-1 tabular-nums">{summary.taskProgress}%</p>
+          <p className="text-xs text-text-secondary mt-1">{summary.doneTasks}/{summary.totalTasks} tasks done</p>
         </div>
-        <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-4">
-          <p className="text-[11px] uppercase tracking-wide text-[#525252]">Overdue</p>
-          <p className="text-xl font-semibold text-[#e7e7e7] mt-1 tabular-nums">{summary.overdueMilestones}</p>
-          <p className="text-xs text-[#737373] mt-1">Milestones past due date</p>
+        <div className="rounded-xl border border-border bg-surface-subtle p-4">
+          <p className="text-[11px] uppercase tracking-wide text-text-tertiary">Overdue</p>
+          <p className="text-xl font-semibold text-foreground mt-1 tabular-nums">{summary.overdueMilestones}</p>
+          <p className="text-xs text-text-secondary mt-1">Milestones past due date</p>
         </div>
-        <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-4">
-          <p className="text-[11px] uppercase tracking-wide text-[#525252]">In Scope</p>
-          <p className="text-xl font-semibold text-[#e7e7e7] mt-1 tabular-nums">{summary.totalTasks}</p>
-          <p className="text-xs text-[#737373] mt-1">Tasks assigned to milestones</p>
+        <div className="rounded-xl border border-border bg-surface-subtle p-4">
+          <p className="text-[11px] uppercase tracking-wide text-text-tertiary">In Scope</p>
+          <p className="text-xl font-semibold text-foreground mt-1 tabular-nums">{summary.totalTasks}</p>
+          <p className="text-xs text-text-secondary mt-1">Tasks assigned to milestones</p>
         </div>
       </div>
 
@@ -459,8 +459,8 @@ export function MilestonesScreen() {
               className={cn(
                 "h-8 px-3 text-xs rounded-lg border",
                 activeFilter === filter.id
-                  ? "bg-[#2a2a2a] text-white border-[#3a3a3a]"
-                  : "bg-[#1a1a1a] text-[#737373] border-[#2a2a2a] hover:bg-[#202020] hover:text-[#e7e7e7]"
+                  ? "bg-surface-hover text-foreground border-border-strong"
+                  : "bg-surface-subtle text-text-secondary border-border hover:bg-surface-card hover:text-foreground"
               )}
               onClick={() => setActiveFilter(filter.id)}
             >
@@ -471,7 +471,7 @@ export function MilestonesScreen() {
       </div>
 
       {filteredMilestones.length === 0 ? (
-        <div className="h-[260px] flex flex-col items-center justify-center rounded-xl border border-dashed border-[#2a2a2a] bg-[#1a1a1a] text-[#737373]">
+        <div className="h-[260px] flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface-subtle text-text-secondary">
           <Flag className="w-10 h-10 opacity-30" />
           <p className="mt-3 text-sm">No milestones match your current filters.</p>
         </div>

@@ -70,15 +70,15 @@ function RoleCreateDialog({ onCreate }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="h-9 rounded-lg bg-[#e7e7e7] px-4 text-sm font-semibold text-black hover:bg-zinc-200">
+        <Button className="h-9 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
           Add new
           <Plus className="ml-1 h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-[#161616] border-[#2a2a2a] text-[#ededed]">
+      <DialogContent className="bg-background border-border text-foreground">
         <DialogHeader>
           <DialogTitle>Create role</DialogTitle>
-          <DialogDescription className="text-[#a3a3a3]">
+          <DialogDescription className="text-muted-foreground">
             Add a role to the workspace, then expand it in the table to manage
             permissions.
           </DialogDescription>
@@ -91,7 +91,7 @@ function RoleCreateDialog({ onCreate }) {
               value={name}
               onChange={(event) => setName(event.target.value)}
               placeholder="Finance reviewer"
-              className="bg-[#202020] border-[#333333] text-white"
+              className="bg-surface-card border-border text-foreground"
             />
           </div>
           <div className="space-y-2">
@@ -101,7 +101,7 @@ function RoleCreateDialog({ onCreate }) {
               value={description}
               onChange={(event) => setDescription(event.target.value)}
               placeholder="Can review project usage and reporting"
-              className="bg-[#202020] border-[#333333] text-white"
+              className="bg-surface-card border-border text-foreground"
             />
           </div>
         </div>
@@ -110,7 +110,7 @@ function RoleCreateDialog({ onCreate }) {
             type="button"
             variant="ghost"
             onClick={() => setOpen(false)}
-            className="text-zinc-400 hover:bg-[#202020] hover:text-white"
+            className="text-muted-foreground hover:bg-surface-card hover:text-foreground"
           >
             Cancel
           </Button>
@@ -118,7 +118,7 @@ function RoleCreateDialog({ onCreate }) {
             type="button"
             onClick={handleCreate}
             disabled={!name.trim()}
-            className="bg-[#ededed] text-black hover:bg-zinc-300"
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
             Create
           </Button>
@@ -251,41 +251,41 @@ export function RolesScreen({
     role.permissions.filter((permission) => permission.startsWith(prefix)).length;
 
   return (
-    <MainScreenWrapper className="flex flex-col gap-10 space-y-0 text-[#e7e7e7]">
-      <div className="flex flex-col gap-4 border-b border-[#2a2a2a] pb-6 lg:flex-row lg:items-center lg:justify-between">
+    <MainScreenWrapper className="flex flex-col gap-10 space-y-0 text-foreground">
+      <div className="flex flex-col gap-4 border-b border-border pb-6 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-[#ededed] md:text-3xl">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
             Accesses
           </h1>
-          <p className="text-[#a3a3a3] text-sm mt-1">
+          <p className="text-muted-foreground text-sm mt-1">
             Manage workspace roles and permission groups.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2 justify-end">
           <div className="relative w-full sm:w-52">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#737373]" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
             <Input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search groups"
-              className="!h-9 w-full rounded-lg border-[#333333] bg-[#202020] !pl-9 !pr-3 text-sm text-[#ededed] placeholder:text-[#737373]"
+              className="!h-9 w-full rounded-lg border-border bg-surface-card !pl-9 !pr-3 text-sm text-foreground placeholder:text-text-secondary"
             />
           </div>
           <RoleCreateDialog onCreate={handleCreateRole} />
         </div>
       </div>
 
-      <section className="overflow-hidden rounded-lg border border-[#2a2a2a] bg-[#202020]">
+      <section className="overflow-hidden rounded-lg border border-border bg-surface-card">
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle">
               <TableHead className="w-[38%]">Roles</TableHead>
               <TableHead>Users</TableHead>
               <TableHead>Views</TableHead>
               <TableHead>Controls</TableHead>
               <TableHead>Type</TableHead>
               <TableHead className="w-12 text-right">
-                <Plus className="ml-auto h-4 w-4 text-[#737373]" />
+                <Plus className="ml-auto h-4 w-4 text-text-secondary" />
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -294,7 +294,7 @@ export function RolesScreen({
               const isExpanded = expandedRoleId === role.id;
               return (
                 <React.Fragment key={role.id}>
-                  <TableRow className="border-[#2a2a2a] hover:bg-[#242424]">
+                  <TableRow className="border-border hover:bg-surface-active">
                     <TableCell>
                       <Button
                         type="button"
@@ -302,17 +302,17 @@ export function RolesScreen({
                         className="flex w-full items-center gap-3 text-left"
                       >
                         {isExpanded ? (
-                          <ChevronDown className="h-4 w-4 text-[#a3a3a3]" />
+                          <ChevronDown className="h-4 w-4 text-muted-foreground" />
                         ) : (
-                          <ChevronRight className="h-4 w-4 text-[#a3a3a3]" />
+                          <ChevronRight className="h-4 w-4 text-muted-foreground" />
                         )}
-                        <span className="font-medium text-[#ededed]">{role.name}</span>
+                        <span className="font-medium text-foreground">{role.name}</span>
                         {role.system && (
-                          <ShieldCheck className="h-3.5 w-3.5 text-[#737373]" />
+                          <ShieldCheck className="h-3.5 w-3.5 text-text-secondary" />
                         )}
                       </Button>
                     </TableCell>
-                    <TableCell className="font-medium text-[#ededed]">
+                    <TableCell className="font-medium text-foreground">
                       {roleUsage[role.id] || 0}
                     </TableCell>
                     <TableCell>{countPermissions(role, "view.")}</TableCell>
@@ -320,24 +320,24 @@ export function RolesScreen({
                       {role.permissions.length - countPermissions(role, "view.")}
                     </TableCell>
                     <TableCell>
-                      <span className="text-xs font-medium text-[#c0c0c0]">
+                      <span className="text-xs font-medium text-muted-foreground">
                         {role.system ? "System" : "Custom"}
                       </span>
                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button className="rounded-md p-1 text-[#737373] hover:bg-[#2a2a2a] hover:text-white">
+                          <Button className="rounded-md p-1 text-text-secondary hover:bg-surface-hover hover:text-foreground">
                             <MoreVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
                           align="end"
-                          className="border-[#2a2a2a] bg-[#1a1a1a] text-[#ededed]"
+                          className="border-border bg-surface-subtle text-foreground"
                         >
                           <DropdownMenuItem
                             onClick={() => setExpandedRoleId(role.id)}
-                            className="focus:bg-[#2a2a2a] focus:text-white"
+                            className="focus:bg-surface-hover focus:text-foreground"
                           >
                             Manage permissions
                           </DropdownMenuItem>
@@ -347,17 +347,17 @@ export function RolesScreen({
                   </TableRow>
 
                   {isExpanded && (
-                    <TableRow className="border-[#2a2a2a] bg-[#1b1b1b] hover:bg-[#1b1b1b]">
+                    <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
                       <TableCell colSpan={6} className="p-0">
-                        <div className="grid gap-0 divide-y divide-[#2a2a2a] lg:grid-cols-3 lg:divide-x lg:divide-y-0">
+                        <div className="grid gap-0 divide-y divide-border lg:grid-cols-3 lg:divide-x lg:divide-y-0">
                           {Object.entries(permissionGroups).map(
                             ([group, permissions]) => (
                               <div key={group} className="space-y-3 p-5">
                                 <div>
-                                  <p className="text-xs font-semibold uppercase tracking-wider text-[#737373]">
+                                  <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary">
                                     {group}
                                   </p>
-                                  <p className="mt-1 line-clamp-2 text-xs text-[#8f8f8f]">
+                                  <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
                                     {role.description}
                                   </p>
                                 </div>
@@ -368,7 +368,7 @@ export function RolesScreen({
                                   >
                                     <Label
                                       htmlFor={`${role.id}-${permission.key}`}
-                                      className="text-sm text-[#d4d4d4]"
+                                      className="text-sm text-foreground"
                                     >
                                       {permission.label}
                                     </Label>
@@ -400,7 +400,7 @@ export function RolesScreen({
 
             {filteredRoles.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="py-10 text-center text-[#737373]">
+                <TableCell colSpan={6} className="py-10 text-center text-text-secondary">
                   No roles match your search.
                 </TableCell>
               </TableRow>

@@ -172,47 +172,47 @@ export function TeamScreen({ roles: externalRoles = [] }) {
     roles.find((role) => role.id === roleId)?.name || "Manager";
 
   return (
-    <MainScreenWrapper className="flex flex-col gap-10 space-y-0 text-[#e7e7e7]">
-      <div className="flex flex-col gap-4 border-b border-[#2a2a2a] pb-6 lg:flex-row lg:items-center lg:justify-between">
+    <MainScreenWrapper className="flex flex-col gap-10 space-y-0 text-foreground">
+      <div className="flex flex-col gap-4 border-b border-border pb-6 lg:flex-row lg:items-center lg:justify-between">
         <div>
           
-          <h1 className="text-2xl font-semibold tracking-tight text-[#e7e7e7] md:text-3xl">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
             User management
           </h1>
-          <p className="text-sm font-medium text-[#a3a3a3] mt-1">
+          <p className="text-sm font-medium text-muted-foreground mt-1">
             Manage your team members and their account permissions here.
           </p>
         </div>
         <div className="flex flex-col gap-3 md:items-end"> 
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <div className="relative w-full sm:w-72">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#737373]" />
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
               <Input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Search"
-                className="!h-9 w-full rounded-lg border-[#333333] bg-[#202020] !pl-9 !pr-3 text-sm text-[#ededed] placeholder:text-[#737373]"
+                className="!h-9 w-full rounded-lg border-border bg-surface-card !pl-9 !pr-3 text-sm text-foreground placeholder:text-text-secondary"
               />
             </div>
             <Button
               variant="outline"
-              className="h-9 rounded-lg border-[#333333] bg-[#202020] px-3 text-sm font-semibold text-[#ededed] hover:bg-[#2a2a2a] hover:text-white"
+              className="h-9 rounded-lg border-border bg-surface-card px-3 text-sm font-semibold text-foreground hover:bg-surface-hover hover:text-foreground"
             >
               <Filter className="mr-2 h-4 w-4" />
               Filters
             </Button>
-            <Button className="h-9 rounded-lg bg-[#e7e7e7] px-4 text-sm font-semibold text-black hover:bg-zinc-200">
-              <Plus className="mr-2 h-4 w-4 text-black" />
+            <Button className="h-9 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
+              <Plus className="mr-2 h-4 w-4 text-primary-foreground" />
               Add user
             </Button>
           </div>
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-[#2a2a2a] bg-[#202020]">
+      <div className="overflow-hidden rounded-lg border border-border bg-surface-card">
         <Table>
           <TableHeader>
-            <TableRow className="border-[#2a2a2a] bg-[#1a1a1a]">
+            <TableRow className="border-border bg-surface-subtle">
               <TableHead>User name</TableHead>
               <TableHead>Access</TableHead>
               <TableHead>Workspace role</TableHead>
@@ -224,7 +224,7 @@ export function TeamScreen({ roles: externalRoles = [] }) {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={7} className="py-8 text-center text-zinc-500">
+                <TableCell colSpan={7} className="py-8 text-center text-text-secondary">
                   Loading team members...
                 </TableCell>
               </TableRow>
@@ -232,21 +232,21 @@ export function TeamScreen({ roles: externalRoles = [] }) {
               visibleMembers.map((member) => (
                 <TableRow
                   key={member.id}
-                  className="border-[#2a2a2a] hover:bg-[#242424]"
+                  className="border-border hover:bg-surface-active"
                 >
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <Avatar className="h-9 w-9 bg-[#333333] ring-1 ring-[#474747]">
+                      <Avatar className="h-9 w-9 bg-surface-strong ring-1 ring-ring">
                         <AvatarImage src={member.avatar} />
-                        <AvatarFallback className="bg-[#333333] text-xs uppercase text-white">
+                        <AvatarFallback className="bg-surface-strong text-xs uppercase text-foreground">
                           {initials(member.name)}
                         </AvatarFallback>
                       </Avatar>
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-medium text-[#e7e7e7]">
+                        <p className="truncate text-sm font-medium text-foreground">
                           {member.name}
                         </p>
-                        <p className="flex items-center gap-1 truncate text-xs text-[#a3a3a3]">
+                        <p className="flex items-center gap-1 truncate text-xs text-muted-foreground">
                           <Mail className="h-3 w-3 opacity-50" />
                           {member.email}
                         </p>
@@ -272,10 +272,10 @@ export function TeamScreen({ roles: externalRoles = [] }) {
                         handleMemberRoleChange(member.id, roleId)
                       }
                     >
-                      <SelectTrigger className="h-8 min-w-40 border-[#333333] bg-[#1a1a1a] text-[#ededed]">
+                      <SelectTrigger className="h-8 min-w-40 border-border bg-surface-subtle text-foreground">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="border-[#2a2a2a] bg-[#1a1a1a] text-[#ededed]">
+                      <SelectContent className="border-border bg-surface-subtle text-foreground">
                         {roles.map((role) => (
                           <SelectItem key={role.id} value={role.id}>
                             {role.name}
@@ -285,19 +285,19 @@ export function TeamScreen({ roles: externalRoles = [] }) {
                     </Select>
                   </TableCell>
                   <TableCell>
-                    <span className="inline-flex items-center gap-1.5 text-sm text-[#a3a3a3]">
+                    <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
                       <span className="h-1.5 w-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]" />
                       {member.lastActive || "Today"}
                     </span>
                   </TableCell>
                   <TableCell>
-                    <span className="inline-flex items-center gap-1.5 text-sm text-[#a3a3a3]">
-                      <CalendarDays className="h-3.5 w-3.5 text-[#737373]" />
+                    <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
+                      <CalendarDays className="h-3.5 w-3.5 text-text-secondary" />
                       {member.dateAdded || "Workspace"}
                     </span>
                   </TableCell>
                   <TableCell>
-                    <Button className="rounded-md p-1 text-[#737373] hover:bg-[#2a2a2a] hover:text-white">
+                    <Button className="rounded-md p-1 text-text-secondary hover:bg-surface-hover hover:text-foreground">
                       <MoreVertical className="h-4 w-4" />
                     </Button>
                   </TableCell>
@@ -306,7 +306,7 @@ export function TeamScreen({ roles: externalRoles = [] }) {
             )}
             {!loading && visibleMembers.length === 0 && (
               <TableRow>
-                <TableCell colSpan={7} className="py-10 text-center text-[#737373]">
+                <TableCell colSpan={7} className="py-10 text-center text-text-secondary">
                   No users match your search.
                 </TableCell>
               </TableRow>

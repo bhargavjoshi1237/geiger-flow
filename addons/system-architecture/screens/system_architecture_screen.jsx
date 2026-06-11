@@ -12,6 +12,7 @@ import {
   SelectionMode,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import { useTheme } from "next-themes";
 import {
   Boxes,
   ChevronsLeft,
@@ -71,10 +72,10 @@ const defaultEdgeOptions = {
     type: MarkerType.ArrowClosed,
     width: 18,
     height: 18,
-    color: "#737373",
+    color: "var(--edge-stroke)",
   },
   style: {
-    stroke: "#737373",
+    stroke: "var(--edge-stroke)",
     strokeWidth: 1.8,
   },
 };
@@ -225,7 +226,7 @@ function CatalogueItem({ item, onAdd }) {
       onDragStart={handleDragStart}
       onClick={() => onAdd(item)}
       variant="ghost"
-      className="group flex w-full items-start gap-3 rounded-lg border border-[#2a2a2a] bg-[#202020] p-3 text-left transition hover:border-[#474747] hover:bg-[#242424]"
+      className="group flex h-auto min-h-[72px] w-full shrink items-start justify-start gap-3 whitespace-normal rounded-lg border border-border bg-surface-card p-3 text-left transition hover:border-border-strong hover:bg-surface-active"
     >
       <span
         className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-md border"
@@ -241,11 +242,11 @@ function CatalogueItem({ item, onAdd }) {
           <Icon className="h-4.5 w-4.5" />
         )}
       </span>
-      <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-medium text-[#ededed]">
+      <span className="min-w-0 flex-1 whitespace-normal">
+        <span className="block truncate text-sm font-medium text-foreground">
           {item.label}
         </span>
-        <span className="mt-1 block line-clamp-2 text-xs leading-4 text-[#737373]">
+        <span className="mt-1 block line-clamp-2 break-words text-xs leading-4 text-text-secondary">
           {item.description}
         </span>
       </span>
@@ -276,8 +277,8 @@ function CatalogueSection({ items, categories, activeCategory, onCategoryChange,
             className={cn(
               "h-8 shrink-0 rounded-md border px-3 text-xs font-medium transition",
               activeCategory === category
-                ? "border-[#ededed] bg-[#ededed] text-[#111111]"
-                : "border-[#2a2a2a] bg-[#202020] text-[#a3a3a3] hover:border-[#474747] hover:bg-[#242424] hover:text-white",
+                ? "border-foreground bg-primary text-primary-foreground"
+                : "border-border bg-surface-card text-muted-foreground hover:border-border-strong hover:bg-surface-active hover:text-foreground",
             )}
           >
             {category}
@@ -289,10 +290,10 @@ function CatalogueSection({ items, categories, activeCategory, onCategoryChange,
         {Object.entries(groupedItems).map(([category, categoryItems]) => (
           <div key={category} className="space-y-2">
             <div className="flex items-center justify-between px-1">
-              <span className="text-[11px] font-semibold uppercase tracking-wide text-[#737373]">
+              <span className="text-[11px] font-semibold uppercase tracking-wide text-text-secondary">
                 {category}
               </span>
-              <span className="text-[11px] text-[#525252]">{categoryItems.length}</span>
+              <span className="text-[11px] text-text-tertiary">{categoryItems.length}</span>
             </div>
             <div className="space-y-2">
               {categoryItems.map((item) => (
@@ -311,9 +312,9 @@ function CostInput({ value, onChange, disabled }) {
   const updateValue = (nextValue) => onChange(Math.max(0, Number(nextValue) || 0));
 
   return (
-    <div className={cn("rounded-lg border border-[#2a2a2a] bg-[#161616]", disabled && "opacity-50")}>
+    <div className={cn("rounded-lg border border-border bg-background", disabled && "opacity-50")}>
       <div className="flex h-10 items-center">
-        <span className="flex h-full w-10 items-center justify-center border-r border-[#2a2a2a] text-sm font-semibold text-[#737373]">
+        <span className="flex h-full w-10 items-center justify-center border-r border-border text-sm font-semibold text-text-secondary">
           $
         </span>
         <Input
@@ -323,13 +324,13 @@ function CostInput({ value, onChange, disabled }) {
           disabled={disabled}
           value={numericValue}
           onChange={(event) => updateValue(event.target.value)}
-          className="min-w-0 flex-1 border-0 bg-transparent px-3 text-sm font-semibold text-[#ededed] shadow-none focus-visible:ring-0 disabled:cursor-not-allowed"
+          className="min-w-0 flex-1 border-0 bg-transparent px-3 text-sm font-semibold text-foreground shadow-none focus-visible:ring-0 disabled:cursor-not-allowed"
         />
-        <span className="border-l border-[#2a2a2a] px-3 text-xs font-medium text-[#737373]">
+        <span className="border-l border-border px-3 text-xs font-medium text-text-secondary">
           /mo
         </span>
       </div>
-      <div className="flex border-t border-[#2a2a2a]">
+      <div className="flex border-t border-border">
         {[-100, 100].map((step) => (
           <Button
             key={step}
@@ -337,7 +338,7 @@ function CostInput({ value, onChange, disabled }) {
             disabled={disabled}
             variant="ghost"
             onClick={() => updateValue(numericValue + step)}
-            className="flex h-8 flex-1 items-center justify-center text-xs font-medium text-[#a3a3a3] transition hover:bg-[#242424] hover:text-white disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-[#a3a3a3] first:border-r first:border-[#2a2a2a]"
+            className="flex h-8 flex-1 items-center justify-center text-xs font-medium text-muted-foreground transition hover:bg-surface-active hover:text-foreground disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-muted-foreground first:border-r first:border-border"
           >
             {step < 0 ? "-$100" : "+$100"}
           </Button>
@@ -348,6 +349,7 @@ function CostInput({ value, onChange, disabled }) {
 }
 
 export function SystemArchitectureScreen() {
+  const { resolvedTheme } = useTheme();
   const { syncArchitectureExpenses, updateArchitectureExpense } = useProjectBudget();
   const [nodes, setNodes] = useState(starterNodes);
   const [edges, setEdges] = useState(starterEdges);
@@ -504,7 +506,7 @@ export function SystemArchitectureScreen() {
   }, [reactFlowInstance]);
 
   return (
-    <div ref={wrapperRef} className="relative h-full min-h-[640px] w-full overflow-hidden bg-[#161616] text-[#ededed]">
+    <div ref={wrapperRef} className="relative h-full min-h-[640px] w-full overflow-hidden bg-background text-foreground">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -528,25 +530,26 @@ export function SystemArchitectureScreen() {
         deleteKeyCode={["Backspace", "Delete"]}
         multiSelectionKeyCode="Shift"
         selectionMode={SelectionMode.Partial}
+        colorMode={resolvedTheme === "dark" ? "dark" : "light"}
         className="system-architecture-canvas"
       >
-        <Background color="#303030" gap={18} size={1} variant="dots" />
+        <Background color="var(--canvas-dots)" gap={18} size={1} variant="dots" />
         <Panel position="top-left" className="!m-4">
-          <div className="flex items-center gap-2 rounded-lg border border-[#2a2a2a] bg-[#202020] px-3 py-2 shadow-2xl">
+          <div className="flex items-center gap-2 rounded-lg border border-border bg-surface-card px-3 py-2 shadow-2xl">
             <Network className="h-4 w-4" />
             <div>
-              <h1 className="text-sm font-semibold leading-4 text-white">System Architecture</h1>
-              <p className="text-[11px] text-[#737373]">{nodes.length} Nodes | {edges.length} Links</p>
+              <h1 className="text-sm font-semibold leading-4 text-foreground">System Architecture</h1>
+              <p className="text-[11px] text-text-secondary">{nodes.length} Nodes | {edges.length} Links</p>
             </div>
           </div>
         </Panel>
         <Panel position="bottom-right" className="!m-4">
-          <div className="flex overflow-hidden rounded-lg border border-[#2a2a2a] bg-[#202020] shadow-2xl">
+          <div className="flex overflow-hidden rounded-lg border border-border bg-surface-card shadow-2xl">
             <Button
               variant="ghost"
               size="icon"
               onClick={zoomOut}
-              className="h-10 w-10 rounded-none border-r border-[#2a2a2a] text-[#a3a3a3] hover:bg-[#242424] hover:text-white"
+              className="h-10 w-10 rounded-none border-r border-border text-muted-foreground hover:bg-surface-active hover:text-foreground"
               title="Zoom out"
             >
               <Minus className="h-4 w-4" />
@@ -555,7 +558,7 @@ export function SystemArchitectureScreen() {
               type="button"
               variant="ghost"
               onClick={fitCanvas}
-              className="flex h-10 min-w-20 items-center justify-center gap-2 border-r border-[#2a2a2a] px-3 text-xs font-semibold text-[#d4d4d4] transition hover:bg-[#242424] hover:text-white"
+              className="flex h-10 min-w-20 items-center justify-center gap-2 border-r border-border px-3 text-xs font-semibold text-foreground transition hover:bg-surface-active hover:text-foreground"
               title="Fit canvas"
             >
               <Maximize2 className="h-3.5 w-3.5" />
@@ -565,7 +568,7 @@ export function SystemArchitectureScreen() {
               variant="ghost"
               size="icon"
               onClick={zoomIn}
-              className="h-10 w-10 rounded-none text-[#a3a3a3] hover:bg-[#242424] hover:text-white"
+              className="h-10 w-10 rounded-none text-muted-foreground hover:bg-surface-active hover:text-foreground"
               title="Zoom in"
             >
               <Plus className="h-4 w-4" />
@@ -579,16 +582,16 @@ export function SystemArchitectureScreen() {
           side="right"
           showOverlay={false}
           showCloseButton={false}
-          className="top-14 bottom-0 h-[calc(100dvh-3.5rem)] w-[380px] gap-0 border-l border-[#2a2a2a] bg-[#202020] p-0 text-[#ededed] shadow-2xl sm:max-w-none"
+          className="top-14 bottom-0 h-[calc(100dvh-3.5rem)] w-[380px] gap-0 border-l border-border bg-surface-card p-0 text-foreground shadow-2xl sm:max-w-none"
         >
-          <SheetHeader className="h-16 shrink-0 border-b border-[#2a2a2a] bg-[#202020] p-4">
+          <SheetHeader className="h-16 shrink-0 border-b border-border bg-surface-card p-4">
             <div className="flex h-full items-center justify-between gap-3">
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <SheetTitle className="truncate text-sm font-semibold text-white">
+                  <SheetTitle className="truncate text-sm font-semibold text-foreground">
                     Node Catalogue
                   </SheetTitle>
-                  <span className="text-xs text-[#737373]">
+                  <span className="text-xs text-text-secondary">
                     {filteredCatalogue.length + filteredLogoCatalogue.length}
                   </span>
                 </div>
@@ -597,7 +600,7 @@ export function SystemArchitectureScreen() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 shrink-0 text-[#737373] hover:bg-[#242424] hover:text-white"
+                  className="h-8 w-8 shrink-0 text-text-secondary hover:bg-surface-active hover:text-foreground"
                   title="Hide catalogue"
                 >
                   <ChevronsRight className="h-4 w-4" />
@@ -606,14 +609,14 @@ export function SystemArchitectureScreen() {
             </div>
           </SheetHeader>
 
-          <div className="shrink-0 border-b border-[#2a2a2a] bg-[#1a1a1a] p-4">
+          <div className="shrink-0 border-b border-border bg-surface-subtle p-4">
             <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#737373]" />
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
               <Input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Search services, databases, security..."
-                className="h-10 w-full border-[#2a2a2a] bg-[#161616] pl-10 pr-10 text-sm leading-5 text-[#ededed] placeholder:text-[#737373] focus-visible:border-[#474747] focus-visible:ring-0"
+                className="h-10 w-full border-border bg-background pl-10 pr-10 text-sm leading-5 text-foreground placeholder:text-text-secondary focus-visible:border-border-strong focus-visible:ring-0"
               />
               {query ? (
                 <Button
@@ -621,7 +624,7 @@ export function SystemArchitectureScreen() {
                   variant="ghost"
                   size="icon-xs"
                   onClick={() => setQuery("")}
-                  className="absolute right-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md text-[#737373] transition hover:bg-[#242424] hover:text-white"
+                  className="absolute right-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md text-text-secondary transition hover:bg-surface-active hover:text-foreground"
                   title="Clear search"
                 >
                   <X className="h-3.5 w-3.5" />
@@ -631,17 +634,17 @@ export function SystemArchitectureScreen() {
 
           </div>
 
-          <div className="min-h-0 flex-1 overflow-y-auto bg-[#202020] px-4 pb-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="min-h-0 flex-1 overflow-y-auto bg-surface-card px-4 pb-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <Accordion
               type="multiple"
               defaultValue={["entities", "provider-logos"]}
               className="space-y-3"
             >
               <AccordionItem value="entities" className="border-b-0">
-                <AccordionTrigger className="border-b border-[#2a2a2a] no-underline hover:no-underline">
+                <AccordionTrigger className="border-b border-border no-underline hover:no-underline">
                   <span className="flex items-center gap-2">
                     Architecture entities
-                    <span className="text-xs font-normal text-[#737373]">{filteredCatalogue.length}</span>
+                    <span className="text-xs font-normal text-text-secondary">{filteredCatalogue.length}</span>
                   </span>
                 </AccordionTrigger>
                 <AccordionContent className="pt-3 pb-0">
@@ -656,10 +659,10 @@ export function SystemArchitectureScreen() {
               </AccordionItem>
 
               <AccordionItem value="provider-logos" className="border-b-0">
-                <AccordionTrigger className="border-b border-[#2a2a2a] hover:no-underline">
+                <AccordionTrigger className="border-b border-border hover:no-underline">
                   <span className="flex items-center gap-2">
                     Cloud and service logos
-                    <span className="text-xs font-normal text-[#737373]">{filteredLogoCatalogue.length}</span>
+                    <span className="text-xs font-normal text-text-secondary">{filteredLogoCatalogue.length}</span>
                   </span>
                 </AccordionTrigger>
                 <AccordionContent className="pt-3 pb-0">
@@ -681,7 +684,7 @@ export function SystemArchitectureScreen() {
         <Button
           variant="ghost"
           onClick={openExpensePanel}
-          className="absolute bottom-4 left-4 z-40 h-10 gap-2 border border-[#2a2a2a] bg-[#202020] px-3 text-[#ededed] shadow-2xl hover:border-[#474747] hover:bg-[#242424] hover:text-white"
+          className="absolute bottom-4 left-4 z-40 h-10 gap-2 border border-border bg-surface-card px-3 text-foreground shadow-2xl hover:border-border-strong hover:bg-surface-active hover:text-foreground"
         >
           <DollarSign className="h-4 w-4" />
           Expense
@@ -689,27 +692,27 @@ export function SystemArchitectureScreen() {
       ) : null}
 
       {selectedNode && expensePanelOpen ? (
-        <aside className="absolute bottom-4 left-4 z-40 w-[340px] overflow-hidden rounded-lg border border-[#2a2a2a] bg-[#202020] shadow-2xl">
-          <div className="flex items-start justify-between gap-3 border-b border-[#2a2a2a] bg-[#242424] p-4">
+        <aside className="absolute bottom-4 left-4 z-40 w-[340px] overflow-hidden rounded-lg border border-border bg-surface-card shadow-2xl">
+          <div className="flex items-start justify-between gap-3 border-b border-border bg-surface-active p-4">
             <div>
-              <p className="text-sm font-semibold text-white">{selectedNode.data?.label}</p>
-              <p className="mt-1 text-xs text-[#737373]">{selectedNode.data?.category} expense settings</p>
+              <p className="text-sm font-semibold text-foreground">{selectedNode.data?.label}</p>
+              <p className="mt-1 text-xs text-text-secondary">{selectedNode.data?.category} expense settings</p>
             </div>
             <Button
               variant="ghost"
               size="icon"
               onClick={closeExpensePanel}
-              className="h-8 w-8 shrink-0 text-[#737373] hover:bg-[#2a2a2a] hover:text-white"
+              className="h-8 w-8 shrink-0 text-text-secondary hover:bg-surface-hover hover:text-foreground"
               title="Close expense settings"
             >
               <X className="h-4 w-4" />
             </Button>
           </div>
           <div className="space-y-4 p-4">
-            <div className="flex items-center justify-between rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] p-3">
+            <div className="flex items-center justify-between rounded-lg border border-border bg-surface-subtle p-3">
               <div>
-                <p className="text-xs font-semibold text-[#ededed]">Track as infrastructure expense</p>
-                <p className="mt-1 text-xs text-[#737373]">Reflect this node in Budget.</p>
+                <p className="text-xs font-semibold text-foreground">Track as infrastructure expense</p>
+                <p className="mt-1 text-xs text-text-secondary">Reflect this node in Budget.</p>
               </div>
               <Switch
                 checked={selectedNode.data?.expenseEnabled !== false}
@@ -718,7 +721,7 @@ export function SystemArchitectureScreen() {
             </div>
 
             <Label className="block space-y-2">
-              <span className="text-xs font-medium text-[#a3a3a3]">Monthly infrastructure cost</span>
+              <span className="text-xs font-medium text-muted-foreground">Monthly infrastructure cost</span>
               <CostInput
                 value={selectedNode.data?.monthlyCost ?? 0}
                 disabled={selectedNode.data?.expenseEnabled === false}
@@ -727,26 +730,26 @@ export function SystemArchitectureScreen() {
             </Label>
 
             <Label className="block space-y-2">
-              <span className="text-xs font-medium text-[#a3a3a3]">Node description</span>
+              <span className="text-xs font-medium text-muted-foreground">Node description</span>
               <Textarea
                 value={expenseDescriptionDraft}
                 onChange={(event) => setExpenseDescriptionDraft(event.target.value)}
                 rows={3}
-                className="min-h-20 resize-none border-[#2a2a2a] bg-[#161616] text-sm leading-5 text-[#ededed] placeholder:text-[#737373] focus-visible:border-[#474747] focus-visible:ring-0"
+                className="min-h-20 resize-none border-border bg-background text-sm leading-5 text-foreground placeholder:text-text-secondary focus-visible:border-border-strong focus-visible:ring-0"
                 placeholder="Describe this architecture node..."
               />
             </Label>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] p-3">
-                <p className="text-xs text-[#737373]">Monthly</p>
-                <p className="mt-1 text-sm font-semibold text-[#ededed]">
+              <div className="rounded-lg border border-border bg-surface-subtle p-3">
+                <p className="text-xs text-text-secondary">Monthly</p>
+                <p className="mt-1 text-sm font-semibold text-foreground">
                   ${Number(selectedNode.data?.monthlyCost || 0).toLocaleString()}
                 </p>
               </div>
-              <div className="rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] p-3">
-                <p className="text-xs text-[#737373]">Annual</p>
-                <p className="mt-1 text-sm font-semibold text-[#ededed]">
+              <div className="rounded-lg border border-border bg-surface-subtle p-3">
+                <p className="text-xs text-text-secondary">Annual</p>
+                <p className="mt-1 text-sm font-semibold text-foreground">
                   ${(Number(selectedNode.data?.monthlyCost || 0) * 12).toLocaleString()}
                 </p>
               </div>
@@ -755,12 +758,12 @@ export function SystemArchitectureScreen() {
               type="button"
               onClick={saveExpenseDescription}
               disabled={expenseDescriptionDraft === (selectedNode.data?.description || "")}
-              className="h-9 w-full gap-2 bg-[#ededed] text-[#171717] hover:bg-white disabled:pointer-events-none disabled:opacity-50"
+              className="h-9 w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
             >
               <Save className="h-4 w-4" />
               Save description
             </Button>
-            <p className="text-xs leading-5 text-[#737373]">
+            <p className="text-xs leading-5 text-text-secondary">
               Use the close button to hide this editor. Reopen it by selecting any architecture node.
             </p>
           </div>
@@ -771,7 +774,7 @@ export function SystemArchitectureScreen() {
         <Button
           variant="ghost"
           onClick={() => setCatalogueOpen(true)}
-          className="absolute right-4 top-4 z-40 h-10 gap-2 border border-[#2a2a2a] bg-[#202020] px-3 text-[#ededed] shadow-2xl hover:border-[#474747] hover:bg-[#242424] hover:text-white"
+          className="absolute right-4 top-4 z-40 h-10 gap-2 border border-border bg-surface-card px-3 text-foreground shadow-2xl hover:border-border-strong hover:bg-surface-active hover:text-foreground"
         >
           <ChevronsLeft className="h-4 w-4" />
           Catalogue
@@ -783,7 +786,7 @@ export function SystemArchitectureScreen() {
           transition: stroke 0.2s ease, stroke-width 0.2s ease;
         }
         .system-architecture-canvas .react-flow__edge.selected .react-flow__edge-path {
-          stroke: #ededed;
+          stroke: var(--foreground);
           stroke-width: 2.4;
         }
       `}</style>

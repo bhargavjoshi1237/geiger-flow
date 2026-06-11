@@ -73,7 +73,7 @@ const ImageFullscreenModal = ({
           variant="secondary"
           size="icon"
           onClick={handleDownload}
-          className="rounded-full w-10 h-10 hover:bg-zinc-900 hover:text-white transition-colors"
+          className="rounded-full w-10 h-10 hover:bg-surface-subtle hover:text-foreground transition-colors"
           title="Download Image"
         >
           <Download size={18} />
@@ -83,7 +83,7 @@ const ImageFullscreenModal = ({
           variant="secondary"
           size="icon"
           onClick={closeFullRes}
-          className="rounded-full w-10 h-10 hover:bg-zinc-900 hover:text-white transition-colors"
+          className="rounded-full w-10 h-10 hover:bg-surface-subtle hover:text-foreground transition-colors"
           title="Close"
         >
           <X size={18} />

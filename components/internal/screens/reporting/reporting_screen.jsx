@@ -46,7 +46,7 @@ const STATUS_META = {
   },
   "To Do": {
     Icon: Circle,
-    className: "border-zinc-500/25 bg-zinc-500/10 text-zinc-300",
+    className: "border-zinc-500/25 bg-zinc-500/10 text-foreground",
   },
   "At Risk": {
     Icon: AlertTriangle,
@@ -80,18 +80,18 @@ const PRIORITY_ICONS = {
 
 function ReportPulse() {
   return (
-    <div className="flex h-9 items-center gap-2 rounded-md border border-[#2a2a2a] bg-[#202020] px-3 text-xs text-[#a3a3a3]">
+    <div className="flex h-9 items-center gap-2 rounded-md border border-border bg-surface-card px-3 text-xs text-muted-foreground">
       <CheckCircle2 className="h-3.5 w-3.5 text-emerald-300" />
       <span>
-        <span className="font-semibold text-[#ededed]">12</span> open
+        <span className="font-semibold text-foreground">12</span> open
       </span>
-      <span className="h-3.5 w-px bg-[#333]" />
+      <span className="h-3.5 w-px bg-surface-strong" />
       <span>
-        <span className="font-semibold text-[#ededed]">3</span> due
+        <span className="font-semibold text-foreground">3</span> due
       </span>
-      <span className="h-3.5 w-px bg-[#333]" />
+      <span className="h-3.5 w-px bg-surface-strong" />
       <span>
-        <span className="font-semibold text-[#ededed]">74%</span> cap
+        <span className="font-semibold text-foreground">74%</span> cap
       </span>
     </div>
   );
@@ -116,7 +116,7 @@ function PriorityBadge({ priority }) {
 function OwnerWidget({ owner }) {
   const meta = OWNER_META[owner] || {
     name: owner,
-    avatarClass: "bg-zinc-300 text-zinc-950",
+    avatarClass: "bg-zinc-300 text-primary-foreground",
   };
 
   return (
@@ -126,7 +126,7 @@ function OwnerWidget({ owner }) {
           {owner.slice(0, 2)}
         </AvatarFallback>
       </Avatar>
-      <span className="truncate text-xs font-medium text-[#ededed]">{meta.name}</span>
+      <span className="truncate text-xs font-medium text-foreground">{meta.name}</span>
     </span>
   );
 }
@@ -175,11 +175,11 @@ export function ReportingScreen() {
   }, [activeView, projectFilter, search]);
 
   return (
-    <MainScreenWrapper className="flex h-full min-h-0 min-w-0 flex-col gap-10 space-y-0 text-[#e7e7e7]">
-      <div className="flex flex-col gap-4 border-b border-[#2a2a2a] pb-6 lg:flex-row lg:items-center lg:justify-between">
+    <MainScreenWrapper className="flex h-full min-h-0 min-w-0 flex-col gap-10 space-y-0 text-foreground">
+      <div className="flex flex-col gap-4 border-b border-border pb-6 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#e7e7e7] md:text-3xl">Reporting</h1>
-          <p className="mt-1 text-[#a3a3a3]">
+          <h1 className="text-2xl font-bold text-foreground md:text-3xl">Reporting</h1>
+          <p className="mt-1 text-muted-foreground">
             Track project progress, workload, deadlines and time in one place.
           </p>
         </div>
@@ -189,8 +189,8 @@ export function ReportingScreen() {
         </div>
       </div>
 
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-[#2a2a2a] bg-[#202020]">
-        <div className="flex flex-col gap-3 border-b border-[#2a2a2a] p-4 xl:flex-row xl:items-center xl:justify-between">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border bg-surface-card">
+        <div className="flex flex-col gap-3 border-b border-border p-4 xl:flex-row xl:items-center xl:justify-between">
           <SegmentedTabs
             tabs={REPORT_VIEWS}
             value={activeView}
@@ -208,12 +208,12 @@ export function ReportingScreen() {
               height="h-9"
             />
             <div className="relative w-full md:w-[280px]">
-              <Search className="pointer-events-none absolute left-3 top-1/2 z-10 w-4 -translate-y-1/2 text-[#737373]" />
+              <Search className="pointer-events-none absolute left-3 top-1/2 z-10 w-4 -translate-y-1/2 text-text-secondary" />
               <Input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="Search reports"
-                className="!h-9 w-full border-[#2a2a2a] bg-[#1a1a1a] !pl-10 !pr-3 text-sm text-[#ededed] placeholder:text-[#737373]"
+                className="!h-9 w-full border-border bg-surface-subtle !pl-10 !pr-3 text-sm text-foreground placeholder:text-text-secondary"
               />
             </div>
           </div>
@@ -223,7 +223,7 @@ export function ReportingScreen() {
           <div className="min-w-[920px]">
             <Table>
               <TableHeader>
-                <TableRow className="border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#1a1a1a]">
+                <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
                   <TableHead>Item</TableHead>
                   <TableHead>Project</TableHead>
                   <TableHead>Owner</TableHead>
@@ -235,16 +235,16 @@ export function ReportingScreen() {
               </TableHeader>
               <TableBody>
                 {rows.length === 0 ? (
-                  <TableRow className="border-[#2a2a2a] hover:bg-transparent">
+                  <TableRow className="border-border hover:bg-transparent">
                     <TableCell colSpan={7} className="h-[320px]">
                       <div className="flex flex-col items-center justify-center text-center">
-                        <div className="flex h-11 w-11 items-center justify-center rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] text-[#525252]">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-lg border border-border bg-surface-subtle text-text-tertiary">
                           <FileText className="h-5 w-5" />
                         </div>
-                        <p className="mt-4 text-sm font-semibold text-[#ededed]">
+                        <p className="mt-4 text-sm font-semibold text-foreground">
                           No report items yet
                         </p>
-                        <p className="mt-1 max-w-sm text-xs leading-5 text-[#737373]">
+                        <p className="mt-1 max-w-sm text-xs leading-5 text-text-secondary">
                           Tasks, project progress, workload, and time entries will appear here after backend reporting data is connected.
                         </p>
                       </div>
@@ -252,14 +252,14 @@ export function ReportingScreen() {
                   </TableRow>
                 ) : (
                   rows.map((row) => (
-                    <TableRow key={row.id} className="border-[#2a2a2a] hover:bg-[#242424]">
+                    <TableRow key={row.id} className="border-border hover:bg-surface-active">
                       <TableCell>
                         <div className="min-w-[220px]">
-                          <p className="font-medium text-[#ededed]">{row.task}</p>
-                          <p className="mt-1 font-mono text-xs text-[#737373]">{row.id}</p>
+                          <p className="font-medium text-foreground">{row.task}</p>
+                          <p className="mt-1 font-mono text-xs text-text-secondary">{row.id}</p>
                         </div>
                       </TableCell>
-                      <TableCell className="text-sm text-[#a3a3a3]">{row.project}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{row.project}</TableCell>
                       <TableCell>
                         <OwnerWidget owner={row.owner} />
                       </TableCell>
@@ -269,14 +269,14 @@ export function ReportingScreen() {
                       <TableCell>
                         <PriorityBadge priority={row.priority} />
                       </TableCell>
-                      <TableCell className="text-sm text-[#a3a3a3]">{row.due}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{row.due}</TableCell>
                       <TableCell>
                         <div className="w-[150px] space-y-1.5">
                           <Progress
                             value={row.progress}
-                            className="h-1.5 bg-[#2a2a2a] [&_[data-slot=progress-indicator]]:bg-[#ededed]"
+                            className="h-1.5 bg-surface-hover [&_[data-slot=progress-indicator]]:bg-primary"
                           />
-                          <p className="text-xs text-[#737373]">{row.progress}%</p>
+                          <p className="text-xs text-text-secondary">{row.progress}%</p>
                         </div>
                       </TableCell>
                     </TableRow>

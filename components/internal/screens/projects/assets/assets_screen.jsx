@@ -15,18 +15,18 @@ export function AssetsScreen() {
   const [uploadOpen, setUploadOpen] = useState(false);
 
   return (
-    <MainScreenWrapper className="text-[#e7e7e7]">
-      <div className="flex items-center justify-between border-b border-[#2a2a2a] pb-6">
+    <MainScreenWrapper className="text-foreground">
+      <div className="flex items-center justify-between border-b border-border pb-6">
         <div>
-          <h1 className="text-3xl font-bold text-[#e7e7e7]">Assets</h1>
-          <p className="text-[#a3a3a3] mt-1">
+          <h1 className="text-3xl font-bold text-foreground">Assets</h1>
+          <p className="text-muted-foreground mt-1">
             Manage assets and track storage usage for this project.
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
-            className="border-[#2a2a2a] bg-transparent text-[#a3a3a3] hover:bg-[#242424] hover:text-[#e7e7e7]"
+            className="border-border bg-transparent text-muted-foreground hover:bg-surface-active hover:text-foreground"
             asChild
           >
             <a href="#" title="Open in Digital Asset Manager">
@@ -35,7 +35,7 @@ export function AssetsScreen() {
             </a>
           </Button>
           <Button
-            className="bg-white text-black hover:bg-[#e7e7e7]"
+            className="bg-primary text-primary-foreground hover:bg-primary"
             onClick={() => setUploadOpen(true)}
           >
             <Upload className="w-4 h-4 mr-2" />

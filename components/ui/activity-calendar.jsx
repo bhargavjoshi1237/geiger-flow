@@ -57,40 +57,40 @@ export function ActivityCalendar({
     <div className={className}>
       {showStats && stats && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <Card className="bg-[#202020] border-[#2a2a2a]">
+          <Card className="bg-surface-card border-border">
             <CardHeader className="pb-2">
-              <CardDescription className="text-[#737373] text-xs">This Week</CardDescription>
-              <CardTitle className="text-2xl text-[#e7e7e7] flex items-center gap-2">
+              <CardDescription className="text-text-secondary text-xs">This Week</CardDescription>
+              <CardTitle className="text-2xl text-foreground flex items-center gap-2">
                 <Activity className="w-5 h-5 text-blue-400" />
                 {stats.weekTotal}
               </CardTitle>
             </CardHeader>
           </Card>
 
-          <Card className="bg-[#202020] border-[#2a2a2a]">
+          <Card className="bg-surface-card border-border">
             <CardHeader className="pb-2">
-              <CardDescription className="text-[#737373] text-xs">This Month</CardDescription>
-              <CardTitle className="text-2xl text-[#e7e7e7] flex items-center gap-2">
+              <CardDescription className="text-text-secondary text-xs">This Month</CardDescription>
+              <CardTitle className="text-2xl text-foreground flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-green-400" />
                 {stats.monthTotal}
               </CardTitle>
             </CardHeader>
           </Card>
 
-          <Card className="bg-[#202020] border-[#2a2a2a]">
+          <Card className="bg-surface-card border-border">
             <CardHeader className="pb-2">
-              <CardDescription className="text-[#737373] text-xs">Daily Average</CardDescription>
-              <CardTitle className="text-2xl text-[#e7e7e7] flex items-center gap-2">
+              <CardDescription className="text-text-secondary text-xs">Daily Average</CardDescription>
+              <CardTitle className="text-2xl text-foreground flex items-center gap-2">
                 <Zap className="w-5 h-5 text-yellow-400" />
                 {stats.dailyAverage}
               </CardTitle>
             </CardHeader>
           </Card>
 
-          <Card className="bg-[#202020] border-[#2a2a2a]">
+          <Card className="bg-surface-card border-border">
             <CardHeader className="pb-2">
-              <CardDescription className="text-[#737373] text-xs">Most Active</CardDescription>
-              <CardTitle className="text-2xl text-[#e7e7e7] flex items-center gap-2">
+              <CardDescription className="text-text-secondary text-xs">Most Active</CardDescription>
+              <CardTitle className="text-2xl text-foreground flex items-center gap-2">
                 <CalendarIcon className="w-5 h-5 text-purple-400" />
                 {stats.mostActiveDay}
               </CardTitle>
@@ -113,10 +113,10 @@ export function ActivityCalendar({
         className=""
       />
 
-      <div className="mt-4 flex items-center justify-between px-4 py-3 bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl">
-        <span className="text-sm text-[#737373]">Activity Intensity</span>
+      <div className="mt-4 flex items-center justify-between px-4 py-3 bg-surface-subtle border border-border rounded-xl">
+        <span className="text-sm text-text-secondary">Activity Intensity</span>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-[#6b6b6b]">Less</span>
+          <span className="text-xs text-muted-foreground">Less</span>
           <div className="flex items-center gap-1">
             {[0, 1, 2, 3, 4, 5].map(level => (
               <div
@@ -127,7 +127,7 @@ export function ActivityCalendar({
               />
             ))}
           </div>
-          <span className="text-xs text-[#6b6b6b]">More</span>
+          <span className="text-xs text-muted-foreground">More</span>
         </div>
       </div>
     </div>

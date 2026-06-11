@@ -47,7 +47,7 @@ const GOAL_OPTIONS = [
 const STATUS_META = {
   todo: {
     label: "To Do",
-    className: "bg-zinc-500/15 text-zinc-300 border-zinc-500/30",
+    className: "bg-zinc-500/15 text-foreground border-zinc-500/30",
   },
   in_progress: {
     label: "In Progress",
@@ -166,28 +166,28 @@ export function TasksScreen() {
 
   return (
     <MainScreenWrapper>
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-[#2a2a2a] pb-6">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-border pb-6">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-[#e7e7e7]">Tasks</h1>
-          <p className="text-[#a3a3a3] mt-1">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">Tasks</h1>
+          <p className="text-muted-foreground mt-1">
             Create, track and manage project tasks.
           </p>
         </div>
         <div className="flex gap-2">
-          <Button className="bg-white text-black hover:bg-[#e7e7e7]" onClick={handleCreate}>
+          <Button className="bg-primary text-primary-foreground hover:bg-primary" onClick={handleCreate}>
             <Plus className="w-4 h-4 mr-2" />
             Create New Task
           </Button>
-          <Button className="bg-white text-black hover:bg-[#e7e7e7]" onClick={handleCreate}>
+          <Button className="bg-primary text-primary-foreground hover:bg-primary" onClick={handleCreate}>
             <LucideGithub className="w-6 h-6" />
           </Button>
         </div>
       </div>
 
-          <div className="bg-[#202020] border border-[#2a2a2a] rounded-2xl overflow-hidden">
+          <div className="bg-surface-card border border-border rounded-2xl overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow className="bg-[#1a1a1a] border-[#2a2a2a]">
+                <TableRow className="bg-surface-subtle border-border">
                   <TableHead>Task</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Priority</TableHead>
@@ -199,16 +199,16 @@ export function TasksScreen() {
               </TableHeader>
               <TableBody>
                 {tasks.map((task) => (
-                  <TableRow key={task.id} className="border-[#2a2a2a] hover:bg-[#242424]">
+                  <TableRow key={task.id} className="border-border hover:bg-surface-active">
                     <TableCell>
                       <div className="flex flex-col gap-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-[#ededed] font-medium">{task.title}</span>
+                          <span className="text-foreground font-medium">{task.title}</span>
                           {task.deadlineTracking === "at_risk" ? (
                             <AlertTriangle className="w-3.5 h-3.5 text-amber-300" />
                           ) : null}
                         </div>
-                        <p className="text-xs text-[#737373] line-clamp-1">{task.description}</p>
+                        <p className="text-xs text-text-secondary line-clamp-1">{task.description}</p>
                       </div>
                     </TableCell>
                     <TableCell className="whitespace-nowrap">
@@ -230,24 +230,24 @@ export function TasksScreen() {
                     </TableCell>
                     <TableCell>
                       {task.parentLink?.startsWith("goal:") ? (
-                        <span className="inline-flex max-w-[180px] items-center gap-1.5 text-xs text-[#a3a3a3]">
-                          <Link2 className="w-3.5 h-3.5 shrink-0 text-[#737373]" />
+                        <span className="inline-flex max-w-[180px] items-center gap-1.5 text-xs text-muted-foreground">
+                          <Link2 className="w-3.5 h-3.5 shrink-0 text-text-secondary" />
                           <span className="truncate">{formatLinkedGoal(task.parentLink)}</span>
                         </span>
                       ) : (
-                        <span className="text-xs text-[#525252]">-</span>
+                        <span className="text-xs text-text-tertiary">-</span>
                       )}
                     </TableCell>
                     <TableCell>
-                      <div className="text-sm text-[#a3a3a3]">
+                      <div className="text-sm text-muted-foreground">
                         {formatDate(task.dueDate)}
                         {isOverdue(task) ? <span className="text-red-300 ml-1">(Overdue)</span> : null}
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="w-[130px] space-y-1.5">
-                        <Progress value={task.progress} className="h-1.5 bg-[#2a2a2a] [&_[data-slot=progress-indicator]]:bg-[#ededed]" />
-                        <p className="text-xs text-[#737373]">{task.progress}%</p>
+                        <Progress value={task.progress} className="h-1.5 bg-surface-hover [&_[data-slot=progress-indicator]]:bg-primary" />
+                        <p className="text-xs text-text-secondary">{task.progress}%</p>
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
@@ -255,7 +255,7 @@ export function TasksScreen() {
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="text-[#a3a3a3] hover:text-white hover:bg-[#252525]"
+                        className="text-muted-foreground hover:text-foreground hover:bg-surface-active"
                         onClick={() => handleEdit(task)}
                       >
                         <Pencil className="w-2 h-2" /></Button>

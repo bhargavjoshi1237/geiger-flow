@@ -47,8 +47,8 @@ const DocumentNode = ({ id, data, selected, dragging }) => {
         className={`
             relative flex flex-col w-full h-full min-h-[68px] min-w-[200px] group
             transition-all duration-300 ease-out
-            bg-[#1e1e1e] shadow-lg
-            ${selected ? "border-2 border-white" : "border-2 border-transparent hover:border-zinc-500"}
+            bg-surface-dialog shadow-lg
+            ${selected ? "border-2 border-foreground" : "border-2 border-transparent hover:border-border-strong"}
             ${dragging ? "shadow-2xl shadow-black/50 z-50" : ""}
         `}
         style={{
@@ -84,14 +84,14 @@ const DocumentNode = ({ id, data, selected, dragging }) => {
 
         <div className="flex-1 w-full h-full flex items-center justify-between px-4 py-2 gap-3 cursor-pointer">
           <div className="flex items-center gap-3 w-full overflow-hidden">
-            <div className="p-2 bg-zinc-800 rounded-md shrink-0">
-              <FileText className="w-5 h-5 text-zinc-300" />
+            <div className="p-2 bg-surface-card rounded-md shrink-0">
+              <FileText className="w-5 h-5 text-foreground" />
             </div>
             <div className="flex flex-col overflow-hidden">
-              <span className="text-sm font-medium text-zinc-200 truncate font-sans">
+              <span className="text-sm font-medium text-foreground truncate font-sans">
                 {data.label || "Untitled Document"}
               </span>
-              <span className="text-xs text-zinc-500 truncate font-sans">
+              <span className="text-xs text-text-secondary truncate font-sans">
                 Local planning document
               </span>
             </div>

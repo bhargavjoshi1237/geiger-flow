@@ -287,13 +287,13 @@ export default function CollaborateDilouge({
         container={dialogContainer}
         overlayClassName={dialogContainer ? "absolute inset-0" : undefined}
         showCloseButton={false}
-        className={`${dialogContainer ? "absolute max-h-[calc(100%-1rem)]" : ""} max-w-md bg-[#1e1e1e] border-zinc-800 text-zinc-100 p-0 overflow-hidden gap-0 sm:rounded-lg shadow-xl`}
+        className={`${dialogContainer ? "absolute max-h-[calc(100%-1rem)]" : ""} max-w-md bg-surface-dialog border-border text-foreground p-0 overflow-hidden gap-0 sm:rounded-lg shadow-xl`}
       >
-        <DialogHeader className="p-4 border-b border-zinc-800 space-y-0">
+        <DialogHeader className="p-4 border-b border-border space-y-0">
           <div className="flex items-center justify-between w-full">
             <div className="flex items-center gap-2">
-              <Users2 className="w-4 h-4 text-zinc-400" />
-              <DialogTitle className="text-base font-sm text-zinc-100">
+              <Users2 className="w-4 h-4 text-muted-foreground" />
+              <DialogTitle className="text-base font-sm text-foreground">
                 Collaborate
               </DialogTitle>
             </div>
@@ -303,7 +303,7 @@ export default function CollaborateDilouge({
                 "flex items-center gap-1.5 px-2 py-1 rounded-full border text-[10px] font-medium tracking-wide uppercase transition-colors",
                 isSessionActive
                   ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500"
-                  : "bg-zinc-500/10 border-zinc-500/20 text-zinc-500",
+                  : "bg-zinc-500/10 border-zinc-500/20 text-text-secondary",
               )}
             >
               <span
@@ -319,7 +319,7 @@ export default function CollaborateDilouge({
           </div>
         </DialogHeader>
 
-        <div className="flex border-b border-zinc-800 bg-[#1e1e1e]">
+        <div className="flex border-b border-border bg-surface-dialog">
           {[
             { id: "host", label: isSessionActive ? "Session" : "Host" },
             { id: "members", label: "Members" },
@@ -334,8 +334,8 @@ export default function CollaborateDilouge({
                 className={cn(
                   "flex-1 py-3 text-sm font-medium border-b-2 transition-colors",
                   activeTab === tab.id
-                    ? "border-zinc-100 text-zinc-100 bg-zinc-800/30"
-                    : "border-transparent text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/20",
+                    ? "border-foreground text-foreground bg-surface-card/30"
+                    : "border-transparent text-text-secondary hover:text-foreground hover:bg-surface-card/20",
                 )}
               >
                 {tab.label}
@@ -343,7 +343,7 @@ export default function CollaborateDilouge({
             ))}
         </div>
 
-        <div className="p-4 bg-[#1e1e1e] h-[min(300px,calc(100dvh-220px))] overflow-y-auto">
+        <div className="p-4 bg-surface-dialog h-[min(300px,calc(100dvh-220px))] overflow-y-auto">
           {activeTab === "host" && (
             <HostTab
               isSessionActive={isSessionActive}
@@ -395,11 +395,11 @@ export default function CollaborateDilouge({
           )}
         </div>
 
-        <div className="p-4 border-t border-zinc-800 bg-[#1e1e1e] flex justify-end gap-2">
+        <div className="p-4 border-t border-border bg-surface-dialog flex justify-end gap-2">
           <Button
             variant="ghost"
             onClick={() => onOpenChange(false)}
-            className="text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"
+            className="text-muted-foreground hover:text-foreground hover:bg-surface-card"
           >
             Close
           </Button>

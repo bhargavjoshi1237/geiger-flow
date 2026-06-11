@@ -51,22 +51,22 @@ const STATUS_CLASS = {
   blue: "border-blue-500/30 bg-blue-500/15 text-blue-300",
   violet: "border-violet-500/30 bg-violet-500/15 text-violet-300",
   cyan: "border-cyan-500/30 bg-cyan-500/15 text-cyan-300",
-  zinc: "border-zinc-500/30 bg-zinc-500/15 text-zinc-300",
+  zinc: "border-zinc-500/30 bg-zinc-500/15 text-foreground",
 };
 
 function PageHeader({ icon: Icon, title, description, action, accent = "emerald" }) {
   return (
-    <div className="flex flex-col gap-4 border-b border-[#2a2a2a] pb-6 md:flex-row md:items-center md:justify-between">
+    <div className="flex flex-col gap-4 border-b border-border pb-6 md:flex-row md:items-center md:justify-between">
       <div className="flex items-center gap-3">
         <div className={cn("grid h-10 w-10 shrink-0 place-items-center rounded-xl border", STATUS_CLASS[accent])}>
           <Icon className="h-5 w-5" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-[#e7e7e7] md:text-3xl">{title}</h1>
-          <p className="mt-1 max-w-3xl text-sm leading-6 text-[#a3a3a3]">{description}</p>
+          <h1 className="text-2xl font-bold text-foreground md:text-3xl">{title}</h1>
+          <p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">{description}</p>
         </div>
       </div>
-      <Button className="bg-white text-black hover:bg-[#e7e7e7]">
+      <Button className="bg-primary text-primary-foreground hover:bg-primary">
         <Plus className="mr-2 h-4 w-4" />
         {action}
       </Button>
@@ -76,14 +76,14 @@ function PageHeader({ icon: Icon, title, description, action, accent = "emerald"
 
 function Metric({ label, value, detail, icon: Icon, tone = "zinc" }) {
   return (
-    <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-4">
+    <div className="rounded-xl border border-border bg-surface-subtle p-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-sm text-[#a3a3a3]">{label}</p>
-          <p className="mt-2 text-2xl font-semibold tracking-tight text-[#e7e7e7]">{value}</p>
-          <p className="mt-1 text-xs text-[#737373]">{detail}</p>
+          <p className="text-sm text-muted-foreground">{label}</p>
+          <p className="mt-2 text-2xl font-semibold tracking-tight text-foreground">{value}</p>
+          <p className="mt-1 text-xs text-text-secondary">{detail}</p>
         </div>
-        <Icon className={cn("h-4 w-4", STATUS_CLASS[tone]?.split(" ").at(-1) || "text-[#737373]")} />
+        <Icon className={cn("h-4 w-4", STATUS_CLASS[tone]?.split(" ").at(-1) || "text-text-secondary")} />
       </div>
     </div>
   );
@@ -95,11 +95,11 @@ function StatusBadge({ tone = "zinc", children }) {
 
 function Section({ title, detail, children, action }) {
   return (
-    <section className="rounded-2xl border border-[#2a2a2a] bg-[#202020]">
-      <div className="flex flex-col gap-3 border-b border-[#2a2a2a] p-4 sm:flex-row sm:items-center sm:justify-between">
+    <section className="rounded-2xl border border-border bg-surface-card">
+      <div className="flex flex-col gap-3 border-b border-border p-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-sm font-semibold text-[#ededed]">{title}</h2>
-          {detail ? <p className="mt-1 text-xs leading-5 text-[#737373]">{detail}</p> : null}
+          <h2 className="text-sm font-semibold text-foreground">{title}</h2>
+          {detail ? <p className="mt-1 text-xs leading-5 text-text-secondary">{detail}</p> : null}
         </div>
         {action}
       </div>
@@ -111,12 +111,12 @@ function Section({ title, detail, children, action }) {
 function SearchBox({ value, onChange, placeholder }) {
   return (
     <div className="relative w-full sm:w-[300px]">
-      <Search className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-[#737373]" />
+      <Search className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-text-secondary" />
       <Input
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className="!h-9 border-[#2a2a2a] bg-[#1a1a1a] !pl-10 text-sm text-[#ededed] placeholder:text-[#737373]"
+        className="!h-9 border-border bg-surface-subtle !pl-10 text-sm text-foreground placeholder:text-text-secondary"
       />
     </div>
   );
@@ -146,7 +146,7 @@ export function RiskRegisterScreen() {
   const rows = useFilteredRows(riskRows, active, query, ["id", "risk", "owner", "mitigation", "impact"]);
 
   return (
-    <MainScreenWrapper className="text-[#e7e7e7]">
+    <MainScreenWrapper className="text-foreground">
       <PageHeader icon={Flame} title="Risk Register" description="Quantify delivery, vendor, security, and scope risks with mitigation owners and financial exposure." action="Add risk" accent="red" />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Metric label="Open exposure" value="0" detail="Weighted project impact" icon={Banknote} tone="amber" />
@@ -159,29 +159,29 @@ export function RiskRegisterScreen() {
         detail="Probability is updated during weekly planning and exposure feeds launch readiness."
         action={<SearchBox value={query} onChange={setQuery} placeholder="Search risks" />}
       >
-        <div className="flex border-b border-[#2a2a2a] p-4">
+        <div className="flex border-b border-border p-4">
           <FilterTabs tabs={["All", "Open", "Mitigating", "Watching"]} active={active} onChange={setActive} />
         </div>
-        <div className="divide-y divide-[#2a2a2a]">
+        <div className="divide-y divide-border">
           {rows.map((row) => (
             <article key={row.id} className="grid gap-4 p-4 lg:grid-cols-[1fr_180px_220px] lg:items-center">
               <div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-mono text-[10px] text-[#525252]">{row.id}</span>
+                  <span className="font-mono text-[10px] text-text-tertiary">{row.id}</span>
                   <StatusBadge tone={row.tone}>{row.status}</StatusBadge>
                 </div>
-                <h3 className="mt-2 text-sm font-semibold text-[#ededed]">{row.risk}</h3>
-                <p className="mt-1 text-xs leading-5 text-[#737373]">{row.mitigation}</p>
+                <h3 className="mt-2 text-sm font-semibold text-foreground">{row.risk}</h3>
+                <p className="mt-1 text-xs leading-5 text-text-secondary">{row.mitigation}</p>
               </div>
               <div>
-                <p className="text-xs text-[#737373]">Probability</p>
-                <Progress value={row.probability} className="mt-2 h-1.5 bg-[#2a2a2a] [&_[data-slot=progress-indicator]]:bg-red-300" />
-                <p className="mt-1 text-xs text-[#a3a3a3]">{row.probability}% chance</p>
+                <p className="text-xs text-text-secondary">Probability</p>
+                <Progress value={row.probability} className="mt-2 h-1.5 bg-surface-hover [&_[data-slot=progress-indicator]]:bg-red-300" />
+                <p className="mt-1 text-xs text-muted-foreground">{row.probability}% chance</p>
               </div>
               <div className="grid grid-cols-3 gap-3 text-xs">
-                <div><p className="text-[#525252]">Owner</p><p className="mt-1 text-[#ededed]">{row.owner}</p></div>
-                <div><p className="text-[#525252]">Impact</p><p className="mt-1 text-[#ededed]">{row.impact}</p></div>
-                <div><p className="text-[#525252]">Exposure</p><p className="mt-1 text-[#ededed]">{row.exposure}</p></div>
+                <div><p className="text-text-tertiary">Owner</p><p className="mt-1 text-foreground">{row.owner}</p></div>
+                <div><p className="text-text-tertiary">Impact</p><p className="mt-1 text-foreground">{row.impact}</p></div>
+                <div><p className="text-text-tertiary">Exposure</p><p className="mt-1 text-foreground">{row.exposure}</p></div>
               </div>
             </article>
           ))}
@@ -196,7 +196,7 @@ const decisions = [];
 export function DecisionLogScreen() {
   const [active, setActive] = useState("All");
   return (
-    <MainScreenWrapper className="text-[#e7e7e7]">
+    <MainScreenWrapper className="text-foreground">
       <PageHeader icon={Lightbulb} title="Decision Log" description="Record what the team decided, why it mattered, who owns the consequences, and when it should be revisited." action="Log decision" accent="amber" />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Metric label="Accepted" value="14" detail="Current quarter" icon={ClipboardCheck} tone="emerald" />
@@ -207,20 +207,20 @@ export function DecisionLogScreen() {
       <Section title="Decision timeline" detail="Filter by decision state and keep context attached to project work." action={<FilterTabs tabs={["All", "Proposed", "Accepted", "Revisit"]} active={active} onChange={setActive} />}>
         <div className="space-y-3 p-4">
           {decisions.filter((item) => active === "All" || item.stage === active).map((item) => (
-            <article key={item.id} className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-4">
+            <article key={item.id} className="rounded-xl border border-border bg-surface-subtle p-4">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-mono text-[10px] text-[#525252]">{item.id}</span>
+                    <span className="font-mono text-[10px] text-text-tertiary">{item.id}</span>
                     <StatusBadge tone={item.tone}>{item.status}</StatusBadge>
                   </div>
-                  <h3 className="mt-2 text-sm font-semibold text-[#ededed]">{item.title}</h3>
-                  <p className="mt-2 text-xs leading-5 text-[#737373]">{item.driver}</p>
+                  <h3 className="mt-2 text-sm font-semibold text-foreground">{item.title}</h3>
+                  <p className="mt-2 text-xs leading-5 text-text-secondary">{item.driver}</p>
                 </div>
                 <div className="grid min-w-[280px] grid-cols-3 gap-3 text-xs">
-                  <div><p className="text-[#525252]">Owner</p><p className="mt-1 text-[#ededed]">{item.owner}</p></div>
-                  <div><p className="text-[#525252]">Reversible</p><p className="mt-1 text-[#ededed]">{item.reversibility}</p></div>
-                  <div><p className="text-[#525252]">Review</p><p className="mt-1 text-[#ededed]">{item.review}</p></div>
+                  <div><p className="text-text-tertiary">Owner</p><p className="mt-1 text-foreground">{item.owner}</p></div>
+                  <div><p className="text-text-tertiary">Reversible</p><p className="mt-1 text-foreground">{item.reversibility}</p></div>
+                  <div><p className="text-text-tertiary">Review</p><p className="mt-1 text-foreground">{item.review}</p></div>
                 </div>
               </div>
             </article>
@@ -235,7 +235,7 @@ const launchGates = [];
 
 export function ReleaseReadinessScreen() {
   return (
-    <MainScreenWrapper className="text-[#e7e7e7]">
+    <MainScreenWrapper className="text-foreground">
       <PageHeader icon={ClipboardCheck} title="Release Readiness" description="Coordinate launch gates, evidence, owners, and unresolved blockers before a release leaves the project." action="Add gate" accent="emerald" />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Metric label="Readiness score" value="78%" detail="7 of 10 gates ready" icon={ClipboardCheck} tone="emerald" />
@@ -245,20 +245,20 @@ export function ReleaseReadinessScreen() {
       </div>
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_320px]">
         <Section title="Gate checklist" detail="Every gate carries evidence, ownership, and a readiness score.">
-          <div className="divide-y divide-[#2a2a2a]">
+          <div className="divide-y divide-border">
             {launchGates.map((gate) => (
               <article key={gate.gate} className="grid gap-4 p-4 md:grid-cols-[1fr_180px] md:items-center">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="text-sm font-semibold text-[#ededed]">{gate.gate}</h3>
+                    <h3 className="text-sm font-semibold text-foreground">{gate.gate}</h3>
                     <StatusBadge tone={gate.tone}>{gate.status}</StatusBadge>
                   </div>
-                  <p className="mt-1 text-xs leading-5 text-[#737373]">{gate.evidence}</p>
-                  <p className="mt-2 text-xs text-[#525252]">{gate.area} owned by {gate.owner}</p>
+                  <p className="mt-1 text-xs leading-5 text-text-secondary">{gate.evidence}</p>
+                  <p className="mt-2 text-xs text-text-tertiary">{gate.area} owned by {gate.owner}</p>
                 </div>
                 <div>
-                  <Progress value={gate.score} className="h-1.5 bg-[#2a2a2a] [&_[data-slot=progress-indicator]]:bg-emerald-300" />
-                  <p className="mt-1 text-xs text-[#a3a3a3]">{gate.score}% ready</p>
+                  <Progress value={gate.score} className="h-1.5 bg-surface-hover [&_[data-slot=progress-indicator]]:bg-emerald-300" />
+                  <p className="mt-1 text-xs text-muted-foreground">{gate.score}% ready</p>
                 </div>
               </article>
             ))}
@@ -267,9 +267,9 @@ export function ReleaseReadinessScreen() {
         <Section title="Launch command" detail="Focus areas for the next release review.">
           <div className="space-y-3 p-4 text-sm">
             {[].map((item) => (
-              <div key={item} className="flex items-start gap-3 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-3">
+              <div key={item} className="flex items-start gap-3 rounded-xl border border-border bg-surface-subtle p-3">
                 <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-300" />
-                <span className="text-[#d4d4d4]">{item}</span>
+                <span className="text-foreground">{item}</span>
               </div>
             ))}
           </div>
@@ -283,7 +283,7 @@ const feedbackItems = [];
 
 export function FeedbackHubScreen() {
   return (
-    <MainScreenWrapper className="text-[#e7e7e7]">
+    <MainScreenWrapper className="text-foreground">
       <PageHeader icon={MessageSquareQuote} title="Customer Feedback Hub" description="Collect user signals, group them into product themes, and link validated needs to project work." action="Add feedback" accent="cyan" />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Metric label="New signals" value="18" detail="This week" icon={MessageSquareQuote} tone="cyan" />
@@ -293,21 +293,21 @@ export function FeedbackHubScreen() {
       </div>
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_340px]">
         <Section title="Feedback inbox" detail="Prioritize by customer impact, revenue, and planning link.">
-          <div className="divide-y divide-[#2a2a2a]">
+          <div className="divide-y divide-border">
             {feedbackItems.map((item) => (
               <article key={item.title} className="p-4">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
                       <StatusBadge tone={item.tone}>{item.status}</StatusBadge>
-                      <span className="text-xs text-[#737373]">{item.source}</span>
+                      <span className="text-xs text-text-secondary">{item.source}</span>
                     </div>
-                    <h3 className="mt-2 text-sm font-semibold text-[#ededed]">{item.title}</h3>
+                    <h3 className="mt-2 text-sm font-semibold text-foreground">{item.title}</h3>
                   </div>
                   <div className="grid grid-cols-3 gap-3 text-xs lg:w-[300px]">
-                    <div><p className="text-[#525252]">Theme</p><p className="mt-1 text-[#ededed]">{item.theme}</p></div>
-                    <div><p className="text-[#525252]">Impact</p><p className="mt-1 text-[#ededed]">{item.impact}</p></div>
-                    <div><p className="text-[#525252]">Work</p><p className="mt-1 text-[#ededed]">{item.linked}</p></div>
+                    <div><p className="text-text-tertiary">Theme</p><p className="mt-1 text-foreground">{item.theme}</p></div>
+                    <div><p className="text-text-tertiary">Impact</p><p className="mt-1 text-foreground">{item.impact}</p></div>
+                    <div><p className="text-text-tertiary">Work</p><p className="mt-1 text-foreground">{item.linked}</p></div>
                   </div>
                 </div>
               </article>
@@ -318,8 +318,8 @@ export function FeedbackHubScreen() {
           <div className="space-y-3 p-4">
             {[].map(([theme, value, detail]) => (
               <div key={theme}>
-                <div className="flex justify-between text-xs"><span className="text-[#ededed]">{theme}</span><span className="text-[#737373]">{detail}</span></div>
-                <Progress value={value} className="mt-2 h-1.5 bg-[#2a2a2a] [&_[data-slot=progress-indicator]]:bg-cyan-300" />
+                <div className="flex justify-between text-xs"><span className="text-foreground">{theme}</span><span className="text-text-secondary">{detail}</span></div>
+                <Progress value={value} className="mt-2 h-1.5 bg-surface-hover [&_[data-slot=progress-indicator]]:bg-cyan-300" />
               </div>
             ))}
           </div>
@@ -333,7 +333,7 @@ const experiments = [];
 
 export function ExperimentsScreen() {
   return (
-    <MainScreenWrapper className="text-[#e7e7e7]">
+    <MainScreenWrapper className="text-foreground">
       <PageHeader icon={Beaker} title="Experiment Tracker" description="Plan product bets, define hypotheses, monitor confidence, and ship learnings into goals." action="New experiment" accent="violet" />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Metric label="Running" value="3" detail="Live product tests" icon={Beaker} tone="violet" />
@@ -344,21 +344,21 @@ export function ExperimentsScreen() {
       <Section title="Experiment pipeline" detail="Each test ties a hypothesis to one primary metric and a confidence threshold.">
         <div className="grid grid-cols-1 gap-4 p-4 xl:grid-cols-3">
           {experiments.map((experiment) => (
-            <article key={experiment.name} className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-4">
+            <article key={experiment.name} className="rounded-xl border border-border bg-surface-subtle p-4">
               <div className="flex items-center justify-between gap-3">
                 <StatusBadge tone={experiment.tone}>{experiment.status}</StatusBadge>
-                <span className="text-xs text-[#737373]">{experiment.metric}</span>
+                <span className="text-xs text-text-secondary">{experiment.metric}</span>
               </div>
-              <h3 className="mt-4 text-sm font-semibold text-[#ededed]">{experiment.name}</h3>
-              <p className="mt-2 min-h-12 text-xs leading-5 text-[#737373]">{experiment.hypothesis}</p>
+              <h3 className="mt-4 text-sm font-semibold text-foreground">{experiment.name}</h3>
+              <p className="mt-2 min-h-12 text-xs leading-5 text-text-secondary">{experiment.hypothesis}</p>
               <div className="mt-4 grid grid-cols-2 gap-3">
-                <div className="rounded-lg border border-[#2a2a2a] bg-[#202020] p-3">
-                  <p className="text-xs text-[#737373]">Observed lift</p>
-                  <p className="mt-1 text-lg font-semibold text-[#ededed]">{experiment.lift}</p>
+                <div className="rounded-lg border border-border bg-surface-card p-3">
+                  <p className="text-xs text-text-secondary">Observed lift</p>
+                  <p className="mt-1 text-lg font-semibold text-foreground">{experiment.lift}</p>
                 </div>
-                <div className="rounded-lg border border-[#2a2a2a] bg-[#202020] p-3">
-                  <p className="text-xs text-[#737373]">Confidence</p>
-                  <p className="mt-1 text-lg font-semibold text-[#ededed]">{experiment.confidence}%</p>
+                <div className="rounded-lg border border-border bg-surface-card p-3">
+                  <p className="text-xs text-text-secondary">Confidence</p>
+                  <p className="mt-1 text-lg font-semibold text-foreground">{experiment.confidence}%</p>
                 </div>
               </div>
             </article>
@@ -373,7 +373,7 @@ const incidents = [];
 
 export function IncidentCenterScreen() {
   return (
-    <MainScreenWrapper className="text-[#e7e7e7]">
+    <MainScreenWrapper className="text-foreground">
       <PageHeader icon={Siren} title="Incident Center" description="Coordinate active incidents, response roles, customer communication, and postmortem follow-through." action="Declare incident" accent="red" />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Metric label="Active" value="1" detail="SEV-2 in progress" icon={Siren} tone="red" />
@@ -384,19 +384,19 @@ export function IncidentCenterScreen() {
       <Section title="Response timeline" detail="Active and recent incidents with next action ownership.">
         <div className="space-y-3 p-4">
           {incidents.map((incident) => (
-            <article key={incident.id} className="grid gap-4 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-4 lg:grid-cols-[1fr_260px]">
+            <article key={incident.id} className="grid gap-4 rounded-xl border border-border bg-surface-subtle p-4 lg:grid-cols-[1fr_260px]">
               <div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-mono text-[10px] text-[#525252]">{incident.id}</span>
+                  <span className="font-mono text-[10px] text-text-tertiary">{incident.id}</span>
                   <StatusBadge tone={incident.tone}>{incident.status}</StatusBadge>
-                  <span className="text-xs text-[#737373]">{incident.severity}</span>
+                  <span className="text-xs text-text-secondary">{incident.severity}</span>
                 </div>
-                <h3 className="mt-2 text-sm font-semibold text-[#ededed]">{incident.title}</h3>
-                <p className="mt-2 text-xs leading-5 text-[#737373]">{incident.action}</p>
+                <h3 className="mt-2 text-sm font-semibold text-foreground">{incident.title}</h3>
+                <p className="mt-2 text-xs leading-5 text-text-secondary">{incident.action}</p>
               </div>
               <div className="grid grid-cols-2 gap-3 text-xs">
-                <div><p className="text-[#525252]">Commander</p><p className="mt-1 text-[#ededed]">{incident.owner}</p></div>
-                <div><p className="text-[#525252]">Elapsed</p><p className="mt-1 text-[#ededed]">{incident.elapsed}</p></div>
+                <div><p className="text-text-tertiary">Commander</p><p className="mt-1 text-foreground">{incident.owner}</p></div>
+                <div><p className="text-text-tertiary">Elapsed</p><p className="mt-1 text-foreground">{incident.elapsed}</p></div>
               </div>
             </article>
           ))}
@@ -438,17 +438,17 @@ function groupExpenses(expenses) {
 function BudgetInput({ label, value, onChange, prefix = "$", suffix }) {
   return (
     <Label className="block space-y-1.5">
-      <span className="text-xs font-medium text-[#a3a3a3]">{label}</span>
-      <div className="flex h-9 items-center rounded-md border border-[#2a2a2a] bg-[#1a1a1a] px-3 focus-within:border-[#444]">
-        {prefix ? <span className="mr-2 text-xs text-[#737373]">{prefix}</span> : null}
+      <span className="text-xs font-medium text-muted-foreground">{label}</span>
+      <div className="flex h-9 items-center rounded-md border border-border bg-surface-subtle px-3 focus-within:border-border-strong">
+        {prefix ? <span className="mr-2 text-xs text-text-secondary">{prefix}</span> : null}
         <Input
           type="number"
           min="0"
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          className="min-w-0 flex-1 border-0 bg-transparent !px-0 !py-0 text-sm text-[#ededed] shadow-none focus-visible:ring-0"
+          className="min-w-0 flex-1 border-0 bg-transparent !px-0 !py-0 text-sm text-foreground shadow-none focus-visible:ring-0"
         />
-        {suffix ? <span className="ml-2 text-xs text-[#737373]">{suffix}</span> : null}
+        {suffix ? <span className="ml-2 text-xs text-text-secondary">{suffix}</span> : null}
       </div>
     </Label>
   );
@@ -479,26 +479,26 @@ function AddExpenseForm({ onAdd }) {
   return (
     <div className="grid gap-3 p-4 md:grid-cols-[1fr_160px_140px_120px_auto] md:items-end">
       <Label className="block space-y-1.5">
-        <span className="text-xs font-medium text-[#a3a3a3]">Expense name</span>
+        <span className="text-xs font-medium text-muted-foreground">Expense name</span>
         <Input
           value={name}
           onChange={(event) => setName(event.target.value)}
           placeholder="New vendor, license, service..."
-          className="h-9 border-[#2a2a2a] bg-[#1a1a1a] text-sm text-[#ededed] placeholder:text-[#525252]"
+          className="h-9 border-border bg-surface-subtle text-sm text-foreground placeholder:text-text-tertiary"
         />
       </Label>
       <Label className="block space-y-1.5">
-        <span className="text-xs font-medium text-[#a3a3a3]">Category</span>
+        <span className="text-xs font-medium text-muted-foreground">Category</span>
         <Select
           value={category}
           onValueChange={setCategory}
         >
-          <SelectTrigger className="h-9 w-full border-[#2a2a2a] bg-[#1a1a1a] text-sm text-[#ededed]">
+          <SelectTrigger className="h-9 w-full border-border bg-surface-subtle text-sm text-foreground">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent className="border-[#2a2a2a] bg-[#1a1a1a] text-[#ededed]">
+          <SelectContent className="border-border bg-surface-subtle text-foreground">
             {["Operations", "Software", "Security", "Quality", "People", "Vendor", "Contingency"].map((item) => (
-              <SelectItem key={item} value={item} className="focus:bg-[#2a2a2a]">
+              <SelectItem key={item} value={item} className="focus:bg-surface-hover">
                 {item}
               </SelectItem>
             ))}
@@ -507,14 +507,14 @@ function AddExpenseForm({ onAdd }) {
       </Label>
       <BudgetInput label="Monthly" value={monthlyCost} onChange={(value) => setMonthlyCost(Number(value) || 0)} />
       <Label className="block space-y-1.5">
-        <span className="text-xs font-medium text-[#a3a3a3]">Owner</span>
+        <span className="text-xs font-medium text-muted-foreground">Owner</span>
         <Input
           value={owner}
           onChange={(event) => setOwner(event.target.value)}
-          className="h-9 border-[#2a2a2a] bg-[#1a1a1a] text-sm text-[#ededed]"
+          className="h-9 border-border bg-surface-subtle text-sm text-foreground"
         />
       </Label>
-      <Button onClick={submit} className="h-9 bg-white text-black hover:bg-[#e7e7e7]">
+      <Button onClick={submit} className="h-9 bg-primary text-primary-foreground hover:bg-primary">
         <Plus className="mr-2 h-4 w-4" />
         Add
       </Button>
@@ -530,21 +530,21 @@ function ExpenseRow({ expense, onRemove }) {
     <article className="grid gap-4 p-4 lg:grid-cols-[1fr_140px_140px_96px] lg:items-center">
       <div>
         <div className="flex flex-wrap items-center gap-2">
-          <h3 className="text-sm font-semibold text-[#ededed]">{expense.name}</h3>
+          <h3 className="text-sm font-semibold text-foreground">{expense.name}</h3>
           <StatusBadge tone={getBudgetTone(expense.status)}>{expense.status}</StatusBadge>
           <StatusBadge tone={expense.source === "System Architecture" ? "blue" : "zinc"}>{expense.source}</StatusBadge>
         </div>
-        <p className="mt-1 text-xs leading-5 text-[#737373]">
+        <p className="mt-1 text-xs leading-5 text-text-secondary">
           {expense.category} {expense.owner ? `owned by ${expense.owner}` : ""} {expense.notes ? `| ${expense.notes}` : ""}
         </p>
       </div>
       <div>
-        <p className="text-xs text-[#525252]">Monthly</p>
-        <p className="mt-1 text-sm font-semibold text-[#ededed]">{currency(monthly)}</p>
+        <p className="text-xs text-text-tertiary">Monthly</p>
+        <p className="mt-1 text-sm font-semibold text-foreground">{currency(monthly)}</p>
       </div>
       <div>
-        <p className="text-xs text-[#525252]">Forecast</p>
-        <p className="mt-1 text-sm font-semibold text-[#ededed]">{currency(forecast)}</p>
+        <p className="text-xs text-text-tertiary">Forecast</p>
+        <p className="mt-1 text-sm font-semibold text-foreground">{currency(forecast)}</p>
       </div>
       <div className="flex justify-end">
         {expense.source === "Manual" ? (
@@ -552,13 +552,13 @@ function ExpenseRow({ expense, onRemove }) {
             variant="ghost"
             size="icon"
             onClick={() => onRemove(expense.id)}
-            className="h-8 w-8 text-[#737373] hover:bg-red-500/10 hover:text-red-300"
+            className="h-8 w-8 text-text-secondary hover:bg-red-500/10 hover:text-red-300"
             title="Remove expense"
           >
             <Trash2 className="h-4 w-4" />
           </Button>
         ) : (
-          <span className="text-xs text-[#525252]">Canvas</span>
+          <span className="text-xs text-text-tertiary">Canvas</span>
         )}
       </div>
     </article>
@@ -579,36 +579,36 @@ function InfrastructureGroup({ architectureExpenses }) {
         <Button
           variant="ghost"
           onClick={() => setOpen((value) => !value)}
-          className="h-8 gap-2 border border-[#2a2a2a] bg-[#1a1a1a] text-[#d4d4d4] hover:bg-[#242424] hover:text-white"
+          className="h-8 gap-2 border border-border bg-surface-subtle text-foreground hover:bg-surface-active hover:text-foreground"
         >
           {open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
           {currency(monthly)}
         </Button>
       }
     >
-      <div className="grid grid-cols-1 gap-4 border-b border-[#2a2a2a] p-4 md:grid-cols-3">
-        <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-3">
-          <p className="text-xs text-[#737373]">Monthly infra</p>
-          <p className="mt-1 text-xl font-semibold text-[#ededed]">{currency(monthly)}</p>
+      <div className="grid grid-cols-1 gap-4 border-b border-border p-4 md:grid-cols-3">
+        <div className="rounded-xl border border-border bg-surface-subtle p-3">
+          <p className="text-xs text-text-secondary">Monthly infra</p>
+          <p className="mt-1 text-xl font-semibold text-foreground">{currency(monthly)}</p>
         </div>
-        <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-3">
-          <p className="text-xs text-[#737373]">Costed nodes</p>
-          <p className="mt-1 text-xl font-semibold text-[#ededed]">{enabledItems.length}</p>
+        <div className="rounded-xl border border-border bg-surface-subtle p-3">
+          <p className="text-xs text-text-secondary">Costed nodes</p>
+          <p className="mt-1 text-xl font-semibold text-foreground">{enabledItems.length}</p>
         </div>
-        <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-3">
-          <p className="text-xs text-[#737373]">Annual run-rate</p>
-          <p className="mt-1 text-xl font-semibold text-[#ededed]">{currency(monthly * 12, true)}</p>
+        <div className="rounded-xl border border-border bg-surface-subtle p-3">
+          <p className="text-xs text-text-secondary">Annual run-rate</p>
+          <p className="mt-1 text-xl font-semibold text-foreground">{currency(monthly * 12, true)}</p>
         </div>
       </div>
       {open ? (
-        <div className="divide-y divide-[#2a2a2a]">
+        <div className="divide-y divide-border">
           {Object.entries(groups).map(([category, items]) => {
             const subtotal = items.reduce((sum, item) => sum + item.monthlyCost, 0);
             return (
               <div key={category}>
-                <div className="flex items-center justify-between bg-[#1a1a1a] px-4 py-2">
-                  <span className="text-xs font-semibold uppercase tracking-wide text-[#a3a3a3]">{category}</span>
-                  <span className="text-xs text-[#737373]">{currency(subtotal)} / mo</span>
+                <div className="flex items-center justify-between bg-surface-subtle px-4 py-2">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{category}</span>
+                  <span className="text-xs text-text-secondary">{currency(subtotal)} / mo</span>
                 </div>
                 {items.map((expense) => (
                   <ExpenseRow key={expense.id} expense={expense} onRemove={() => {}} />
@@ -641,7 +641,7 @@ export function BudgetTrackerScreen() {
     totals.forecast > monthlyBudget ? "Over forecast" : totals.usedPercent > 85 ? "Tight" : "Healthy";
 
   return (
-    <MainScreenWrapper className="text-[#e7e7e7]">
+    <MainScreenWrapper className="text-foreground">
       <PageHeader icon={Banknote} title="Budget Tracker" description="Set the monthly project budget, track actual spend, forecast run-rate, and roll System Architecture nodes into infrastructure expense." action="Add cost line" accent="emerald" />
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[360px_1fr]">
@@ -650,18 +650,18 @@ export function BudgetTrackerScreen() {
             <BudgetInput label="Approved monthly budget" value={monthlyBudget} onChange={setMonthlyBudget} />
             <Progress
               value={Math.min(100, totals.usedPercent)}
-              className="h-2 bg-[#2a2a2a] [&_[data-slot=progress-indicator]]:bg-emerald-300"
+              className="h-2 bg-surface-hover [&_[data-slot=progress-indicator]]:bg-emerald-300"
             />
             <div className="grid grid-cols-2 gap-3 text-xs">
-              <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-3">
-                <p className="text-[#737373]">Remaining</p>
+              <div className="rounded-xl border border-border bg-surface-subtle p-3">
+                <p className="text-text-secondary">Remaining</p>
                 <p className={cn("mt-1 text-base font-semibold", totals.remaining < 0 ? "text-red-300" : "text-emerald-300")}>
                   {currency(totals.remaining)}
                 </p>
               </div>
-              <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-3">
-                <p className="text-[#737373]">Health</p>
-                <p className="mt-1 text-base font-semibold text-[#ededed]">{budgetHealth}</p>
+              <div className="rounded-xl border border-border bg-surface-subtle p-3">
+                <p className="text-text-secondary">Health</p>
+                <p className="mt-1 text-base font-semibold text-foreground">{budgetHealth}</p>
               </div>
             </div>
           </div>
@@ -685,7 +685,7 @@ export function BudgetTrackerScreen() {
             action={<FilterTabs tabs={["All", "On Track", "Watch", "Security", "Quality", "Software"]} active={active} onChange={setActive} />}
           >
             <AddExpenseForm onAdd={upsertManualExpense} />
-            <div className="divide-y divide-[#2a2a2a] border-t border-[#2a2a2a]">
+            <div className="divide-y divide-border border-t border-border">
               {manualFiltered.map((expense) => (
                 <ExpenseRow key={expense.id} expense={expense} onRemove={removeManualExpense} />
               ))}
@@ -705,10 +705,10 @@ export function BudgetTrackerScreen() {
                 return (
                   <div key={label}>
                     <div className="flex justify-between text-xs">
-                      <span className="text-[#ededed]">{label}</span>
-                      <span className="text-[#737373]">{currency(value)} | {pct}%</span>
+                      <span className="text-foreground">{label}</span>
+                      <span className="text-text-secondary">{currency(value)} | {pct}%</span>
                     </div>
-                    <Progress value={pct} className={cn("mt-2 h-1.5 bg-[#2a2a2a]", indicatorClass)} />
+                    <Progress value={pct} className={cn("mt-2 h-1.5 bg-surface-hover", indicatorClass)} />
                   </div>
                 );
               })}
@@ -720,20 +720,20 @@ export function BudgetTrackerScreen() {
               <Textarea
                 value={`Current monthly committed spend is ${currency(totals.actual)} against a ${currency(monthlyBudget)} budget. Infrastructure contributes ${currency(totals.infrastructure)} across ${architectureExpenses.filter((item) => item.enabled).length} architecture nodes. Forecast is ${currency(totals.forecast)}, leaving ${currency(totals.remaining)} of monthly room before additional scope, vendors, or launch reserves.`}
                 readOnly
-                className="min-h-40 border-[#2a2a2a] bg-[#1a1a1a] text-sm leading-6 text-[#a3a3a3]"
+                className="min-h-40 border-border bg-surface-subtle text-sm leading-6 text-muted-foreground"
               />
               <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-3">
+                <div className="rounded-xl border border-border bg-surface-subtle p-3">
                   <Calculator className="h-4 w-4 text-blue-300" />
-                  <p className="mt-2 text-xs text-[#737373]">Forecast gap</p>
+                  <p className="mt-2 text-xs text-text-secondary">Forecast gap</p>
                   <p className={cn("mt-1 text-sm font-semibold", totals.variance > 0 ? "text-red-300" : "text-emerald-300")}>
                     {currency(totals.variance)}
                   </p>
                 </div>
-                <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-3">
+                <div className="rounded-xl border border-border bg-surface-subtle p-3">
                   <DollarSign className="h-4 w-4" />
-                  <p className="mt-2 text-xs text-[#737373]">Tracked lines</p>
-                  <p className="mt-1 text-sm font-semibold text-[#ededed]">{expenses.length}</p>
+                  <p className="mt-2 text-xs text-text-secondary">Tracked lines</p>
+                  <p className="mt-1 text-sm font-semibold text-foreground">{expenses.length}</p>
                 </div>
               </div>
             </div>

@@ -131,9 +131,12 @@ const CenterEdge = ({
         label={data?.label || label}
         labelX={handleX}
         labelY={handleY}
-        labelStyle={{ fill: "#fff", ...labelStyle }}
+        labelStyle={{ fill: "var(--foreground)", ...labelStyle }}
         labelShowBg
-        labelBgStyle={{ fill: "#1e1e1e", color: "#fff" }}
+        labelBgStyle={{
+          fill: "var(--surface-dialog)",
+          color: "var(--foreground)",
+        }}
         labelBgPadding={[4, 2]}
         labelBgBorderRadius={4}
       />
@@ -147,9 +150,9 @@ const CenterEdge = ({
               cursor: "grab",
               width: "12px",
               height: "12px",
-              backgroundColor: "#ffffff",
+              backgroundColor: "var(--foreground)",
               borderRadius: "50%",
-              border: "1px solid #777",
+              border: "1px solid var(--border-strong)",
               boxShadow: "0 2px 4px rgba(0,0,0,0.5)",
               zIndex: 1002,             }}
             className="nodrag"

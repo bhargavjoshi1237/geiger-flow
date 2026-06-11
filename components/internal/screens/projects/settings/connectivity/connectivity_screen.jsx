@@ -14,10 +14,10 @@ export function ConnectivityScreen({ integrations = [] }) {
       </div>
 
       {integrations.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-[#2a2a2a] bg-[#181818] p-10 text-center">
-          <Unplug className="mx-auto mb-3 h-6 w-6 text-[#525252]" />
-          <p className="text-sm font-medium text-[#e7e7e7]">No integrations connected</p>
-          <p className="mt-1 text-xs text-[#737373]">
+        <div className="rounded-xl border border-dashed border-border bg-surface-subtle p-10 text-center">
+          <Unplug className="mx-auto mb-3 h-6 w-6 text-text-tertiary" />
+          <p className="text-sm font-medium text-foreground">No integrations connected</p>
+          <p className="mt-1 text-xs text-text-secondary">
             Connectivity data will appear here after backend fetching is connected.
           </p>
         </div>
