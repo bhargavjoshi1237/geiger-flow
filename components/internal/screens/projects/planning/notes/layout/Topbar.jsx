@@ -186,7 +186,7 @@ export default function Topbar({
             </Button>
             <Button
               onClick={() => setIsNotificationOpen(true)}
-              className="w-8 h-8 rounded-sm border border-transparent hover:bg-surface-hover flex items-center justify-center transition-colors text-muted-foreground hover:text-foreground relative"
+              className="w-8 h-8 rounded-sm border border-transparent hover:bg-surface-hover hidden items-center justify-center transition-colors text-muted-foreground hover:text-foreground relative sm:flex"
               title="Notifications"
             >
               <Bell className="w-[18px] h-[18px]" strokeWidth={2} />
