@@ -13,7 +13,10 @@ export function notifyIssueAssigned(issueId, assigneeIds) {
   }
 
   try {
-    fetch("/api/notifications/issue-assigned", {
+    // Prefix the configured basePath (production serves the app under /flow), so
+    // a root-relative path doesn't escape it. Mirrors the collab API call.
+    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+    fetch(`${basePath}/api/notifications/issue-assigned`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ issueId, assigneeIds: ids }),
