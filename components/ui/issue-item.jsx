@@ -8,6 +8,13 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import {
+  Avatar,
+  AvatarFallback,
+  AvatarGroup,
+  AvatarGroupCount,
+  AvatarImage,
+} from "@/components/ui/avatar";
+import {
   AlertTriangle,
   Expand,
   Maximize2,
@@ -22,10 +29,10 @@ const severityColors = {
 };
 
 const severityIcons = {
-  critical: <AlertTriangle className="w-3 h-3" />,
-  high: <Expand className="w-3 h-3" />,
-  medium: <Maximize2 className="w-3 h-3" />,
-  low: <ArrowUpRight className="w-3 h-3" />,
+  critical: <AlertTriangle className="w-3 h-3 text-red-400" />,
+  high: <Expand className="w-3 h-3 text-orange-400" />,
+  medium: <Maximize2 className="w-3 h-3 text-yellow-400" />,
+  low: <ArrowUpRight className="w-3 h-3 text-blue-400" />,
 };
 
 const statusIcons = {
@@ -78,6 +85,7 @@ function IssueItem({
   severity = "medium",
   status = "open",
   assignee,
+  assignees = [],
   dueDate,
   children,
   ...props
@@ -107,12 +115,32 @@ function IssueItem({
               )}
             </div>
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-4 flex-shrink-0">
+            {assignees.length > 0 && (
+              <AvatarGroup>
+                {assignees.slice(0, 3).map((person) => (
+                  <Avatar key={person.id} className="size-6">
+                    {person.avatarUrl && (
+                      <AvatarImage src={person.avatarUrl} alt={person.name} />
+                    )}
+                    <AvatarFallback className="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-[9px] font-semibold text-white">
+                      {person.initials}
+                    </AvatarFallback>
+                  </Avatar>
+                ))}
+                {assignees.length > 3 && (
+                  <AvatarGroupCount className="size-6 text-[9px]">
+                    +{assignees.length - 3}
+                  </AvatarGroupCount>
+                )}
+              </AvatarGroup>
+            )}
             {dueDate && (
               <span className="text-xs text-text-secondary hidden sm:inline">
                 {dueDate}
               </span>
             )}
+            <p className="text-zinc-600">|</p>
             <IssueSeverityBadge severity={severity} />
           </div>
         </div>
@@ -127,4 +155,10 @@ function IssueItem({
   );
 }
 
-export { IssueItem, IssueSeverityBadge, severityColors };
+export {
+  IssueItem,
+  IssueSeverityBadge,
+  severityColors,
+  severityIcons,
+  statusIcons,
+};

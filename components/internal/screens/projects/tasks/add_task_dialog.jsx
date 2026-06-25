@@ -87,12 +87,14 @@ export function AddTaskDialog({
 
   useEffect(() => {
     if (dialogOpen && task) {
-      setFormData(buildFormDataFromTask(task));
+      void Promise.resolve().then(() =>
+        setFormData(buildFormDataFromTask(task)),
+      );
       return;
     }
 
     if (!dialogOpen) {
-      setFormData(INITIAL_FORM_STATE);
+      void Promise.resolve().then(() => setFormData(INITIAL_FORM_STATE));
     }
   }, [dialogOpen, task]);
 

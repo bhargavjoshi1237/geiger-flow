@@ -61,12 +61,12 @@ export function ProjectsScreen() {
     setLoading(true);
     const supabase = createClient();
     const { data, error } = await supabase
-      .from("flow_projects")
+      .from("projects")
       .select("*")
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("[flow_projects] fetch error:", error);
+      console.error("[projects] fetch error:", error);
     }
 
     if (data) {
@@ -96,7 +96,7 @@ export function ProjectsScreen() {
     } = await supabase.auth.getUser();
 
     if (userError || !user) {
-      console.error("[flow_projects] user lookup error:", userError);
+      console.error("[projects] user lookup error:", userError);
       return false;
     }
 
@@ -106,7 +106,7 @@ export function ProjectsScreen() {
       organizationId = await ensureUserOrganization(supabase);
     } catch (organizationError) {
       console.error(
-        "[flow_projects] organization setup error:",
+        "[projects] organization setup error:",
         organizationError,
       );
       return false;
@@ -128,13 +128,13 @@ export function ProjectsScreen() {
     };
 
     const { data, error } = await supabase
-      .from("flow_projects")
+      .from("projects")
       .insert([newProject])
       .select()
       .single();
 
     if (error) {
-      console.error("[flow_projects] insert error:", error);
+      console.error("[projects] insert error:", error);
       return false;
     }
 

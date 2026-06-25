@@ -10,15 +10,23 @@ if (!STRING_URI) {
   process.exit(1);
 }
 
-const SQL_FILES = [
-  "supabase/database/00_foundation.sql",
-  "supabase/database/10_identity_portfolio.sql",
-  "supabase/database/20_strategy_work.sql",
-  "supabase/database/30_collaboration_content.sql",
-  "supabase/database/40_resources_finance.sql",
-  "supabase/database/50_integrations_governance.sql",
-  "supabase/database/60_security_rls.sql",
-];
+const MIGRATIONS_DIR = "supabase/migrations";
+
+// Migrations run sequentially, ordered by filename (e.g. 0001_*, 0002_*).
+// Drop a new numbered .sql file into the migrations folder to add a feature.
+function getMigrationFiles() {
+  const dir = path.join(process.cwd(), MIGRATIONS_DIR);
+  if (!fs.existsSync(dir)) {
+    return [];
+  }
+  return fs
+    .readdirSync(dir)
+    .filter((file) => file.endsWith(".sql"))
+    .sort()
+    .map((file) => `${MIGRATIONS_DIR}/${file}`);
+}
+
+const SQL_FILES = getMigrationFiles();
 
 function extractTableName(stmt) {
   const match = stmt.match(
@@ -53,6 +61,18 @@ function addIfNotExists(stmt) {
   return stmt;
 }
 
+function stripLeadingComments(stmt) {
+  const lines = stmt.split("\n");
+  let i = 0;
+  while (
+    i < lines.length &&
+    (lines[i].trim() === "" || lines[i].trim().startsWith("--"))
+  ) {
+    i++;
+  }
+  return lines.slice(i).join("\n").trim();
+}
+
 function splitStatements(sql) {
   const statements = [];
   let current = "";
@@ -83,9 +103,9 @@ function splitStatements(sql) {
 
     if (sql[i] === ";" && !inDollarQuote) {
       current += ";";
-      const trimmed = current.trim();
-      if (trimmed && !trimmed.startsWith("--")) {
-        statements.push(trimmed);
+      const code = stripLeadingComments(current);
+      if (code) {
+        statements.push(code);
       }
       current = "";
       i++;
@@ -107,9 +127,9 @@ function splitStatements(sql) {
     i++;
   }
 
-  const trimmed = current.trim();
-  if (trimmed && !trimmed.startsWith("--")) {
-    statements.push(trimmed);
+  const code = stripLeadingComments(current);
+  if (code) {
+    statements.push(code);
   }
 
   return statements;

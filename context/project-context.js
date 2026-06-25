@@ -19,7 +19,7 @@ export function ProjectProvider({ children }) {
     if (UUID_PATTERN.test(id)) {
       const supabase = createClient();
       const { data, error } = await supabase
-        .from("flow_projects")
+        .from("projects")
         .select("*")
         .eq("id", id)
         .maybeSingle();
