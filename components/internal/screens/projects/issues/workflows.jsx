@@ -81,6 +81,7 @@ import {
   updateIssue,
   updateIssueComment,
 } from "@/features/issues/actions";
+import { notifyIssueAssigned } from "@/features/issues/notifications";
 import {
   DEFAULT_ISSUE_SORT,
   ISSUE_ESTIMATES,
@@ -515,12 +516,22 @@ function IssueCaseDetails({ issue, members = [], onUpdate, onDelete }) {
       const updated = await updateIssue(issue.id, patch);
       if (updated) {
         onUpdate(updated);
+
+        // Email anyone newly added as an assignee. Diff against the pre-update
+        // value so re-saving an unchanged assignee list sends nothing.
+        if ("assignees" in patch) {
+          const previous = issue.assignees || [];
+          const added = (patch.assignees || []).filter(
+            (id) => !previous.includes(id),
+          );
+          notifyIssueAssigned(issue.id, added);
+        }
       } else {
         toast.error("Couldn't update issue");
       }
       return updated;
     },
-    [issue.id, onUpdate],
+    [issue.id, issue.assignees, onUpdate],
   );
 
   // Metadata fields share one jsonb bag that's written whole, so always send the
