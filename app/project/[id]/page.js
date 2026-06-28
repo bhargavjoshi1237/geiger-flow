@@ -3,6 +3,9 @@
 import React, { Suspense } from "react";
 import { use, useCallback, useMemo } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { ArrowLeft, FolderX } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { ProjectSidebar } from "@/components/internal/sidebar/projects/project_sidebar";
 import { ProjectTopbar } from "@/components/internal/topbar/projects/topbar";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
@@ -41,7 +44,7 @@ import "@/addons/system-architecture";
 import { useEffect } from "react";
 
 function ProjectLayoutContent({ id }) {
-  const { fetchProjectInfo, project, loading } = useProject();
+  const { fetchProjectInfo, project, loading, notFound } = useProject();
   const { enabledAddons } = useAddonRegistry();
   const [externalLinks, setExternalLinks] = React.useState(() => {
     if (typeof window === "undefined") {
@@ -165,11 +168,35 @@ function ProjectLayoutContent({ id }) {
     }
   };
 
-  if (loading || !project) {
+  if (loading) {
     return (
       <div className="flex flex-col h-[100dvh] w-full bg-background items-center justify-center gap-3">
         <div className="w-5 h-5 rounded-full border-2 border-border-strong border-t-foreground animate-spin" />
         <span className="text-text-tertiary text-sm">Loading project...</span>
+      </div>
+    );
+  }
+
+  if (notFound || !project) {
+    return (
+      <div className="flex flex-col h-[100dvh] w-full bg-background items-center justify-center gap-4 p-6 text-center">
+        <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-surface-card border border-border">
+          <FolderX className="w-6 h-6 text-muted-foreground" />
+        </div>
+        <div className="flex flex-col gap-1.5 max-w-sm">
+          <h1 className="text-lg font-semibold text-foreground">Project not found</h1>
+          <p className="text-sm text-muted-foreground">
+            No project exists for{" "}
+            <span className="font-mono text-secondary">{String(id)}</span>. Check the
+            link or pick a project from your dashboard.
+          </p>
+        </div>
+        <Button asChild variant="secondary" className="mt-1">
+          <Link href="/">
+            <ArrowLeft className="w-4 h-4" />
+            Back to dashboard
+          </Link>
+        </Button>
       </div>
     );
   }

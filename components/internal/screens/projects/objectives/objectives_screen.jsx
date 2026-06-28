@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -38,6 +39,13 @@ import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers"
 import { cn } from "@/lib/utils";
 import { ObjectiveKanban } from "./objective_kanban";
 import { NewObjectiveDialog } from "@/components/internal/dilouges/objectives/new_objective_dilouge";
+import { useProject } from "@/context/project-context";
+import {
+  listObjectives,
+  createObjective,
+  updateObjective,
+  softDeleteObjective,
+} from "@/features/objectives/actions";
 
 const STATUS_META = {
   not_started: {
@@ -422,14 +430,42 @@ function ObjectiveListItem({ objective, onSelect, onEdit, onDelete, onDuplicate,
 }
 
 export function ObjectivesScreen() {
+  const { project } = useProject();
+  const projectId = project?.id;
+
   const [selectedObjective, setSelectedObjective] = useState(null);
   const [view, setView] = useState("grid");
   const [objectives, setObjectives] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [editObjective, setEditObjective] = useState(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
 
+  useEffect(() => {
+    if (!projectId) {
+      return;
+    }
+    let active = true;
+    void Promise.resolve().then(async () => {
+      setLoading(true);
+      const rows = await listObjectives(projectId);
+      if (active) {
+        setObjectives(rows);
+        setLoading(false);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [projectId]);
+
   const handleCreateObjective = async (newObj) => {
-    setObjectives((prev) => [newObj, ...prev]);
+    const created = await createObjective(projectId, newObj);
+    if (!created) {
+      toast.error("Failed to create objective");
+      return;
+    }
+    setObjectives((prev) => [created, ...prev]);
+    toast.success("Objective created");
   };
 
   const handleEditObjective = (objective) => {
@@ -438,51 +474,58 @@ export function ObjectivesScreen() {
   };
 
   const handleSaveEdit = async (updated) => {
-    setObjectives((prev) =>
-      prev.map((o) => (o.id === updated.id ? updated : o))
-    );
+    const saved = await updateObjective(updated.id, updated);
+    if (!saved) {
+      toast.error("Failed to update objective");
+      return;
+    }
+    setObjectives((prev) => prev.map((o) => (o.id === saved.id ? saved : o)));
     setEditObjective(null);
     setEditDialogOpen(false);
+    toast.success("Objective updated");
   };
 
-  const handleDeleteObjective = (id) => {
+  const handleDeleteObjective = async (id) => {
+    const previous = objectives;
     setObjectives((prev) => prev.filter((o) => o.id !== id));
+    const ok = await softDeleteObjective(id);
+    if (!ok) {
+      setObjectives(previous);
+      toast.error("Failed to delete objective");
+      return;
+    }
+    toast.success("Objective deleted");
   };
 
-  const handleDuplicateObjective = (objective) => {
-    const duplicate = {
+  const handleDuplicateObjective = async (objective) => {
+    const created = await createObjective(projectId, {
       ...objective,
-      id: `obj_${Date.now()}`,
       title: `${objective.title} (Copy)`,
       status: "not_started",
       progress: 0,
-      keyResults: objective.keyResults.map((kr) => ({
-        ...kr,
-        progress: 0,
-        done: false,
-      })),
-      goals: [],
-    };
-    setObjectives((prev) => [duplicate, ...prev]);
+      keyResults: objective.keyResults.map((kr) => ({ ...kr, progress: 0, done: false })),
+    });
+    if (!created) {
+      toast.error("Failed to duplicate objective");
+      return;
+    }
+    setObjectives((prev) => [created, ...prev]);
+    toast.success("Objective duplicated");
   };
 
-  const handleChangeStatus = (id, newStatus) => {
-    setObjectives((prev) =>
-      prev.map((o) =>
-        o.id === id
-          ? {
-              ...o,
-              status: newStatus,
-              progress:
-                newStatus === "completed"
-                  ? 100
-                  : newStatus === "not_started"
-                  ? 0
-                  : o.progress,
-            }
-          : o
-      )
-    );
+  const handleChangeStatus = async (id, newStatus) => {
+    const objective = objectives.find((o) => o.id === id);
+    if (!objective) {
+      return;
+    }
+    const progress =
+      newStatus === "completed" ? 100 : newStatus === "not_started" ? 0 : objective.progress;
+    const saved = await updateObjective(id, { status: newStatus, progress });
+    if (!saved) {
+      toast.error("Failed to update status");
+      return;
+    }
+    setObjectives((prev) => prev.map((o) => (o.id === id ? saved : o)));
   };
 
   if (selectedObjective) {
@@ -541,7 +584,20 @@ export function ObjectivesScreen() {
         </div>
       </div>
 
-      {view === "grid" ? (
+      {loading ? (
+        <div className="h-[260px] flex flex-col items-center justify-center gap-3 text-text-tertiary">
+          <div className="w-5 h-5 rounded-full border-2 border-border-strong border-t-foreground animate-spin" />
+          <span className="text-sm">Loading objectives...</span>
+        </div>
+      ) : objectives.length === 0 ? (
+        <div className="h-[260px] flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface-subtle text-text-secondary">
+          <Target className="w-10 h-10 opacity-30" />
+          <p className="mt-3 text-sm">No objectives yet.</p>
+          <p className="text-xs text-text-tertiary mt-1">
+            Define your first objective to start tracking key results.
+          </p>
+        </div>
+      ) : view === "grid" ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {objectives.map((objective) => (
             <ObjectiveCard

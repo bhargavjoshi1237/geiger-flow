@@ -1,10 +1,18 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Flag,
   Calendar,
@@ -17,60 +25,27 @@ import {
   ListTodo,
   Clock3,
   SquareStack,
+  MoreHorizontal,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { SearchBar } from "@/components/ui/search-bar";
 import { cn } from "@/lib/utils";
-
-const MILESTONE_STATUS_META = {
-  not_started: {
-    label: "Not Started",
-    className: "bg-zinc-500/10 text-muted-foreground border-zinc-500/20",
-    progressClass: "[&_[data-slot=progress-indicator]]:bg-primary",
-  },
-  on_track: {
-    label: "On Track",
-    className: "bg-blue-500/10 text-blue-300 border-blue-500/20",
-    progressClass: "[&_[data-slot=progress-indicator]]:bg-primary",
-  },
-  at_risk: {
-    label: "At Risk",
-    className: "bg-amber-500/10 text-amber-300 border-amber-500/20",
-    progressClass: "[&_[data-slot=progress-indicator]]:bg-primary",
-  },
-  completed: {
-    label: "Completed",
-    className: "bg-emerald-500/10 text-emerald-300 border-emerald-500/20",
-    progressClass: "[&_[data-slot=progress-indicator]]:bg-primary",
-  },
-};
-
-const TASK_STATUS_META = {
-  todo: {
-    label: "To Do",
-    className: "bg-zinc-500/10 text-foreground border-zinc-500/20",
-  },
-  in_progress: {
-    label: "In Progress",
-    className: "bg-blue-500/10 text-blue-300 border-blue-500/20",
-  },
-  blocked: {
-    label: "Blocked",
-    className: "bg-red-500/10 text-red-300 border-red-500/20",
-  },
-  done: {
-    label: "Done",
-    className: "bg-emerald-500/10 text-emerald-300 border-emerald-500/20",
-  },
-};
-
-const STATUS_FILTERS = [
-  { id: "all", label: "All" },
-  { id: "not_started", label: "Not Started" },
-  { id: "on_track", label: "On Track" },
-  { id: "at_risk", label: "At Risk" },
-  { id: "completed", label: "Completed" },
-];
+import { useProject } from "@/context/project-context";
+import {
+  MILESTONE_STATUS_META,
+  TASK_STATUS_META,
+  STATUS_FILTERS,
+  getMilestoneMetrics,
+} from "@/features/milestones/constants";
+import {
+  listMilestones,
+  createMilestone,
+  updateMilestone,
+  softDeleteMilestone,
+} from "@/features/milestones/actions";
+import { NewMilestoneDialog } from "@/components/internal/dilouges/milestones/new_milestone_dilouge";
 
 const dateFormatter = new Intl.DateTimeFormat("en", {
   month: "short",
@@ -84,40 +59,44 @@ function formatDate(value) {
   return Number.isNaN(parsed.getTime()) ? "-" : dateFormatter.format(parsed);
 }
 
-function getMilestoneMetrics(milestone) {
-  const totalTasks = milestone.tasks.length;
-  const doneTasks = milestone.tasks.filter((task) => task.status === "done").length;
-  const blockedTasks = milestone.tasks.filter((task) => task.status === "blocked").length;
-  const inProgressTasks = milestone.tasks.filter((task) => task.status === "in_progress").length;
-  const progress = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
-
-  let status = "not_started";
-  if (doneTasks === totalTasks && totalTasks > 0) {
-    status = "completed";
-  } else if (blockedTasks > 0) {
-    status = "at_risk";
-  } else if (inProgressTasks > 0 || doneTasks > 0) {
-    status = "on_track";
-  }
-
-  const dueDate = new Date(milestone.targetDate);
-  const overdue =
-    !Number.isNaN(dueDate.getTime()) &&
-    dueDate.getTime() < Date.now() &&
-    status !== "completed";
-
-  return {
-    totalTasks,
-    doneTasks,
-    blockedTasks,
-    inProgressTasks,
-    progress,
-    status,
-    overdue,
-  };
+function MilestoneMenu({ milestone, onEdit, onDelete }) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="w-7 h-7 text-text-tertiary hover:text-muted-foreground hover:bg-surface-active shrink-0"
+        >
+          <MoreHorizontal className="w-4 h-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="end"
+        className="bg-surface-subtle border-border text-foreground rounded-lg w-44"
+      >
+        <DropdownMenuItem
+          className="text-xs gap-2 focus:bg-surface-active focus:text-foreground cursor-pointer"
+          onSelect={() => onEdit?.(milestone)}
+        >
+          <Pencil className="w-3.5 h-3.5" />
+          Edit Milestone
+        </DropdownMenuItem>
+        <DropdownMenuSeparator className="bg-surface-hover" />
+        <DropdownMenuItem
+          variant="destructive"
+          className="text-xs gap-2 focus:bg-red-500/10 focus:text-red-400 cursor-pointer"
+          onSelect={() => onDelete?.(milestone.id)}
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+          Delete Milestone
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 }
 
-function MilestoneCard({ milestone, onToggleTask }) {
+function MilestoneCard({ milestone, onToggleTask, onEdit, onDelete }) {
   const statusMeta = MILESTONE_STATUS_META[milestone.metrics.status];
 
   return (
@@ -140,6 +119,7 @@ function MilestoneCard({ milestone, onToggleTask }) {
             </div>
             <p className="text-xs text-text-secondary line-clamp-2">{milestone.description}</p>
           </div>
+          <MilestoneMenu milestone={milestone} onEdit={onEdit} onDelete={onDelete} />
         </div>
 
         <div className="flex items-center gap-3 text-xs text-text-secondary flex-wrap">
@@ -215,7 +195,7 @@ function MilestoneCard({ milestone, onToggleTask }) {
   );
 }
 
-function MilestoneListItem({ milestone, onToggleTask }) {
+function MilestoneListItem({ milestone, onToggleTask, onEdit, onDelete }) {
   const statusMeta = MILESTONE_STATUS_META[milestone.metrics.status];
 
   return (
@@ -261,6 +241,8 @@ function MilestoneListItem({ milestone, onToggleTask }) {
             className={cn("h-1.5 bg-surface-hover rounded-full", statusMeta.progressClass)}
           />
         </div>
+
+        <MilestoneMenu milestone={milestone} onEdit={onEdit} onDelete={onDelete} />
       </div>
 
       <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-1.5">
@@ -288,10 +270,34 @@ function MilestoneListItem({ milestone, onToggleTask }) {
 }
 
 export function MilestonesScreen() {
+  const { project } = useProject();
+  const projectId = project?.id;
+
   const [view, setView] = useState("grid");
   const [query, setQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
   const [milestones, setMilestones] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [editMilestone, setEditMilestone] = useState(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+
+  useEffect(() => {
+    if (!projectId) {
+      return;
+    }
+    let active = true;
+    void Promise.resolve().then(async () => {
+      setLoading(true);
+      const rows = await listMilestones(projectId);
+      if (active) {
+        setMilestones(rows);
+        setLoading(false);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [projectId]);
 
   const milestonesWithMetrics = useMemo(
     () =>
@@ -355,23 +361,64 @@ export function MilestonesScreen() {
     };
   }, [milestonesWithMetrics]);
 
-  const handleToggleTask = (milestoneId, taskId) => {
-    setMilestones((currentMilestones) =>
-      currentMilestones.map((milestone) => {
-        if (milestone.id !== milestoneId) return milestone;
-
-        return {
-          ...milestone,
-          tasks: milestone.tasks.map((task) => {
-            if (task.id !== taskId) return task;
-            return {
-              ...task,
-              status: task.status === "done" ? "todo" : "done",
-            };
-          }),
-        };
-      })
+  const handleToggleTask = async (milestoneId, taskId) => {
+    const milestone = milestones.find((m) => m.id === milestoneId);
+    if (!milestone) {
+      return;
+    }
+    const nextTasks = milestone.tasks.map((task) =>
+      task.id === taskId
+        ? { ...task, status: task.status === "done" ? "todo" : "done" }
+        : task
     );
+    const previous = milestones;
+    setMilestones((prev) =>
+      prev.map((m) => (m.id === milestoneId ? { ...m, tasks: nextTasks } : m))
+    );
+    const saved = await updateMilestone(milestoneId, { tasks: nextTasks });
+    if (!saved) {
+      setMilestones(previous);
+      toast.error("Failed to update task");
+    }
+  };
+
+  const handleCreateMilestone = async (input) => {
+    const created = await createMilestone(projectId, input);
+    if (!created) {
+      toast.error("Failed to create milestone");
+      return;
+    }
+    setMilestones((prev) => [created, ...prev]);
+    toast.success("Milestone created");
+  };
+
+  const handleEditMilestone = (milestone) => {
+    setEditMilestone(milestone);
+    setEditDialogOpen(true);
+  };
+
+  const handleSaveEdit = async (updated) => {
+    const saved = await updateMilestone(updated.id, updated);
+    if (!saved) {
+      toast.error("Failed to update milestone");
+      return;
+    }
+    setMilestones((prev) => prev.map((m) => (m.id === saved.id ? saved : m)));
+    setEditMilestone(null);
+    setEditDialogOpen(false);
+    toast.success("Milestone updated");
+  };
+
+  const handleDeleteMilestone = async (id) => {
+    const previous = milestones;
+    setMilestones((prev) => prev.filter((m) => m.id !== id));
+    const ok = await softDeleteMilestone(id);
+    if (!ok) {
+      setMilestones(previous);
+      toast.error("Failed to delete milestone");
+      return;
+    }
+    toast.success("Milestone deleted");
   };
 
   return (
@@ -412,10 +459,12 @@ export function MilestonesScreen() {
               <List className="w-3.5 h-3.5" />
             </Button>
           </div>
-          <Button className="bg-primary text-primary-foreground hover:bg-primary">
-            <Plus className="w-4 h-4 mr-2" />
-            New Milestone
-          </Button>
+          <NewMilestoneDialog onCreate={handleCreateMilestone}>
+            <Button className="bg-primary text-primary-foreground hover:bg-primary">
+              <Plus className="w-4 h-4 mr-2" />
+              New Milestone
+            </Button>
+          </NewMilestoneDialog>
         </div>
       </div>
 
@@ -470,10 +519,19 @@ export function MilestonesScreen() {
         </div>
       </div>
 
-      {filteredMilestones.length === 0 ? (
+      {loading ? (
+        <div className="h-[260px] flex flex-col items-center justify-center gap-3 text-text-tertiary">
+          <div className="w-5 h-5 rounded-full border-2 border-border-strong border-t-foreground animate-spin" />
+          <span className="text-sm">Loading milestones...</span>
+        </div>
+      ) : filteredMilestones.length === 0 ? (
         <div className="h-[260px] flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface-subtle text-text-secondary">
           <Flag className="w-10 h-10 opacity-30" />
-          <p className="mt-3 text-sm">No milestones match your current filters.</p>
+          <p className="mt-3 text-sm">
+            {milestones.length === 0
+              ? "No milestones yet. Create your first milestone to get started."
+              : "No milestones match your current filters."}
+          </p>
         </div>
       ) : view === "grid" ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -482,6 +540,8 @@ export function MilestonesScreen() {
               key={milestone.id}
               milestone={milestone}
               onToggleTask={handleToggleTask}
+              onEdit={handleEditMilestone}
+              onDelete={handleDeleteMilestone}
             />
           ))}
         </div>
@@ -492,10 +552,22 @@ export function MilestonesScreen() {
               key={milestone.id}
               milestone={milestone}
               onToggleTask={handleToggleTask}
+              onEdit={handleEditMilestone}
+              onDelete={handleDeleteMilestone}
             />
           ))}
         </div>
       )}
+
+      <NewMilestoneDialog
+        editMilestone={editMilestone}
+        onEdit={handleSaveEdit}
+        open={editDialogOpen}
+        onOpenChange={(open) => {
+          setEditDialogOpen(open);
+          if (!open) setEditMilestone(null);
+        }}
+      />
     </MainScreenWrapper>
   );
 }

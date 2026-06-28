@@ -23,43 +23,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Plus, X, Target, Pencil } from "lucide-react";
-
-const STATUS_OPTIONS = [
-  { value: "not_started", label: "Not Started" },
-  { value: "on_track", label: "On Track" },
-  { value: "at_risk", label: "At Risk" },
-  { value: "completed", label: "Completed" },
-];
-
-const PROGRESS_SOURCE_OPTIONS = [
-  { value: "tasks_lists", label: "Tasks and Lists" },
-  { value: "tasks_custom_field", label: "Tasks with Custom Field" },
-  { value: "tasks_tag", label: "Tasks with Tag" },
-  { value: "tasks_user_tag", label: "Tasks with User Tag" },
-  { value: "tasks_assignee", label: "Tasks with Assignee" },
-];
-
-const TRACK_METRIC_OPTIONS = [
-  { value: "tasks_count", label: "Tasks count" },
-  { value: "tracked_time", label: "Tracked time" },
-  { value: "story_points", label: "Story points" },
-  { value: "custom_field_value", label: "Custom Field value" },
-];
-
-const TARGET_OPTIONS = [
-  {
-    value: "dynamic",
-    label: "Dynamic",
-    description: "Updates as tasks are added to the goal",
-  },
-  {
-    value: "static",
-    label: "Static",
-    description: "Fixed goal value",
-  },
-];
-
-const TEAM_MEMBERS = [];
+import {
+  GOAL_STATUSES,
+  PROGRESS_SOURCE_OPTIONS,
+  TRACK_METRIC_OPTIONS,
+  TARGET_OPTIONS,
+} from "@/features/goals/constants";
 
 const INITIAL_FORM = {
   title: "",
@@ -82,7 +51,7 @@ export function NewGoalDialog({
   onEdit,
   open,
   onOpenChange,
-  statusOptions = STATUS_OPTIONS,
+  statusOptions = GOAL_STATUSES,
 }) {
   const isEditMode = !!editGoal;
   const [formData, setFormData] = useState(INITIAL_FORM);
@@ -94,24 +63,26 @@ export function NewGoalDialog({
 
   useEffect(() => {
     if (editGoal && isOpen) {
-      setFormData({
-        title: editGoal.title || "",
-        description: editGoal.description || "",
-        status: editGoal.status || "not_started",
-        owner: editGoal.owner || "You",
-        progress: editGoal.progress || 0,
-        targetDate: editGoal.targetDate || "",
-        progressSource: editGoal.progressSource || "tasks_lists",
-        trackMetric: editGoal.trackMetric || "tasks_count",
-        target: editGoal.target || "dynamic",
-        targetValue: editGoal.targetValue || "",
-        keyResults:
-          editGoal.keyResults && editGoal.keyResults.length > 0
-            ? editGoal.keyResults.map((kr) => ({ ...kr }))
-            : [{ label: "", progress: 0, done: false }],
-      });
+      void Promise.resolve().then(() =>
+        setFormData({
+          title: editGoal.title || "",
+          description: editGoal.description || "",
+          status: editGoal.status || "not_started",
+          owner: editGoal.owner || "You",
+          progress: editGoal.progress || 0,
+          targetDate: editGoal.targetDate || "",
+          progressSource: editGoal.progressSource || "tasks_lists",
+          trackMetric: editGoal.trackMetric || "tasks_count",
+          target: editGoal.target || "dynamic",
+          targetValue: editGoal.targetValue || "",
+          keyResults:
+            editGoal.keyResults && editGoal.keyResults.length > 0
+              ? editGoal.keyResults.map((kr) => ({ ...kr }))
+              : [{ label: "", progress: 0, done: false }],
+        })
+      );
     } else if (!isOpen) {
-      setFormData(INITIAL_FORM);
+      void Promise.resolve().then(() => setFormData(INITIAL_FORM));
     }
   }, [editGoal, isOpen]);
 
@@ -377,26 +348,14 @@ export function NewGoalDialog({
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label className="text-xs text-foreground">Owner</Label>
-                <Select
+                <Label htmlFor="goal-owner" className="text-xs text-foreground">Owner</Label>
+                <Input
+                  id="goal-owner"
                   value={formData.owner}
-                  onValueChange={(v) => set("owner", v)}
-                >
-                  <SelectTrigger className="bg-surface-card border-border text-foreground h-10 text-sm">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-surface-dialog border-border">
-                    {TEAM_MEMBERS.map((m) => (
-                      <SelectItem
-                        key={m}
-                        value={m}
-                        className="text-sm cursor-pointer"
-                      >
-                        {m}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  onChange={(e) => set("owner", e.target.value)}
+                  placeholder="e.g., You"
+                  className="bg-surface-card border-border focus-visible:ring-1 focus-visible:ring-ring text-foreground placeholder:text-text-tertiary h-10 text-sm"
+                />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="goal-progress" className="text-xs text-foreground">

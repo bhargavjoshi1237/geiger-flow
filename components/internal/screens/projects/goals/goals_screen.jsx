@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -37,6 +38,13 @@ import {
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { cn } from "@/lib/utils";
 import { NewGoalDialog } from "@/components/internal/dilouges/goals/new_goal_dilouge";
+import { useProject } from "@/context/project-context";
+import {
+  listGoals,
+  createGoal,
+  updateGoal,
+  softDeleteGoal,
+} from "@/features/goals/actions";
 
 const STATUS_META = {
   not_started: {
@@ -394,8 +402,12 @@ function GoalListItem({ goal, onEdit, onDelete, onDuplicate, onChangeStatus }) {
 }
 
 export function GoalsScreen() {
+  const { project } = useProject();
+  const projectId = project?.id;
+
   const [view, setView] = useState("grid");
   const [goals, setGoals] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [editGoal, setEditGoal] = useState(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const goalColumns = [
@@ -403,8 +415,32 @@ export function GoalsScreen() {
     goals.filter((_, index) => index % 2 === 1),
   ];
 
+  useEffect(() => {
+    if (!projectId) {
+      return;
+    }
+    let active = true;
+    void Promise.resolve().then(async () => {
+      setLoading(true);
+      const rows = await listGoals(projectId, { objectiveId: null });
+      if (active) {
+        setGoals(rows);
+        setLoading(false);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [projectId]);
+
   const handleCreateGoal = async (newGoal) => {
-    setGoals((prev) => [newGoal, ...prev]);
+    const created = await createGoal(projectId, { ...newGoal, objectiveId: null });
+    if (!created) {
+      toast.error("Failed to create goal");
+      return;
+    }
+    setGoals((prev) => [created, ...prev]);
+    toast.success("Goal created");
   };
 
   const handleEditGoal = (goal) => {
@@ -413,50 +449,59 @@ export function GoalsScreen() {
   };
 
   const handleSaveEdit = async (updated) => {
-    setGoals((prev) =>
-      prev.map((g) => (g.id === updated.id ? updated : g))
-    );
+    const saved = await updateGoal(updated.id, updated);
+    if (!saved) {
+      toast.error("Failed to update goal");
+      return;
+    }
+    setGoals((prev) => prev.map((g) => (g.id === saved.id ? saved : g)));
     setEditGoal(null);
     setEditDialogOpen(false);
+    toast.success("Goal updated");
   };
 
-  const handleDeleteGoal = (id) => {
+  const handleDeleteGoal = async (id) => {
+    const previous = goals;
     setGoals((prev) => prev.filter((g) => g.id !== id));
+    const ok = await softDeleteGoal(id);
+    if (!ok) {
+      setGoals(previous);
+      toast.error("Failed to delete goal");
+      return;
+    }
+    toast.success("Goal deleted");
   };
 
-  const handleDuplicateGoal = (goal) => {
-    const duplicate = {
+  const handleDuplicateGoal = async (goal) => {
+    const created = await createGoal(projectId, {
       ...goal,
-      id: `g_${Date.now()}`,
+      objectiveId: null,
       title: `${goal.title} (Copy)`,
       status: "not_started",
       progress: 0,
-      keyResults: goal.keyResults.map((kr) => ({
-        ...kr,
-        progress: 0,
-        done: false,
-      })),
-    };
-    setGoals((prev) => [duplicate, ...prev]);
+      keyResults: goal.keyResults.map((kr) => ({ ...kr, progress: 0, done: false })),
+    });
+    if (!created) {
+      toast.error("Failed to duplicate goal");
+      return;
+    }
+    setGoals((prev) => [created, ...prev]);
+    toast.success("Goal duplicated");
   };
 
-  const handleChangeStatus = (id, newStatus) => {
-    setGoals((prev) =>
-      prev.map((g) =>
-        g.id === id
-          ? {
-              ...g,
-              status: newStatus,
-              progress:
-                newStatus === "completed"
-                  ? 100
-                  : newStatus === "not_started"
-                  ? 0
-                  : g.progress,
-            }
-          : g
-      )
-    );
+  const handleChangeStatus = async (id, newStatus) => {
+    const goal = goals.find((g) => g.id === id);
+    if (!goal) {
+      return;
+    }
+    const progress =
+      newStatus === "completed" ? 100 : newStatus === "not_started" ? 0 : goal.progress;
+    const saved = await updateGoal(id, { status: newStatus, progress });
+    if (!saved) {
+      toast.error("Failed to update status");
+      return;
+    }
+    setGoals((prev) => prev.map((g) => (g.id === id ? saved : g)));
   };
 
   return (
@@ -506,7 +551,20 @@ export function GoalsScreen() {
         </div>
       </div>
 
-      {view === "grid" ? (
+      {loading ? (
+        <div className="h-[260px] flex flex-col items-center justify-center gap-3 text-text-tertiary">
+          <div className="w-5 h-5 rounded-full border-2 border-border-strong border-t-foreground animate-spin" />
+          <span className="text-sm">Loading goals...</span>
+        </div>
+      ) : goals.length === 0 ? (
+        <div className="h-[260px] flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface-subtle text-text-secondary">
+          <Target className="w-10 h-10 opacity-30" />
+          <p className="mt-3 text-sm">No goals yet.</p>
+          <p className="text-xs text-text-tertiary mt-1">
+            Define your first measurable goal to get started.
+          </p>
+        </div>
+      ) : view === "grid" ? (
         <>
         <div className="space-y-4 lg:hidden">
           {goals.map((goal) => (

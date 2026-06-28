@@ -30,15 +30,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Plus, X, Target, Pencil, Search, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const STATUS_OPTIONS = [
-  { value: "not_started", label: "Not Started" },
-  { value: "on_track", label: "On Track" },
-  { value: "at_risk", label: "At Risk" },
-  { value: "completed", label: "Completed" },
-];
-
-const TEAM_MEMBERS = [];
+import { OBJECTIVE_STATUSES } from "@/features/objectives/constants";
 
 const KEY_RESULT_SUGGESTIONS = [];
 
@@ -184,20 +176,22 @@ export function NewObjectiveDialog({
 
   useEffect(() => {
     if (editObjective && isOpen) {
-      setFormData({
-        title: editObjective.title || "",
-        description: editObjective.description || "",
-        status: editObjective.status || "not_started",
-        owner: editObjective.owner || "You",
-        startDate: editObjective.startDate || "",
-        targetDate: editObjective.targetDate || "",
-        keyResults:
-          editObjective.keyResults && editObjective.keyResults.length > 0
-            ? editObjective.keyResults.map((kr) => ({ ...kr }))
-            : [{ label: "", progress: 0, done: false }],
-      });
+      void Promise.resolve().then(() =>
+        setFormData({
+          title: editObjective.title || "",
+          description: editObjective.description || "",
+          status: editObjective.status || "not_started",
+          owner: editObjective.owner || "You",
+          startDate: editObjective.startDate || "",
+          targetDate: editObjective.targetDate || "",
+          keyResults:
+            editObjective.keyResults && editObjective.keyResults.length > 0
+              ? editObjective.keyResults.map((kr) => ({ ...kr }))
+              : [{ label: "", progress: 0, done: false }],
+        })
+      );
     } else if (!isOpen) {
-      setFormData(INITIAL_FORM);
+      void Promise.resolve().then(() => setFormData(INITIAL_FORM));
     }
   }, [editObjective, isOpen]);
 
@@ -327,7 +321,7 @@ export function NewObjectiveDialog({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-surface-dialog border-border">
-                    {STATUS_OPTIONS.map((s) => (
+                    {OBJECTIVE_STATUSES.map((s) => (
                       <SelectItem
                         key={s.value}
                         value={s.value}
@@ -386,26 +380,14 @@ export function NewObjectiveDialog({
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs text-foreground">Owner</Label>
-              <Select
+              <Label htmlFor="obj-owner" className="text-xs text-foreground">Owner</Label>
+              <Input
+                id="obj-owner"
                 value={formData.owner}
-                onValueChange={(v) => set("owner", v)}
-              >
-                <SelectTrigger className="bg-surface-card border-border text-foreground h-10 text-sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-surface-dialog border-border">
-                  {TEAM_MEMBERS.map((m) => (
-                    <SelectItem
-                      key={m}
-                      value={m}
-                      className="text-sm cursor-pointer"
-                    >
-                      {m}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                onChange={(e) => set("owner", e.target.value)}
+                placeholder="e.g., You"
+                className="bg-surface-card border-border focus-visible:ring-1 focus-visible:ring-ring text-foreground placeholder:text-text-tertiary h-10 text-sm"
+              />
             </div>
           </div>
 

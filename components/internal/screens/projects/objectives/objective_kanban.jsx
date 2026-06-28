@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo } from "react";
+import { toast } from "sonner";
 import {
   DndContext,
   DragOverlay,
@@ -48,13 +49,17 @@ import {
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { NewGoalDialog } from "@/components/internal/dilouges/goals/new_goal_dilouge";
 import { cn } from "@/lib/utils";
+import { useProject } from "@/context/project-context";
+import { DEFAULT_OBJECTIVE_COLUMNS } from "@/features/objectives/constants";
+import { updateObjective } from "@/features/objectives/actions";
+import {
+  listGoals,
+  createGoal,
+  updateGoal,
+  softDeleteGoal,
+} from "@/features/goals/actions";
 
-const STATUS_CONFIG = [
-  { key: "not_started", label: "Not Started", color: "zinc" },
-  { key: "on_track", label: "On Track", color: "emerald" },
-  { key: "at_risk", label: "At Risk", color: "amber" },
-  { key: "completed", label: "Completed", color: "blue" },
-];
+const STATUS_CONFIG = DEFAULT_OBJECTIVE_COLUMNS;
 
 const STATUS_META = {
   not_started: {
@@ -373,10 +378,14 @@ function AddColumnCard({ onAddColumn }) {
 }
 
 export function ObjectiveKanban({ objective, onBack }) {
-  const [goals, setGoals] = useState(
-    (objective.goals || []).map((g) => ({ ...g }))
+  const { project } = useProject();
+  const projectId = project?.id;
+
+  const [goals, setGoals] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [columns, setColumns] = useState(
+    objective.columns?.length ? objective.columns : STATUS_CONFIG
   );
-  const [columns, setColumns] = useState(STATUS_CONFIG);
 
   const [activeId, setActiveId] = useState(null);
   const [editGoal, setEditGoal] = useState(null);
@@ -390,30 +399,65 @@ export function ObjectiveKanban({ objective, onBack }) {
     })
   );
 
+  useEffect(() => {
+    if (!projectId) {
+      return;
+    }
+    let active = true;
+    void Promise.resolve().then(async () => {
+      setLoading(true);
+      const rows = await listGoals(projectId, { objectiveId: objective.id });
+      if (active) {
+        setGoals(rows);
+        setLoading(false);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [projectId, objective.id]);
+
   function handleEditGoal(goal) {
     setEditGoal(goal);
     setEditDialogOpen(true);
   }
 
-  function handleSaveEditGoal(updated) {
-    setGoals((prev) =>
-      prev.map((g) => (g.id === updated.id ? { ...updated, keyResults: updated.keyResults || g.keyResults } : g))
-    );
+  async function handleSaveEditGoal(updated) {
+    const saved = await updateGoal(updated.id, updated);
+    if (!saved) {
+      toast.error("Failed to update goal");
+      return;
+    }
+    setGoals((prev) => prev.map((g) => (g.id === saved.id ? saved : g)));
     setEditGoal(null);
     setEditDialogOpen(false);
+    toast.success("Goal updated");
   }
 
-  function handleDeleteGoal(goalId) {
+  async function handleDeleteGoal(goalId) {
+    const previous = goals;
     setGoals((prev) => prev.filter((g) => g.id !== goalId));
+    const ok = await softDeleteGoal(goalId);
+    if (!ok) {
+      setGoals(previous);
+      toast.error("Failed to delete goal");
+      return;
+    }
+    toast.success("Goal deleted");
   }
 
-  function handleDuplicateGoal(goal) {
-    const duplicate = {
+  async function handleDuplicateGoal(goal) {
+    const created = await createGoal(projectId, {
       ...goal,
-      id: `${goal.id}-copy-${Date.now()}`,
+      objectiveId: objective.id,
       title: `${goal.title} (Copy)`,
-    };
-    setGoals((prev) => [...prev, duplicate]);
+    });
+    if (!created) {
+      toast.error("Failed to duplicate goal");
+      return;
+    }
+    setGoals((prev) => [...prev, created]);
+    toast.success("Goal duplicated");
   }
 
   function handleAddGoal(statusKey) {
@@ -421,25 +465,32 @@ export function ObjectiveKanban({ objective, onBack }) {
     setAddDialogOpen(true);
   }
 
-  function handleCreateGoal(newGoal) {
-    const goal = {
+  async function handleCreateGoal(newGoal) {
+    const status = addDialogStatus || newGoal.status;
+    const position = goals.filter((g) => g.status === status).length;
+    const created = await createGoal(projectId, {
       ...newGoal,
-      status: addDialogStatus || newGoal.status,
-    };
-    setGoals((prev) => [...prev, goal]);
+      objectiveId: objective.id,
+      status,
+      position,
+    });
     setAddDialogOpen(false);
     setAddDialogStatus(null);
+    if (!created) {
+      toast.error("Failed to create goal");
+      return;
+    }
+    setGoals((prev) => [...prev, created]);
+    toast.success("Goal created");
   }
 
   function handleAddColumn(label) {
-    setColumns((prev) => [
-      ...prev,
-      {
-        key: createColumnKey(label, prev),
-        label,
-        color: "custom",
-      },
-    ]);
+    const next = [
+      ...columns,
+      { key: createColumnKey(label, columns), label, color: "custom" },
+    ];
+    setColumns(next);
+    void updateObjective(objective.id, { columns: next });
   }
 
   const goalsByColumn = useMemo(() => {
@@ -497,6 +548,17 @@ export function ObjectiveKanban({ objective, onBack }) {
     );
   }
 
+  // Persists every goal in `colKey` with its new status + position so both
+  // cross-column moves and within-column reorders survive a refresh.
+  async function persistColumn(colKey, colGoals) {
+    const results = await Promise.all(
+      colGoals.map((g, index) => updateGoal(g.id, { status: colKey, position: index }))
+    );
+    if (results.some((r) => !r)) {
+      toast.error("Failed to save goal order");
+    }
+  }
+
   function handleDragEnd(event) {
     const { active, over } = event;
     setActiveId(null);
@@ -508,33 +570,33 @@ export function ObjectiveKanban({ objective, onBack }) {
       ? over.id
       : findColumnForGoal(over.id);
 
-    if (overCol && activeCol !== overCol) {
-      setGoals((prev) =>
-        prev.map((g) =>
-          g.id === active.id ? { ...g, status: overCol } : g
-        )
+    if (!activeCol) return;
+
+    // handleDragOver may have already moved the goal across columns optimistically;
+    // `targetCol` is wherever it should ultimately land.
+    const targetCol = overCol || activeCol;
+
+    let working = goals;
+    if (working.find((g) => g.id === active.id)?.status !== targetCol) {
+      working = working.map((g) =>
+        g.id === active.id ? { ...g, status: targetCol } : g
       );
-      return;
     }
 
-    if (activeCol === overCol) {
-      const columnGoals = goals.filter((g) => g.status === activeCol);
-      const oldIndex = columnGoals.findIndex((g) => g.id === active.id);
-      const overIndex = columnGoals.findIndex((g) => g.id === over.id);
+    const colGoals = working.filter((g) => g.status === targetCol);
+    const others = working.filter((g) => g.status !== targetCol);
+    const fromIndex = colGoals.findIndex((g) => g.id === active.id);
+    let toIndex = colGoals.findIndex((g) => g.id === over.id);
+    if (toIndex === -1) toIndex = colGoals.length - 1;
 
-      if (oldIndex !== -1 && overIndex !== -1 && oldIndex !== overIndex) {
-        setGoals((prev) => {
-          const updated = [...prev];
-          const movedGoal = updated.find((g) => g.id === active.id);
-          const otherGoals = updated.filter((g) => g.id !== active.id);
-          const sameColOthers = otherGoals.filter((g) => g.status === activeCol);
-          const diffColGoals = otherGoals.filter((g) => g.status !== activeCol);
-
-          sameColOthers.splice(overIndex, 0, movedGoal);
-          return [...diffColGoals, ...sameColOthers];
-        });
-      }
+    if (fromIndex !== -1 && fromIndex !== toIndex) {
+      const [moved] = colGoals.splice(fromIndex, 1);
+      colGoals.splice(toIndex, 0, moved);
     }
+
+    const repositioned = colGoals.map((g, index) => ({ ...g, position: index }));
+    setGoals([...others, ...repositioned]);
+    void persistColumn(targetCol, repositioned);
   }
 
   const dateFormatter = new Intl.DateTimeFormat("en", {
@@ -615,6 +677,12 @@ export function ObjectiveKanban({ objective, onBack }) {
           </div>
         </div>
 
+        {loading ? (
+          <div className="flex-1 flex items-center justify-center gap-3 text-text-tertiary">
+            <div className="w-5 h-5 rounded-full border-2 border-border-strong border-t-foreground animate-spin" />
+            <span className="text-sm">Loading goals...</span>
+          </div>
+        ) : (
         <DndContext
           sensors={sensors}
           collisionDetection={closestCorners}
@@ -645,6 +713,7 @@ export function ObjectiveKanban({ objective, onBack }) {
             ) : null}
           </DragOverlay>
         </DndContext>
+        )}
       </div>
 
       <NewGoalDialog

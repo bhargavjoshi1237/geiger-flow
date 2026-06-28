@@ -11,40 +11,46 @@ const UUID_PATTERN =
 export function ProjectProvider({ children }) {
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
   const fetchProjectInfo = useCallback(async (id) => {
     setLoading(true);
-    let foundProject = null;
+    setNotFound(false);
 
-    if (UUID_PATTERN.test(id)) {
-      const supabase = createClient();
-      const { data, error } = await supabase
-        .from("projects")
-        .select("*")
-        .eq("id", id)
-        .maybeSingle();
-
-      foundProject = data;
-
-      if (error) {
-        console.error("[project-context] fetch error:", error.message || error, error.code);
-      }
+    // Strict project id: data only loads for an id that resolves to a real
+    // row in `public.projects`. A non-uuid id (e.g. "1") can never match the
+    // uuid `id` column, so we short-circuit it as not found rather than
+    // querying with an invalid uuid.
+    if (!UUID_PATTERN.test(id)) {
+      setProject(null);
+      setNotFound(true);
+      setLoading(false);
+      return;
     }
 
-    if (foundProject) {
-      setProject(foundProject);
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("projects")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (error) {
+      console.error("[project-context] fetch error:", error.message || error, error.code);
+    }
+
+    if (data) {
+      setProject(data);
+      setNotFound(false);
     } else {
-      setProject({
-        id,
-        name: id.charAt(0).toUpperCase() + id.slice(1).replace(/-/g, " "),
-        status: "UNKNOWN",
-      });
+      setProject(null);
+      setNotFound(true);
     }
     setLoading(false);
   }, []);
 
   return (
-    <ProjectContext.Provider value={{ project, setProject, fetchProjectInfo, loading }}>
+    <ProjectContext.Provider value={{ project, setProject, fetchProjectInfo, loading, notFound }}>
       {children}
     </ProjectContext.Provider>
   );
