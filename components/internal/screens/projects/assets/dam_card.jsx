@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@geiger/ui";
+import { Button } from "@geiger/ui";
 import { ExternalLink, Package, Layers, File, Eye, HardDrive } from "lucide-react";
 import { damFeatures } from "./data";
 

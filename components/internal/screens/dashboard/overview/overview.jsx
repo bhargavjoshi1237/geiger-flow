@@ -7,7 +7,7 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart";
+} from "@geiger/ui";
 import { DeadlinesSection } from "@/components/internal/shared/deadlines";
 import FilterDropdown from "../../projects/overview/filter_dropdown";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";

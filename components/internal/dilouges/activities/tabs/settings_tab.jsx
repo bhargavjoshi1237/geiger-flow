@@ -1,17 +1,17 @@
 "use client";
 
 import React from "react";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Separator } from "@/components/ui/separator";
+import { Label } from "@geiger/ui";
+import { Switch } from "@geiger/ui";
+import { Separator } from "@geiger/ui";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
+} from "@geiger/ui";
+import { Button } from "@geiger/ui";
 import { Eye, Lock, Calendar as CalendarIcon, BarChart3, Timer, Zap, Shield, Check, Bell, Plus } from "lucide-react";
 
 export function SettingsTab({ formData, handleInputChange }) {

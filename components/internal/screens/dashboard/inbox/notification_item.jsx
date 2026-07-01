@@ -6,9 +6,9 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@geiger/ui";
 import { MoreVertical, Check, Trash2, Bell } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@geiger/ui";
 
 export function NotificationItem({
   notification,

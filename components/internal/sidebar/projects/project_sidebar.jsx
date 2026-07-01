@@ -11,13 +11,13 @@ import {
   SidebarMenu,
   SidebarRail,
   useSidebar,
-} from "@/components/ui/sidebar";
+} from "@geiger/ui";
 import { PanelLeft, ChevronLeft, Search, Bell, X } from "lucide-react";
 import { SidebarOption } from "../sidebar_option";
 import { projectNav, settingsNav } from "./sidebar_data";
 import { useAddonRegistry, getAddonNavItems, mergeNavWithAddons } from "@/addons/registry";
 import { useProject } from "@/context/project-context";
-import { Button } from "@/components/ui/button";
+import { Button } from "@geiger/ui";
 
 function MobileSidebarHeader() {
   const { isMobile, toggleSidebar } = useSidebar();

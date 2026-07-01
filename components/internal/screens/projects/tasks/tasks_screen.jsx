@@ -8,12 +8,12 @@ import React, {
   useState,
 } from "react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Slider } from "@/components/ui/slider";
+import { Button } from "@geiger/ui";
+import { Input } from "@geiger/ui";
+import { Textarea } from "@geiger/ui";
+import { Badge } from "@geiger/ui";
+import { Progress } from "@geiger/ui";
+import { Slider } from "@geiger/ui";
 import {
   Table,
   TableBody,
@@ -21,15 +21,15 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@geiger/ui";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+} from "@geiger/ui";
+import { Sheet, SheetContent, SheetTitle } from "@geiger/ui";
 import {
   Dialog,
   DialogContent,
@@ -37,26 +37,26 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@geiger/ui";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@geiger/ui";
 import {
   Avatar,
   AvatarFallback,
   AvatarGroup,
   AvatarGroupCount,
   AvatarImage,
-} from "@/components/ui/avatar";
+} from "@geiger/ui";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@geiger/ui";
 import {
   AlertOctagon,
   AlertTriangle,
@@ -92,7 +92,7 @@ import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers"
 import { AddTaskDialog } from "./add_task_dialog";
 import { cn } from "@/lib/utils";
 import { useProject } from "@/context/project-context";
-import { IssueSeverityBadge, severityIcons } from "@/components/ui/issue-item";
+import { IssueSeverityBadge, severityIcons } from "@geiger/ui";
 import { getUser } from "@/lib/supabase/user";
 import {
   getProfilesByIds,

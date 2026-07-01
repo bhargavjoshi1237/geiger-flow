@@ -2,17 +2,17 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@geiger/ui";
+import { Badge } from "@geiger/ui";
+import { Progress } from "@geiger/ui";
+import { Card, CardContent } from "@geiger/ui";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@geiger/ui";
 import {
   Flag,
   Calendar,
@@ -30,7 +30,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { SearchBar } from "@/components/ui/search-bar";
+import { SearchBar } from "@geiger/ui";
 import { cn } from "@/lib/utils";
 import { useProject } from "@/context/project-context";
 import {

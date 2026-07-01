@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { ExternalLink, Plus, Trash2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@geiger/ui";
+import { Button } from "@geiger/ui";
 import {
   Dialog,
   DialogContent,
@@ -12,17 +12,17 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from "@geiger/ui";
+import { Input } from "@geiger/ui";
+import { Label } from "@geiger/ui";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
+} from "@geiger/ui";
+import { Switch } from "@geiger/ui";
 import {
   Table,
   TableBody,
@@ -30,7 +30,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@geiger/ui";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import {
   EXTERNAL_ICON_OPTIONS,

@@ -26,7 +26,7 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart";
+} from "@geiger/ui";
 import {
   Table,
   TableBody,
@@ -34,7 +34,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@geiger/ui";
 import { cn } from "@/lib/utils";
 
 const zeroDailyUsage = Array.from({ length: 7 }, (_, index) => ({

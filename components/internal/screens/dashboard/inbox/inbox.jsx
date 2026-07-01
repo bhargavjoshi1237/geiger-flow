@@ -9,16 +9,16 @@ import {
   Inbox,
 } from "lucide-react";
 import * as LucideIcons from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Input } from "@geiger/ui";
 import { NotificationItem } from "./notification_item";
 import {
   Sheet,
   SheetContent,
   SheetTitle,
-} from "@/components/ui/sheet";
+} from "@geiger/ui";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { SegmentedTabs } from "@/components/internal/shared/segmented_tabs";
-import { Button } from "@/components/ui/button";
+import { Button } from "@geiger/ui";
 
 const INBOX_TABS = [
   { label: "All", value: "all" },

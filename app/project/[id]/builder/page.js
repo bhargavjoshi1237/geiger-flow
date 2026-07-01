@@ -2,7 +2,7 @@
 
 import React, { Suspense, use, useEffect } from "react";
 import { ProjectTopbar } from "@/components/internal/topbar/projects/topbar";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@geiger/ui";
 import { ProjectProvider, useProject } from "@/context/project-context";
 import { FormBuilderScreen } from "@/addons/forms/screens/form_builder_screen";
 

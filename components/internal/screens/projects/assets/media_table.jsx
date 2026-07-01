@@ -3,13 +3,13 @@
 import React, { useMemo, useState } from "react";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
+} from "@geiger/ui";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+} from "@geiger/ui";
+import { Button } from "@geiger/ui";
+import { Input } from "@geiger/ui";
+import { Badge } from "@geiger/ui";
 import { cn } from "@/lib/utils";
 import {
   Eye,

@@ -19,7 +19,7 @@ const formatBytes = (bytes, decimals = 2) => {
 };
 
 import ResizeHandle from "../components-ui/ResizeHandle";
-import { Button } from "@/components/ui/button";
+import { Button } from "@geiger/ui";
 
 const FileNode = ({ id, data, selected, dragging }) => {
   const connection = useConnection();

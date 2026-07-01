@@ -8,10 +8,10 @@ import {
   DialogTitle,
   DialogFooter,
   DialogClose,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+} from "@geiger/ui";
+import { Input } from "@geiger/ui";
+import { Button } from "@geiger/ui";
+import { Label } from "@geiger/ui";
 
 export default function EditBoardNameDialog({
   open,

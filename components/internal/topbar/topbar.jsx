@@ -6,9 +6,9 @@ import {
   Bell,
   HelpCircle,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Kbd, KbdGroup } from "@/components/ui/kbd";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Button } from "@geiger/ui";
+import { Kbd, KbdGroup } from "@geiger/ui";
+import { SidebarTrigger } from "@geiger/ui";
 import { NotificationsDropdown } from "./dialogue/notifications_dropdown";
 import { ProfileDropdown } from "./dialogue/profile_dropdown";
 import { SupabaseActivityLine } from "./supabase_activity_line";

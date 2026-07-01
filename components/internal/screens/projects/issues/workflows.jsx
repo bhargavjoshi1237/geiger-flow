@@ -34,17 +34,17 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@geiger/ui";
+import { Input } from "@geiger/ui";
+import { Textarea } from "@geiger/ui";
+import { Badge } from "@geiger/ui";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@geiger/ui";
 import {
   Dialog,
   DialogContent,
@@ -52,12 +52,12 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/ui/dialog";
+} from "@geiger/ui";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@geiger/ui";
 import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import {
@@ -65,7 +65,7 @@ import {
   IssueSeverityBadge,
   severityIcons,
   statusIcons,
-} from "@/components/ui/issue-item";
+} from "@geiger/ui";
 import {
   IssueDialog,
   NewIssueDialog,
@@ -95,7 +95,7 @@ import {
   typeLabels,
   typeMeta,
 } from "@/features/issues/constants";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@geiger/ui";
 import { getUser } from "@/lib/supabase/user";
 import {
   getProfilesByIds,

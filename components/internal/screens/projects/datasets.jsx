@@ -8,9 +8,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@geiger/ui";
 import { Database, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@geiger/ui";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { AddActivityDialog } from "@/components/internal/dilouges/activities/add_activity_dilouge";
 

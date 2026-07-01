@@ -3,17 +3,17 @@
 import * as React from "react";
 import { X, Check, Minus, Plus, CreditCard, MessageCircle, Layers, UserPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { Button } from "@geiger/ui";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/ui/dialog";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+} from "@geiger/ui";
+import { RadioGroup, RadioGroupItem } from "@geiger/ui";
+import { Label } from "@geiger/ui";
+import { Input } from "@geiger/ui";
 
 const STEPS = {
   SELECT_PLAN: "select_plan",

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@geiger/ui";
 import { Plus, FileText } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 

@@ -20,11 +20,11 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
+} from "@geiger/ui";
+import { Badge } from "@geiger/ui";
+import { Button } from "@geiger/ui";
+import { Input } from "@geiger/ui";
+import { Progress } from "@geiger/ui";
 import {
   Table,
   TableBody,
@@ -32,7 +32,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@geiger/ui";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { cn } from "@/lib/utils";
 

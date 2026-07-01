@@ -3,9 +3,9 @@
 import React, { useState, useRef, useCallback } from "react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
+} from "@geiger/ui";
+import { Button } from "@geiger/ui";
+import { Progress } from "@geiger/ui";
 import {
   Upload, X, CloudUpload, FileIcon,
 } from "lucide-react";

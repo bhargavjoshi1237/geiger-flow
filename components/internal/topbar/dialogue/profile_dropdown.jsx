@@ -10,10 +10,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+} from "@geiger/ui";
+import { ToggleGroup, ToggleGroupItem } from "@geiger/ui";
 import { useTheme } from "next-themes";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@geiger/ui";
 import {
   CircleUserRound,
   Settings,
@@ -29,7 +29,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { getUser } from "@/lib/supabase/user";
-import { Button } from "@/components/ui/button";
+import { Button } from "@geiger/ui";
 
 const surfaceStyle = {
   backgroundColor: "var(--surface-dialog)",

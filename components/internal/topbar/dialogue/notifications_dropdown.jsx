@@ -3,13 +3,13 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@geiger/ui";
 import { Bell, Download, MessageSquare } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import { getUser } from "@/lib/supabase/user";
 import { formatDistanceToNow } from "date-fns";
 import { SegmentedTabs } from "@/components/internal/shared/segmented_tabs";
-import { Button } from "@/components/ui/button";
+import { Button } from "@geiger/ui";
 
 const NOTIFICATION_TABS = [
   { label: "All", value: "all" },

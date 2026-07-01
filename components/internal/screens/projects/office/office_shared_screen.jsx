@@ -10,14 +10,14 @@ import {
   Sheet,
   Users,
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Input } from "@geiger/ui";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@geiger/ui";
 import { createClient } from "@/utils/supabase/client";
 import { useProject } from "@/context/project-context";
 import {

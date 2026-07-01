@@ -9,19 +9,19 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Separator } from "@/components/ui/separator";
+} from "@geiger/ui";
+import { Input } from "@geiger/ui";
+import { Button } from "@geiger/ui";
+import { Label } from "@geiger/ui";
+import { Textarea } from "@geiger/ui";
+import { Separator } from "@geiger/ui";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@geiger/ui";
 import { Plus, X, Flag, Pencil } from "lucide-react";
 import { MILESTONE_TASK_STATUSES } from "@/features/milestones/constants";
 

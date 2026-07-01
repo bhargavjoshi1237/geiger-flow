@@ -6,15 +6,15 @@ import {
   SidebarMenuButton,
   SidebarMenuBadge,
   useSidebar,
-} from "@/components/ui/sidebar";
+} from "@geiger/ui";
 import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@geiger/ui";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@geiger/ui";
 
 export function SidebarOption({
   title,

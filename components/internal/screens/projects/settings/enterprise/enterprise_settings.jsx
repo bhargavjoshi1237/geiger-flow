@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
+import { Badge } from "@geiger/ui";
+import { Button } from "@geiger/ui";
+import { Card } from "@geiger/ui";
+import { Switch } from "@geiger/ui";
 import {
   Building2,
   ChevronRight,

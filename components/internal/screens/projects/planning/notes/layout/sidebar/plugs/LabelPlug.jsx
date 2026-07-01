@@ -6,9 +6,9 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+} from "@geiger/ui";
+import { Label } from "@geiger/ui";
+import { Input } from "@geiger/ui";
 import { SidebarButton } from "../SidebarPrimitives";
 
 export const LabelPlug = ({

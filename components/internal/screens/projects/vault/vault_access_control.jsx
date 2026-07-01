@@ -8,11 +8,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+} from "@geiger/ui";
+import { Button } from "@geiger/ui";
+import { Input } from "@geiger/ui";
+import { Label } from "@geiger/ui";
+import { Switch } from "@geiger/ui";
 import {
   Users,
   Shield,

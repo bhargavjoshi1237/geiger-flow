@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader } from "@geiger/ui";
+import { Button } from "@geiger/ui";
+import { Badge } from "@geiger/ui";
 import {
   Activity,
   AlertTriangle,
@@ -42,10 +42,10 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart";
+} from "@geiger/ui";
 import FilterDropdown from "./filter_dropdown";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { IssueItem, severityColors } from "@/components/ui/issue-item";
+import { IssueItem, severityColors } from "@geiger/ui";
 import { cn } from "@/lib/utils";
 import { ExternalLinkIcon } from "@/components/internal/externals/external_links";
 

@@ -24,18 +24,18 @@ import {
   Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@geiger/ui";
+import { Button } from "@geiger/ui";
+import { Input } from "@geiger/ui";
+import { Switch } from "@geiger/ui";
+import { Textarea } from "@geiger/ui";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@geiger/ui";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 

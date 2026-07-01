@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Button } from "@geiger/ui";
+import { Input } from "@geiger/ui";
+import { Card } from "@geiger/ui";
+import { Label } from "@geiger/ui";
+import { RadioGroup, RadioGroupItem } from "@geiger/ui";
 import { Copy, Check } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 

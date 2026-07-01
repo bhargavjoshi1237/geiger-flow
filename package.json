@@ -12,6 +12,7 @@
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "@geiger/ui": "github:bhargavjoshi1237/geiger-ui#master",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.98.0",
     "@xyflow/react": "^12.10.2",
@@ -35,7 +36,9 @@
   },
   "devDependencies": {
     "@iconify-json/logos": "^1.2.11",
+    "@tailwindcss/cli": "^4.3.2",
     "@tailwindcss/postcss": "^4",
+    "@types/react": "^19.2.17",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "shadcn": "^3.8.5",

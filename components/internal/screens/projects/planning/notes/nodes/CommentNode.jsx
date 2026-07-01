@@ -1,8 +1,8 @@
 import React, { memo } from "react";
 import { Handle, Position, useReactFlow } from "@xyflow/react";
 import { ArrowRight, Send } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@geiger/ui";
+import { Input } from "@geiger/ui";
 import Reactions from "../ui/Reactions";
 import TextEditingTrait from "./traits/TextEditingTrait";
 

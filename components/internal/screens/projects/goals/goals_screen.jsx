@@ -2,10 +2,10 @@
 
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@geiger/ui";
+import { Badge } from "@geiger/ui";
+import { Progress } from "@geiger/ui";
+import { Card, CardContent } from "@geiger/ui";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,7 +15,7 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@geiger/ui";
 import {
   Plus,
   CheckCircle2,

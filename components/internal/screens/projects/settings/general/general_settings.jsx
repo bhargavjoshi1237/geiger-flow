@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { Input } from "@geiger/ui";
+import { Button } from "@geiger/ui";
+import { Label } from "@geiger/ui";
 import { useProject } from "@/context/project-context";
 import {
   Copy,

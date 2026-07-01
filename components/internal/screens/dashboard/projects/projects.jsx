@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { ProjectItem } from "./project";
-import { Input } from "@/components/ui/input";
+import { Input } from "@geiger/ui";
 import { NewProjectDialog } from "@/components/internal/dilouges/projects/newproject_dilouge";
 import {
   DropdownMenu,
@@ -27,7 +27,7 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@geiger/ui";
 import {
   Table,
   TableBody,
@@ -35,9 +35,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@geiger/ui";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { Button } from "@/components/ui/button";
+import { Button } from "@geiger/ui";
 import { ensureUserOrganization } from "@/lib/supabase/organization";
 
 function createProjectSlug(name) {

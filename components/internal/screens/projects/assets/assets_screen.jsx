@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@geiger/ui";
 import { Upload, ExternalLink } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { StatsRow } from "./stats_cards";

@@ -1,24 +1,24 @@
 "use client";
 
 import React from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Separator } from "@/components/ui/separator";
+import { Input } from "@geiger/ui";
+import { Label } from "@geiger/ui";
+import { Switch } from "@geiger/ui";
+import { Separator } from "@geiger/ui";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
+} from "@geiger/ui";
+import { Button } from "@geiger/ui";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
+} from "@geiger/ui";
+import { Calendar } from "@geiger/ui";
 import { Clock, Calendar as CalendarIcon, Timer, Repeat, Plus } from "lucide-react";
 import { format } from "date-fns";
 

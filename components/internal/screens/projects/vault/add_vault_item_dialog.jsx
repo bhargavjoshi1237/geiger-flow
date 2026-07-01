@@ -9,18 +9,18 @@ import {
   DialogTitle,
   DialogFooter,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+} from "@geiger/ui";
+import { Input } from "@geiger/ui";
+import { Button } from "@geiger/ui";
+import { Label } from "@geiger/ui";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+} from "@geiger/ui";
+import { Textarea } from "@geiger/ui";
 import {
   Plus,
   Key,

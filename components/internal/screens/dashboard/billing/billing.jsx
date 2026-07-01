@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Button } from "@geiger/ui";
+import { Card } from "@geiger/ui";
 import { Info, ExternalLink, FileText } from "lucide-react";
 import UpgradePlanDialogue from "./upgrade_plan_dialouge";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";

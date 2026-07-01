@@ -5,11 +5,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
+} from "@geiger/ui";
+import { Input } from "@geiger/ui";
+import { Label } from "@geiger/ui";
+import { Button } from "@geiger/ui";
+import { Slider } from "@geiger/ui";
 import ColorPicker from "../../../edges/ColorePicker";
 
 const ImageCaptionDialog = ({ open, onOpenChange, initialData, onSave }) => {

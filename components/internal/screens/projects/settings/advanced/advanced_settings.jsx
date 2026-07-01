@@ -3,11 +3,11 @@
 import React, { useState } from "react";
 import {
   Card,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
+} from "@geiger/ui";
+import { Button } from "@geiger/ui";
+import { Input } from "@geiger/ui";
+import { Badge } from "@geiger/ui";
+import { Switch } from "@geiger/ui";
 import {
   Trash2,
   AlertTriangle,
@@ -32,7 +32,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@geiger/ui";
 import { cn } from "@/lib/utils";
 
 function SettingRow({

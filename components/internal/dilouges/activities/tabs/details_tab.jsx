@@ -1,18 +1,18 @@
 "use client";
 
 import React from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@geiger/ui";
+import { Label } from "@geiger/ui";
+import { Textarea } from "@geiger/ui";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
-import { Slider } from "@/components/ui/slider";
+} from "@geiger/ui";
+import { Separator } from "@geiger/ui";
+import { Slider } from "@geiger/ui";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,8 +20,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
+} from "@geiger/ui";
+import { Button } from "@geiger/ui";
 import { ChevronDown } from "lucide-react";
 import { AlertTriangle, Expand, Maximize2, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";

@@ -15,22 +15,22 @@ import {
   Sheet,
   Trash2,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@geiger/ui";
+import { Input } from "@geiger/ui";
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuTrigger,
-} from "@/components/ui/context-menu";
+} from "@geiger/ui";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
+} from "@geiger/ui";
+import { Label } from "@geiger/ui";
 import { createClient } from "@/utils/supabase/client";
 import { useProject } from "@/context/project-context";
 import {

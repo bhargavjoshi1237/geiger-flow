@@ -5,10 +5,10 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+} from "@geiger/ui";
+import { Label } from "@geiger/ui";
+import { Input } from "@geiger/ui";
+import { Button } from "@geiger/ui";
 
 export const COLORS = [
   "#e2e2e2",

@@ -4,7 +4,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@geiger/ui";
 import {
   HelpCircle,
   Keyboard,
@@ -13,7 +13,7 @@ import {
   ExternalLink,
   Bell,
 } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea } from "@geiger/ui";
 
 export default function HelpDialog({ open, onOpenChange, dialogContainer }) {
   return (

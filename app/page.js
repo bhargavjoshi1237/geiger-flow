@@ -8,13 +8,13 @@ import {
   ShieldCheck,
   Zap,
 } from "lucide-react";
-import Footer from "@/components/ui/footer";
+import { Footer } from "@geiger/ui";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
+} from "@geiger/ui";
 import { Header } from "@/components/header";
 import LandingWorkspaceShowcase from "@/components/landing/workspace_showcase";
 

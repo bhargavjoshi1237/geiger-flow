@@ -20,17 +20,17 @@ import {
   Settings,
   Trash2,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@geiger/ui";
+import { Input } from "@geiger/ui";
+import { Avatar, AvatarFallback } from "@geiger/ui";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Textarea } from "@/components/ui/textarea";
+} from "@geiger/ui";
+import { Textarea } from "@geiger/ui";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { cn } from "@/lib/utils";
 

@@ -13,10 +13,10 @@ import {
   Search,
   FileText,
 } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback } from "@geiger/ui";
+import { Input } from "@geiger/ui";
+import { Progress } from "@geiger/ui";
+import { ScrollArea, ScrollBar } from "@geiger/ui";
 import {
   Table,
   TableBody,
@@ -24,11 +24,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@geiger/ui";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { SegmentedTabs } from "@/components/internal/shared/segmented_tabs";
 import FilterDropdown from "@/components/internal/screens/projects/overview/filter_dropdown";
-import { severityColors } from "@/components/ui/issue-item";
+import { severityColors } from "@geiger/ui";
 import { cn } from "@/lib/utils";
 
 const REPORT_VIEWS = ["Tasks", "Projects", "Workload", "Time"];

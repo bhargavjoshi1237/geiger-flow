@@ -20,8 +20,8 @@ import NotificationDialog from "./NotificationDialog";
 import AppDialog from "./AppDialog";
 import HelpDialog from "./HelpDialog";
 import { SupabaseActivityLine } from "@/components/internal/topbar/supabase_activity_line";
-import { Button } from "@/components/ui/button";
-import ThemeToggle from "@/components/ui/theme-toggle";
+import { Button } from "@geiger/ui";
+import { ThemeToggle } from "@geiger/ui";
 
 export default function Topbar({
   id,

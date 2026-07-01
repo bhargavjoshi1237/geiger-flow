@@ -6,8 +6,8 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+} from "@geiger/ui";
+import { Button } from "@geiger/ui";
 import { Settings2, X, Lightbulb, Moon, LucideSquareMenu, LucideSun, LucideCheckCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { WEEKDAY_LABELS, WEEKDAY_LABELS_SUNDAY, getMonthCells, getMonthCellsSunday } from "../../../../nodes/calendar/constants";

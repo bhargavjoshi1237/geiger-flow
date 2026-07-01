@@ -1,5 +1,5 @@
 import { SuiteMegaMenu } from "@/components/landing/suite-mega-menu";
-import Logo from "@/components/ui/logo";
+import { Logo } from "@geiger/ui";
 
 export function Header() {
   return (

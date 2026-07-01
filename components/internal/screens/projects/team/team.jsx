@@ -21,7 +21,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@geiger/ui";
 import { InviteMemberDialog } from "@/components/internal/dilouges/teams/invitemember_dilouge";
 import { createClient } from "@/lib/supabase/client";
 import { useProject } from "@/context/project-context";
@@ -30,13 +30,13 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@geiger/ui";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@geiger/ui";
 import { EmptyState } from "@/components/internal/notfound/not_found";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@geiger/ui";
+import { Button } from "@geiger/ui";
 
 const roleLabels = {
   admin: "Admin",

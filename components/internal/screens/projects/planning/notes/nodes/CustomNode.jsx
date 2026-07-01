@@ -7,7 +7,7 @@ import {
   useConnection,
 } from "@xyflow/react";
 import { ArrowRight } from "lucide-react";
-import { Textarea } from "@/components/ui/textarea";
+import { Textarea } from "@geiger/ui";
 import Reactions from "../ui/Reactions";
 import ResizeHandle from "../components-ui/ResizeHandle";
 import TextEditingTrait from "./traits/TextEditingTrait";

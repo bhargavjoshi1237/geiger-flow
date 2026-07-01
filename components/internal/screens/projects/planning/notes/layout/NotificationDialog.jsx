@@ -4,11 +4,11 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+} from "@geiger/ui";
+import { Button } from "@geiger/ui";
 import { Bell, Check, X, User } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ScrollArea } from "@geiger/ui";
+import { Avatar, AvatarFallback, AvatarImage } from "@geiger/ui";
 
 export default function NotificationDialog({
   open,

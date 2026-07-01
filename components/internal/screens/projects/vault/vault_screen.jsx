@@ -6,14 +6,14 @@ import {
   Plus,
   Search,
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Input } from "@geiger/ui";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { VaultItemCard } from "./vault_item_card";
 import { AddVaultItemDialog, VAULT_TYPES } from "./add_vault_item_dialog";
 import { VaultCredentialAccessDialog } from "./vault_credential_access_dialog";
 import { VaultAccessControl } from "./vault_access_control";
 import FilterDropdown from "../overview/filter_dropdown";
-import { Button } from "@/components/ui/button";
+import { Button } from "@geiger/ui";
 
 const initialVaultItems = [];
 

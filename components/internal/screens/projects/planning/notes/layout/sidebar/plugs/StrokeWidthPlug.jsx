@@ -6,10 +6,10 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Label } from "@/components/ui/label";
+} from "@geiger/ui";
+import { Label } from "@geiger/ui";
 import { SidebarButton } from "../SidebarPrimitives";
-import { Button } from "@/components/ui/button";
+import { Button } from "@geiger/ui";
 
 const STROKE_WIDTHS = [
   { label: "Thin", value: 1 },

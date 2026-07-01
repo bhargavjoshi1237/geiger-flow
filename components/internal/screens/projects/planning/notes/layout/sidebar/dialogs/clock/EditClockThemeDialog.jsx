@@ -6,13 +6,13 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
+} from "@geiger/ui";
+import { Button } from "@geiger/ui";
+import { Switch } from "@geiger/ui";
 import ColorPicker from "../../../../edges/ColorePicker";
 import { Settings2, Clock, Monitor, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { ToggleGroup, ToggleGroupItem } from "@geiger/ui";
 
 const ColorField = ({ label, value, onChange }) => (
   <div className="flex items-center justify-between py-1.5 group/color">

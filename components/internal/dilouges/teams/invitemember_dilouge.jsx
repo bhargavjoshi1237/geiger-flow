@@ -9,10 +9,10 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+} from "@geiger/ui";
+import { Input } from "@geiger/ui";
+import { Button } from "@geiger/ui";
+import { Label } from "@geiger/ui";
 
 import { ChevronDown } from "lucide-react";
 import {
@@ -21,7 +21,7 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@geiger/ui";
 
 export function InviteMemberDialog({
   children,

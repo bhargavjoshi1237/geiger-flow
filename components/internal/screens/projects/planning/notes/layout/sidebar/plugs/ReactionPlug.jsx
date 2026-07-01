@@ -16,9 +16,9 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@geiger/ui";
 import { SidebarButton } from "../SidebarPrimitives";
-import { Button } from "@/components/ui/button";
+import { Button } from "@geiger/ui";
 
 const defaultReactions = [
   { icon: ThumbsUp, label: "Like"},

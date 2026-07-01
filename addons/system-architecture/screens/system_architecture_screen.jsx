@@ -27,13 +27,13 @@ import {
   Sparkles,
   X,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@geiger/ui";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
+} from "@geiger/ui";
 import {
   Sheet,
   SheetClose,
@@ -41,11 +41,11 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-} from "@/components/ui/sheet";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
+} from "@geiger/ui";
+import { Input } from "@geiger/ui";
+import { Label } from "@geiger/ui";
+import { Switch } from "@geiger/ui";
+import { Textarea } from "@geiger/ui";
 import { cn } from "@/lib/utils";
 import { useProjectBudget } from "@/context/project-budget-context";
 import {

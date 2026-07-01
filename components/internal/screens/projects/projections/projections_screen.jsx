@@ -1,15 +1,15 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { Calendar } from "@/components/ui/calendar";
-import { Button } from "@/components/ui/button";
+import { Calendar } from "@geiger/ui";
+import { Button } from "@geiger/ui";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@geiger/ui";
 import {
   Plus,
   Search,

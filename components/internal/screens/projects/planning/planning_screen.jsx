@@ -22,9 +22,9 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@geiger/ui";
+import { Input } from "@geiger/ui";
+import { Avatar, AvatarFallback } from "@geiger/ui";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";

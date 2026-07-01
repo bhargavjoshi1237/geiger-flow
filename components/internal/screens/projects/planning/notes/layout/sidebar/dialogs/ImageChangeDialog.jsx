@@ -8,10 +8,10 @@ import {
   DialogTitle,
   DialogFooter,
   DialogDescription,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
-import { Label } from "@/components/ui/label";
+} from "@geiger/ui";
+import { Button } from "@geiger/ui";
+import { Slider } from "@geiger/ui";
+import { Label } from "@geiger/ui";
 import { Upload, X, Download, AlertTriangle } from "lucide-react";
 import { toast } from "../../../toast";
 

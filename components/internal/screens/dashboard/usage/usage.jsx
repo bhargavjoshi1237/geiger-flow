@@ -7,15 +7,15 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Card } from "@/components/ui/card";
+} from "@geiger/ui";
+import { Card } from "@geiger/ui";
 import { Info } from "lucide-react";
 import { BarChart, Bar } from "recharts";
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart";
+} from "@geiger/ui";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 
 const zeroUsageData = [

@@ -15,14 +15,14 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button } from "@geiger/ui";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@geiger/ui";
 
 export function ProjectItem({ id, name, provider, region, status, tags = [] }) {
   const isPaused = status?.toLowerCase() === "paused";

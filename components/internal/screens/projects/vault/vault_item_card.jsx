@@ -18,14 +18,14 @@ import {
   Unlock,
   Fingerprint,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@geiger/ui";
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuSeparator,
   ContextMenuTrigger,
-} from "@/components/ui/context-menu";
+} from "@geiger/ui";
 
 function formatTTL(ttl) {
   if (!ttl) return null;

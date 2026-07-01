@@ -19,10 +19,10 @@ import {
   UserRound,
   Maximize2,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { SearchBar } from "@/components/ui/search-bar";
+import { Badge } from "@geiger/ui";
+import { Button } from "@geiger/ui";
+import { Progress } from "@geiger/ui";
+import { SearchBar } from "@geiger/ui";
 import {
   Table,
   TableBody,
@@ -30,9 +30,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@geiger/ui";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { severityColors } from "@/components/ui/issue-item";
+import { severityColors } from "@geiger/ui";
 import { cn } from "@/lib/utils";
 
 const QUEUE_VIEWS = [

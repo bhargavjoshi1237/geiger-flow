@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@geiger/ui";
+import { Progress } from "@geiger/ui";
 import { HardDrive, Zap } from "lucide-react";
 import { storageBreakdown } from "./data";
 

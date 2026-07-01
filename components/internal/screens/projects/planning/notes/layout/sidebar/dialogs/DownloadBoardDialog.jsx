@@ -7,8 +7,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+} from "@geiger/ui";
+import { Button } from "@geiger/ui";
 import { Braces, FileText, Image, AlignLeft, Loader2 } from "lucide-react";
 import { toast } from "../../../toast";
 

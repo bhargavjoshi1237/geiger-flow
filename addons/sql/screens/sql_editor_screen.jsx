@@ -2,12 +2,12 @@
 
 import React, { useState, useCallback, useRef } from "react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Textarea } from "@/components/ui/textarea";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Button } from "@geiger/ui";
+import { Badge } from "@geiger/ui";
+import { ScrollArea } from "@geiger/ui";
+import { Skeleton } from "@geiger/ui";
+import { Textarea } from "@geiger/ui";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@geiger/ui";
 import {
   Table,
   TableHeader,
@@ -15,7 +15,7 @@ import {
   TableRow,
   TableHead,
   TableCell,
-} from "@/components/ui/table";
+} from "@geiger/ui";
 import {
   Play,
   RotateCcw,

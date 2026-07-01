@@ -7,7 +7,7 @@ import {
   useConnection,
 } from "@xyflow/react";
 import { Link, ArrowRight } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Input } from "@geiger/ui";
 import Reactions from "../ui/Reactions";
 import TextEditingTrait from "./traits/TextEditingTrait";
 

@@ -4,9 +4,9 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@geiger/ui";
 import { Smartphone } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea } from "@geiger/ui";
 
 export default function AppDialog({ open, onOpenChange, dialogContainer }) {
   return (

@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@geiger/ui";
 
 const Reactions = ({ reactions = {}, onReactionClick }) => {
   const reactionEntries = Object.entries(reactions).filter(

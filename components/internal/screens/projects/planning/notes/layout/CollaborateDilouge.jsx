@@ -8,8 +8,8 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+} from "@geiger/ui";
+import { Button } from "@geiger/ui";
 import { Users2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "../toast";

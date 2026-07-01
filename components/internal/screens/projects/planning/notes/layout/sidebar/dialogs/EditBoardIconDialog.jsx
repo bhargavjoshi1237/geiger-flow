@@ -7,11 +7,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+} from "@geiger/ui";
+import { Button } from "@geiger/ui";
 import * as LucideIcons from "lucide-react";
 import ColorPicker from "../../../edges/ColorePicker";
-import { Label } from "@/components/ui/label";
+import { Label } from "@geiger/ui";
 
 const COMMON_ICONS = [
   "LayoutDashboard",

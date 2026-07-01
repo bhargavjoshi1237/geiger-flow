@@ -6,9 +6,9 @@ import {
   DrawerTitle,
   DrawerTrigger,
   DrawerClose,
-} from "@/components/ui/drawer";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
+} from "@geiger/ui";
+import { Button } from "@geiger/ui";
+import { ScrollArea } from "@geiger/ui";
 import {
   Users2,
   Crown,

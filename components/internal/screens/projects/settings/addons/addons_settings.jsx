@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
+import { Badge } from "@geiger/ui";
+import { Switch } from "@geiger/ui";
 import {
   LucidePackagePlus,
   GripVertical,
@@ -20,9 +20,9 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@geiger/ui";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { Button } from "@geiger/ui";
 
 function AddonCard({ addon, enabled, positionOptions, selectValue, currentColor, onToggle, onPositionChange, onColorChange }) {
   const [expanded, setExpanded] = useState(false);
