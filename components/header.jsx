@@ -16,7 +16,7 @@ export function Header() {
         <SuiteMegaMenu />
         <div className="hidden items-center gap-4 md:flex">
           <a
-            href="/workspace"
+            href="/org"
             className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
           >
             Open Flow

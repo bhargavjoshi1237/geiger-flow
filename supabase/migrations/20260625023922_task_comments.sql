@@ -1,3 +1,7 @@
+-- Imported from 0007_task_comments.sql by geiger-orm.
+-- No @down section — this migration cannot be rolled back.
+
+-- @up
 -- Task comments
 -- Mirrors flow.issue_comments (0001_issues.sql) and its ability-scoped RLS
 -- (0003_abilities.sql), but bound to the tasks module via 'tasks.comment'.

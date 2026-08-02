@@ -1,3 +1,7 @@
+-- Imported from 0003_abilities.sql by geiger-orm.
+-- No @down section — this migration cannot be rolled back.
+
+-- @up
 -- Abilities (role-based action authorization)
 -- ---------------------------------------------------------------------------
 -- Classifies user actions as "abilities" (e.g. issues.create) that a role may

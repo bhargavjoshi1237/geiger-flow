@@ -1,3 +1,7 @@
+-- Imported from 0001_issues.sql by geiger-orm.
+-- No @down section — this migration cannot be rolled back.
+
+-- @up
 -- Issues module
 -- Lives in the dedicated `flow` product schema.
 -- References the canonical shared tables (public.projects, public.organization_users,

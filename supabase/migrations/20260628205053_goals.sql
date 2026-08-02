@@ -1,3 +1,7 @@
+-- Imported from 0009_goals.sql by geiger-orm.
+-- No @down section — this migration cannot be rolled back.
+
+-- @up
 -- Goals module
 -- Lives in the dedicated `flow` product schema. A goal is project-scoped and may
 -- optionally belong to an objective (objective_id) — the Objectives kanban shows

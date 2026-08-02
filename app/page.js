@@ -24,6 +24,20 @@ export const metadata = {
     "Plan work, ship faster, and keep your team in sync. Geiger Flow is your team's project and issue tracker built for clarity, speed, and modern workflows.",
 };
 
+const showcaseBackgroundImages = [
+  "https://200rfrtp5x71tlmk.public.blob.vercel-storage.com/geiger-dash/cursor-assets/asset-00a586c62c8782e65c0a.jpg",
+  "https://200rfrtp5x71tlmk.public.blob.vercel-storage.com/geiger-dash/cursor-assets/internal-brand-023-3291bb4c.jpg",
+  "https://200rfrtp5x71tlmk.public.blob.vercel-storage.com/geiger-dash/cursor-assets/asset-0ec1f3ba625f482c9dc3.jpg",
+  "https://200rfrtp5x71tlmk.public.blob.vercel-storage.com/geiger-dash/cursor-assets/asset-85923e7fafe00c9c0d1f.jpg",
+  "https://200rfrtp5x71tlmk.public.blob.vercel-storage.com/geiger-dash/cursor-assets/asset-8e2e88cff7f33224ddd7.jpg",
+  "https://200rfrtp5x71tlmk.public.blob.vercel-storage.com/geiger-dash/cursor-assets/asset-0a66efa21dd4b7e6c526.jpg",
+  "https://200rfrtp5x71tlmk.public.blob.vercel-storage.com/geiger-dash/cursor-assets/asset-cc24ca462279ca23250c.jpg",
+];
+
+function pickRandomShowcaseBackground() {
+  return showcaseBackgroundImages[Math.floor(Math.random() * showcaseBackgroundImages.length)];
+}
+
 const featureCards = [
   {
     title: "Project Tracking",
@@ -85,6 +99,8 @@ const faqs = [
 ];
 
 export default function FlowLandingPage() {
+  const showcaseBg = pickRandomShowcaseBackground();
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-background text-foreground selection:bg-indigo-500/30 font-sans">
       <div className="fixed inset-0 z-0 bg-[linear-gradient(to_right,#80808030_1px,transparent_1px),linear-gradient(to_bottom,#80808030_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
@@ -103,7 +119,7 @@ export default function FlowLandingPage() {
               speed, and the way modern teams actually work.
             </p>
             <Link
-              href="/workspace"
+              href="/org"
               className="inline-flex h-10 items-center gap-2 rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80 sm:text-base"
             >
               Open Flow
@@ -114,7 +130,7 @@ export default function FlowLandingPage() {
 
         {/* Workspace showcase */}
         <div className="mx-auto my-10 w-[94%] sm:my-20 md:w-[80%]">
-          <LandingWorkspaceShowcase />
+          <LandingWorkspaceShowcase backgroundImage={showcaseBg} />
         </div>
 
         {/* Feature cards */}
@@ -167,7 +183,7 @@ export default function FlowLandingPage() {
             </h2>
             <div className="flex w-full max-w-md flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
               <Link
-                href="/workspace"
+                href="/org"
                 className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80 sm:w-auto"
               >
                 Open Flow

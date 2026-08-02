@@ -73,11 +73,18 @@ GEIGER_EMAIL_API_KEY=your-suite-email-key
 
 ### Database
 
-Numbered, idempotent migrations live in `supabase/migrations/` and run in filename order:
+Schema changes are timestamped SQL migrations in `supabase/migrations/`, applied
+in version order by [`@geiger/orm`](https://github.com/bhargavjoshi1237/geiger-orm)
+and recorded in `flow.geiger_migrations`:
 
 ```bash
-node scripts/run-sqls.js
+npm run db:status                     # applied vs pending
+npm run db:new -- <name>              # scaffold a migration
+npm run db:push                       # apply everything pending
+npm run db:seed                       # re-runnable data
 ```
+
+See [`MIGRATION_CONVENTIONS.md`](MIGRATION_CONVENTIONS.md) before writing any DDL.
 
 ### Develop
 
@@ -104,8 +111,7 @@ components/
   ui/                    shadcn primitives (canonical source for @geiger/ui)
 supabase/
   components/            flowClient() — the schema-scoped Supabase client
-  migrations/            Numbered, idempotent SQL migrations
-scripts/run-sqls.js      Migration runner
+  migrations/            Timestamped @up/@down migrations (npm run db:push)
 ```
 
 ## Conventions
@@ -115,6 +121,7 @@ This codebase follows a consistent set of patterns. Read these before contributi
 - [`AGENTS.md`](AGENTS.md) — working notes for this Next.js version
 - [`MODULE_CONVENTIONS.md`](MODULE_CONVENTIONS.md) — how to build a workspace screen
 - [`SUPABASE_CONVENTIONS.md`](SUPABASE_CONVENTIONS.md) — the data-layer playbook
+- [`MIGRATION_CONVENTIONS.md`](MIGRATION_CONVENTIONS.md) — schema changes and `@geiger/orm`
 - [`crafting.md`](crafting.md) — UI craft and quality bar
 - [`db.md`](db.md) — table reference
 

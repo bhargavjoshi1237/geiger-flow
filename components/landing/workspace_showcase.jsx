@@ -49,19 +49,23 @@ const tagColors = {
   Bug: "text-red-400 bg-red-400/10",
 };
 
-export default function LandingWorkspaceShowcase() {
+export default function LandingWorkspaceShowcase({ backgroundImage } = {}) {
   return (
-    <section className="rounded-2xl border border-border bg-surface-subtle p-3 sm:rounded-3xl sm:p-6 md:p-8 xl:p-10">
-      <div className="flex flex-col gap-6 sm:gap-10">
+    <section
+      className="relative overflow-hidden rounded-2xl border border-border bg-surface-subtle bg-cover bg-center bg-no-repeat p-3 sm:rounded-3xl sm:p-6 md:p-8 xl:p-10"
+      style={backgroundImage ? { backgroundImage: `url('${backgroundImage}')` } : undefined}
+    >
+      <div className="absolute inset-0 bg-[#080808]/75" />
+      <div className="relative z-10 flex flex-col gap-6 sm:gap-10">
         <div className="mx-auto mb-4 mt-4 flex w-[92%] flex-col items-start gap-4 sm:mb-6 sm:mt-6 sm:w-[90%]">
           <h3 className="text-3xl font-semibold leading-tight text-foreground">
             See your workflow come to life.
           </h3>
-          <p className="max-w-sm text-muted-foreground">
+          <p className="max-w-sm text-[#bcbcbc]">
             Track projects, manage issues, and keep your team aligned — all in one workspace built for how modern teams actually work.
           </p>
           <Link
-            href="/workspace"
+            href="/org"
             className="inline-flex h-10 items-center gap-2 rounded-full bg-primary px-5 font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
             Open Flow

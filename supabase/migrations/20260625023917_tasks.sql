@@ -1,3 +1,7 @@
+-- Imported from 0002_tasks.sql by geiger-orm.
+-- No @down section — this migration cannot be rolled back.
+
+-- @up
 -- Tasks module
 -- Lives in the dedicated `flow` product schema (flow.tasks).
 -- Depends on 0001_issues.sql for the `flow` schema, grants, and the shared

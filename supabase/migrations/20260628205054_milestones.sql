@@ -1,3 +1,7 @@
+-- Imported from 0010_milestones.sql by geiger-orm.
+-- No @down section — this migration cannot be rolled back.
+
+-- @up
 -- Milestones module
 -- Lives in the dedicated `flow` product schema. A milestone groups a set of
 -- delivery tasks; its status and completion are derived in the UI from those

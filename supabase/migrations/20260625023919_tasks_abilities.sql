@@ -1,3 +1,7 @@
+-- Imported from 0004_tasks_abilities.sql by geiger-orm.
+-- No @down section — this migration cannot be rolled back.
+
+-- @up
 -- Tasks abilities + ability-scoped RLS for flow.tasks
 -- ---------------------------------------------------------------------------
 -- Brings tasks under the same authorization model as issues (0003_abilities).

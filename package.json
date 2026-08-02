@@ -6,12 +6,18 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:push": "geiger-orm push",
+    "db:status": "geiger-orm status",
+    "db:rollback": "geiger-orm rollback",
+    "db:new": "geiger-orm create",
+    "db:seed": "geiger-orm seed"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "@geiger/orm": "github:bhargavjoshi1237/geiger-orm#master",
     "@geiger/ui": "github:bhargavjoshi1237/geiger-ui#master",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.98.0",

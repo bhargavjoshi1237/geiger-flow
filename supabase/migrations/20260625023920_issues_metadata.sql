@@ -1,3 +1,7 @@
+-- Imported from 0005_issues_metadata.sql by geiger-orm.
+-- No @down section — this migration cannot be rolled back.
+
+-- @up
 -- Issues: forward-compatible expansion column.
 -- Every product table carries a `metadata jsonb` bag so new, not-yet-promoted
 -- attributes can be stored without a schema change (see MODULE_CONVENTIONS.md).

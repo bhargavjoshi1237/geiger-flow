@@ -1,3 +1,7 @@
+-- Imported from 0008_objectives.sql by geiger-orm.
+-- No @down section — this migration cannot be rolled back.
+
+-- @up
 -- Objectives module
 -- Lives in the dedicated `flow` product schema. References the canonical shared
 -- tables (public.projects, auth.users) directly. Fully idempotent and
