@@ -14,9 +14,8 @@ import {
 } from "@geiger/ui";
 import { PanelLeft, ChevronLeft, Search, Bell, X } from "lucide-react";
 import { SidebarOption } from "../sidebar_option";
-import { projectNav, settingsNav } from "./sidebar_data";
-import { useAddonRegistry, getAddonNavItems, mergeNavWithAddons } from "@/addons/registry";
 import { useProject } from "@/context/project-context";
+import { useVisibleProjectNav } from "@/lib/hooks/use-visible-project-nav";
 import { Button } from "@geiger/ui";
 
 function MobileSidebarHeader() {
@@ -58,12 +57,13 @@ export function ProjectSidebar({
   subMenuMode = "dropdown",
 }) {
   const { toggleSidebar } = useSidebar();
-  const { enabledAddons, navPositions, addonColors } = useAddonRegistry();
   const [activeMenu, setActiveMenu] = useState("main");
   const [expandedItems, setExpandedItems] = useState({});
 
-  const addonNavItems = getAddonNavItems(enabledAddons, navPositions, addonColors);
-  const mergedNav = mergeNavWithAddons(projectNav, addonNavItems);
+  // Addon entries merged in, then narrowed to what this user kept in
+  // Settings → Navigation. The Settings submenu is filtered on the same pass, so
+  // a hidden settings tab disappears with it.
+  const { nav: mergedNav, settingsNav } = useVisibleProjectNav();
 
   const toggleExpand = (title) => {
     setExpandedItems((prev) => ({

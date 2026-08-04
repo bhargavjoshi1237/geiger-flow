@@ -35,6 +35,7 @@ import { ProjectBudgetProvider } from "@/context/project-budget-context";
 import { settingsNav } from "@/components/internal/sidebar/projects/sidebar_data";
 import { getProjectExternalLinksStorageKey } from "@/components/internal/externals/external_links";
 import { AddonRegistryProvider, useAddonRegistry } from "@/addons/registry";
+import { NavVisibilityProvider } from "@/context/nav-visibility-context";
 import { getAddonScreens, getAddonScreenOptions } from "@/addons/registry";
 import "@/addons/sql";
 import "@/addons/project-plus";
@@ -227,16 +228,20 @@ export default function ProjectPage({ params: paramsPromise }) {
     <ProjectProvider>
       <ProjectBudgetProvider>
         <AddonRegistryProvider>
-          <Suspense
-            fallback={
-              <div className="flex flex-col h-[100dvh] w-full bg-background items-center justify-center gap-3">
-                <div className="w-5 h-5 rounded-full border-2 border-border-strong border-t-foreground animate-spin" />
-                <span className="text-text-tertiary text-sm">Loading...</span>
-              </div>
-            }
-          >
-            <ProjectLayoutContent id={id} />
-          </Suspense>
+          {/* Sidebar curation is per (project, user) and sits under both, so it
+              filters the nav the addons have already been merged into. */}
+          <NavVisibilityProvider>
+            <Suspense
+              fallback={
+                <div className="flex flex-col h-[100dvh] w-full bg-background items-center justify-center gap-3">
+                  <div className="w-5 h-5 rounded-full border-2 border-border-strong border-t-foreground animate-spin" />
+                  <span className="text-text-tertiary text-sm">Loading...</span>
+                </div>
+              }
+            >
+              <ProjectLayoutContent id={id} />
+            </Suspense>
+          </NavVisibilityProvider>
         </AddonRegistryProvider>
       </ProjectBudgetProvider>
     </ProjectProvider>

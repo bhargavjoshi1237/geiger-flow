@@ -6,6 +6,7 @@ import { UsageSettingsScreen } from "./usage/usage_screen";
 import { AdvancedSettingsScreen } from "./advanced/advanced_settings";
 import { EnterpriseSettingsScreen } from "./enterprise/enterprise_settings";
 import { ConnectionsScreen } from "./connections/connections_screen";
+import { NavigationSettingsScreen } from "./navigation/navigation_settings";
 import { SecondaryScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 
 export function SettingsScreen({ activeSettingsTab = "General" }) {
@@ -25,6 +26,8 @@ export function SettingsScreen({ activeSettingsTab = "General" }) {
             onCreateOpenChange={setCustomsCreateOpen}
           />
         );
+      case "Navigation":
+        return <NavigationSettingsScreen />;
       case "Add-ons":
         return <AddonsSettingsScreen compactView={addonsCompactView} />;
       case "Usage":

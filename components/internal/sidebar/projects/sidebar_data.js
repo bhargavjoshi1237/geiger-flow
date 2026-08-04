@@ -29,6 +29,7 @@ import {
   FileText,
   FolderOpen,
   Clock,
+  PanelLeft,
 } from "lucide-react";
 
 export const projectNav = [
@@ -66,8 +67,24 @@ export const settingsNav = [
   { title: "General", icon: Settings2 },
   { title: "Connections", icon: Link2 },
   { title: "Customs", icon: SlidersHorizontal },
+  // Personal sidebar curation. Locked in geiger-ui.config.js — it is the screen
+  // that unhides everything else.
+  { title: "Navigation", icon: PanelLeft },
   { title: "Add-ons", icon: LucidePackagePlus },
   { title: "Usage", icon: BarChart3 },
   { title: "Advanced", icon: Sliders },
   { title: "Enterprise", icon: LucideMousePointer2 },
 ];
+
+// The project nav as a single tree, with the Settings submenu attached as real
+// `subItems`. The sidebar keeps the two apart (Settings is `hasSubmenu` and
+// pulls settingsNav at render time), but @geiger/ui's visibility resolver
+// reasons over one tree — it needs the parent/child edge to know that hiding
+// Settings hides what lives under it.
+export function curatableProjectNav(baseNav = projectNav) {
+  return baseNav.map((item) =>
+    item.hasSubmenu && item.title === "Settings"
+      ? { ...item, subItems: settingsNav }
+      : item,
+  );
+}
