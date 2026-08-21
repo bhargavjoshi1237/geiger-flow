@@ -537,4 +537,4 @@ database.
 - [ ] `@no-transaction` only if Postgres genuinely requires it
 - [ ] No demo/seed data in the migration (that's `supabase/seeds/`)
 - [ ] `npm run db:push -- --dry-run`, then `npm run db:push`, then `npm run db:status` is clean
-- [ ] The data layer in `lib/supabase/<area>.js` was updated to match
+- [ ] The data layer in `features/<feature>/actions.js` was updated to match
