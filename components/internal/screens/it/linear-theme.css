@@ -1,0 +1,125 @@
+/*
+ * Linear-accurate palette, scoped to the /it tracker.
+ *
+ * Every value below re-points a @geiger/ui semantic token, so shared primitives
+ * (Button, Popover, Dialog, Avatar, Select…) adopt Linear's look without being
+ * forked. Radix portals mount on document.body, outside the shell — pass
+ * `linear-scope` on the portalled content to carry the palette across.
+ */
+
+.linear-scope {
+  /* Surface ladder — canvas, page panel, elevated, hover, selected. */
+  --lnr-canvas: #08090a;
+  --lnr-panel: #101012;
+  --lnr-elevated: #18191b;
+  --lnr-hover: #1c1d1f;
+  --lnr-selected: #222326;
+  --lnr-strong: #2a2b2e;
+
+  --lnr-border: #1f2023;
+  --lnr-border-strong: #2c2d31;
+
+  --lnr-ink: #f7f8f8;
+  --lnr-ink-muted: #d0d6e0;
+  --lnr-ink-subtle: #8a8f98;
+  --lnr-ink-tertiary: #62666d;
+
+  --lnr-accent: #5e6ad2;
+  --lnr-accent-hover: #6e79dd;
+  --lnr-accent-soft: rgba(94, 106, 210, 0.16);
+
+  /* Workflow-state hues (status icons, board headers, progress rings). */
+  --lnr-backlog: #6b6f76;
+  --lnr-todo: #8a8f98;
+  --lnr-started: #f2c94c;
+  --lnr-review: #4cb782;
+  --lnr-done: #5e6ad2;
+  --lnr-canceled: #6b6f76;
+  --lnr-urgent: #fc7840;
+
+  /* @geiger/ui token overrides. */
+  --background: var(--lnr-canvas);
+  --foreground: var(--lnr-ink);
+  --card: var(--lnr-panel);
+  --card-foreground: var(--lnr-ink);
+  --popover: var(--lnr-elevated);
+  --popover-foreground: var(--lnr-ink);
+  --primary: var(--lnr-accent);
+  --primary-foreground: #ffffff;
+  --secondary: var(--lnr-elevated);
+  --secondary-foreground: var(--lnr-ink);
+  --muted: var(--lnr-elevated);
+  --muted-foreground: var(--lnr-ink-subtle);
+  --accent: var(--lnr-hover);
+  --accent-foreground: var(--lnr-ink);
+  --destructive: #d1373a;
+  --destructive-foreground: #ffffff;
+  --destructive-text: #f2555a;
+  --border: var(--lnr-border);
+  --input: var(--lnr-elevated);
+  --ring: var(--lnr-accent);
+
+  --surface-subtle: var(--lnr-panel);
+  --surface-card: var(--lnr-elevated);
+  --surface-active: var(--lnr-selected);
+  --surface-hover: var(--lnr-hover);
+  --surface-dialog: var(--lnr-elevated);
+  --surface-strong: var(--lnr-strong);
+  --border-strong: var(--lnr-border-strong);
+  --text-secondary: var(--lnr-ink-subtle);
+  --text-tertiary: var(--lnr-ink-tertiary);
+  --divider: var(--lnr-border);
+  --scrollbar-thumb: #2a2b2e;
+  --scrollbar-thumb-hover: #3a3b3f;
+
+  /* Linear's fields are tighter than the suite default. */
+  --radius: 0.5rem;
+  --input-box-radius: 6px;
+  --input-box-padding-x: 10px;
+  --input-box-padding-y: 6px;
+
+  color: var(--lnr-ink);
+  font-feature-settings: "cv01", "ss03";
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Inter is Linear's typeface. The doubled class outranks Tailwind's `font-sans`
+   utility, which @geiger/ui hard-codes on portalled surfaces (the command
+   palette) so they don't inherit the host app's font. */
+.linear-scope.linear-scope {
+  font-family: var(--font-it-sans), "Inter", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+}
+
+/* Linear's negative tracking on anything display-sized. */
+.linear-scope h1,
+.linear-scope h2,
+.linear-scope h3 {
+  letter-spacing: -0.02em;
+}
+
+/* Row-level hover/selection is driven by data attributes so keyboard focus and
+   pointer hover share one visual. */
+.linear-scope [data-lnr-row]:hover,
+.linear-scope [data-lnr-row][data-focused="true"] {
+  background-color: var(--lnr-hover);
+}
+.linear-scope [data-lnr-row][data-selected="true"] {
+  background-color: var(--lnr-accent-soft);
+}
+
+.lnr-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--lnr-strong) transparent;
+}
+.lnr-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.lnr-scrollbar::-webkit-scrollbar-thumb {
+  background-color: var(--lnr-strong);
+  border-radius: 999px;
+}
+.lnr-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}

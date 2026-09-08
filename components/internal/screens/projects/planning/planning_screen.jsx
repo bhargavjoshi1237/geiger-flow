@@ -25,8 +25,14 @@ import {
 import { Button } from "@geiger/ui";
 import { Input } from "@geiger/ui";
 import { Avatar, AvatarFallback } from "@geiger/ui";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
+import { useProject } from "@/context/project-context";
+import {
+  getPlanningBoard,
+  savePlanningBoard,
+} from "@/features/planning/actions";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import NotesSidebar from "./notes/layout/Sidebar";
 import CustomNode from "./notes/nodes/CustomNode";
@@ -205,6 +211,203 @@ export function PlanningScreen() {
     activeFileIdRef.current = activeFileId;
   }, [activeFileId]);
 
+  // --- Board persistence (flow.planning_boards) -----------------------------
+  //
+  // The board row mirrors the ACTIVE planning file in nodes/edges/viewport;
+  // the full file list + active id ride along in the metadata bag so every
+  // file survives a reload. Autosave is debounced (~1.2s quiet period) and
+  // skipped until the initial load has finished; the first synthetic change
+  // caused by hydration (e.g. the fitView/setViewport onMove) is swallowed.
+
+  const { project } = useProject();
+  const projectId = project?.id;
+
+  const [boardLoading, setBoardLoading] = useState(true);
+  // null | "saving" | "saved" — drives the subtle header indicator.
+  const [saveStatus, setSaveStatus] = useState(null);
+
+  const loadedRef = useRef(false);
+  const skipNextSaveRef = useRef(false);
+  const saveTimerRef = useRef(null);
+  const viewportRef = useRef(null);
+  const pendingViewportRef = useRef(null);
+  const planningFilesRef = useRef(planningFiles);
+  const projectIdRef = useRef(projectId);
+  const saveFailedRef = useRef(false);
+
+  useEffect(() => {
+    planningFilesRef.current = planningFiles;
+  }, [planningFiles]);
+
+  useEffect(() => {
+    projectIdRef.current = projectId;
+  }, [projectId]);
+
+  const buildBoardPayload = useCallback(() => {
+    const activeId = activeFileIdRef.current;
+
+    return {
+      nodes: cloneNodes(nodesRef.current),
+      edges: cloneEdges(edgesRef.current),
+      viewport: viewportRef.current,
+      metadata: {
+        activeFileId: activeId,
+        files: planningFilesRef.current.map((file) =>
+          file.id === activeId
+            ? {
+                ...file,
+                nodes: cloneNodes(nodesRef.current),
+                edges: cloneEdges(edgesRef.current),
+                updatedAt: Date.now(),
+              }
+            : file
+        ),
+      },
+    };
+  }, []);
+
+  const runSave = useCallback(async () => {
+    if (!projectIdRef.current || !loadedRef.current) return;
+
+    setSaveStatus("saving");
+    const result = await savePlanningBoard(
+      projectIdRef.current,
+      buildBoardPayload()
+    );
+
+    if (result) {
+      saveFailedRef.current = false;
+      setSaveStatus("saved");
+    } else {
+      // One toast per failure burst — retry happens on the next change.
+      if (!saveFailedRef.current) {
+        toast.error("Couldn't save the board.");
+      }
+      saveFailedRef.current = true;
+      setSaveStatus(null);
+    }
+  }, [buildBoardPayload]);
+
+  useEffect(() => {
+    if (saveStatus !== "saved") return undefined;
+    const timer = setTimeout(() => setSaveStatus(null), 2000);
+    return () => clearTimeout(timer);
+  }, [saveStatus]);
+
+  const scheduleSave = useCallback(() => {
+    if (!loadedRef.current) return;
+
+    if (skipNextSaveRef.current) {
+      skipNextSaveRef.current = false;
+      return;
+    }
+
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current);
+    }
+    saveTimerRef.current = setTimeout(() => {
+      saveTimerRef.current = null;
+      void runSave();
+    }, 1200);
+  }, [runSave]);
+
+  // Load the persisted board on mount / project change.
+  useEffect(() => {
+    let active = true;
+
+    if (!projectId) {
+      loadedRef.current = true;
+      void Promise.resolve().then(() => {
+        if (active) setBoardLoading(false);
+      });
+      return () => {
+        active = false;
+      };
+    }
+
+    loadedRef.current = false;
+    skipNextSaveRef.current = false;
+
+    void Promise.resolve().then(async () => {
+      setBoardLoading(true);
+      const board = await getPlanningBoard(projectId);
+      if (!active) return;
+
+      if (board) {
+        const metadata = board.metadata ?? {};
+        const savedFiles =
+          Array.isArray(metadata.files) && metadata.files.length > 0
+            ? metadata.files
+            : null;
+        const files = (
+          savedFiles || [
+            {
+              id: `planning-restored-${board.id}`,
+              name: "Untitled Board",
+              nodes: board.nodes,
+              edges: board.edges,
+              createdAt: board.createdAt,
+            },
+          ]
+        ).map((file) => ({
+          ...file,
+          nodes: cloneNodes(file.nodes),
+          edges: cloneEdges(file.edges),
+          createdAt: file.createdAt ?? Date.now(),
+          updatedAt: file.updatedAt ?? file.createdAt ?? Date.now(),
+        }));
+
+        const nextActiveId =
+          metadata.activeFileId && files.some((file) => file.id === metadata.activeFileId)
+            ? metadata.activeFileId
+            : files[0].id;
+        const nextActiveFile = files.find((file) => file.id === nextActiveId);
+
+        setPlanningFiles(files);
+        setActiveFileId(nextActiveId);
+        setNodes(cloneNodes(nextActiveFile.nodes));
+        setEdges(cloneEdges(nextActiveFile.edges));
+        pendingViewportRef.current = board.viewport ?? null;
+      }
+
+      // Swallow the first synthetic change fired by hydration (viewport apply).
+      skipNextSaveRef.current = true;
+      loadedRef.current = true;
+      setBoardLoading(false);
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [projectId]);
+
+  // Apply the saved canvas viewport once react-flow is initialized.
+  useEffect(() => {
+    if (!reactFlowInstance || boardLoading) return undefined;
+
+    const viewport = pendingViewportRef.current;
+    if (!viewport) return undefined;
+
+    pendingViewportRef.current = null;
+    const timer = setTimeout(() => {
+      reactFlowInstance.setViewport(viewport);
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [reactFlowInstance, boardLoading]);
+
+  // Flush a pending debounced save when the screen unmounts.
+  useEffect(
+    () => () => {
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current);
+        saveTimerRef.current = null;
+        void savePlanningBoard(projectIdRef.current, buildBoardPayload());
+      }
+    },
+    [buildBoardPayload]
+  );
+
   const activeFile = useMemo(
     () =>
       planningFiles.find((file) => file.id === activeFileId) || planningFiles[0],
@@ -235,7 +438,8 @@ export function PlanningScreen() {
           : file
       )
     );
-  }, []);
+    scheduleSave();
+  }, [scheduleSave]);
 
   const onNodesChange = useCallback(
     (changes) => {
@@ -344,6 +548,7 @@ export function PlanningScreen() {
           setRenameFileId(null);
           setRenameValue("");
         }
+        scheduleSave();
         return;
       }
 
@@ -362,7 +567,7 @@ export function PlanningScreen() {
       setRenameFileId(null);
       setRenameValue("");
     },
-    [planningFiles, renameFileId]
+    [planningFiles, renameFileId, scheduleSave]
   );
 
   const handleStartRename = useCallback((file) => {
@@ -403,16 +608,23 @@ export function PlanningScreen() {
 
       setRenameFileId(null);
       setRenameValue("");
+      scheduleSave();
     },
-    [planningFiles, renameValue, handleCancelRename]
+    [planningFiles, renameValue, handleCancelRename, scheduleSave]
   );
 
   useEffect(() => {
-    if (!planningFiles.some((file) => file.id === activeFileId) && planningFiles[0]) {
+    if (planningFiles.some((file) => file.id === activeFileId) || !planningFiles[0]) {
+      return undefined;
+    }
+
+    const timer = setTimeout(() => {
       setActiveFileId(planningFiles[0].id);
       setNodes(cloneNodes(planningFiles[0].nodes));
       setEdges(cloneEdges(planningFiles[0].edges));
-    }
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [planningFiles, activeFileId]);
 
   const onConnect = useCallback(
@@ -558,6 +770,11 @@ export function PlanningScreen() {
   return (
     <MainScreenWrapper className="max-w-none space-y-0 px-0 py-0 lg:max-w-none">
       <div className="relative h-[calc(100dvh-8rem)] min-h-[640px] overflow-hidden rounded-xl border border-border bg-background text-foreground">
+        {boardLoading ? (
+          <div className="absolute inset-0 z-50 flex items-center justify-center bg-background">
+            <span className="text-xs text-text-tertiary">Loading board…</span>
+          </div>
+        ) : null}
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -571,7 +788,11 @@ export function PlanningScreen() {
             setReactFlowInstance(instance);
             setZoomLevel(instance.getViewport().zoom);
           }}
-          onMove={(_, viewport) => setZoomLevel(viewport.zoom)}
+          onMove={(_, viewport) => {
+            viewportRef.current = viewport;
+            setZoomLevel(viewport.zoom);
+            scheduleSave();
+          }}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
           zoomOnScroll={false}
@@ -620,6 +841,15 @@ export function PlanningScreen() {
           </div>
 
           <div className="flex items-center gap-3">
+            <span
+              aria-live="polite"
+              className={cn(
+                "text-xs text-text-tertiary transition-opacity duration-200",
+                !saveStatus && "opacity-0"
+              )}
+            >
+              {saveStatus === "saving" ? "Saving…" : "Saved"}
+            </span>
             <div className="flex -space-x-2">
               {collaborators.map((user) => (
                 <Avatar

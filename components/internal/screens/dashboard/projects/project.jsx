@@ -1,56 +1,60 @@
 "use client";
 
 import React from "react";
-import {
-  MoreVertical,
-  Layers,
-  Power,
-  Radio,
-  Pencil,
-  Play,
-  Pause,
-  Trash2,
-  Copy,
-  Settings,
-} from "lucide-react";
+import { Power, Copy, Settings, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { Button } from "@geiger/ui";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@geiger/ui";
+import { ActionMenu } from "@geiger/ui";
 
-export function ProjectItem({ id, name, provider, region, status, tags = [] }) {
+export function ProjectItem({
+  id,
+  name,
+  provider,
+  region,
+  status,
+  tags = [],
+  onCopyId,
+  onDelete,
+}) {
   const isPaused = status?.toLowerCase() === "paused";
+
+  const handleCopyId = async () => {
+    if (onCopyId) {
+      onCopyId(id);
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(id);
+    } catch {
+      // clipboard unavailable — no-op
+    }
+  };
 
   return (
     <div className="bg-surface-card border border-border rounded-sm p-6 relative group hover:border-border-strong transition-all duration-300 flex flex-col h-full min-h-[180px] text-foreground">
       <div className="absolute top-4 right-4 z-10">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button className="text-muted-foreground hover:text-foreground p-1 rounded-md hover:bg-surface-hover transition-colors focus:outline-none shrink-0 cursor-pointer">
-              <MoreVertical className="w-5 h-5" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align="end"
-            className="w-[180px] bg-surface-card border-border text-foreground p-1"
-          >
-            <DropdownMenuItem className="cursor-pointer focus:bg-surface-strong focus:text-foreground flex items-center gap-2 px-2 py-2">
-              <Copy className="w-3 h-3 text-foreground" />
-              <span className="text-xs text-foreground">Copy Project Id</span>
-            </DropdownMenuItem>
-
-            <DropdownMenuItem className="cursor-pointer focus:bg-surface-strong focus:text-foreground flex items-center gap-2 px-2 py-2">
-              <Settings className="w-3 h-3 text-foreground" />
-              <span className="text-xs text-foreground">Settings</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <ActionMenu
+          label={`Actions for ${name}`}
+          items={[
+            {
+              icon: Copy,
+              label: "Copy Project Id",
+              onSelect: handleCopyId,
+            },
+            {
+              icon: Settings,
+              label: "Settings",
+              href: `/project/${id}`,
+            },
+            onDelete && { separator: true },
+            onDelete && {
+              icon: Trash2,
+              label: "Delete",
+              destructive: true,
+              onSelect: () => onDelete({ id, name }),
+            },
+          ]}
+        />
       </div>
 
       <Link href={`/project/${id}`} className="flex flex-col h-full">

@@ -12,9 +12,32 @@
 
 import { createClient } from "@/lib/supabase/client";
 import { flowClient } from "@/supabase/components/flow-client";
-import { DEFAULT_GOAL_STATUS } from "./constants";
+import { logActivity } from "@/features/activity_logs/actions";
+import { formatUpdateMessage } from "@/features/activity_logs/constants";
+import { DEFAULT_GOAL_STATUS, GOAL_STATUSES } from "./constants";
 
 const GOALS_TABLE = "goals";
+
+// Readable labels for the activity-log change summary.
+const goalStatusLabels = Object.fromEntries(
+  GOAL_STATUSES.map((status) => [status.value, status.label]),
+);
+
+const GOAL_FIELD_LABELS = {
+  title: "title",
+  description: "description",
+  status: "status",
+  owner: "owner",
+  progress: "progress",
+  targetDate: "target date",
+  position: "position",
+  objectiveId: "objective",
+};
+
+const GOAL_VALUE_LABELS = {
+  status: (value) => goalStatusLabels[value] ?? value,
+  objectiveId: (value) => (value ? value : "none"),
+};
 
 // Attributes stored in the `metadata` jsonb expansion bag rather than dedicated
 // columns. Surfaced as first-class fields on the view model and folded back on
@@ -186,6 +209,12 @@ export async function createGoal(projectId, input) {
     return null;
   }
 
+  void logActivity(projectId, {
+    source: "goals",
+    message: `Created goal "${data.title}"`,
+    detail: { id: data.id, status: data.status },
+  }).catch(() => {});
+
   return normalizeGoal(data);
 }
 
@@ -212,6 +241,18 @@ export async function updateGoal(id, patch) {
     return null;
   }
 
+  void logActivity(data.project_id, {
+    source: "goals",
+    message: formatUpdateMessage({
+      entity: "goal",
+      title: data.title,
+      patch,
+      fields: GOAL_FIELD_LABELS,
+      values: GOAL_VALUE_LABELS,
+    }),
+    detail: { id, patch },
+  }).catch(() => {});
+
   return normalizeGoal(data);
 }
 
@@ -221,14 +262,25 @@ export async function softDeleteGoal(id) {
     return false;
   }
 
-  const { error } = await flowClient()
+  const { data, error } = await flowClient()
     .from(GOALS_TABLE)
     .update({ deleted_at: new Date().toISOString() })
-    .eq("id", id);
+    .eq("id", id)
+    .select("project_id, title")
+    .maybeSingle();
 
   if (error) {
     console.error("[flow.goals] delete error:", error);
     return false;
+  }
+
+  if (data?.project_id) {
+    void logActivity(data.project_id, {
+      source: "goals",
+      level: "warning",
+      message: `Deleted goal "${data.title}"`,
+      detail: { id },
+    }).catch(() => {});
   }
 
   return true;

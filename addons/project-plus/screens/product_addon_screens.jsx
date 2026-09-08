@@ -40,7 +40,7 @@ import {
   SelectValue,
 } from "@geiger/ui";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { SegmentedTabs } from "@/components/internal/shared/segmented_tabs";
+import { SegmentedTabs } from "@geiger/ui";
 import { cn } from "@/lib/utils";
 import { useProjectBudget } from "@/context/project-budget-context";
 

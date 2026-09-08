@@ -53,3 +53,17 @@ export const goalStatusMeta = {
     className: "bg-blue-500/10 text-blue-300 border-blue-500/20",
   },
 };
+
+// StatusPill-compatible map for the goals list (`{ label, variant }` fed to
+// `<StatusPill status map />`).
+export const goalStatusPillMap = {
+  not_started: { label: "Not Started", variant: "neutral" },
+  on_track: { label: "On Track", variant: "success" },
+  at_risk: { label: "At Risk", variant: "warning" },
+  completed: { label: "Completed", variant: "info" },
+};
+
+export const GOAL_STATUS_FILTER_OPTIONS = [
+  { value: "all", label: "All Statuses" },
+  ...GOAL_STATUSES.map((status) => ({ value: status.value, label: status.label })),
+];

@@ -1,48 +1,68 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   BriefcaseBusiness,
   Crown,
-  Plus,
+  Loader2,
   Mail,
-  MoreHorizontal,
-  Edit,
+  Pencil,
+  Plus,
   ShieldCheck,
-  Trash,
+  Trash2,
   UserRound,
   Users,
   Workflow,
 } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@geiger/ui";
 import { InviteMemberDialog } from "@/components/internal/dilouges/teams/invitemember_dilouge";
 import { createClient } from "@/lib/supabase/client";
 import { useProject } from "@/context/project-context";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@geiger/ui";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-
-import { Avatar, AvatarFallback, AvatarImage } from "@geiger/ui";
-import { EmptyState } from "@/components/internal/notfound/not_found";
+import {
+  ListPagination,
+  usePagination,
+} from "@/components/internal/shared/pagination";
+import {
+  DataTable,
+  EmptyState,
+  ScreenHeader,
+  SearchInput,
+  StatsBar,
+  StatusPill,
+  Toolbar,
+} from "@/components/internal/shared/screen_kit";
+import FilterDropdown from "@/components/internal/screens/projects/overview/filter_dropdown";
+import { ActionMenu } from "@geiger/ui";
+import { Avatar, AvatarFallback } from "@geiger/ui";
 import { Badge } from "@geiger/ui";
 import { Button } from "@geiger/ui";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@geiger/ui";
 
-const roleLabels = {
-  admin: "Admin",
-  member: "Member",
-  viewer: "Viewer",
+const MEMBER_ROLE_MAP = {
+  admin: { label: "Admin", variant: "success" },
+  member: { label: "Member", variant: "info" },
+  viewer: { label: "Viewer", variant: "neutral" },
+  manager: { label: "Manager", variant: "purple" },
 };
+
+const MEMBER_STATUS_MAP = {
+  Active: { label: "Active", variant: "success" },
+  Invited: { label: "Invited", variant: "warning" },
+};
+
+const ROLE_FILTER_OPTIONS = [
+  { value: "all", label: "All Roles" },
+  { value: "admin", label: "Admin" },
+  { value: "member", label: "Member" },
+  { value: "viewer", label: "Viewer" },
+];
 
 function RoleBadgeIcon({ role }) {
   const iconClassName = "mr-1 h-3 w-3";
@@ -61,7 +81,11 @@ export function TeamScreen() {
   const { project } = useProject();
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
   const [isInviteOpen, setIsInviteOpen] = useState(false);
+  const [editingMember, setEditingMember] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   useEffect(() => {
     const fetchTeam = async () => {
@@ -80,7 +104,8 @@ export function TeamScreen() {
           error.code,
         );
         if (error.code === "PGRST116") {
-          setMembers([]);         }
+          setMembers([]);
+        }
       }
 
       if (data && data.members) {
@@ -90,46 +115,12 @@ export function TeamScreen() {
             : Object.values(data.members),
         );
       } else {
-        setMembers([]);       }
+        setMembers([]);
+      }
       setLoading(false);
     };
     fetchTeam();
   }, [project?.id]);
-
-  if (!loading && members.length === 0) {
-    const avatarStack = (
-      <div className="flex -space-x-4 items-center -mr-0.5">
-        <Avatar className="w-12 h-12 bg-surface-hover ring-4 ring-ring">
-          <AvatarFallback>JD</AvatarFallback>
-        </Avatar>
-        <Avatar className="w-12 h-12 bg-surface-hover ring-4 ring-ring">
-          <AvatarFallback>MK</AvatarFallback>
-        </Avatar>
-        <Avatar className="w-12 h-12 bg-surface-hover ring-4 ring-ring">
-           <AvatarFallback>R</AvatarFallback>
-        </Avatar>
-      </div>
-    );
-
-    return (
-      <MainScreenWrapper>
-        <div className="flex flex-col gap-8 w-full max-w-4xl mx-auto py-12">
-          <EmptyState
-            icon={avatarStack}
-            title="No Team Members"
-            description="Invite your team to collaborate on this project."
-            actionLabel="Invite Members"
-            onAction={() => setIsInviteOpen(true)}
-          />
-          <InviteMemberDialog 
-            isOpen={isInviteOpen}
-            onClose={() => setIsInviteOpen(false)}
-            onInvite={handleInvite}
-          />
-        </div>
-      </MainScreenWrapper>
-    );
-  }
 
   const saveMembers = async (newMembers) => {
     setMembers(newMembers);
@@ -160,133 +151,256 @@ export function TeamScreen() {
     saveMembers(members.filter((m) => m.email !== email));
   };
 
+  const filtered = useMemo(() => {
+    const needle = search.trim().toLowerCase();
+    return members.filter((m) => {
+      if (roleFilter !== "all" && (m.role || "member") !== roleFilter)
+        return false;
+      if (
+        needle &&
+        !`${m.name || ""} ${m.email || ""}`
+          .toLowerCase()
+          .includes(needle)
+      )
+        return false;
+      return true;
+    });
+  }, [members, search, roleFilter]);
+
+  const pager = usePagination(filtered, {
+    resetKey: `${search}|${roleFilter}`,
+  });
+
+  const stats = useMemo(() => {
+    const admins = members.filter((m) => m.role === "admin").length;
+    const active = members.filter(
+      (m) => (m.status || "Active") === "Active",
+    ).length;
+    return [
+      {
+        label: "Total members",
+        value: String(members.length),
+        footer: `${active} active now`,
+      },
+      {
+        label: "Admins",
+        value: String(admins),
+        footer: "Full project access",
+      },
+      {
+        label: "Members",
+        value: String(members.filter((m) => m.role === "member").length),
+        footer: "Project collaborators",
+      },
+      {
+        label: "Viewers",
+        value: String(members.filter((m) => m.role === "viewer").length),
+        footer: "Read-only access",
+      },
+    ];
+  }, [members]);
+
+  const columns = [
+    {
+      key: "member",
+      header: "Member",
+      render: (member) => (
+        <div className="flex items-center gap-3">
+          <Avatar className="h-8 w-8 bg-surface-strong ring-1 ring-ring">
+            <AvatarFallback className="bg-surface-strong text-xs font-medium uppercase text-foreground">
+              {member.name ? member.name.charAt(0) : "?"}
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <div className="text-sm font-medium capitalize text-foreground">
+              {member.name}
+            </div>
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <Mail className="h-3 w-3 opacity-50" />
+              {member.email}
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: "access",
+      header: "Access",
+      render: (member) => (
+        <div className="flex flex-wrap gap-1.5">
+          <Badge variant={MEMBER_ROLE_MAP[member.role]?.variant || "info"}>
+            <RoleBadgeIcon role={member.role} />
+            {MEMBER_ROLE_MAP[member.role]?.label ||
+              member.role ||
+              "Member"}
+          </Badge>
+          <Badge variant="info">
+            <Workflow className="mr-1 h-3 w-3" />
+            Project
+          </Badge>
+        </div>
+      ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      render: (member) => (
+        <StatusPill status={member.status || "Active"} map={MEMBER_STATUS_MAP} />
+      ),
+    },
+    {
+      key: "actions",
+      header: "",
+      align: "right",
+      className: "text-right",
+      render: (member) => (
+        <ActionMenu
+          label={`Actions for ${member.email}`}
+          items={[
+            {
+              icon: Pencil,
+              label: "Edit Role",
+              onSelect: () => setEditingMember(member),
+            },
+            { separator: true },
+            {
+              icon: Trash2,
+              label: "Remove",
+              destructive: true,
+              onSelect: () => setDeleteTarget(member),
+            },
+          ]}
+        />
+      ),
+    },
+  ];
+
   return (
     <MainScreenWrapper className="text-foreground">
-      <div className="flex items-center justify-between border-b border-border pb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Team</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage your team members and their roles.
-          </p>
-        </div>
-        <InviteMemberDialog onInvite={handleInvite}>
-          <Button className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors">
-            <Plus className="w-4 h-4 text-primary-foreground font-bold stroke-[3]" />
+      <ScreenHeader
+        title="Team"
+        description="Manage your team members and their roles."
+        actions={
+          <Button
+            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+            onClick={() => setIsInviteOpen(true)}
+          >
+            <Plus className="h-4 w-4 font-bold text-primary-foreground stroke-[3]" />
             Invite member
           </Button>
-        </InviteMemberDialog>
-      </div>
-       
+        }
+      />
 
-      <div className="bg-surface-card border border-border rounded-2xl overflow-hidden w-full">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-surface-subtle border-border">
-              <TableHead>Member</TableHead>
-              <TableHead>Access</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Action</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell
-                  colSpan={4}
-                  className="text-center py-8 text-text-secondary"
-                >
-                  Loading team members...
-                </TableCell>
-              </TableRow>
-            ) : members.length === 0 ? (
-              <TableRow>
-                <TableCell
-                  colSpan={4}
-                  className="text-center py-8 text-text-secondary"
-                >
-                  No members found. Invite someone to your team.
-                </TableCell>
-              </TableRow>
-            ) : (
-              members.map((member, i) => (
-                <TableRow
-                  key={i}
-                  className="border-border hover:bg-surface-active"
-                >
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-surface-strong flex items-center justify-center text-xs font-medium text-foreground ring-1 ring-ring uppercase">
-                        {member.name ? member.name.charAt(0) : "?"}
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-foreground capitalize">
-                          {member.name}
-                        </div>
-                        <div className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Mail className="w-3 h-3 opacity-50" />
-                          {member.email}
-                        </div>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap gap-1.5">
-                      <Badge className="border-emerald-500/20 bg-emerald-500/10 text-emerald-300">
-                        <RoleBadgeIcon role={member.role} />
-                        {roleLabels[member.role] || member.role || "Member"}
-                      </Badge>
-                      <Badge className="border-sky-500/20 bg-sky-500/10 text-sky-300">
-                        <Workflow className="mr-1 h-3 w-3" />
-                        Project
-                      </Badge>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]" />
-                      <span className="text-sm text-green-400 font-medium capitalize">
-                        {member.status || "Active"}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-md hover:bg-surface-card">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent
-                        align="end"
-                        className="bg-surface-subtle border-border text-foreground"
-                      >
-                        <InviteMemberDialog
-                          defaultEmail={member.email}
-                          defaultRole={member.role}
-                          isEditMode={true}
-                          onInvite={(email, role) =>
-                            handleEditRole(email, role)
-                          }
-                        >
-                          <Button className="w-full text-left flex gap-2 px-2 py-1.5 text-sm hover:bg-surface-hover hover:text-foreground transition-colors rounded-sm cursor-default">
-                            <Edit className="w-4 h-4" /> Edit Role
-                          </Button>
-                        </InviteMemberDialog>
-                        <DropdownMenuItem
-                          className="hover:bg-surface-hover  flex gap-2 focus:bg-surface-hover focus:text-foreground cursor-pointer text-red-700 focus:text-red-400"
-                          onClick={() => handleRemove(member.email)}
-                        >
-                          <Trash className="w-4 h-4  text-red-700" /> Remove
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <StatsBar stats={stats} />
+
+      <Toolbar>
+        <div className="flex items-center gap-2">
+          <FilterDropdown
+            value={roleFilter}
+            onValueChange={setRoleFilter}
+            options={ROLE_FILTER_OPTIONS}
+            height="h-9"
+          />
+        </div>
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="Search members…"
+        />
+      </Toolbar>
+
+      {loading ? (
+        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Loading team members…
+        </div>
+      ) : (
+        <div className="space-y-5">
+          <DataTable
+            columns={columns}
+            data={pager.pageItems}
+            getRowKey={(m, i) => m.email || i}
+            empty={
+              <div className="rounded-xl border border-border bg-surface-subtle">
+                <EmptyState
+                  icon={Users}
+                  title={
+                    members.length
+                      ? "No members match your filters"
+                      : "No Team Members"
+                  }
+                  description={
+                    members.length
+                      ? "Try clearing the search or filters."
+                      : "Invite your team to collaborate on this project."
+                  }
+                  action={
+                    <Button
+                      className="bg-primary text-primary-foreground hover:bg-primary/90"
+                      onClick={() => setIsInviteOpen(true)}
+                    >
+                      <Plus className="h-4 w-4" /> Invite Members
+                    </Button>
+                  }
+                />
+              </div>
+            }
+          />
+          <ListPagination {...pager} itemLabel="members" />
+        </div>
+      )}
+
+      <InviteMemberDialog
+        open={isInviteOpen}
+        onOpenChange={setIsInviteOpen}
+        onInvite={handleInvite}
+      />
+
+      <InviteMemberDialog
+        defaultEmail={editingMember?.email || ""}
+        defaultRole={editingMember?.role || "member"}
+        isEditMode
+        open={!!editingMember}
+        onOpenChange={(open) => !open && setEditingMember(null)}
+        onInvite={(email, role) => {
+          handleEditRole(email, role);
+          setEditingMember(null);
+        }}
+      />
+
+      <Dialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Remove member</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to remove{" "}
+              <span className="font-medium text-foreground">
+                {deleteTarget?.email}
+              </span>{" "}
+              from this project? They will lose access immediately.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setDeleteTarget(null)}>
+              Cancel
+            </Button>
+            <Button
+              className="bg-red-500/90 text-white hover:bg-red-500"
+              onClick={() => {
+                handleRemove(deleteTarget.email);
+                setDeleteTarget(null);
+              }}
+            >
+              <Trash2 className="h-4 w-4" /> Remove
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </MainScreenWrapper>
   );
 }
+
+export default TeamScreen;

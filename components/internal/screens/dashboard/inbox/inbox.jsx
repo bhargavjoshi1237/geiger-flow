@@ -1,35 +1,61 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
-  Search,
-  Filter,
-  MailOpen,
+  Check,
   Inbox,
+  Loader2,
+  MailOpen,
+  Trash2,
 } from "lucide-react";
 import * as LucideIcons from "lucide-react";
-import { Input } from "@geiger/ui";
-import { NotificationItem } from "./notification_item";
+import { ActionMenu } from "@geiger/ui";
+import { Badge } from "@geiger/ui";
 import {
   Sheet,
   SheetContent,
   SheetTitle,
 } from "@geiger/ui";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { SegmentedTabs } from "@/components/internal/shared/segmented_tabs";
+import { SegmentedTabs } from "@geiger/ui";
+import {
+  ListPagination,
+  usePagination,
+} from "@/components/internal/shared/pagination";
+import {
+  DataTable,
+  EmptyState,
+  ScreenHeader,
+  SearchInput,
+  StatsBar,
+  StatusPill,
+  Toolbar,
+} from "@/components/internal/shared/screen_kit";
+import FilterDropdown from "@/components/internal/screens/projects/overview/filter_dropdown";
 import { Button } from "@geiger/ui";
+import {
+  formatNotificationTime,
+  getNotificationIcon,
+  parseNotificationExtra,
+} from "./notification_item";
 
 const INBOX_TABS = [
   { label: "All", value: "all" },
   { label: "Unread", value: "unread" },
 ];
 
+const READ_STATUS_MAP = {
+  unread: { label: "Unread", variant: "info" },
+  read: { label: "Read", variant: "neutral" },
+};
+
 export function InboxScreen() {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
   const [selectedNotification, setSelectedNotification] = useState(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
@@ -57,7 +83,7 @@ export function InboxScreen() {
   };
 
   useEffect(() => {
-    fetchNotifications();
+    void Promise.resolve().then(fetchNotifications);
   }, []);
 
   const handleMarkAsRead = async (id) => {
@@ -112,17 +138,37 @@ export function InboxScreen() {
     }
   };
 
-  const filteredNotifications = notifications.filter((n) => {
-    const matchesSearch =
-      n.title.toLowerCase().includes(search.toLowerCase()) ||
-      n.description.toLowerCase().includes(search.toLowerCase());
-    const matchesTab =
-      activeTab === "all" ? true : activeTab === "unread" ? !n.read : true;
-    return matchesSearch && matchesTab;
+  const typeFilterOptions = useMemo(
+    () => [
+      { value: "all", label: "All Types" },
+      ...Array.from(
+        new Set(notifications.map((n) => n.type).filter(Boolean)),
+      ).map((type) => ({ value: type, label: type })),
+    ],
+    [notifications],
+  );
+
+  const filteredNotifications = useMemo(() => {
+    const needle = search.trim().toLowerCase();
+    return notifications.filter((n) => {
+      const matchesSearch =
+        !needle ||
+        n.title.toLowerCase().includes(needle) ||
+        n.description.toLowerCase().includes(needle);
+      const matchesTab =
+        activeTab === "all" ? true : activeTab === "unread" ? !n.read : true;
+      const matchesType = typeFilter === "all" || n.type === typeFilter;
+      return matchesSearch && matchesTab && matchesType;
+    });
+  }, [notifications, search, activeTab, typeFilter]);
+
+  const pager = usePagination(filteredNotifications, {
+    resetKey: `${search}|${activeTab}|${typeFilter}`,
   });
 
   const unreadCount = notifications.filter((n) => !n.read).length;
-  const hasFilters = search.trim().length > 0 || activeTab !== "all";
+  const hasFilters =
+    search.trim().length > 0 || activeTab !== "all" || typeFilter !== "all";
   const emptyTitle = hasFilters
     ? activeTab === "unread"
       ? "No unread notifications"
@@ -132,13 +178,139 @@ export function InboxScreen() {
     ? "Try clearing your search or switching filters."
     : "Workspace notifications and alerts will appear here once there is activity.";
 
+  const stats = useMemo(() => {
+    const read = notifications.length - unreadCount;
+    const types = new Set(
+      notifications.map((n) => n.type).filter(Boolean),
+    ).size;
+    return [
+      {
+        label: "Total",
+        value: String(notifications.length),
+        footer: "All notifications",
+      },
+      {
+        label: "Unread",
+        value: String(unreadCount),
+        footer: "Need your attention",
+      },
+      {
+        label: "Read",
+        value: String(read),
+        footer: "Already caught up",
+      },
+      {
+        label: "Categories",
+        value: String(types),
+        footer: "Notification types",
+      },
+    ];
+  }, [notifications, unreadCount]);
+
+  const columns = [
+    {
+      key: "notification",
+      header: "Notification",
+      render: (notification) => {
+        const IconComponent = getNotificationIcon(notification.icon);
+        const bgColor =
+          notification.bg_color || notification.bgColor || "bg-surface-hover";
+        const iconColor =
+          notification.icon_color ||
+          notification.iconColor ||
+          "text-text-secondary";
+        const isUnread = !notification.read;
+        const extra = parseNotificationExtra(notification.extra);
+        return (
+          <div className="flex items-start gap-3">
+            <div
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${bgColor} border border-foreground/10`}
+            >
+              <IconComponent
+                className={`h-4 w-4 ${iconColor}`}
+                strokeWidth={1.8}
+              />
+            </div>
+            <div className="min-w-0">
+              <p
+                className={`truncate text-[13px] font-medium ${isUnread ? "text-foreground" : "text-muted-foreground"}`}
+              >
+                {notification.title}
+              </p>
+              <p className="line-clamp-2 text-[12px] leading-relaxed text-muted-foreground">
+                {notification.description}
+              </p>
+              {extra?.type === "comment" && (
+                <p className="mt-1.5 line-clamp-2 rounded-lg border border-border bg-surface-card p-2 text-[12px] leading-relaxed text-muted-foreground">
+                  {extra.text}
+                </p>
+              )}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      key: "type",
+      header: "Type",
+      render: (notification) => (
+        <Badge variant="neutral" className="uppercase">
+          {notification.type}
+        </Badge>
+      ),
+    },
+    {
+      key: "received",
+      header: "Received",
+      render: (notification) => (
+        <span className="whitespace-nowrap text-xs text-text-secondary">
+          {formatNotificationTime(notification.time)}
+        </span>
+      ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      render: (notification) => (
+        <StatusPill
+          status={notification.read ? "read" : "unread"}
+          map={READ_STATUS_MAP}
+        />
+      ),
+    },
+    {
+      key: "actions",
+      header: "",
+      align: "right",
+      className: "text-right",
+      render: (notification) => (
+        <ActionMenu
+          label={`Actions for ${notification.title}`}
+          items={[
+            !notification.read && {
+              icon: Check,
+              label: "Mark as read",
+              onSelect: () => handleMarkAsRead(notification.id),
+            },
+            { separator: true },
+            {
+              icon: Trash2,
+              label: "Delete",
+              destructive: true,
+              onSelect: () => handleDelete(notification.id),
+            },
+          ]}
+        />
+      ),
+    },
+  ];
+
   const DetailIconComponent =
     selectedNotification?.icon && LucideIcons[selectedNotification.icon]
       ? LucideIcons[selectedNotification.icon]
       : LucideIcons.Bell;
 
   let formattedDetailDate = "";
-  let fullDateStr = "";
   try {
     if (selectedNotification?.time) {
       const d = new Date(selectedNotification.time);
@@ -151,95 +323,82 @@ export function InboxScreen() {
           minute: "numeric",
           hour12: true,
         }).format(d);
-        fullDateStr = d.toISOString();
       }
     }
-  } catch (e) {}
+  } catch {}
 
   return (
-    <MainScreenWrapper className="relative flex h-full min-h-0 flex-col gap-10 space-y-0 overflow-hidden text-foreground">
-      <div className="flex flex-col gap-4 border-b border-border pb-6 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-semibold text-foreground tracking-tight flex items-center gap-3">
-            Inbox
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1.5 font-medium">
-            Stay updated with all notifications and alerts across your
-            workspace.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
+    <MainScreenWrapper className="text-foreground">
+      <ScreenHeader
+        title="Inbox"
+        description="Stay updated with all notifications and alerts across your workspace."
+        actions={
           <Button
             onClick={handleMarkAllAsRead}
             disabled={unreadCount === 0 || loading}
-            className="text-sm font-medium text-muted-foreground hover:text-foreground bg-surface-card hover:bg-surface-hover border border-border px-3.5 py-2 rounded-lg transition-all disabled:opacity-50 disabled:hover:bg-surface-card disabled:cursor-not-allowed flex items-center gap-2"
+            variant="outline"
+            className="h-9 rounded-lg border-border bg-surface-card px-3.5 text-sm font-medium text-muted-foreground transition-all hover:bg-surface-hover hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <MailOpen className="w-4 h-4" />
+            <MailOpen className="h-4 w-4" />
             Mark all read
           </Button>
-        </div>
-      </div>
+        }
+      />
 
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between shrink-0 z-10 sticky top-0 pb-2">
-        <SegmentedTabs
-          tabs={INBOX_TABS.map((tab) => ({
-            ...tab,
-            label: tab.value === "unread" && unreadCount > 0 ? `Unread (${unreadCount})` : tab.label,
-          }))}
-          value={activeTab}
-          onChange={setActiveTab}
-          className="self-start"
+      <StatsBar stats={stats} />
+
+      <Toolbar>
+        <div className="flex flex-wrap items-center gap-2">
+          <SegmentedTabs
+            tabs={INBOX_TABS.map((tab) => ({
+              ...tab,
+              label:
+                tab.value === "unread" && unreadCount > 0
+                  ? `Unread (${unreadCount})`
+                  : tab.label,
+            }))}
+            value={activeTab}
+            onChange={setActiveTab}
+          />
+          <FilterDropdown
+            value={typeFilter}
+            onValueChange={setTypeFilter}
+            options={typeFilterOptions}
+            height="h-9"
+          />
+        </div>
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="Filter notifications…"
         />
+      </Toolbar>
 
-        <div className="flex items-center gap-2 w-full md:w-auto md:flex-1 md:justify-end">
-          <div className="relative flex-1 md:max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
-            <Input
-              type="text"
-              placeholder="Filter notifications..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full !pl-9 !pr-4 !py-[7px] bg-surface-subtle border border-border text-foreground text-sm rounded-lg focus:outline-none focus:border-border-strong transition-all focus:ring-1 focus:ring-ring placeholder:text-text-tertiary"
-            />
-          </div>
-          <Button className="flex items-center justify-center p-2 rounded-lg bg-surface-subtle border border-border text-muted-foreground hover:text-foreground hover:bg-surface-card transition-colors shrink-0">
-            <Filter className="w-[18px] h-[18px]" />
-          </Button>
+      {loading ? (
+        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Loading notifications…
         </div>
-      </div>
-
-      <div
-        className="flex-1 overflow-y-auto min-h-0 pr-1 pb-10 flex flex-col gap-3 [&::-webkit-scrollbar]:hidden [&]:-ms-overflow-style:none [&]:scrollbar-width:none"
-        style={{ scrollbarWidth: "none", scrollbarColor: "transparent transparent" }}
-      >
-        {loading ? (
-          <div className="flex items-center justify-center h-[200px] text-text-secondary">
-            Loading notifications...
-          </div>
-        ) : filteredNotifications.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-[400px] text-text-secondary border border-dashed border-border rounded-2xl bg-surface-subtle/50">
-            <Inbox
-              className="w-12 h-12 mb-4 text-text-tertiary"
-              strokeWidth={1.5}
-            />
-            <p className="text-lg font-medium text-foreground">{emptyTitle}</p>
-            <p className="text-sm mt-1.5 text-muted-foreground">
-              {emptyDescription}
-            </p>
-          </div>
-        ) : (
-          filteredNotifications.map((notification) => (
-            <NotificationItem
-              key={notification.id}
-              notification={notification}
-              onMarkAsRead={handleMarkAsRead}
-              onDelete={handleDelete}
-              onClick={handleNotificationClick}
-            />
-          ))
-        )}
-      </div>
+      ) : (
+        <div className="space-y-5">
+          <DataTable
+            columns={columns}
+            data={pager.pageItems}
+            getRowKey={(n) => n.id}
+            onRowClick={handleNotificationClick}
+            empty={
+              <div className="rounded-xl border border-border bg-surface-subtle">
+                <EmptyState
+                  icon={Inbox}
+                  title={emptyTitle}
+                  description={emptyDescription}
+                />
+              </div>
+            }
+          />
+          <ListPagination {...pager} itemLabel="notifications" />
+        </div>
+      )}
 
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
         <SheetContent className="bg-background border-l border-border text-foreground p-0 w-full max-w-md shadow-2xl flex flex-col [&>button]:right-5 [&>button]:top-5 [&>button]:text-text-tertiary hover:[&>button]:text-foreground">
@@ -286,15 +445,10 @@ export function InboxScreen() {
                   </p>
 
                   {(() => {
-                    let extraContent = null;
-                    try {
-                      if (selectedNotification.extra) {
-                        extraContent = typeof selectedNotification.extra === "string" 
-                          ? JSON.parse(selectedNotification.extra) 
-                          : selectedNotification.extra;
-                      }
-                    } catch {}
-                    
+                    const extraContent = parseNotificationExtra(
+                      selectedNotification.extra,
+                    );
+
                     if (!extraContent) return null;
 
                     if (extraContent.type === "comment") {
@@ -393,3 +547,5 @@ export function InboxScreen() {
     </MainScreenWrapper>
   );
 }
+
+export default InboxScreen;

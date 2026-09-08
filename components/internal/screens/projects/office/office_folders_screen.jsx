@@ -1,60 +1,60 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
-  Clock,
-  FileText,
   FolderOpen,
   FolderPlus,
   Loader2,
   Pencil,
   Plus,
-  Presentation,
   Search,
-  Sheet,
   Trash2,
 } from "lucide-react";
 import { Button } from "@geiger/ui";
+import { ActionMenu } from "@geiger/ui";
 import { Input } from "@geiger/ui";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-} from "@geiger/ui";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
 } from "@geiger/ui";
-import { Label } from "@geiger/ui";
 import { createClient } from "@/utils/supabase/client";
 import { useProject } from "@/context/project-context";
+import {
+  DataTable,
+  EmptyState,
+  Field,
+  SearchInput,
+  StatsBar,
+  Toolbar,
+} from "@/components/internal/shared/screen_kit";
+import {
+  ListPagination,
+  usePagination,
+} from "@/components/internal/shared/pagination";
 import {
   getOfficeFileType,
   FOLDER_COLORS,
   timeAgo,
 } from "@/lib/office/office-file-meta";
 
-const TYPE_ICONS = {
-  document: FileText,
-  spreadsheet: Sheet,
-  presentation: Presentation,
-};
-
 export function OfficeFoldersScreen() {
   const { project } = useProject();
   const [folders, setFolders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [query, setQuery] = useState("");
+  const [fileQuery, setFileQuery] = useState("");
   const [activeFolder, setActiveFolder] = useState(null);
   const [folderFiles, setFolderFiles] = useState([]);
   const [filesLoading, setFilesLoading] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
   const [renameTarget, setRenameTarget] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const [addToFolderOpen, setAddToFolderOpen] = useState(false);
 
   const fetchFolders = useCallback(async () => {
@@ -164,6 +164,7 @@ export function OfficeFoldersScreen() {
   };
 
   const handleDeleteFolder = async (folder) => {
+    setDeleteTarget(null);
     setFolders((prev) => prev.filter((f) => f.id !== folder.id));
     if (activeFolder?.id === folder.id) setActiveFolder(null);
     const supabase = createClient();
@@ -200,10 +201,147 @@ export function OfficeFoldersScreen() {
     fetchFolders();
   };
 
+  const stats = useMemo(() => {
+    const totalFiles = folders.reduce((sum, f) => sum + (f.file_count || 0), 0);
+    const empty = folders.filter((f) => !f.file_count).length;
+    const largest = folders.reduce((max, f) => Math.max(max, f.file_count || 0), 0);
+    return [
+      { label: "Total folders", value: String(folders.length), footer: "In this project" },
+      { label: "Files organized", value: String(totalFiles), footer: "Across all folders" },
+      { label: "Empty folders", value: String(empty), footer: "With no files" },
+      { label: "Largest folder", value: String(largest), footer: "Most files" },
+    ];
+  }, [folders]);
+
+  const filteredFolders = useMemo(
+    () =>
+      folders.filter((f) =>
+        query.trim() ? f.name.toLowerCase().includes(query.toLowerCase()) : true
+      ),
+    [folders, query],
+  );
+
+  const folderPager = usePagination(filteredFolders, { resetKey: query });
+
+  const filteredFiles = useMemo(
+    () =>
+      folderFiles.filter((f) =>
+        fileQuery.trim() ? f.name.toLowerCase().includes(fileQuery.toLowerCase()) : true
+      ),
+    [folderFiles, fileQuery],
+  );
+
+  const filePager = usePagination(filteredFiles, {
+    resetKey: `${activeFolder?.id}|${fileQuery}`,
+  });
+
+  const folderColumns = [
+    {
+      key: "name",
+      header: "Name",
+      render: (folder) => (
+        <div className="flex min-w-0 items-center gap-3">
+          <div
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border"
+            style={{
+              backgroundColor: (folder.color || "#4285f4") + "1a",
+            }}
+          >
+            <FolderOpen
+              className="h-4 w-4"
+              style={{ color: folder.color || "var(--muted-foreground)" }}
+            />
+          </div>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium text-foreground">{folder.name}</p>
+            <p className="text-xs text-text-secondary">
+              {folder.file_count} {folder.file_count === 1 ? "file" : "files"}
+            </p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: "updated",
+      header: "Updated",
+      render: (folder) => (
+        <span className="whitespace-nowrap text-xs text-muted-foreground">
+          {timeAgo(folder.updated_at)}
+        </span>
+      ),
+    },
+    {
+      key: "actions",
+      header: "",
+      align: "right",
+      className: "text-right",
+      render: (folder) => (
+        <ActionMenu
+          label={`Actions for ${folder.name}`}
+          items={[
+            { icon: FolderOpen, label: "Open", onSelect: () => setActiveFolder(folder) },
+            { icon: Pencil, label: "Rename", onSelect: () => setRenameTarget(folder) },
+            { separator: true },
+            { icon: Trash2, label: "Delete", destructive: true, onSelect: () => setDeleteTarget(folder) },
+          ]}
+        />
+      ),
+    },
+  ];
+
+  const fileColumns = [
+    {
+      key: "name",
+      header: "Name",
+      render: (file) => {
+        const meta = getOfficeFileType(file.type);
+        const Icon = meta.icon;
+        return (
+          <div className="flex min-w-0 items-center gap-3">
+            <div
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border"
+              style={{ backgroundColor: meta.accent + "1a" }}
+            >
+              <Icon className="h-4 w-4" style={{ color: meta.accent }} />
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium text-foreground">{file.name}</p>
+              <p className="text-xs text-text-secondary">{meta.label}</p>
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      key: "updated",
+      header: "Updated",
+      render: (file) => (
+        <span className="whitespace-nowrap text-xs text-muted-foreground">
+          {timeAgo(file.updated_at)}
+        </span>
+      ),
+    },
+    {
+      key: "actions",
+      header: "",
+      align: "right",
+      className: "text-right",
+      render: (file) => (
+        <ActionMenu
+          label={`Actions for ${file.name}`}
+          items={[
+            { icon: ArrowLeft, label: "Remove from folder", onSelect: () => handleRemoveFromFolder(file.id) },
+          ]}
+        />
+      ),
+    },
+  ];
+
   if (loading) {
     return (
-      <div className="flex min-h-[40vh] items-center justify-center text-text-secondary">
-        <Loader2 className="h-5 w-5 animate-spin" />
+      <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
+        <Loader2 className="h-4 w-4 animate-spin" />
+        Loading folders…
       </div>
     );
   }
@@ -216,7 +354,7 @@ export function OfficeFoldersScreen() {
             variant="outline"
             size="sm"
             onClick={() => setActiveFolder(null)}
-            className="h-8 w-8 p-0 border-border bg-transparent text-muted-foreground hover:bg-surface-active hover:text-foreground"
+            className="h-8 w-8 border-border bg-transparent p-0 text-muted-foreground hover:bg-surface-active hover:text-foreground"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
           </Button>
@@ -227,73 +365,48 @@ export function OfficeFoldersScreen() {
           <Button
             size="sm"
             onClick={() => setAddToFolderOpen(true)}
-            className="bg-primary text-primary-foreground hover:bg-primary"
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
-            <FolderPlus className="w-4 h-4 mr-1" />
+            <FolderPlus className="h-4 w-4" />
             Add files
           </Button>
         </div>
 
+        <Toolbar>
+          <div />
+          <SearchInput
+            value={fileQuery}
+            onChange={setFileQuery}
+            placeholder="Search files in folder…"
+          />
+        </Toolbar>
+
         {filesLoading ? (
-          <div className="flex min-h-[20vh] items-center justify-center text-text-secondary">
-            <Loader2 className="h-5 w-5 animate-spin" />
-          </div>
-        ) : folderFiles.length === 0 ? (
-          <div className="flex min-h-56 flex-col items-center justify-center rounded-md border border-dashed border-border bg-surface-subtle p-8 text-center">
-            <FolderOpen className="mb-3 h-6 w-6 text-text-tertiary" />
-            <p className="text-sm font-medium text-foreground">
-              This folder is empty
-            </p>
-            <p className="mt-1 max-w-md text-xs leading-5 text-text-secondary">
-              Click &quot;Add files&quot; to move files into this folder.
-            </p>
+          <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Loading files…
           </div>
         ) : (
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {folderFiles.map((file) => {
-              const meta = getOfficeFileType(file.type);
-              const Icon = meta.icon;
-              return (
-                <ContextMenu key={file.id}>
-                  <ContextMenuTrigger asChild>
-                    <div className="flex flex-col gap-3 rounded-md border border-border bg-surface-subtle p-4">
-                      <div className="flex items-start justify-between">
-                        <div
-                          className="flex h-9 w-9 items-center justify-center rounded-md border border-border"
-                          style={{ backgroundColor: meta.accent + "1a" }}
-                        >
-                          <Icon
-                            className="h-4 w-4"
-                            style={{ color: meta.accent }}
-                          />
-                        </div>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-sm font-medium text-foreground truncate">
-                          {file.name}
-                        </h3>
-                        <p className="text-xs text-text-secondary mt-0.5">
-                          {meta.label}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-1 border-t border-border pt-2.5 text-[10px] text-text-tertiary">
-                        <Clock className="h-3 w-3" />
-                        {timeAgo(file.updated_at)}
-                      </div>
-                    </div>
-                  </ContextMenuTrigger>
-                  <ContextMenuContent className="w-48 bg-surface-card border-border shadow-xl">
-                    <ContextMenuItem
-                      className="text-muted-foreground focus:bg-surface-hover focus:text-foreground cursor-pointer gap-2"
-                      onSelect={() => handleRemoveFromFolder(file.id)}
-                    >
-                      <ArrowLeft className="h-3.5 w-3.5" />
-                      Remove from folder
-                    </ContextMenuItem>
-                  </ContextMenuContent>
-                </ContextMenu>
-              );
-            })}
+          <div className="space-y-5">
+            <DataTable
+              columns={fileColumns}
+              data={filePager.pageItems}
+              getRowKey={(f) => f.id}
+              empty={
+                <div className="rounded-xl border border-border bg-surface-subtle">
+                  <EmptyState
+                    icon={FolderOpen}
+                    title={fileQuery.trim() ? "No files match your search" : "This folder is empty"}
+                    description={
+                      fileQuery.trim()
+                        ? "Try a different search term."
+                        : "Click \u201CAdd files\u201D to move files into this folder."
+                    }
+                  />
+                </div>
+              }
+            />
+            <ListPagination {...filePager} itemLabel="files" />
           </div>
         )}
 
@@ -316,93 +429,61 @@ export function OfficeFoldersScreen() {
     <div className="space-y-4">
       {error && <p className="text-sm text-red-300">{error}</p>}
 
-      <div className="flex items-center justify-between">
+      <StatsBar stats={stats} />
+
+      <Toolbar>
         <p className="text-sm text-muted-foreground">
           {folders.length} {folders.length === 1 ? "folder" : "folders"}
         </p>
-        <Button
-          size="sm"
-          onClick={() => setCreateOpen(true)}
-          className="bg-primary text-primary-foreground hover:bg-primary"
-        >
-          <Plus className="w-4 h-4 mr-1" />
-          New folder
-        </Button>
-      </div>
+        <div className="flex items-center gap-2">
+          <SearchInput
+            value={query}
+            onChange={setQuery}
+            placeholder="Search folders…"
+          />
+          <Button
+            size="sm"
+            onClick={() => setCreateOpen(true)}
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
+          >
+            <Plus className="h-4 w-4" />
+            New folder
+          </Button>
+        </div>
+      </Toolbar>
 
-      {folders.length === 0 ? (
-        <div className="flex min-h-56 flex-col items-center justify-center rounded-md border border-dashed border-border bg-surface-subtle p-8 text-center">
-          <FolderOpen className="mb-3 h-6 w-6 text-text-tertiary" />
-          <p className="text-sm font-medium text-foreground">No folders yet</p>
-          <p className="mt-1 max-w-md text-xs leading-5 text-text-secondary">
-            Create a folder to organize your office files.
-          </p>
-        </div>
-      ) : (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {folders.map((folder) => (
-            <ContextMenu key={folder.id}>
-              <ContextMenuTrigger asChild>
-                <button
-                  type="button"
-                  onClick={() => setActiveFolder(folder)}
-                  className="flex flex-col gap-3 rounded-md border border-border bg-surface-subtle p-4 text-left transition-colors hover:border-border-strong"
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border"
-                      style={{
-                        backgroundColor: (folder.color || "#4285f4") + "1a",
-                      }}
-                    >
-                      <FolderOpen
-                        className="h-4 w-4"
-                        style={{ color: folder.color || "var(--muted-foreground)" }}
-                      />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <h3 className="truncate text-sm font-medium text-foreground">
-                        {folder.name}
-                      </h3>
-                      <span className="text-xs text-text-secondary">
-                        {folder.file_count}{" "}
-                        {folder.file_count === 1 ? "file" : "files"}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1 border-t border-border pt-2.5 text-[10px] text-text-tertiary">
-                    <Clock className="h-3 w-3" />
-                    Updated {timeAgo(folder.updated_at)}
-                  </div>
-                </button>
-              </ContextMenuTrigger>
-              <ContextMenuContent className="w-52 bg-surface-card border-border shadow-xl">
-                <ContextMenuItem
-                  className="text-muted-foreground focus:bg-surface-hover focus:text-foreground cursor-pointer gap-2"
-                  onSelect={() => setActiveFolder(folder)}
-                >
-                  <FolderOpen className="h-3.5 w-3.5" />
-                  Open
-                </ContextMenuItem>
-                <ContextMenuItem
-                  className="text-muted-foreground focus:bg-surface-hover focus:text-foreground cursor-pointer gap-2"
-                  onSelect={() => setRenameTarget(folder)}
-                >
-                  <Pencil className="h-3.5 w-3.5" />
-                  Rename
-                </ContextMenuItem>
-                <ContextMenuItem
-                  className="text-red-400 focus:bg-surface-hover focus:text-red-300 cursor-pointer gap-2"
-                  onSelect={() => handleDeleteFolder(folder)}
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                  Delete
-                </ContextMenuItem>
-              </ContextMenuContent>
-            </ContextMenu>
-          ))}
-        </div>
-      )}
+      <div className="space-y-5">
+        <DataTable
+          columns={folderColumns}
+          data={folderPager.pageItems}
+          getRowKey={(f) => f.id}
+          onRowClick={(folder) => setActiveFolder(folder)}
+          empty={
+            <div className="rounded-xl border border-border bg-surface-subtle">
+              <EmptyState
+                icon={FolderOpen}
+                title={query.trim() ? "No folders match your search" : "No folders yet"}
+                description={
+                  query.trim()
+                    ? "Try a different search term."
+                    : "Create a folder to organize your office files."
+                }
+                action={
+                  <Button
+                    size="sm"
+                    onClick={() => setCreateOpen(true)}
+                    className="bg-primary text-primary-foreground hover:bg-primary/90"
+                  >
+                    <Plus className="h-4 w-4" />
+                    New folder
+                  </Button>
+                }
+              />
+            </div>
+          }
+        />
+        <ListPagination {...folderPager} itemLabel="folders" />
+      </div>
 
       <CreateFolderDialog
         open={createOpen}
@@ -412,9 +493,37 @@ export function OfficeFoldersScreen() {
       <RenameFolderDialog
         open={!!renameTarget}
         folder={renameTarget}
-        onOpenChange={(open) => !open && setRenameTarget(null)}
+        onOpenChange={(isOpen) => !isOpen && setRenameTarget(null)}
         onSubmit={handleRenameFolder}
       />
+      <Dialog
+        open={!!deleteTarget}
+        onOpenChange={(isOpen) => !isOpen && setDeleteTarget(null)}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete folder</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete{" "}
+              <span className="font-medium text-foreground">
+                {deleteTarget?.name}
+              </span>
+              ? Files inside will not be deleted. This action can&apos;t be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setDeleteTarget(null)}>
+              Cancel
+            </Button>
+            <Button
+              className="bg-red-500/90 text-white hover:bg-red-500"
+              onClick={() => handleDeleteFolder(deleteTarget)}
+            >
+              <Trash2 className="h-4 w-4" /> Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -434,51 +543,55 @@ function CreateFolderDialog({ open, onOpenChange, onSubmit }) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-surface-subtle border-border max-w-sm">
+      <DialogContent className="max-w-sm">
         <DialogHeader>
           <DialogTitle className="text-foreground">New folder</DialogTitle>
+          <DialogDescription>
+            Create a folder to organize your office files.
+          </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label className="text-muted-foreground text-sm">Folder name</Label>
-            <Input
-              autoFocus
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Enter folder name"
-              className="bg-surface-card border-border text-foreground placeholder:text-text-secondary focus:border-border-strong"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-muted-foreground text-sm">Color</Label>
-            <div className="flex items-center gap-2">
-              {FOLDER_COLORS.map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => setColor(c)}
-                  className="h-6 w-6 rounded-full border-2 transition-colors"
-                  style={{
-                    backgroundColor: c,
-                    borderColor: color === c ? "#fff" : "transparent",
-                  }}
-                />
-              ))}
-            </div>
+        <form onSubmit={handleSubmit}>
+          <div className="grid gap-4">
+            <Field label="Folder name" htmlFor="office-folder-name">
+              <Input
+                id="office-folder-name"
+                autoFocus
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Enter folder name"
+                className="border-border bg-surface-card text-foreground placeholder:text-text-secondary"
+              />
+            </Field>
+            <Field label="Color">
+              <div className="flex items-center gap-2">
+                {FOLDER_COLORS.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => setColor(c)}
+                    aria-label={`Folder color ${c}`}
+                    className="h-6 w-6 rounded-full border-2 transition-colors"
+                    style={{
+                      backgroundColor: c,
+                      borderColor: color === c ? "#fff" : "transparent",
+                    }}
+                  />
+                ))}
+              </div>
+            </Field>
           </div>
           <DialogFooter>
             <Button
               type="button"
               variant="ghost"
               onClick={() => onOpenChange(false)}
-              className="text-muted-foreground hover:text-foreground hover:bg-surface-active"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={!name.trim()}
-              className="bg-primary text-primary-foreground hover:bg-primary"
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               Create
             </Button>
@@ -505,34 +618,38 @@ function RenameFolderDialog({ open, folder, onOpenChange, onSubmit }) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-surface-subtle border-border max-w-sm">
+      <DialogContent className="max-w-sm">
         <DialogHeader>
           <DialogTitle className="text-foreground">Rename folder</DialogTitle>
+          <DialogDescription>
+            Give &quot;{folder?.name}&quot; a new name.
+          </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label className="text-muted-foreground text-sm">Folder name</Label>
-            <Input
-              autoFocus
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={folder?.name}
-              className="bg-surface-card border-border text-foreground placeholder:text-text-secondary focus:border-border-strong"
-            />
+        <form onSubmit={handleSubmit}>
+          <div className="grid gap-4">
+            <Field label="Folder name" htmlFor="office-rename-folder">
+              <Input
+                id="office-rename-folder"
+                autoFocus
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder={folder?.name}
+                className="border-border bg-surface-card text-foreground placeholder:text-text-secondary"
+              />
+            </Field>
           </div>
           <DialogFooter>
             <Button
               type="button"
               variant="ghost"
               onClick={() => onOpenChange(false)}
-              className="text-muted-foreground hover:text-foreground hover:bg-surface-active"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={!name.trim()}
-              className="bg-primary text-primary-foreground hover:bg-primary"
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               Rename
             </Button>
@@ -617,27 +734,32 @@ function AddToFolderDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-surface-subtle border-border max-w-md">
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="text-foreground">Add files to folder</DialogTitle>
+          <DialogDescription>
+            Select files to move into this folder.
+          </DialogDescription>
         </DialogHeader>
-        <div className="space-y-3">
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
-            <Input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search files"
-              className="h-9 pl-8 bg-surface-card border-border text-foreground placeholder:text-text-secondary focus:border-border-strong"
-            />
-          </div>
+        <div className="grid gap-4">
+          <Field label="Search files">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
+              <Input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search files"
+                className="h-9 border-border bg-surface-card pl-8 text-foreground placeholder:text-text-secondary"
+              />
+            </div>
+          </Field>
 
           {loading ? (
             <div className="flex min-h-[20vh] items-center justify-center text-text-secondary">
               <Loader2 className="h-5 w-5 animate-spin" />
             </div>
           ) : filtered.length === 0 ? (
-            <p className="text-sm text-text-secondary text-center py-8">
+            <p className="py-8 text-center text-sm text-text-secondary">
               No files available to add.
             </p>
           ) : (
@@ -656,7 +778,7 @@ function AddToFolderDialog({
                   {selected.size} selected
                 </span>
               </div>
-              <div className="max-h-60 overflow-y-auto space-y-1">
+              <div className="max-h-60 space-y-1 overflow-y-auto">
                 {filtered.map((file) => {
                   const meta = getOfficeFileType(file.type);
                   const Icon = meta.icon;
@@ -665,7 +787,7 @@ function AddToFolderDialog({
                       key={file.id}
                       type="button"
                       onClick={() => toggleSelect(file.id)}
-                      className={`flex items-center gap-3 w-full rounded-md px-3 py-2 text-left transition-colors ${
+                      className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-left transition-colors ${
                         selected.has(file.id)
                           ? "bg-surface-hover"
                           : "hover:bg-surface-card"
@@ -681,7 +803,7 @@ function AddToFolderDialog({
                         className="h-4 w-4 shrink-0"
                         style={{ color: meta.accent }}
                       />
-                      <span className="text-sm text-foreground truncate">
+                      <span className="truncate text-sm text-foreground">
                         {file.name}
                       </span>
                     </button>
@@ -696,17 +818,16 @@ function AddToFolderDialog({
             type="button"
             variant="ghost"
             onClick={() => onOpenChange(false)}
-            className="text-muted-foreground hover:text-foreground hover:bg-surface-active"
           >
             Cancel
           </Button>
           <Button
             onClick={handleAdd}
             disabled={selected.size === 0 || saving}
-            className="bg-primary text-primary-foreground hover:bg-primary"
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
             {saving ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-1" />
+              <Loader2 className="h-4 w-4 animate-spin" />
             ) : null}
             Add {selected.size > 0 ? `${selected.size} files` : ""}
           </Button>

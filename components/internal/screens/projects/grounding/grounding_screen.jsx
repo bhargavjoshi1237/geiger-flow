@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import { toast } from "sonner";
 import {
   Check,
   ChevronDown,
@@ -9,7 +10,6 @@ import {
   Lock,
   Megaphone,
   MessageSquare,
-  MoreHorizontal,
   PanelLeftClose,
   PanelLeftOpen,
   Pin,
@@ -21,18 +21,25 @@ import {
   Trash2,
 } from "lucide-react";
 import { Button } from "@geiger/ui";
+import { ActionMenu } from "@geiger/ui";
 import { Input } from "@geiger/ui";
 import { Avatar, AvatarFallback } from "@geiger/ui";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@geiger/ui";
 import { Textarea } from "@geiger/ui";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
+import {
+  EmptyState,
+  ScreenHeader,
+  SearchInput,
+  StatsBar,
+  StatusPill,
+  Toolbar,
+} from "@/components/internal/shared/screen_kit";
+import FilterDropdown from "@/components/internal/screens/projects/overview/filter_dropdown";
 import { cn } from "@/lib/utils";
+import {
+  MESSAGE_TYPE_FILTER_OPTIONS,
+  MESSAGE_TYPE_PILL_MAP,
+} from "@/features/grounding/constants";
 
 const CHANNELS = [];
 
@@ -218,7 +225,9 @@ function MobileChannelPicker({ selectedChannel, onSelectChannel }) {
   );
 }
 
-function MessageItem({ message }) {
+function MessageItem({ message, onReply, onTogglePin, onCopyText, onArchive }) {
+  const typeKey = String(message.type || "message").toLowerCase();
+
   return (
     <article className="rounded-xl border border-border bg-surface-subtle px-4 py-3 transition-colors hover:border-border-strong">
       <div className="flex items-start gap-3">
@@ -235,9 +244,7 @@ function MessageItem({ message }) {
               <p className="truncate text-xs text-text-secondary">{message.role}</p>
             </div>
             <div className="flex shrink-0 items-center gap-2">
-              <span className="rounded-md border border-border px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                {message.type}
-              </span>
+              <StatusPill status={typeKey} map={MESSAGE_TYPE_PILL_MAP} />
               <span className="text-xs text-text-tertiary">|</span>
               <span className="text-xs text-text-secondary">{message.time}</span>
               {message.pinned ? (
@@ -260,35 +267,16 @@ function MessageItem({ message }) {
             <Button variant="ghost" size="sm" className="ml-auto h-6 px-2 text-xs text-muted-foreground hover:bg-surface-active hover:text-foreground">
               Reply
             </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-6 w-6 text-text-secondary hover:bg-surface-active hover:text-foreground">
-                  <MoreHorizontal className="h-3.5 w-3.5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="w-44 rounded-lg border-border bg-surface-subtle text-foreground"
-              >
-                <DropdownMenuItem className="cursor-pointer gap-2 text-xs focus:bg-surface-active focus:text-foreground">
-                  <Reply className="h-3.5 w-3.5" />
-                  Reply in thread
-                </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer gap-2 text-xs focus:bg-surface-active focus:text-foreground">
-                  <Pin className="h-3.5 w-3.5" />
-                  {message.pinned ? "Unpin message" : "Pin message"}
-                </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer gap-2 text-xs focus:bg-surface-active focus:text-foreground">
-                  <Copy className="h-3.5 w-3.5" />
-                  Copy link
-                </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-surface-hover" />
-                <DropdownMenuItem className="cursor-pointer gap-2 text-xs text-red-400 focus:bg-red-500/10 focus:text-red-300">
-                  <Trash2 className="h-3.5 w-3.5" />
-                  Archive
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <ActionMenu
+              label={`Actions for message from ${message.author}`}
+              items={[
+                { icon: Reply, label: "Reply in thread", onSelect: () => onReply?.(message) },
+                { icon: Pin, label: message.pinned ? "Unpin message" : "Pin message", onSelect: () => onTogglePin?.(message) },
+                { icon: Copy, label: "Copy text", onSelect: () => onCopyText?.(message) },
+                { separator: true },
+                { icon: Trash2, label: "Archive", destructive: true, onSelect: () => onArchive?.(message) },
+              ]}
+            />
           </div>
         </div>
       </div>
@@ -302,12 +290,42 @@ export function GroundingScreen() {
   const [selectedChannel, setSelectedChannel] = useState("");
   const [channelsCollapsed, setChannelsCollapsed] = useState(false);
   const [mode, setMode] = useState("message");
+  const [messageQuery, setMessageQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState("all");
 
   const activeChannel = CHANNELS.find((channel) => channel.id === selectedChannel);
   const visibleMessages = useMemo(
     () => messages.filter((messageItem) => messageItem.channelId === selectedChannel),
     [messages, selectedChannel],
   );
+
+  const filteredMessages = useMemo(() => {
+    const query = messageQuery.trim().toLowerCase();
+    return visibleMessages.filter((item) => {
+      if (typeFilter !== "all" && String(item.type || "").toLowerCase() !== typeFilter) {
+        return false;
+      }
+      if (!query) {
+        return true;
+      }
+      return [item.author, item.role, item.body]
+        .filter(Boolean)
+        .some((field) => String(field).toLowerCase().includes(query));
+    });
+  }, [visibleMessages, messageQuery, typeFilter]);
+
+  const stats = useMemo(() => {
+    const pinned = messages.filter((item) => item.pinned).length;
+    const broadcasts = messages.filter(
+      (item) => String(item.type || "").toLowerCase() === "broadcast",
+    ).length;
+    return [
+      { label: "Channels", value: String(CHANNELS.length), footer: "Project-wide context" },
+      { label: "Messages", value: String(messages.length), footer: activeChannel ? `In ${activeChannel.name}` : "Select a channel" },
+      { label: "Pinned", value: String(pinned), footer: "Saved highlights" },
+      { label: "Broadcasts", value: String(broadcasts), footer: "Announcements" },
+    ];
+  }, [messages, activeChannel]);
 
   const handleSendMessage = () => {
     const trimmedMessage = message.trim();
@@ -341,31 +359,74 @@ export function GroundingScreen() {
     setMessage("");
   };
 
+  const handleTogglePin = (target) => {
+    setMessages((current) =>
+      current.map((item) =>
+        item.id === target.id ? { ...item, pinned: !item.pinned } : item,
+      ),
+    );
+  };
+
+  const handleCopyText = async (target) => {
+    try {
+      await navigator.clipboard.writeText(target.body);
+      toast.success("Message copied");
+    } catch {
+      toast.error("Couldn't copy message");
+    }
+  };
+
+  const handleReply = (target) => {
+    setMessage((current) => (current ? `${current} @${target.author} ` : `@${target.author} `));
+  };
+
+  const handleArchive = (target) => {
+    setMessages((current) => current.filter((item) => item.id !== target.id));
+    toast.success("Message archived");
+  };
+
   return (
     <MainScreenWrapper className="text-foreground">
-      <div className="flex flex-col gap-4 border-b border-border pb-6 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <div className="flex items-center gap-3">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Grounding</h1>
-              <p className="mt-1 text-muted-foreground">Project broadcasts, decisions, blockers, and admin-moderated context.</p>
-            </div>
-          </div>
+      <ScreenHeader
+        title="Grounding"
+        description="Project broadcasts, decisions, blockers, and admin-moderated context."
+        actions={
+          <>
+            <Button
+              variant="outline"
+              className="border-border bg-transparent text-muted-foreground hover:bg-surface-active hover:text-foreground"
+            >
+              <Settings className="mr-2 h-4 w-4" />
+              Settings
+            </Button>
+            <Button
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+              onClick={() => setMode((current) => (current === "broadcast" ? "message" : "broadcast"))}
+            >
+              <Megaphone className="mr-2 h-4 w-4" />
+              Broadcast
+            </Button>
+          </>
+        }
+      />
+
+      <StatsBar stats={stats} />
+
+      <Toolbar>
+        <div className="flex items-center gap-2">
+          <FilterDropdown
+            value={typeFilter}
+            onValueChange={setTypeFilter}
+            options={MESSAGE_TYPE_FILTER_OPTIONS}
+            height="h-9"
+          />
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            variant="outline"
-            className="border-border bg-transparent text-muted-foreground hover:bg-surface-active hover:text-foreground"
-          >
-            <Settings className="mr-2 h-4 w-4" />
-            Settings
-          </Button>
-          <Button className="bg-primary text-primary-foreground hover:bg-primary">
-            <Megaphone className="mr-2 h-4 w-4" />
-            Broadcast
-          </Button>
-        </div>
-      </div>
+        <SearchInput
+          value={messageQuery}
+          onChange={setMessageQuery}
+          placeholder="Search messages…"
+        />
+      </Toolbar>
 
       <div className="relative flex h-[calc(100dvh-250px)] min-h-[500px] gap-4">
         <ChannelRail
@@ -379,25 +440,36 @@ export function GroundingScreen() {
           <MobileChannelPicker selectedChannel={selectedChannel} onSelectChannel={setSelectedChannel} />
 
           <section className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {activeChannel ? (
-              visibleMessages.length > 0 ? (
-                visibleMessages.map((item) => (
-                  <MessageItem key={item.id} message={item} />
-                ))
-              ) : (
-                <div className="flex h-full min-h-[240px] items-center justify-center rounded-xl border border-dashed border-border bg-surface-subtle text-center">
-                  <div>
-                    <p className="text-sm font-medium text-foreground">No messages yet</p>
-                    <p className="mt-1 text-xs text-text-secondary">Messages will appear here after backend data is connected.</p>
-                  </div>
-                </div>
-              )
+            {!activeChannel ? (
+              <div className="rounded-xl border border-border bg-surface-subtle">
+                <EmptyState
+                  icon={Megaphone}
+                  title="No channels yet"
+                  description="Create or fetch channels from the backend to start grounding discussions."
+                />
+              </div>
+            ) : filteredMessages.length > 0 ? (
+              filteredMessages.map((item) => (
+                <MessageItem
+                  key={item.id}
+                  message={item}
+                  onReply={handleReply}
+                  onTogglePin={handleTogglePin}
+                  onCopyText={handleCopyText}
+                  onArchive={handleArchive}
+                />
+              ))
             ) : (
-              <div className="flex h-full min-h-[240px] items-center justify-center rounded-xl border border-dashed border-border bg-surface-subtle text-center">
-                <div>
-                  <p className="text-sm font-medium text-foreground">No channels yet</p>
-                  <p className="mt-1 text-xs text-text-secondary">Create or fetch channels from the backend to start grounding discussions.</p>
-                </div>
+              <div className="rounded-xl border border-border bg-surface-subtle">
+                <EmptyState
+                  icon={MessageSquare}
+                  title={visibleMessages.length ? "No matching messages" : "No messages yet"}
+                  description={
+                    visibleMessages.length
+                      ? "Try clearing the search or type filter."
+                      : "Messages will appear here after backend data is connected."
+                  }
+                />
               </div>
             )}
           </section>
@@ -426,3 +498,5 @@ export function GroundingScreen() {
     </MainScreenWrapper>
   );
 }
+
+export default GroundingScreen;

@@ -19,16 +19,9 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@geiger/ui";
 import { Input } from "@geiger/ui";
-import { Badge } from "@geiger/ui";
 import { Progress } from "@geiger/ui";
 import { Card, CardContent } from "@geiger/ui";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuTrigger,
-} from "@geiger/ui";
+import { ActionMenu } from "@geiger/ui";
 import {
   ArrowLeft,
   GripVertical,
@@ -37,7 +30,6 @@ import {
   Circle,
   CheckCircle2,
   ChevronDown,
-  MoreHorizontal,
   Plus,
   AlertTriangle,
   TrendingUp,
@@ -45,12 +37,14 @@ import {
   Pencil,
   Trash2,
   Copy,
+  Loader2,
 } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
+import { StatusPill } from "@/components/internal/shared/screen_kit";
 import { NewGoalDialog } from "@/components/internal/dilouges/goals/new_goal_dilouge";
 import { cn } from "@/lib/utils";
 import { useProject } from "@/context/project-context";
-import { DEFAULT_OBJECTIVE_COLUMNS } from "@/features/objectives/constants";
+import { DEFAULT_OBJECTIVE_COLUMNS, objectiveStatusPillMap } from "@/features/objectives/constants";
 import { updateObjective } from "@/features/objectives/actions";
 import {
   listGoals,
@@ -60,25 +54,6 @@ import {
 } from "@/features/goals/actions";
 
 const STATUS_CONFIG = DEFAULT_OBJECTIVE_COLUMNS;
-
-const STATUS_META = {
-  not_started: {
-    label: "Not Started",
-    className: "bg-zinc-500/10 text-muted-foreground border-zinc-500/20",
-  },
-  on_track: {
-    label: "On Track",
-    className: "bg-emerald-500/10 text-emerald-300 border-emerald-500/20",
-  },
-  at_risk: {
-    label: "At Risk",
-    className: "bg-amber-500/10 text-amber-300 border-amber-500/20",
-  },
-  completed: {
-    label: "Completed",
-    className: "bg-blue-500/10 text-blue-300 border-blue-500/20",
-  },
-};
 
 const COLUMN_ACCENT = {
   not_started: "border-t-zinc-500",
@@ -156,6 +131,22 @@ function GoalCard({ goal, isDragOverlay, onEdit, onDelete, onDuplicate }) {
                 {goal.description}
               </p>
             </div>
+            {!isDragOverlay && (
+              <ActionMenu
+                label={`Actions for ${goal.title}`}
+                items={[
+                  { icon: Pencil, label: "Edit", onSelect: () => onEdit?.(goal) },
+                  { icon: Copy, label: "Duplicate", onSelect: () => onDuplicate?.(goal) },
+                  { separator: true },
+                  {
+                    icon: Trash2,
+                    label: "Delete",
+                    destructive: true,
+                    onSelect: () => onDelete?.(goal.id),
+                  },
+                ]}
+              />
+            )}
           </div>
 
           <div className="flex items-center gap-3 text-[11px] justify-between text-text-tertiary">
@@ -251,36 +242,7 @@ function GoalCard({ goal, isDragOverlay, onEdit, onDelete, onDuplicate }) {
 
   return (
     <div ref={setNodeRef} style={style} {...attributes}>
-      <ContextMenu>
-        <ContextMenuTrigger asChild>
-          {cardElement}
-        </ContextMenuTrigger>
-        <ContextMenuContent className="bg-surface-subtle border-border text-foreground rounded-lg">
-          <ContextMenuItem
-            className="text-xs gap-2 focus:bg-surface-active focus:text-foreground"
-            onSelect={() => onEdit?.(goal)}
-          >
-            <Pencil className="w-3.5 h-3.5" />
-            Edit Goal
-          </ContextMenuItem>
-          <ContextMenuItem
-            className="text-xs gap-2 focus:bg-surface-active focus:text-foreground"
-            onSelect={() => onDuplicate?.(goal)}
-          >
-            <Copy className="w-3.5 h-3.5" />
-            Duplicate
-          </ContextMenuItem>
-          <ContextMenuSeparator className="bg-surface-hover" />
-          <ContextMenuItem
-            variant="destructive"
-            className="text-xs gap-2 focus:bg-red-500/10 focus:text-red-400"
-            onSelect={() => onDelete?.(goal.id)}
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-            Delete Goal
-          </ContextMenuItem>
-        </ContextMenuContent>
-      </ContextMenu>
+      {cardElement}
     </div>
   );
 }
@@ -634,14 +596,7 @@ export function ObjectiveKanban({ objective, onBack }) {
                   <h1 className="text-2xl font-bold text-foreground leading-tight">
                     {objective.title}
                   </h1>
-                  <Badge
-                    className={cn(
-                      "border text-[10px] px-2 py-0",
-                      STATUS_META[objective.status]?.className
-                    )}
-                  >
-                    {STATUS_META[objective.status]?.label}
-                  </Badge>
+                  <StatusPill status={objective.status} map={objectiveStatusPillMap} />
                 </div>
                 <p className="text-sm text-text-secondary mt-1">
                   {objective.description}
@@ -678,9 +633,9 @@ export function ObjectiveKanban({ objective, onBack }) {
         </div>
 
         {loading ? (
-          <div className="flex-1 flex items-center justify-center gap-3 text-text-tertiary">
-            <div className="w-5 h-5 rounded-full border-2 border-border-strong border-t-foreground animate-spin" />
-            <span className="text-sm">Loading goals...</span>
+          <div className="flex flex-1 items-center justify-center gap-2 text-sm text-text-secondary">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Loading goals…
           </div>
         ) : (
         <DndContext

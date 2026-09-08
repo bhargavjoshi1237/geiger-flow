@@ -10,12 +10,34 @@
 
 import { createClient } from "@/lib/supabase/client";
 import { flowClient } from "@/supabase/components/flow-client";
+import { logActivity } from "@/features/activity_logs/actions";
+import { formatUpdateMessage } from "@/features/activity_logs/constants";
 import {
   DEFAULT_OBJECTIVE_STATUS,
   DEFAULT_OBJECTIVE_COLUMNS,
+  OBJECTIVE_STATUSES,
 } from "./constants";
 
 const OBJECTIVES_TABLE = "objectives";
+
+// Readable labels for the activity-log change summary.
+const objectiveStatusLabels = Object.fromEntries(
+  OBJECTIVE_STATUSES.map((status) => [status.value, status.label]),
+);
+
+const OBJECTIVE_FIELD_LABELS = {
+  title: "title",
+  description: "description",
+  status: "status",
+  owner: "owner",
+  progress: "progress",
+  startDate: "start date",
+  targetDate: "target date",
+};
+
+const OBJECTIVE_VALUE_LABELS = {
+  status: (value) => objectiveStatusLabels[value] ?? value,
+};
 
 // Attributes stored in the `metadata` jsonb expansion bag rather than dedicated
 // columns. Surfaced as first-class fields on the view model and folded back on
@@ -162,6 +184,12 @@ export async function createObjective(projectId, input) {
     return null;
   }
 
+  void logActivity(projectId, {
+    source: "objectives",
+    message: `Created objective "${data.title}"`,
+    detail: { id: data.id, status: data.status },
+  }).catch(() => {});
+
   return normalizeObjective(data);
 }
 
@@ -188,6 +216,18 @@ export async function updateObjective(id, patch) {
     return null;
   }
 
+  void logActivity(data.project_id, {
+    source: "objectives",
+    message: formatUpdateMessage({
+      entity: "objective",
+      title: data.title,
+      patch,
+      fields: OBJECTIVE_FIELD_LABELS,
+      values: OBJECTIVE_VALUE_LABELS,
+    }),
+    detail: { id, patch },
+  }).catch(() => {});
+
   return normalizeObjective(data);
 }
 
@@ -197,14 +237,25 @@ export async function softDeleteObjective(id) {
     return false;
   }
 
-  const { error } = await flowClient()
+  const { data, error } = await flowClient()
     .from(OBJECTIVES_TABLE)
     .update({ deleted_at: new Date().toISOString() })
-    .eq("id", id);
+    .eq("id", id)
+    .select("project_id, title")
+    .maybeSingle();
 
   if (error) {
     console.error("[flow.objectives] delete error:", error);
     return false;
+  }
+
+  if (data?.project_id) {
+    void logActivity(data.project_id, {
+      source: "objectives",
+      level: "warning",
+      message: `Deleted objective "${data.title}"`,
+      detail: { id },
+    }).catch(() => {});
   }
 
   return true;

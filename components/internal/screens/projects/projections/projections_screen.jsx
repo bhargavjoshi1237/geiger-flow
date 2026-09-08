@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { Calendar } from "@geiger/ui";
 import { Button } from "@geiger/ui";
 import {
@@ -16,11 +17,26 @@ import {
   ChevronLeft,
   ChevronRight,
   CalendarDays,
-  SlidersHorizontal,
+  Loader2,
 } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { SegmentedTabs } from "@/components/internal/shared/segmented_tabs";
-import { AddActivityDialog } from "@/components/internal/dilouges/activities/add_activity_dilouge";
+import {
+  EmptyState,
+  ScreenHeader,
+  SearchInput,
+  StatsBar,
+  Toolbar,
+} from "@/components/internal/shared/screen_kit";
+import { SegmentedTabs } from "@geiger/ui";
+import { NewProjectionDialog } from "@/components/internal/dilouges/projections/new_projection_dilouge";
+import { useProject } from "@/context/project-context";
+import { DEFAULT_PROJECTION_KIND, DEFAULT_PROJECTION_VISIBILITY, toDayKey } from "@/features/projections/constants";
+import {
+  listProjections,
+  createProjection,
+  updateProjection,
+  softDeleteProjection,
+} from "@/features/projections/actions";
 
 const TABS = ["All", "Shared", "Public", "Archived"];
 const TAB_KEYS = ["all events", "shared", "public", "archived"];
@@ -107,26 +123,88 @@ function getViewSubtitle(date, viewMode) {
 }
 
 export function ProjectionsScreen() {
+  const { project } = useProject();
+  const projectId = project?.id;
+
   const [activeTab, setActiveTab]       = useState("all events");
   const [currentDate, setCurrentDate]   = useState(new Date());
   const [viewMode, setViewMode]         = useState("month");
   const [searchQuery, setSearchQuery]   = useState("");
   const [fadeKey] = useState(0);
-  const [events] = useState([]);
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingEvent, setEditingEvent] = useState(null);
+  const [initialDate, setInitialDate] = useState(null);
+
+  useEffect(() => {
+    if (!projectId) {
+      return;
+    }
+    let active = true;
+    void Promise.resolve().then(async () => {
+      setLoading(true);
+      const rows = await listProjections(projectId);
+      if (active) {
+        setEvents(rows);
+        setLoading(false);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [projectId]);
 
   const today = new Date();
   const displayEvents = useMemo(() => {
     switch (activeTab) {
       case "shared":
-        return events.filter((event) => event.visibility === "shared" && !event.archived);
+        return events.filter((event) => event.visibility === "shared" && !event.archivedAt);
       case "public":
-        return events.filter((event) => event.visibility === "public" && !event.archived);
+        return events.filter((event) => event.visibility === "public" && !event.archivedAt);
       case "archived":
-        return events.filter((event) => event.archived);
+        return events.filter((event) => event.archivedAt);
       default:
-        return events.filter((event) => !event.archived);
+        return events.filter((event) => !event.archivedAt);
     }
   }, [activeTab, events]);
+
+  const filteredEvents = useMemo(() => {
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+    if (!normalizedQuery) {
+      return displayEvents;
+    }
+    return displayEvents.filter((event) =>
+      `${event.title} ${event.owner}`.toLowerCase().includes(normalizedQuery)
+    );
+  }, [displayEvents, searchQuery]);
+
+  const stats = useMemo(() => {
+    const shared = events.filter((event) => event.visibility === "shared" && !event.archivedAt).length;
+    const publik = events.filter((event) => event.visibility === "public" && !event.archivedAt).length;
+    const archived = events.filter((event) => event.archivedAt).length;
+    return [
+      { label: "Total events", value: String(events.length), footer: `${filteredEvents.length} shown` },
+      { label: "Shared", value: String(shared), footer: "Visible to the team" },
+      { label: "Public", value: String(publik), footer: "Visible to everyone" },
+      { label: "Archived", value: String(archived), footer: "Hidden from the calendar" },
+    ];
+  }, [events, filteredEvents]);
+
+  // Adapt camelCase view models to the Calendar's shape ({ title, start, end,
+  // type }). All-day spans run start -> end-of-day so multi-day projections
+  // overlap every cell they cover, across month boundaries too.
+  const calendarEvents = useMemo(
+    () =>
+      filteredEvents.map((projection) => ({
+        ...projection,
+        type: projection.kind,
+        start: `${projection.startsOn || toDayKey()}T09:00:00`,
+        end: `${projection.endsOn || projection.startsOn || toDayKey()}T23:59:59`,
+      })),
+    [filteredEvents]
+  );
 
   const handleViewModeChange = (newView) => {
     setViewMode(newView);
@@ -163,65 +241,176 @@ export function ProjectionsScreen() {
 
   const goToToday = () => setCurrentDate(new Date());
 
-  const [isAddActivityOpen, setIsAddActivityOpen] = useState(false);
-  const [selectedCreateDate, setSelectedCreateDate] = useState(null);
-
-  const filteredEvents = searchQuery.trim()
-    ? displayEvents.filter((e) =>
-        e.title.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : displayEvents;
-
-  const handleEventCreate = (date) => {
-    setSelectedCreateDate(date);
-    setIsAddActivityOpen(true);
+  const openCreateDialog = (date) => {
+    setEditingEvent(null);
+    setInitialDate(date ? toDayKey(date) : toDayKey());
+    setIsDialogOpen(true);
   };
 
-  const handleSaveActivity = async (activity) => {
-    setIsAddActivityOpen(false);
-    setSelectedCreateDate(null);
+  const openEditDialog = (calendarEvent) => {
+    setEditingEvent(calendarEvent);
+    setIsDialogOpen(true);
+  };
+
+  const handleClearFilters = () => {
+    setActiveTab("all events");
+    setSearchQuery("");
+  };
+
+  const handleCreateEvent = async (input) => {
+    if (!projectId) {
+      return;
+    }
+
+    const optimistic = {
+      id: crypto.randomUUID(),
+      projectId,
+      title: input.title?.trim() || "",
+      description: input.description?.trim() || "",
+      kind: input.kind || DEFAULT_PROJECTION_KIND,
+      startsOn: input.startsOn || toDayKey(),
+      endsOn: input.endsOn || null,
+      visibility: input.visibility || DEFAULT_PROJECTION_VISIBILITY,
+      archivedAt: null,
+      owner: input.owner?.trim() || "",
+    };
+
+    const previous = events;
+    setEvents((prev) => [optimistic, ...prev]);
+
+    const created = await createProjection(projectId, optimistic);
+    if (!created) {
+      setEvents(previous);
+      toast.error("Failed to create event");
+      return;
+    }
+
+    setEvents((prev) => prev.map((e) => (e.id === created.id ? created : e)));
+    toast.success("Event created");
+  };
+
+  const handleSaveEdit = async (updated) => {
+    const previous = events;
+    setEditingEvent(null);
+    setIsDialogOpen(false);
+    setEvents((prev) =>
+      prev.map((e) => (e.id === updated.id ? { ...e, ...updated } : e))
+    );
+
+    const saved = await updateProjection(updated.id, updated);
+    if (!saved) {
+      setEvents(previous);
+      toast.error("Failed to update event");
+      return;
+    }
+
+    setEvents((prev) => prev.map((e) => (e.id === saved.id ? saved : e)));
+    toast.success("Event updated");
+  };
+
+  const handleDeleteEvent = async (id) => {
+    const previous = events;
+    setEditingEvent(null);
+    setIsDialogOpen(false);
+    setEvents((prev) => prev.filter((e) => e.id !== id));
+
+    const ok = await softDeleteProjection(id);
+    if (!ok) {
+      setEvents(previous);
+      toast.error("Failed to delete event");
+      return;
+    }
+
+    toast.success("Event deleted");
+  };
+
+  const handleToggleArchive = async (projection) => {
+    const archiving = !projection.archivedAt;
+    const archivedAt = archiving ? new Date().toISOString() : null;
+
+    const previous = events;
+    setEditingEvent(null);
+    setIsDialogOpen(false);
+    setEvents((prev) =>
+      prev.map((e) => (e.id === projection.id ? { ...e, archivedAt } : e))
+    );
+
+    const saved = await updateProjection(projection.id, { archivedAt });
+    if (!saved) {
+      setEvents(previous);
+      toast.error(archiving ? "Failed to archive event" : "Failed to restore event");
+      return;
+    }
+
+    setEvents((prev) => prev.map((e) => (e.id === saved.id ? saved : e)));
+    toast.success(archiving ? "Event archived" : "Event restored");
   };
 
   return (
     <MainScreenWrapper className="text-foreground">
     <div className="flex flex-col h-full w-full min-h-screen">
-    <div className="hidden sm:flex items-center justify-between border-b border-border pb-6 mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Projections</h1>
-          <p className="text-muted-foreground mt-1">
-            View and manage project timelines, milestones, and delivery dates.
-          </p>
-        </div>
-        <div className="flex items-center ">
+      <ScreenHeader
+        title="Projections"
+        description="View and manage project timelines, milestones, and delivery dates."
+        actions={
+          <Button
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
+            onClick={() => openCreateDialog(new Date())}
+          >
+            <Plus className="h-4 w-4" /> New Event
+          </Button>
+        }
+      />
+
+      <StatsBar stats={stats} />
+
+      <Toolbar>
         <SegmentedTabs tabs={TAB_OPTIONS} value={activeTab} onChange={setActiveTab} />
-      </div>
-      </div>
+        <SearchInput
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder="Search projections, owners…"
+        />
+      </Toolbar>
 
-      <div className="sm:hidden mb-4">
-        <div className="flex items-center justify-between border-b border-border pb-3">
-          <h1 className="text-[35px] font-semibold leading-none text-foreground tracking-tight">Calendar</h1>
-          <div className="flex items-center gap-1">
-            <Button
-              type="button"
-              className="p-2 rounded-lg text-text-secondary hover:text-foreground hover:bg-surface-card transition-colors"
-            >
-              <SlidersHorizontal className="w-4 h-4" />
-            </Button>
-            <Button
-              type="button"
-              className="p-2 rounded-lg text-text-secondary hover:text-foreground hover:bg-surface-card transition-colors"
-            >
-              <Search className="w-4 h-4" />
-            </Button>
-          </div>
+      {loading ? (
+        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Loading projections…
         </div>
-      </div>
-
+      ) : events.length === 0 ? (
+        <div className="rounded-xl border border-border bg-surface-subtle">
+          <EmptyState
+            icon={CalendarDays}
+            title="No projections yet"
+            description="Map your first milestone, release, review or deadline onto the calendar."
+            action={
+              <Button
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
+                onClick={() => openCreateDialog(new Date())}
+              >
+                <Plus className="h-4 w-4" /> Add event
+              </Button>
+            }
+          />
+        </div>
+      ) : filteredEvents.length === 0 ? (
+        <div className="rounded-xl border border-border bg-surface-subtle">
+          <EmptyState
+            icon={Search}
+            title="Nothing matches this filter"
+            description="No projections match the current tab or search."
+            action={
+              <Button variant="ghost" onClick={handleClearFilters}>
+                Clear filters
+              </Button>
+            }
+          />
+        </div>
+      ) : (
         <div className="border border-border rounded-2xl overflow-hidden bg-surface-subtle">
           <div className="border-b border-border">
             <div className="flex flex-col gap-3 px-4 py-3 sm:hidden">
-              <SegmentedTabs tabs={TAB_OPTIONS} value={activeTab} onChange={setActiveTab} fullWidth />
-
               <div className="flex items-center gap-2 justify-between">
                 <p className="text-[15px] font-semibold text-foreground leading-tight">
                   {getViewTitle(currentDate, viewMode)}
@@ -242,12 +431,14 @@ export function ProjectionsScreen() {
                     <SelectItem value="day"   className="text-muted-foreground focus:bg-surface-hover">Day</SelectItem>
                   </SelectContent>
                 </Select>
-                <AddActivityDialog onSave={handleSaveActivity}>
-                  <Button className="h-9 bg-background text-foreground hover:bg-surface-subtle text-sm font-medium px-3 rounded-lg gap-1.5 shrink-0 flex-1">
-                    <Plus className="w-4 h-4" />
-                    Add event
-                  </Button>
-                </AddActivityDialog>
+                <Button
+                  type="button"
+                  onClick={() => openCreateDialog(new Date())}
+                  className="h-9 bg-background text-foreground hover:bg-surface-subtle text-sm font-medium px-3 rounded-lg gap-1.5 shrink-0 flex-1"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add event
+                </Button>
               </div>
 
               <div className="grid grid-cols-[40px_1fr_40px] border border-border rounded-xl overflow-hidden">
@@ -338,17 +529,19 @@ export function ProjectionsScreen() {
                     <SelectItem value="day"   className="text-muted-foreground focus:bg-surface-hover">Day</SelectItem>
                   </SelectContent>
                 </Select>
-                <AddActivityDialog onSave={handleSaveActivity}>
-                  <Button className="h-9 bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium px-4 rounded-lg gap-1.5">
-                    <Plus className="w-4 h-4" />
-                  </Button>
-                </AddActivityDialog>
+                <Button
+                  type="button"
+                  onClick={() => openCreateDialog(new Date())}
+                  className="h-9 bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium px-4 rounded-lg gap-1.5"
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
               </div>
             </div>
           </div>
 
           <Calendar
-            events={filteredEvents}
+            events={calendarEvents}
             activities={[]}
             showActivity={true}
             selectedDate={currentDate}
@@ -359,23 +552,30 @@ export function ProjectionsScreen() {
             showViewSwitcher={false}
             defaultViewOnDayClick="day"
             enableCreate
-            onEventCreate={handleEventCreate}
+            onEventCreate={openCreateDialog}
+            onEventClick={openEditDialog}
             className="border-0 rounded-none bg-transparent p-0"
             fadeKey={fadeKey}
           />
         </div>
+      )}
 
-        <AddActivityDialog
-          open={isAddActivityOpen}
-          onOpenChange={setIsAddActivityOpen}
-          onSave={handleSaveActivity}
-          activity={selectedCreateDate ? {
-            startDate: selectedCreateDate,
-            startTime: selectedCreateDate ?
-              `${String(selectedCreateDate.getHours()).padStart(2, '0')}:${String(selectedCreateDate.getMinutes()).padStart(2, '0')}`
-              : "09:00",
-          } : null}
-        />
+      <NewProjectionDialog
+        open={isDialogOpen}
+        onOpenChange={(open) => {
+          setIsDialogOpen(open);
+          if (!open) {
+            setEditingEvent(null);
+            setInitialDate(null);
+          }
+        }}
+        onCreate={handleCreateEvent}
+        editProjection={editingEvent}
+        onEdit={handleSaveEdit}
+        onDelete={handleDeleteEvent}
+        onToggleArchive={handleToggleArchive}
+        initialDate={initialDate}
+      />
 
     </div></MainScreenWrapper>
   );

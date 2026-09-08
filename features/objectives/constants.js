@@ -12,6 +12,20 @@ export const OBJECTIVE_STATUSES = [
 
 export const DEFAULT_OBJECTIVE_STATUS = "not_started";
 
+// StatusPill-compatible map for the objectives list (`{ label, variant }`
+// fed to `<StatusPill status map />`).
+export const objectiveStatusPillMap = {
+  not_started: { label: "Not Started", variant: "neutral" },
+  on_track: { label: "On Track", variant: "success" },
+  at_risk: { label: "At Risk", variant: "warning" },
+  completed: { label: "Completed", variant: "info" },
+};
+
+export const OBJECTIVE_STATUS_FILTER_OPTIONS = [
+  { value: "all", label: "All Statuses" },
+  ...OBJECTIVE_STATUSES.map((status) => ({ value: status.value, label: status.label })),
+];
+
 // Badge color classes (semantic tokens / tailwind color utilities at /10 bg +
 // /20 border).
 export const objectiveStatusMeta = {

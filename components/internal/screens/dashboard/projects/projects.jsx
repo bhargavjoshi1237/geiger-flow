@@ -1,44 +1,63 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect } from "react";
+import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import {
-  Search,
-  ChevronDown,
-  Plus,
+  Copy,
+  Layers,
   LayoutGrid,
   List,
-  Layers,
-  MoreVertical,
-  Copy,
-  Settings,
+  Loader2,
   Pencil,
+  Plus,
+  Settings,
+  FolderKanban,
   Trash2,
 } from "lucide-react";
-import Link from "next/link";
 import { ProjectItem } from "./project";
-import { Input } from "@geiger/ui";
+import Link from "next/link";
 import { NewProjectDialog } from "@/components/internal/dilouges/projects/newproject_dilouge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@geiger/ui";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@geiger/ui";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
+import {
+  ListPagination,
+  usePagination,
+} from "@/components/internal/shared/pagination";
+import {
+  DataTable,
+  EmptyState,
+  ScreenHeader,
+  SearchInput,
+  StatsBar,
+  StatusPill,
+  Toolbar,
+} from "@/components/internal/shared/screen_kit";
+import FilterDropdown from "@/components/internal/screens/projects/overview/filter_dropdown";
+import { ActionMenu } from "@geiger/ui";
 import { Button } from "@geiger/ui";
+import { Badge } from "@geiger/ui";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@geiger/ui";
 import { ensureUserOrganization } from "@/lib/supabase/organization";
+
+const PROJECT_STATUS_MAP = {
+  ACTIVE: { label: "Active", variant: "success" },
+  PAUSED: { label: "Paused", variant: "warning" },
+  ARCHIVED: { label: "Archived", variant: "neutral" },
+};
+
+const STATUS_FILTER_OPTIONS = [
+  { value: "all", label: "All Statuses" },
+  { value: "active", label: "Active" },
+  { value: "paused", label: "Paused" },
+  { value: "archived", label: "Archived" },
+];
 
 function createProjectSlug(name) {
   const baseSlug = name
@@ -56,6 +75,7 @@ export function ProjectsScreen() {
   const [search, setSearch] = useState("");
   const [viewMode, setViewMode] = useState("grid");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const fetchProjects = async () => {
     setLoading(true);
@@ -160,233 +180,306 @@ export function ProjectsScreen() {
     return true;
   };
 
-  const filteredProjects = projects.filter((project) => {
-    const matchesSearch = (project.name ?? "")
-      .toLowerCase()
-      .includes(search.toLowerCase());
-    const matchesStatus =
-      statusFilter === "all" ||
-      (project.status ?? "").toLowerCase() === statusFilter.toLowerCase();
-    return matchesSearch && matchesStatus;
+  const handleCopyId = async (id) => {
+    try {
+      await navigator.clipboard.writeText(id);
+      toast.success("Project ID copied to clipboard.");
+    } catch {
+      toast.error("Couldn't copy the project ID.");
+    }
+  };
+
+  const handleDelete = async (project) => {
+    setDeleteTarget(null);
+    setProjects((prev) => prev.filter((p) => p.id !== project.id));
+    const supabase = createClient();
+    const { error } = await supabase
+      .from("projects")
+      .delete()
+      .eq("id", project.id);
+    if (error) {
+      console.error("[projects] delete error:", error);
+      toast.error("Couldn't delete the project on the server.");
+      await fetchProjects();
+    } else {
+      toast.success(`Deleted "${project.name}".`);
+    }
+  };
+
+  const filteredProjects = useMemo(() => {
+    const needle = search.trim().toLowerCase();
+    return projects.filter((project) => {
+      const matchesSearch = (project.name ?? "")
+        .toLowerCase()
+        .includes(needle);
+      const matchesStatus =
+        statusFilter === "all" ||
+        (project.status ?? "").toLowerCase() === statusFilter.toLowerCase();
+      return matchesSearch && matchesStatus;
+    });
+  }, [projects, search, statusFilter]);
+
+  const pager = usePagination(filteredProjects, {
+    resetKey: `${search}|${statusFilter}|${viewMode}`,
   });
 
-  return (
-    <MainScreenWrapper className="flex flex-col gap-10 space-y-0 text-foreground">
-      <div className="flex flex-col gap-4 border-b border-border pb-6 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-semibold text-foreground tracking-tight">
-            Projects
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Create, search, and manage workspace projects.
-          </p>
-        </div>
-        <NewProjectDialog onCreate={handleCreateProject}>
-          <Button className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors w-fit">
-            <Plus className="w-4 h-4 text-primary-foreground font-bold stroke-[3]" />
-            New project
-          </Button>
-        </NewProjectDialog>
-      </div>
+  const stats = useMemo(() => {
+    const count = (s) =>
+      projects.filter((p) => (p.status ?? "").toUpperCase() === s).length;
+    return [
+      {
+        label: "Total projects",
+        value: String(projects.length),
+        footer: `${count("ACTIVE")} active now`,
+      },
+      {
+        label: "Active",
+        value: String(count("ACTIVE")),
+        footer: "Running in production",
+      },
+      {
+        label: "Paused",
+        value: String(count("PAUSED")),
+        footer: "Temporarily stopped",
+      },
+      {
+        label: "Archived",
+        value: String(count("ARCHIVED")),
+        footer: "Kept for reference",
+      },
+    ];
+  }, [projects]);
 
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div className="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
-            <Input
-              type="text"
-              placeholder="Search for a project"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full !pl-10 !pr-4 !py-[7px] bg-surface-subtle border border-border text-foreground text-sm rounded-sm focus:outline-none focus:border-border-strong transition-colors placeholder:text-text-tertiary"
-            />
+  const columns = [
+    {
+      key: "project",
+      header: "Project",
+      render: (project) => (
+        <Link href={`/project/${project.id}`}>
+          <div className="flex cursor-pointer items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-md border border-border bg-surface-hover text-muted-foreground">
+              <Layers className="h-4 w-4" />
+            </div>
+            <div>
+              <div className="text-sm font-semibold text-foreground">
+                {project.name}
+              </div>
+              <div className="text-xs text-text-secondary">
+                {project.provider} • {project.region}
+              </div>
+            </div>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button className="flex items-center gap-2 bg-surface-card border border-border text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-sm text-sm font-medium transition-colors group cursor-pointer">
-                <span className="text-muted-foreground group-hover:text-foreground transition-colors capitalize">
-                  {statusFilter === "all" ? "Status" : statusFilter}
-                </span>
-                <ChevronDown className="w-4 h-4 text-text-tertiary group-hover:text-foreground transition-colors" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-40 bg-surface-subtle border-border text-foreground">
-              <DropdownMenuRadioGroup
-                value={statusFilter}
-                onValueChange={setStatusFilter}
-              >
-                <DropdownMenuRadioItem
-                  value="all"
-                  className="cursor-pointer focus:bg-surface-hover"
-                >
-                  All Statuses
-                </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem
-                  value="active"
-                  className="cursor-pointer focus:bg-surface-hover"
-                >
-                  Active
-                </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem
-                  value="paused"
-                  className="cursor-pointer focus:bg-surface-hover"
-                >
-                  Paused
-                </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem
-                  value="archived"
-                  className="cursor-pointer focus:bg-surface-hover"
-                >
-                  Archived
-                </DropdownMenuRadioItem>
-              </DropdownMenuRadioGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        </Link>
+      ),
+    },
+    {
+      key: "environment",
+      header: "Environment",
+      render: () => (
+        <Badge variant="neutral">
+          Production
+        </Badge>
+      ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      render: (project) => (
+        <StatusPill
+          status={(project.status ?? "").toUpperCase()}
+          map={PROJECT_STATUS_MAP}
+        />
+      ),
+    },
+    {
+      key: "actions",
+      header: "",
+      align: "right",
+      className: "text-right",
+      render: (project) => (
+        <ActionMenu
+          label={`Actions for ${project.name}`}
+          items={[
+            {
+              icon: Pencil,
+              label: "Edit",
+              href: `/project/${project.id}`,
+            },
+            {
+              icon: Copy,
+              label: "Copy Id",
+              onSelect: () => handleCopyId(project.id),
+            },
+            {
+              icon: Settings,
+              label: "Settings",
+              href: `/project/${project.id}`,
+            },
+            { separator: true },
+            {
+              icon: Trash2,
+              label: "Delete",
+              destructive: true,
+              onSelect: () => setDeleteTarget(project),
+            },
+          ]}
+        />
+      ),
+    },
+  ];
 
-        <div className="flex items-center gap-1 bg-surface-subtle rounded-lg p-1 shrink-0">
-          <Button
-            onClick={() => setViewMode("grid")}
-            className={`p-1.5 rounded-md transition-colors ${
-              viewMode === "grid"
-                ? "bg-surface-hover text-foreground shadow-sm"
-                : "hover:bg-surface-hover text-text-secondary"
-            }`}
-          >
-            <LayoutGrid className="w-4 h-4" />
-          </Button>
-          <Button
-            onClick={() => setViewMode("list")}
-            className={`p-1.5 rounded-md transition-colors ${
-              viewMode === "list"
-                ? "bg-surface-hover text-foreground shadow-sm"
-                : "hover:bg-surface-hover text-text-secondary"
-            }`}
-          >
-            <List className="w-4 h-4" />
-          </Button>
+  return (
+    <MainScreenWrapper className="text-foreground">
+      <ScreenHeader
+        title="Projects"
+        description="Create, search, and manage workspace projects."
+        actions={
+          <NewProjectDialog onCreate={handleCreateProject}>
+            <Button className="flex w-fit items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90">
+              <Plus className="h-4 w-4 font-bold text-primary-foreground stroke-[3]" />
+              New project
+            </Button>
+          </NewProjectDialog>
+        }
+      />
+
+      <StatsBar stats={stats} />
+
+      <Toolbar>
+        <div className="flex items-center gap-2">
+          <FilterDropdown
+            value={statusFilter}
+            onValueChange={setStatusFilter}
+            options={STATUS_FILTER_OPTIONS}
+            height="h-9"
+          />
         </div>
-      </div>
+        <div className="flex items-center gap-2">
+          <SearchInput
+            value={search}
+            onChange={setSearch}
+            placeholder="Search for a project…"
+          />
+          <div className="flex shrink-0 items-center gap-1 rounded-lg bg-surface-subtle p-1">
+            <Button
+              onClick={() => setViewMode("grid")}
+              aria-label="Grid view"
+              className={`rounded-md p-1.5 transition-colors ${
+                viewMode === "grid"
+                  ? "bg-surface-hover text-foreground shadow-sm"
+                  : "text-text-secondary hover:bg-surface-hover"
+              }`}
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </Button>
+            <Button
+              onClick={() => setViewMode("list")}
+              aria-label="List view"
+              className={`rounded-md p-1.5 transition-colors ${
+                viewMode === "list"
+                  ? "bg-surface-hover text-foreground shadow-sm"
+                  : "text-text-secondary hover:bg-surface-hover"
+              }`}
+            >
+              <List className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </Toolbar>
 
       {loading ? (
-        <div className="flex items-center justify-center p-12 w-full text-text-secondary">
-          Loading projects...
+        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Loading projects…
         </div>
       ) : viewMode === "grid" ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {filteredProjects.length === 0 ? (
-            <div className="col-span-full text-center p-8 text-text-secondary">
-              No projects found.
+        <div className="space-y-5">
+          {pager.pageItems.length === 0 ? (
+            <div className="rounded-xl border border-border bg-surface-subtle">
+              <EmptyState
+                icon={FolderKanban}
+                title="No projects found"
+                description="Create your first project to get started."
+                action={
+                  <NewProjectDialog onCreate={handleCreateProject}>
+                    <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+                      <Plus className="h-4 w-4" /> New project
+                    </Button>
+                  </NewProjectDialog>
+                }
+              />
             </div>
           ) : (
-            filteredProjects.map((project, idx) => (
-              <ProjectItem key={idx} {...project} />
-            ))
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {pager.pageItems.map((project) => (
+                <ProjectItem
+                  key={project.id}
+                  {...project}
+                  onCopyId={handleCopyId}
+                  onDelete={setDeleteTarget}
+                />
+              ))}
+            </div>
           )}
+          <ListPagination {...pager} itemLabel="projects" />
         </div>
       ) : (
-        <div className="bg-surface-card border border-border rounded-2xl overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-surface-subtle border-border">
-                <TableHead>Project</TableHead>
-                <TableHead>Environment</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredProjects.length === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={4}
-                    className="text-center py-8 text-text-secondary"
-                  >
-                    No projects found.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredProjects.map((project, idx) => (
-                  <TableRow
-                    key={idx}
-                    className="border-border hover:bg-surface-active"
-                  >
-                    <TableCell>
-                      <Link href={`/project/${project.id}`}>
-                        <div className="flex items-center gap-3 cursor-pointer group/item">
-                          <div className="w-8 h-8 rounded-md bg-surface-hover border border-border flex items-center justify-center text-muted-foreground group-hover/item:border-border-strong transition-colors">
-                            <Layers className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <div className="text-sm font-semibold text-foreground group-hover/item:text-foreground transition-colors">
-                              {project.name}
-                            </div>
-                            <div className="text-xs text-text-secondary">
-                              {project.provider} • {project.region}
-                            </div>
-                          </div>
-                        </div>
-                      </Link>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-xs font-medium text-muted-foreground bg-surface-hover px-2 py-1 rounded border border-border">
-                        Production
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <div className="flex items-center justify-center w-5 h-5 rounded-full border border-border bg-surface-subtle">
-                          {project.status === "ACTIVE" ? (
-                            <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)] animate-pulse" />
-                          ) : (
-                            <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground" />
-                          )}
-                        </div>
-                        <span
-                          className={`text-sm font-medium ${project.status === "ACTIVE" ? "text-green-400" : "text-text-secondary"}`}
-                        >
-                          {project.status}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button className="text-text-secondary hover:text-foreground p-1 rounded-md hover:bg-surface-hover transition-colors cursor-pointer">
-                            <MoreVertical className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent
-                          align="end"
-                          className="w-[160px] bg-surface-card border-border text-foreground p-1"
-                        >
-                          <DropdownMenuItem className="cursor-pointer focus:bg-surface-strong focus:text-foreground flex items-center gap-2 px-2 py-1.5">
-                            <Pencil className="w-3.5 h-3.5" />
-                            <span className="text-xs">Edit</span>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="cursor-pointer focus:bg-surface-strong focus:text-foreground flex items-center gap-2 px-2 py-1.5">
-                            <Copy className="w-3.5 h-3.5" />
-                            <span className="text-xs">Copy Id</span>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="cursor-pointer focus:bg-surface-strong focus:text-foreground flex items-center gap-2 px-2 py-1.5">
-                            <Settings className="w-3.5 h-3.5" />
-                            <span className="text-xs">Settings</span>
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator className="bg-surface-hover" />
-                          <DropdownMenuItem className="cursor-pointer focus:bg-red-500/10 focus:text-red-500 flex items-center gap-2 px-2 py-1.5 text-red-400">
-                            <Trash2 className="w-3.5 h-3.5" />
-                            <span className="text-xs font-medium">Delete</span>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+        <div className="space-y-5">
+          <DataTable
+            columns={columns}
+            data={pager.pageItems}
+            getRowKey={(p) => p.id}
+            empty={
+              <div className="rounded-xl border border-border bg-surface-subtle">
+                <EmptyState
+                  icon={FolderKanban}
+                  title="No projects found"
+                  description="Create your first project to get started."
+                  action={
+                    <NewProjectDialog onCreate={handleCreateProject}>
+                      <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+                        <Plus className="h-4 w-4" /> New project
+                      </Button>
+                    </NewProjectDialog>
+                  }
+                />
+              </div>
+            }
+          />
+          <ListPagination {...pager} itemLabel="projects" />
         </div>
       )}
+
+      <Dialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete project</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete{" "}
+              <span className="font-medium text-foreground">
+                {deleteTarget?.name}
+              </span>
+              ? This action can&apos;t be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setDeleteTarget(null)}>
+              Cancel
+            </Button>
+            <Button
+              className="bg-red-500/90 text-white hover:bg-red-500"
+              onClick={() => handleDelete(deleteTarget)}
+            >
+              <Trash2 className="h-4 w-4" /> Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </MainScreenWrapper>
   );
 }
+
+export default ProjectsScreen;

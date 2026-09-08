@@ -8,6 +8,7 @@ import { EnterpriseSettingsScreen } from "./enterprise/enterprise_settings";
 import { ConnectionsScreen } from "./connections/connections_screen";
 import { NavigationSettingsScreen } from "./navigation/navigation_settings";
 import { SecondaryScreenWrapper } from "@/components/internal/shared/screen_wrappers";
+import { ScreenHeader } from "@/components/internal/shared/screen_kit";
 
 export function SettingsScreen({ activeSettingsTab = "General" }) {
   const [addonsCompactView, setAddonsCompactView] = useState(false);
@@ -49,28 +50,24 @@ export function SettingsScreen({ activeSettingsTab = "General" }) {
 
   return (
     <SecondaryScreenWrapper>
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight mb-2">
-            {activeSettingsTab}
-          </h1>
-          <p className="text-muted-foreground text-sm">
-            Manage your {activeSettingsTab.toLowerCase()} settings for this
-            project.
-          </p>
-        </div>
+      <ScreenHeader
+        title={activeSettingsTab}
+        description={`Manage your ${activeSettingsTab.toLowerCase()} settings for this project.`}
+        actions={
+          <>
+            {activeSettingsTab === "Customs" && (
+              <CustomsCreateFieldButton onClick={() => setCustomsCreateOpen(true)} />
+            )}
 
-        {activeSettingsTab === "Customs" && (
-          <CustomsCreateFieldButton onClick={() => setCustomsCreateOpen(true)} />
-        )}
-
-        {activeSettingsTab === "Add-ons" && (
-          <AddonsViewToggle
-            compactView={addonsCompactView}
-            onToggle={() => setAddonsCompactView((value) => !value)}
-          />
-        )}
-      </div>
+            {activeSettingsTab === "Add-ons" && (
+              <AddonsViewToggle
+                compactView={addonsCompactView}
+                onToggle={() => setAddonsCompactView((value) => !value)}
+              />
+            )}
+          </>
+        }
+      />
 
       {renderContent()}
     </SecondaryScreenWrapper>

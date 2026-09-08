@@ -8,14 +8,38 @@
 
 import { createClient } from "@/lib/supabase/client";
 import { flowClient } from "@/supabase/components/flow-client";
+import { logActivity } from "@/features/activity_logs/actions";
+import { formatUpdateMessage } from "@/features/activity_logs/constants";
 import {
   DEFAULT_TASK_PRIORITY,
   DEFAULT_TASK_STATUS,
   DEFAULT_TASK_TYPE,
+  priorityLabels,
+  stageLabels,
+  statusLabels,
+  typeLabels,
 } from "./constants";
 
 const TASKS_TABLE = "tasks";
 const COMMENTS_TABLE = "task_comments";
+
+// Readable labels for the activity-log change summary.
+const TASK_FIELD_LABELS = {
+  title: "title",
+  description: "description",
+  status: "status",
+  priority: "priority",
+  stage: "stage",
+  type: "type",
+  progress: "progress",
+};
+
+const TASK_VALUE_LABELS = {
+  status: (value) => statusLabels[value] ?? value,
+  priority: (value) => priorityLabels[value] ?? value,
+  stage: (value) => (value ? stageLabels[value] ?? value : "none"),
+  type: (value) => typeLabels[value] ?? value,
+};
 
 // DB row (snake_case) -> UI view model (camelCase).
 export function normalizeTask(row) {
@@ -163,6 +187,12 @@ export async function createTask(projectId, input) {
     return null;
   }
 
+  void logActivity(projectId, {
+    source: "tasks",
+    message: `Created task "${data.title}"`,
+    detail: { id: data.id, status: data.status, priority: data.priority },
+  }).catch(() => {});
+
   return normalizeTask(data);
 }
 
@@ -189,6 +219,18 @@ export async function updateTask(id, patch) {
     return null;
   }
 
+  void logActivity(data.project_id, {
+    source: "tasks",
+    message: formatUpdateMessage({
+      entity: "task",
+      title: data.title,
+      patch,
+      fields: TASK_FIELD_LABELS,
+      values: TASK_VALUE_LABELS,
+    }),
+    detail: { id, patch },
+  }).catch(() => {});
+
   return normalizeTask(data);
 }
 
@@ -198,14 +240,25 @@ export async function softDeleteTask(id) {
     return false;
   }
 
-  const { error } = await flowClient()
+  const { data, error } = await flowClient()
     .from(TASKS_TABLE)
     .update({ deleted_at: new Date().toISOString() })
-    .eq("id", id);
+    .eq("id", id)
+    .select("project_id, title")
+    .maybeSingle();
 
   if (error) {
     console.error("[flow.tasks] delete error:", error);
     return false;
+  }
+
+  if (data?.project_id) {
+    void logActivity(data.project_id, {
+      source: "tasks",
+      level: "warning",
+      message: `Deleted task "${data.title}"`,
+      detail: { id },
+    }).catch(() => {});
   }
 
   return true;

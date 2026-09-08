@@ -16,8 +16,11 @@ import {
   ClipboardList,
   Clock3,
   Cog,
+  FilterX,
   Gauge,
   Hash,
+  Kanban,
+  List,
   Loader2,
   LucidePen,
   MessageSquare,
@@ -61,6 +64,20 @@ import {
 import { cn } from "@/lib/utils";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import {
+  EmptyState,
+  ScreenHeader,
+  SearchInput,
+  Toolbar,
+} from "@/components/internal/shared/screen_kit";
+import {
+  ListPagination,
+  usePagination,
+} from "@/components/internal/shared/pagination";
+import FilterDropdown from "@/components/internal/screens/projects/overview/filter_dropdown";
+import { SegmentedTabs } from "@geiger/ui";
+import { IssueBoard } from "@/components/internal/screens/projects/issues/issue_board";
+import { IssueStats } from "@/components/internal/screens/projects/issues/issue_stats";
+import {
   IssueItem,
   IssueSeverityBadge,
   severityIcons,
@@ -86,8 +103,10 @@ import {
   DEFAULT_ISSUE_SORT,
   ISSUE_ESTIMATES,
   ISSUE_PRIORITIES,
+  ISSUE_PRIORITY_FILTER_OPTIONS,
   ISSUE_SORTS,
   ISSUE_STATUSES,
+  ISSUE_STATUS_FILTER_OPTIONS,
   ISSUE_TYPES,
   priorityWeight,
   statusLabels,
@@ -1133,6 +1152,7 @@ export function WorkflowsScreen() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all");
   const [sort, setSort] = useState(DEFAULT_ISSUE_SORT);
+  const [boardView, setBoardView] = useState("list");
 
   const fetchIssues = useCallback(async () => {
     if (!projectId) {
@@ -1213,6 +1233,13 @@ export function WorkflowsScreen() {
     return sorted;
   }, [issues, search, statusFilter, priorityFilter, sort]);
 
+  // List-view paging over the filtered rows. The board always renders the full
+  // filtered set (drag-and-drop reorders across columns, so paging it would
+  // corrupt the drop positions).
+  const listPager = usePagination(visibleIssues, {
+    resetKey: `${search}|${statusFilter}|${priorityFilter}|${sort}`,
+  });
+
   const handleCreateIssue = async (payload) => {
     const created = await createIssue(projectId, payload);
 
@@ -1239,123 +1266,147 @@ export function WorkflowsScreen() {
   const hasFilters =
     search.trim() || statusFilter !== "all" || priorityFilter !== "all";
 
+  const clearFilters = () => {
+    setSearch("");
+    setStatusFilter("all");
+    setPriorityFilter("all");
+  };
+
+  // Detail sheet renderer shared by the list rows and the board cards.
+  const renderIssueDetails = (issue) => (
+    <IssueCaseDetails
+      issue={issue}
+      members={members}
+      onUpdate={handleIssueUpdated}
+      onDelete={handleIssueDeleted}
+    />
+  );
+
   return (
     <MainScreenWrapper>
-      <div className="flex flex-col gap-4 border-b border-border pb-6 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground md:text-3xl">
-            Issues
-          </h1>
-          <p className="mt-1 text-muted-foreground">
-            Track and manage issues for this project.
-          </p>
-        </div>
-        <NewIssueDialog onCreate={handleCreateIssue}>
-          <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-            <Plus className="mr-2 h-4 w-4" />
-            Create New Issue
-          </Button>
-        </NewIssueDialog>
-      </div>
+      <ScreenHeader
+        title="Issues"
+        description="Track and manage issues for this project."
+        actions={
+          <NewIssueDialog onCreate={handleCreateIssue}>
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+              <Plus className="mr-2 h-4 w-4" />
+              Create New Issue
+            </Button>
+          </NewIssueDialog>
+        }
+      />
 
-      {/* Toolbar */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search issues…"
-            className="bg-surface-card border-border pl-9 text-foreground focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1"
+      {!loading ? <IssueStats issues={issues} /> : null}
+
+      <Toolbar>
+        <div className="flex flex-wrap items-center gap-2">
+          <FilterDropdown
+            value={statusFilter}
+            onValueChange={setStatusFilter}
+            options={ISSUE_STATUS_FILTER_OPTIONS}
+            height="h-9"
+          />
+          <FilterDropdown
+            value={priorityFilter}
+            onValueChange={setPriorityFilter}
+            options={ISSUE_PRIORITY_FILTER_OPTIONS}
+            height="h-9"
+          />
+          <FilterDropdown
+            value={sort}
+            onValueChange={setSort}
+            options={ISSUE_SORTS}
+            height="h-9"
+          />
+          <SegmentedTabs
+            tabs={[
+              { label: "List", value: "list", icon: List },
+              { label: "Board", value: "board", icon: Kanban },
+            ]}
+            value={boardView}
+            onChange={setBoardView}
           />
         </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full bg-surface-card border-border text-foreground sm:w-[150px]">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All statuses</SelectItem>
-            {ISSUE_STATUSES.map((status) => (
-              <SelectItem key={status.value} value={status.value}>
-                {status.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-          <SelectTrigger className="w-full bg-surface-card border-border text-foreground sm:w-[150px]">
-            <SelectValue placeholder="Priority" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All priorities</SelectItem>
-            {ISSUE_PRIORITIES.map((priority) => (
-              <SelectItem key={priority.value} value={priority.value}>
-                {priority.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={sort} onValueChange={setSort}>
-          <SelectTrigger className="w-full bg-surface-card border-border text-foreground sm:w-[150px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {ISSUE_SORTS.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="Search issues…"
+        />
+      </Toolbar>
 
       {loading ? (
-        <div className="flex items-center justify-center p-12 text-text-secondary">
+        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
+          <Loader2 className="h-4 w-4 animate-spin" />
           Loading issues…
         </div>
       ) : issues.length === 0 ? (
-        <div className="p-12 text-center text-text-secondary">
-          No issues yet. Create your first issue to get started.
+        <div className="rounded-xl border border-border bg-surface-subtle">
+          <EmptyState
+            icon={ClipboardList}
+            title="No issues yet"
+            description="Create your first issue to get started."
+            action={
+              <NewIssueDialog onCreate={handleCreateIssue}>
+                <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+                  <Plus className="h-4 w-4" /> Create New Issue
+                </Button>
+              </NewIssueDialog>
+            }
+          />
         </div>
       ) : visibleIssues.length === 0 ? (
-        <div className="p-12 text-center text-text-secondary">
-          No issues match your filters.
-          {hasFilters ? (
-            <button
-              type="button"
-              onClick={() => {
-                setSearch("");
-                setStatusFilter("all");
-                setPriorityFilter("all");
-              }}
-              className="ml-1 text-primary hover:underline"
-            >
-              Clear filters
-            </button>
-          ) : null}
+        <div className="rounded-xl border border-border bg-surface-subtle">
+          <EmptyState
+            icon={FilterX}
+            title="No issues match your filters"
+            description="Try clearing the search or filters."
+            action={
+              hasFilters ? (
+                <Button
+                  variant="ghost"
+                  onClick={clearFilters}
+                  className="text-muted-foreground hover:text-foreground hover:bg-surface-hover"
+                >
+                  <FilterX className="h-4 w-4" /> Clear filters
+                </Button>
+              ) : undefined
+            }
+          />
         </div>
+      ) : boardView === "board" ? (
+        <IssueBoard
+          issues={visibleIssues}
+          project={project}
+          memberMap={memberMap}
+          onIssuesChange={setIssues}
+          renderDetails={renderIssueDetails}
+        />
       ) : (
-        <div className="space-y-2">
-          {visibleIssues.map((issue) => (
-            <IssueItem
-              key={issue.id}
-              title={issue.title}
-              severity={issue.priority}
-              status={issue.status}
-              assignees={(issue.assignees || [])
-                .map((id) => memberMap[id])
-                .filter(Boolean)}
-              dueDate={issue.dueDate ? formatDate(issue.dueDate) : undefined}
-              sheetContentClassName="w-full p-0 sm:max-w-2xl border-l border-border bg-surface-dialog text-foreground [&>button]:right-5 [&>button]:top-5 [&>button]:text-text-secondary hover:[&>button]:text-foreground"
-            >
-              <IssueCaseDetails
-                issue={issue}
-                members={members}
-                onUpdate={handleIssueUpdated}
-                onDelete={handleIssueDeleted}
-              />
-            </IssueItem>
-          ))}
+        <div className="space-y-5">
+          <div className="space-y-2">
+            {listPager.pageItems.map((issue) => (
+              <IssueItem
+                key={issue.id}
+                title={issue.title}
+                severity={issue.priority}
+                status={issue.status}
+                assignees={(issue.assignees || [])
+                  .map((id) => memberMap[id])
+                  .filter(Boolean)}
+                dueDate={issue.dueDate ? formatDate(issue.dueDate) : undefined}
+                sheetContentClassName="w-full p-0 sm:max-w-2xl border-l border-border bg-surface-dialog text-foreground [&>button]:right-5 [&>button]:top-5 [&>button]:text-text-secondary hover:[&>button]:text-foreground"
+              >
+                <IssueCaseDetails
+                  issue={issue}
+                  members={members}
+                  onUpdate={handleIssueUpdated}
+                  onDelete={handleIssueDeleted}
+                />
+              </IssueItem>
+            ))}
+          </div>
+          <ListPagination {...listPager} itemLabel="issues" />
         </div>
       )}
     </MainScreenWrapper>

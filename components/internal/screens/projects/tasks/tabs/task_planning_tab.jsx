@@ -2,8 +2,8 @@
 
 import React from "react";
 import { Input } from "@geiger/ui";
-import { Label } from "@geiger/ui";
 import { Switch } from "@geiger/ui";
+import { Field } from "@/components/internal/shared/screen_kit";
 import {
   Select,
   SelectContent,
@@ -42,74 +42,73 @@ export function TaskPlanningTab({ formData, handleInputChange }) {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div className="space-y-1.5">
-          <Label className="text-sm font-medium text-foreground">Start Date</Label>
+        <Field label="Start Date" htmlFor="task-start-date">
           <Input
+            id="task-start-date"
             type="date"
             value={formData.startDate}
             onChange={(event) => handleInputChange("startDate", event.target.value)}
             className="bg-surface-card border-border text-foreground h-9 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1"
           />
-        </div>
+        </Field>
 
-        <div className="space-y-1.5">
-          <Label className="text-sm font-medium text-foreground">Target / Due Date</Label>
+        <Field label="Target / Due Date" htmlFor="task-due-date">
           <Input
+            id="task-due-date"
             type="date"
             value={formData.dueDate}
             onChange={(event) => handleInputChange("dueDate", event.target.value)}
             className="bg-surface-card border-border text-foreground h-9 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1"
           />
-        </div>
+        </Field>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div className="space-y-1.5">
-          <Label className="text-sm font-medium text-foreground">Milestone Link</Label>
+        <Field label="Milestone Link" htmlFor="task-milestone">
           <Input
+            id="task-milestone"
             value={formData.milestoneId}
             onChange={(event) => handleInputChange("milestoneId", event.target.value)}
             placeholder="milestone:mvp-stability"
             className="bg-surface-card border-border text-foreground h-9 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1"
           />
-        </div>
+        </Field>
 
-        <div className="space-y-1.5">
-          <Label className="text-sm font-medium text-foreground">Objective Link</Label>
+        <Field label="Objective Link" htmlFor="task-objective">
           <Input
+            id="task-objective"
             value={formData.objectiveId}
             onChange={(event) => handleInputChange("objectiveId", event.target.value)}
             placeholder="objective:reduce-cycle-time"
             className="bg-surface-card border-border text-foreground h-9 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1"
           />
-        </div>
+        </Field>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div className="space-y-1.5">
-          <Label className="text-sm font-medium text-foreground">Initiative Link</Label>
+        <Field label="Initiative Link" htmlFor="task-initiative">
           <Input
+            id="task-initiative"
             value={formData.initiativeLink}
             onChange={(event) => handleInputChange("initiativeLink", event.target.value)}
             placeholder="initiative:q3-platform"
             className="bg-surface-card border-border text-foreground h-9 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1"
           />
-        </div>
+        </Field>
 
-        <div className="space-y-1.5">
-          <Label className="text-sm font-medium text-foreground">Time Blocking</Label>
+        <Field label="Time Blocking" htmlFor="task-time-block">
           <Input
+            id="task-time-block"
             value={formData.timeBlock}
             onChange={(event) => handleInputChange("timeBlock", event.target.value)}
             placeholder="Blocked 3pm-5pm weekdays"
             className="bg-surface-card border-border text-foreground h-9 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1"
           />
-        </div>
+        </Field>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div className="space-y-1.5">
-          <Label className="text-sm font-medium text-foreground">Deadline Tracking</Label>
+        <Field label="Deadline Tracking">
           <Select
             value={formData.deadlineHealth}
             onValueChange={(value) => handleInputChange("deadlineHealth", value)}
@@ -125,10 +124,9 @@ export function TaskPlanningTab({ formData, handleInputChange }) {
               ))}
             </SelectContent>
           </Select>
-        </div>
+        </Field>
 
-        <div className="space-y-1.5">
-          <Label className="text-sm font-medium text-foreground">Reminders</Label>
+        <Field label="Reminders">
           <Select
             value={formData.reminderPreset}
             onValueChange={(value) => handleInputChange("reminderPreset", value)}
@@ -144,21 +142,22 @@ export function TaskPlanningTab({ formData, handleInputChange }) {
               ))}
             </SelectContent>
           </Select>
-        </div>
+        </Field>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div className="space-y-1.5 md:col-span-2">
-          <Label className="text-sm font-medium text-foreground">Dependencies (comma separated)</Label>
-          <Input
-            value={formData.dependencies}
-            onChange={(event) => handleInputChange("dependencies", event.target.value)}
-            placeholder="task_102, issue_44"
-            className="bg-surface-card border-border text-foreground h-9 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1"
-          />
+        <div className="md:col-span-2">
+          <Field label="Dependencies (comma separated)" htmlFor="task-dependencies">
+            <Input
+              id="task-dependencies"
+              value={formData.dependencies}
+              onChange={(event) => handleInputChange("dependencies", event.target.value)}
+              placeholder="task_102, issue_44"
+              className="bg-surface-card border-border text-foreground h-9 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1"
+            />
+          </Field>
         </div>
-        <div className="space-y-1.5">
-          <Label className="text-sm font-medium text-foreground">Task Collection</Label>
+        <Field label="Task Collection">
           <Select
             value={formData.taskCollection}
             onValueChange={(value) => handleInputChange("taskCollection", value)}
@@ -174,34 +173,33 @@ export function TaskPlanningTab({ formData, handleInputChange }) {
               ))}
             </SelectContent>
           </Select>
-        </div>
+        </Field>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div className="space-y-1.5">
-          <Label className="text-sm font-medium text-foreground">Blocked By</Label>
+        <Field label="Blocked By" htmlFor="task-blocked-by">
           <Input
+            id="task-blocked-by"
             value={formData.blockedBy}
             onChange={(event) => handleInputChange("blockedBy", event.target.value)}
             placeholder="api-review"
             className="bg-surface-card border-border text-foreground h-9 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1"
           />
-        </div>
+        </Field>
 
-        <div className="space-y-1.5">
-          <Label className="text-sm font-medium text-foreground">Blocking</Label>
+        <Field label="Blocking" htmlFor="task-blocking">
           <Input
+            id="task-blocking"
             value={formData.blocking}
             onChange={(event) => handleInputChange("blocking", event.target.value)}
             placeholder="feature-rollout"
             className="bg-surface-card border-border text-foreground h-9 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1"
           />
-        </div>
+        </Field>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div className="space-y-1.5">
-          <Label className="text-sm font-medium text-foreground">Inbox Channel</Label>
+        <Field label="Inbox Channel">
           <Select
             value={formData.inboxMode}
             onValueChange={(value) => handleInputChange("inboxMode", value)}
@@ -217,7 +215,7 @@ export function TaskPlanningTab({ formData, handleInputChange }) {
               ))}
             </SelectContent>
           </Select>
-        </div>
+        </Field>
 
         <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-surface-card mt-6 md:mt-0">
           <div>

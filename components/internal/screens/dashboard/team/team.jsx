@@ -1,15 +1,16 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import {
   BriefcaseBusiness,
   CalendarDays,
+  Copy,
   Crown,
-  Filter,
+  Loader2,
   Mail,
-  MoreVertical,
+  MailPlus,
   Plus,
-  Search,
   ShieldCheck,
   Users,
   Workflow,
@@ -17,7 +18,6 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@geiger/ui";
 import { Badge } from "@geiger/ui";
 import { Button } from "@geiger/ui";
-import { Input } from "@geiger/ui";
 import {
   Select,
   SelectContent,
@@ -25,15 +25,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@geiger/ui";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@geiger/ui";
+import { ActionMenu } from "@geiger/ui";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
+import {
+  ListPagination,
+  usePagination,
+} from "@/components/internal/shared/pagination";
+import {
+  DataTable,
+  EmptyState,
+  ScreenHeader,
+  SearchInput,
+  StatsBar,
+  StatusPill,
+  Toolbar,
+} from "@/components/internal/shared/screen_kit";
+import FilterDropdown from "@/components/internal/screens/projects/overview/filter_dropdown";
 import { createClient } from "@/lib/supabase/client";
 import {
   ROLE_STORAGE_KEY,
@@ -41,6 +48,10 @@ import {
 } from "@/lib/rbac";
 
 const initialMembers = [];
+
+const MEMBER_STATUS_MAP = {
+  Active: { label: "Active", variant: "success" },
+};
 
 function initials(name = "") {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -64,6 +75,7 @@ export function TeamScreen({ roles: externalRoles = [] }) {
   const [roles, setRoles] = useState(externalRoles);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
 
   useEffect(() => {
     const fetchWorkspaceTeam = async () => {
@@ -159,161 +171,251 @@ export function TeamScreen({ roles: externalRoles = [] }) {
     }
   };
 
-  const visibleMembers = members.filter((member) => {
-    const needle = query.trim().toLowerCase();
-    if (!needle) return true;
+  const handleCopyEmail = async (member) => {
+    try {
+      await navigator.clipboard.writeText(member.email);
+      toast.success("Email copied to clipboard.");
+    } catch {
+      toast.error("Couldn't copy the email.");
+    }
+  };
 
-    return [member.name, member.email, member.role]
-      .filter(Boolean)
-      .some((value) => value.toLowerCase().includes(needle));
+  const roleFilterOptions = useMemo(
+    () => [
+      { value: "all", label: "All Roles" },
+      ...roles.map((role) => ({ value: role.id, label: role.name })),
+    ],
+    [roles],
+  );
+
+  const visibleMembers = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    return members.filter((member) => {
+      if (roleFilter !== "all" && member.role !== roleFilter) return false;
+      if (!needle) return true;
+      return [member.name, member.email, member.role]
+        .filter(Boolean)
+        .some((value) => value.toLowerCase().includes(needle));
+    });
+  }, [members, query, roleFilter]);
+
+  const pager = usePagination(visibleMembers, {
+    resetKey: `${query}|${roleFilter}`,
   });
+
+  const stats = useMemo(() => {
+    const activeToday = members.filter((m) => m.lastActive === "Today").length;
+    const owners = members.filter((m) => m.role === "workspace_owner").length;
+    return [
+      {
+        label: "Total users",
+        value: String(members.length),
+        footer: `${activeToday} active today`,
+      },
+      {
+        label: "Active today",
+        value: String(activeToday),
+        footer: "Seen in the last 24h",
+      },
+      {
+        label: "Workspace roles",
+        value: String(roles.length),
+        footer: "Available to assign",
+      },
+      {
+        label: "Owners",
+        value: String(owners),
+        footer: "Full workspace access",
+      },
+    ];
+  }, [members, roles]);
 
   const roleName = (roleId) =>
     roles.find((role) => role.id === roleId)?.name || "Manager";
 
-  return (
-    <MainScreenWrapper className="flex flex-col gap-10 space-y-0 text-foreground">
-      <div className="flex flex-col gap-4 border-b border-border pb-6 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
-            User management
-          </h1>
-          <p className="text-sm font-medium text-muted-foreground mt-1">
-            Manage your team members and their account permissions here.
-          </p>
-        </div>
-        <div className="flex flex-col gap-3 md:items-end"> 
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <div className="relative w-full sm:w-72">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
-              <Input
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search"
-                className="!h-9 w-full rounded-lg border-border bg-surface-card !pl-9 !pr-3 text-sm text-foreground placeholder:text-text-secondary"
-              />
-            </div>
-            <Button
-              variant="outline"
-              className="h-9 rounded-lg border-border bg-surface-card px-3 text-sm font-semibold text-foreground hover:bg-surface-hover hover:text-foreground"
-            >
-              <Filter className="mr-2 h-4 w-4" />
-              Filters
-            </Button>
-            <Button className="h-9 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
-              <Plus className="mr-2 h-4 w-4 text-primary-foreground" />
-              Add user
-            </Button>
+  const columns = [
+    {
+      key: "name",
+      header: "User name",
+      render: (member) => (
+        <div className="flex items-center gap-3">
+          <Avatar className="h-9 w-9 bg-surface-strong ring-1 ring-ring">
+            <AvatarImage src={member.avatar} />
+            <AvatarFallback className="bg-surface-strong text-xs uppercase text-foreground">
+              {initials(member.name)}
+            </AvatarFallback>
+          </Avatar>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium text-foreground">
+              {member.name}
+            </p>
+            <p className="flex items-center gap-1 truncate text-xs text-muted-foreground">
+              <Mail className="h-3 w-3 opacity-50" />
+              {member.email}
+            </p>
           </div>
         </div>
-      </div>
+      ),
+    },
+    {
+      key: "access",
+      header: "Access",
+      render: (member) => (
+        <div className="flex flex-wrap gap-1.5">
+          <Badge variant="success">
+            <RoleBadgeIcon roleId={member.role} />
+            {roleName(member.role)}
+          </Badge>
+          <Badge variant="info">
+            <Workflow className="mr-1 h-3 w-3" />
+            Workspace
+          </Badge>
+        </div>
+      ),
+    },
+    {
+      key: "role",
+      header: "Workspace role",
+      render: (member) => (
+        <Select
+          value={member.role}
+          onValueChange={(roleId) => handleMemberRoleChange(member.id, roleId)}
+        >
+          <SelectTrigger className="h-8 min-w-40 border-border bg-surface-subtle text-foreground">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="border-border bg-surface-subtle text-foreground">
+            {roles.map((role) => (
+              <SelectItem key={role.id} value={role.id}>
+                {role.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      render: (member) => (
+        <StatusPill status={member.status || "Active"} map={MEMBER_STATUS_MAP} />
+      ),
+    },
+    {
+      key: "lastActive",
+      header: "Last active",
+      render: (member) => (
+        <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
+          <span className="h-1.5 w-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]" />
+          {member.lastActive || "Today"}
+        </span>
+      ),
+    },
+    {
+      key: "dateAdded",
+      header: "Date added",
+      render: (member) => (
+        <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
+          <CalendarDays className="h-3.5 w-3.5 text-text-secondary" />
+          {member.dateAdded || "Workspace"}
+        </span>
+      ),
+    },
+    {
+      key: "actions",
+      header: "",
+      align: "right",
+      className: "text-right",
+      render: (member) => (
+        <ActionMenu
+          label={`Actions for ${member.name}`}
+          items={[
+            {
+              icon: Copy,
+              label: "Copy email",
+              onSelect: () => handleCopyEmail(member),
+            },
+            {
+              icon: MailPlus,
+              label: "Send email",
+              href: `mailto:${member.email}`,
+            },
+          ]}
+        />
+      ),
+    },
+  ];
 
-      <div className="overflow-hidden rounded-lg border border-border bg-surface-card">
-        <Table>
-          <TableHeader>
-            <TableRow className="border-border bg-surface-subtle">
-              <TableHead>User name</TableHead>
-              <TableHead>Access</TableHead>
-              <TableHead>Workspace role</TableHead>
-              <TableHead>Last active</TableHead>
-              <TableHead>Date added</TableHead>
-              <TableHead className="w-10" />
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={7} className="py-8 text-center text-text-secondary">
-                  Loading team members...
-                </TableCell>
-              </TableRow>
-            ) : (
-              visibleMembers.map((member) => (
-                <TableRow
-                  key={member.id}
-                  className="border-border hover:bg-surface-active"
-                >
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-9 w-9 bg-surface-strong ring-1 ring-ring">
-                        <AvatarImage src={member.avatar} />
-                        <AvatarFallback className="bg-surface-strong text-xs uppercase text-foreground">
-                          {initials(member.name)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-medium text-foreground">
-                          {member.name}
-                        </p>
-                        <p className="flex items-center gap-1 truncate text-xs text-muted-foreground">
-                          <Mail className="h-3 w-3 opacity-50" />
-                          {member.email}
-                        </p>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap gap-1.5">
-                      <Badge className="border-emerald-500/20 bg-emerald-500/10 text-emerald-300">
-                        <RoleBadgeIcon roleId={member.role} />
-                        {roleName(member.role)}
-                      </Badge>
-                      <Badge className="border-sky-500/20 bg-sky-500/10 text-sky-300">
-                        <Workflow className="mr-1 h-3 w-3" />
-                        Workspace
-                      </Badge>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Select
-                      value={member.role}
-                      onValueChange={(roleId) =>
-                        handleMemberRoleChange(member.id, roleId)
-                      }
-                    >
-                      <SelectTrigger className="h-8 min-w-40 border-border bg-surface-subtle text-foreground">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="border-border bg-surface-subtle text-foreground">
-                        {roles.map((role) => (
-                          <SelectItem key={role.id} value={role.id}>
-                            {role.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </TableCell>
-                  <TableCell>
-                    <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
-                      <span className="h-1.5 w-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]" />
-                      {member.lastActive || "Today"}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
-                      <CalendarDays className="h-3.5 w-3.5 text-text-secondary" />
-                      {member.dateAdded || "Workspace"}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <Button className="rounded-md p-1 text-text-secondary hover:bg-surface-hover hover:text-foreground">
-                      <MoreVertical className="h-4 w-4" />
+  return (
+    <MainScreenWrapper className="text-foreground">
+      <ScreenHeader
+        title="User management"
+        description="Manage your team members and their account permissions here."
+        actions={
+          <Button className="h-9 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
+            <Plus className="mr-2 h-4 w-4 text-primary-foreground" />
+            Add user
+          </Button>
+        }
+      />
+
+      <StatsBar stats={stats} />
+
+      <Toolbar>
+        <div className="flex items-center gap-2">
+          <FilterDropdown
+            value={roleFilter}
+            onValueChange={setRoleFilter}
+            options={roleFilterOptions}
+            height="h-9"
+          />
+        </div>
+        <SearchInput
+          value={query}
+          onChange={setQuery}
+          placeholder="Search users…"
+        />
+      </Toolbar>
+
+      {loading ? (
+        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Loading team members…
+        </div>
+      ) : (
+        <div className="space-y-5">
+          <DataTable
+            columns={columns}
+            data={pager.pageItems}
+            getRowKey={(m) => m.id}
+            empty={
+              <div className="rounded-xl border border-border bg-surface-subtle">
+                <EmptyState
+                  icon={Users}
+                  title={
+                    members.length
+                      ? "No users match your filters"
+                      : "No users yet"
+                  }
+                  description={
+                    members.length
+                      ? "Try clearing the search or filters."
+                      : "Workspace members will appear here once they join."
+                  }
+                  action={
+                    <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+                      <Plus className="h-4 w-4" /> Add user
                     </Button>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-            {!loading && visibleMembers.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={7} className="py-10 text-center text-text-secondary">
-                  No users match your search.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+                  }
+                />
+              </div>
+            }
+          />
+          <ListPagination {...pager} itemLabel="users" />
+        </div>
+      )}
     </MainScreenWrapper>
   );
 }
+
+export default TeamScreen;

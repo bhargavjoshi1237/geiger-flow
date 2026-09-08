@@ -1,55 +1,16 @@
-import {
-  Image,
-  Film,
-  FileText,
-  Music,
-  Archive,
-  Folder,
-  Upload,
-  Eye,
-  Download,
-} from "lucide-react";
+// Icon/color CONFIG maps for the Assets screen children.
+//
+// This is presentation config only — no row data lives here. The canonical
+// media-type config (labels, icons, colors, formatters) is
+// features/assets/constants.js; these maps re-key its icon/color fields by
+// media type for the table/cards' lookup style.
 
-export const assetFolders = [];
+import { MEDIA_TYPE_MAP } from "@/features/assets/constants";
 
-export const mediaItems = [];
+export const typeIcons = Object.fromEntries(
+  Object.entries(MEDIA_TYPE_MAP).map(([type, meta]) => [type, meta.icon]),
+);
 
-export const typeIcons = { Folder, Image, Video: Film, Document: FileText, Audio: Music, Archive };
-
-export const typeColors = {
-  Folder: "text-foreground",
-  Image: "text-foreground",
-  Video: "text-foreground",
-  Document: "text-foreground",
-  Audio: "text-foreground",
-  Archive: "text-foreground",
-};
-
-export const storageBreakdown = [];
-
-export const recentActivities = [];
-
-export const damFeatures = [];
-
-export function getFileTypeFromName(name) {
-  const ext = name.split(".").pop()?.toLowerCase();
-  if (!ext) return "Document";
-  const map = {
-    png: "Image", jpg: "Image", jpeg: "Image", gif: "Image", svg: "Image",
-    webp: "Image", bmp: "Image", ico: "Image",
-    mp4: "Video", mov: "Video", avi: "Video", mkv: "Video", webm: "Video",
-    pdf: "Document", doc: "Document", docx: "Document", xls: "Document",
-    xlsx: "Document", ppt: "Document", pptx: "Document", txt: "Document", csv: "Document",
-    mp3: "Audio", wav: "Audio", ogg: "Audio", flac: "Audio", aac: "Audio",
-    zip: "Archive", rar: "Archive", "7z": "Archive", tar: "Archive", gz: "Archive",
-  };
-  return map[ext] || "Document";
-}
-
-export function formatFileSize(bytes) {
-  if (bytes === 0) return "0 B";
-  const k = 1024;
-  const sizes = ["B", "KB", "MB", "GB", "TB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
-}
+export const typeColors = Object.fromEntries(
+  Object.entries(MEDIA_TYPE_MAP).map(([type, meta]) => [type, meta.iconColor]),
+);

@@ -1,362 +1,715 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import {
   AlertTriangle,
-  BriefcaseBusiness,
   Calendar,
   CheckCircle2,
   Circle,
   ClipboardList,
-  Copy,
+  Loader2,
+  Pencil,
   Plus,
-  Search,
-  UserPlus,
+  Trash2,
+  UserX,
+  Users,
 } from "lucide-react";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@geiger/ui";
-import { Badge } from "@geiger/ui";
 import { Button } from "@geiger/ui";
 import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@geiger/ui";
-import { Input } from "@geiger/ui";
 import { Progress } from "@geiger/ui";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@geiger/ui";
+import { SegmentedTabs } from "@geiger/ui";
+import { ActionMenu } from "@geiger/ui";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { cn } from "@/lib/utils";
+import {
+  DataTable,
+  EmptyState,
+  ScreenHeader,
+  SearchInput,
+  StatsBar,
+  StatusPill,
+  Toolbar,
+} from "@/components/internal/shared/screen_kit";
+import {
+  ListPagination,
+  usePagination,
+} from "@/components/internal/shared/pagination";
+import FilterDropdown from "@/components/internal/screens/projects/overview/filter_dropdown";
+import { useProject } from "@/context/project-context";
+import {
+  listAllocations,
+  createAllocation,
+  updateAllocation,
+  softDeleteAllocation,
+  listRequests,
+  createRequest,
+  updateRequest,
+  softDeleteRequest,
+} from "@/features/resources/actions";
+import {
+  ALLOCATION_STATUS_FILTER_OPTIONS,
+  REQUEST_STATUS_FILTER_OPTIONS,
+  HIGH_ALLOCATION_THRESHOLD,
+  allocationStatusPillMap,
+  requestStatusPillMap,
+  formatDateLabel,
+} from "@/features/resources/constants";
+import { AllocationDialog } from "./allocation_dialog";
+import { RequestDialog } from "./request_dialog";
 
-const INITIAL_ALLOCATIONS = [];
-
-const INITIAL_REQUESTS = [];
-
-const STATUS_META = {
-  allocated: {
-    label: "Allocated",
-    className: "bg-blue-500/15 text-blue-300 border-blue-500/30",
-    Icon: CheckCircle2,
-  },
-  available: {
-    label: "Available",
-    className: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
-    Icon: Circle,
-  },
-  at_risk: {
-    label: "At Risk",
-    className: "bg-amber-500/15 text-amber-300 border-amber-500/30",
-    Icon: AlertTriangle,
-  },
-  review: {
-    label: "Review",
-    className: "bg-violet-500/15 text-violet-300 border-violet-500/30",
-    Icon: ClipboardList,
-  },
-  open: {
-    label: "Open",
-    className: "bg-blue-500/15 text-blue-300 border-blue-500/30",
-    Icon: BriefcaseBusiness,
-  },
-  sourcing: {
-    label: "Sourcing",
-    className: "bg-amber-500/15 text-amber-300 border-amber-500/30",
-    Icon: UserPlus,
-  },
-};
-
-const FILTERS = [
-  { id: "all", label: "All" },
-  { id: "allocated", label: "Allocated" },
-  { id: "available", label: "Available" },
-  { id: "at_risk", label: "At Risk" },
+const TABS = [
+  { label: "Allocations", value: "allocations", icon: Users },
+  { label: "Requests", value: "requests", icon: ClipboardList },
 ];
 
-function StatusBadge({ status }) {
-  const meta = STATUS_META[status] || STATUS_META.review;
-
-  return (
-    <Badge className={cn("min-w-[86px] justify-center whitespace-nowrap border px-2", meta.className)}>
-      {meta.label}
-    </Badge>
-  );
-}
-
-function AllocationStats({ allocations, requests }) {
-  const allocatedCount = allocations.filter((item) => item.status === "allocated").length;
-  const availableCount = allocations.filter((item) => item.status === "available").length;
-  const riskCount = allocations.filter((item) => item.status === "at_risk").length;
-  const averageAllocation = Math.round(
-    allocations.reduce((sum, item) => sum + item.allocation, 0) / allocations.length,
-  );
-
-  const stats = [
-    { label: "Total", value: allocations.length },
-    { label: "Allocated", value: allocatedCount },
-    { label: "Available", value: availableCount },
-    { label: "Requests", value: requests.length },
-    { label: "Avg load", value: `${averageAllocation}%` },
-  ];
-
-  return (
-    <div className="flex flex-wrap items-center gap-2">
-      {stats.map((item) => (
-        <span
-          key={item.label}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-subtle px-3 py-1.5 text-xs text-text-secondary"
-        >
-          {item.label}
-          <span className="font-semibold tabular-nums text-foreground">{item.value}</span>
-        </span>
-      ))}
-    </div>
-  );
-}
-
-function AllocationTable({ allocations }) {
-  return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-surface-card">
-      <Table>
-        <TableHeader>
-          <TableRow className="border-border bg-surface-subtle">
-            <TableHead>Resource</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Linked Work</TableHead>
-            <TableHead>Projected Work</TableHead>
-            <TableHead>Due</TableHead>
-            <TableHead>Load</TableHead>
-            <TableHead>Access Level</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {allocations.map((resource) => {
-            const statusMeta = STATUS_META[resource.status];
-            const StatusIcon = statusMeta?.Icon || Circle;
-
-            return (
-              <ContextMenu key={resource.id}>
-                <ContextMenuTrigger asChild>
-                  <TableRow className="border-border hover:bg-surface-active">
-                    <TableCell>
-                      <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-foreground">{resource.name}</span>
-                          {resource.status === "at_risk" ? (
-                            <AlertTriangle className="h-3.5 w-3.5 text-amber-300" />
-                          ) : null}
-                        </div>
-                        <p className="line-clamp-1 text-xs text-text-secondary">{resource.role}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap">
-                      <StatusBadge status={resource.status} />
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col gap-1">
-                        <span className="text-sm text-foreground">{resource.work}</span>
-                        <span className="inline-flex items-center gap-1 text-xs text-text-secondary">
-                          <StatusIcon className="h-3 w-3" />
-                          {resource.workType}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col gap-1">
-                        <span className="text-sm text-foreground">{resource.work}</span>
-                        <span className="inline-flex items-center gap-1 text-xs text-text-secondary">
-                          <StatusIcon className="h-3 w-3" />
-                          {resource.workType}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
-                        <Calendar className="h-3.5 w-3.5 text-text-secondary" />
-                        {resource.due}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <div className="w-[130px] space-y-1.5">
-                        <Progress
-                          value={resource.allocation}
-                          className="h-1.5 rounded-full bg-surface-hover [&_[data-slot=progress-indicator]]:bg-primary"
-                        />
-                        <p className="text-xs text-text-secondary">{resource.allocation}%</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <span className="max-w-[150px] truncate text-xs text-muted-foreground">{resource.access}</span>
-                    </TableCell>
-                  </TableRow>
-                </ContextMenuTrigger>
-                <ContextMenuContent className="w-52 bg-surface-card border-border shadow-xl">
-                  <ContextMenuItem className="text-muted-foreground focus:bg-surface-hover focus:text-foreground cursor-pointer gap-2">
-                    <CheckCircle2 className="h-3.5 w-3.5" />
-                    Review allocation
-                  </ContextMenuItem>
-                  <ContextMenuItem className="text-muted-foreground focus:bg-surface-hover focus:text-foreground cursor-pointer gap-2">
-                    <UserPlus className="h-3.5 w-3.5" />
-                    Create request
-                  </ContextMenuItem>
-                  <ContextMenuItem className="text-muted-foreground focus:bg-surface-hover focus:text-foreground cursor-pointer gap-2">
-                    <Copy className="h-3.5 w-3.5" />
-                    Copy linked work
-                  </ContextMenuItem>
-                  <ContextMenuSeparator className="bg-surface-strong" />
-                  <ContextMenuItem className="text-text-secondary focus:bg-surface-hover focus:text-foreground cursor-pointer gap-2">
-                    <AlertTriangle className="h-3.5 w-3.5" />
-                    Mark at risk
-                  </ContextMenuItem>
-                </ContextMenuContent>
-              </ContextMenu>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </div>
-  );
-}
-
-function RequestItem({ item }) {
-  const meta = STATUS_META[item.status] || STATUS_META.review;
-  const TypeIcon = item.type === "Hiring" ? UserPlus : item.type === "Position" ? BriefcaseBusiness : ClipboardList;
-
-  return (
-    <div className="rounded-xl border border-border bg-surface-subtle px-4 py-4 transition-colors hover:border-border-strong">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center">
-        <div className="min-w-0 flex-1">
-          <div className="mb-1 flex items-center gap-2">
-            <TypeIcon className="h-3.5 w-3.5 shrink-0 text-text-secondary" />
-            <h3 className="truncate text-sm font-semibold text-foreground">{item.title}</h3>
-          </div>
-          <p className="text-xs text-text-secondary">
-            {item.type} | Owner: {item.owner} | Due {item.due}
-          </p>
-        </div>
-        <Button variant="ghost" size="sm" className="h-8 text-xs text-muted-foreground hover:bg-surface-active hover:text-foreground">
-          Review
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-function RequestQueue({ requests }) {
-  return (
-    <div className="space-y-2">
-      {requests.map((item) => (
-        <RequestItem key={item.id} item={item} />
-      ))}
-    </div>
-  );
-}
-
 export function ResourceAllocationScreen() {
-  const [allocations] = useState(INITIAL_ALLOCATIONS);
-  const [requests, setRequests] = useState(INITIAL_REQUESTS);
+  const { project } = useProject();
+  const projectId = project?.id;
+
+  const [activeTab, setActiveTab] = useState("allocations");
+  const [allocations, setAllocations] = useState([]);
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
-  const [requestCounter, setRequestCounter] = useState(222);
+  const [requestFilter, setRequestFilter] = useState("all");
+
+  const [allocationDialogOpen, setAllocationDialogOpen] = useState(false);
+  const [editingAllocation, setEditingAllocation] = useState(null);
+
+  const [requestDialogOpen, setRequestDialogOpen] = useState(false);
+
+  const [pendingDelete, setPendingDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    if (!projectId) {
+      return;
+    }
+
+    let cancelled = false;
+
+    void Promise.all([listAllocations(projectId), listRequests(projectId)]).then(
+      ([allocationRows, requestRows]) => {
+        if (cancelled) {
+          return;
+        }
+        setAllocations(allocationRows ?? []);
+        setRequests(requestRows ?? []);
+        setLoading(false);
+      },
+    );
+
+    return () => {
+      cancelled = true;
+    };
+  }, [projectId]);
 
   const filteredAllocations = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
 
     return allocations.filter((resource) => {
-      const matchesFilter = activeFilter === "all" || resource.status === activeFilter;
+      const matchesFilter =
+        activeFilter === "all" || resource.status === activeFilter;
       if (!matchesFilter) return false;
       if (!normalizedQuery) return true;
 
-      return [
-        resource.name,
-        resource.role,
-        resource.work,
-        resource.workType,
-        resource.access,
-        resource.status,
-      ]
+      return [resource.member, resource.role, resource.notes, resource.status]
         .join(" ")
         .toLowerCase()
         .includes(normalizedQuery);
     });
   }, [activeFilter, allocations, query]);
 
-  const addRequest = () => {
-    const nextId = requestCounter + 1;
-    setRequestCounter(nextId);
-    setRequests((currentRequests) => [
+  const filteredRequests = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+
+    return requests.filter((item) => {
+      const matchesFilter =
+        requestFilter === "all" || item.status === requestFilter;
+      if (!matchesFilter) return false;
+      if (!normalizedQuery) return true;
+
+      return [item.request, item.requester, item.target, item.status]
+        .join(" ")
+        .toLowerCase()
+        .includes(normalizedQuery);
+    });
+  }, [requests, query, requestFilter]);
+
+  const allocPager = usePagination(filteredAllocations, {
+    resetKey: `allocations|${query}|${activeFilter}`,
+  });
+  const reqPager = usePagination(filteredRequests, {
+    resetKey: `requests|${query}|${requestFilter}`,
+  });
+
+  const stats = useMemo(() => {
+    const totalLoad = allocations.reduce((sum, item) => sum + item.allocation, 0);
+    const overloadedCount = allocations.filter(
+      (item) => item.allocation > HIGH_ALLOCATION_THRESHOLD && item.status !== "completed",
+    ).length;
+    const activeCount = allocations.filter((item) => item.status === "active").length;
+    const plannedCount = allocations.filter((item) => item.status === "planned").length;
+    const pendingRequests = requests.filter((item) => item.status === "pending").length;
+
+    return [
       {
-        id: `req_${nextId}`,
-        title: "New resource request",
-        type: "Request",
-        owner: "Current user",
-        status: "review",
-        due: "Unscheduled",
+        label: "Total load",
+        value: `${totalLoad}%`,
+        footer: `${overloadedCount} over ${HIGH_ALLOCATION_THRESHOLD}%`,
       },
-      ...currentRequests,
+      { label: "Active", value: String(activeCount), footer: "Currently assigned" },
+      { label: "Planned", value: String(plannedCount), footer: "Starting soon" },
+      { label: "Pending requests", value: String(pendingRequests), footer: "Awaiting review" },
+    ];
+  }, [allocations, requests]);
+
+  // --- Allocations ---
+
+  const saveAllocation = async (input) => {
+    if (!projectId) {
+      toast.error("No project selected.");
+      return;
+    }
+
+    if (editingAllocation) {
+      const saved = await updateAllocation(editingAllocation.id, input);
+      if (!saved) {
+        toast.error("Couldn't save the allocation.");
+        return;
+      }
+      setAllocations((prev) => prev.map((row) => (row.id === saved.id ? saved : row)));
+      setAllocationDialogOpen(false);
+      setEditingAllocation(null);
+      toast.success("Allocation updated");
+      return;
+    }
+
+    const optimisticId = crypto.randomUUID();
+    const optimistic = { id: optimisticId, projectId, ...input };
+
+    setAllocations((prev) => [optimistic, ...prev]);
+    setAllocationDialogOpen(false);
+
+    const created = await createAllocation(projectId, input, { id: optimisticId });
+    if (!created) {
+      setAllocations((prev) => prev.filter((row) => row.id !== optimisticId));
+      toast.error("Couldn't save the allocation.");
+      return;
+    }
+
+    setAllocations((prev) => [
+      created,
+      ...prev.filter((row) => row.id !== optimisticId),
     ]);
+    toast.success("Allocation created");
   };
+
+  const deleteAllocation = async (resource) => {
+    const previous = allocations;
+    setAllocations((prev) => prev.filter((row) => row.id !== resource.id));
+    setPendingDelete(null);
+
+    const ok = await softDeleteAllocation(resource.id);
+    if (!ok) {
+      setAllocations(previous);
+      toast.error("Couldn't delete the allocation.");
+      return;
+    }
+    toast.success("Allocation deleted");
+  };
+
+  // --- Requests ---
+
+  const saveRequest = async (input) => {
+    if (!projectId) {
+      toast.error("No project selected.");
+      return;
+    }
+
+    const optimisticId = crypto.randomUUID();
+    const optimistic = {
+      ...input,
+      id: optimisticId,
+      projectId,
+      status: "pending",
+      resolvedAt: null,
+    };
+
+    setRequests((prev) => [optimistic, ...prev]);
+    setRequestDialogOpen(false);
+
+    const created = await createRequest(projectId, input, { id: optimisticId });
+    if (!created) {
+      setRequests((prev) => prev.filter((row) => row.id !== optimisticId));
+      toast.error("Couldn't save the request.");
+      return;
+    }
+
+    setRequests((prev) => [created, ...prev.filter((row) => row.id !== optimisticId)]);
+    toast.success("Request submitted");
+  };
+
+  const resolveRequest = async (request, status) => {
+    const previous = requests;
+    const resolvedAt = status === "pending" ? null : new Date().toISOString();
+
+    setRequests((prev) =>
+      prev.map((row) =>
+        row.id === request.id ? { ...row, status, resolvedAt } : row,
+      ),
+    );
+
+    const saved = await updateRequest(request.id, { status });
+    if (!saved) {
+      setRequests(previous);
+      toast.error("Couldn't update the request.");
+      return;
+    }
+    setRequests((prev) => prev.map((row) => (row.id === saved.id ? saved : row)));
+
+    if (status === "approved") {
+      toast.success("Request approved");
+    } else if (status === "denied") {
+      toast.success("Request denied");
+    }
+  };
+
+  const deleteRequest = async (request) => {
+    const previous = requests;
+    setRequests((prev) => prev.filter((row) => row.id !== request.id));
+    setPendingDelete(null);
+
+    const ok = await softDeleteRequest(request.id);
+    if (!ok) {
+      setRequests(previous);
+      toast.error("Couldn't delete the request.");
+      return;
+    }
+    toast.success("Request deleted");
+  };
+
+  const confirmDelete = async () => {
+    if (!pendingDelete) {
+      return;
+    }
+    setDeleting(true);
+    try {
+      if (pendingDelete.kind === "allocation") {
+        await deleteAllocation(pendingDelete.item);
+      } else {
+        await deleteRequest(pendingDelete.item);
+      }
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const hasAnyAllocations = allocations.length > 0;
+
+  const allocationColumns = [
+    {
+      key: "resource",
+      header: "Resource",
+      render: (resource) => {
+        const overloaded =
+          resource.allocation > HIGH_ALLOCATION_THRESHOLD && resource.status !== "completed";
+        return (
+          <div className="flex min-w-[180px] flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-foreground">{resource.member}</span>
+              {overloaded ? (
+                <AlertTriangle className="h-3.5 w-3.5 text-amber-300" />
+              ) : null}
+            </div>
+            <p className="line-clamp-1 text-xs text-text-secondary">{resource.role || "—"}</p>
+          </div>
+        );
+      },
+    },
+    {
+      key: "status",
+      header: "Status",
+      render: (resource) => (
+        <StatusPill status={resource.status} map={allocationStatusPillMap} />
+      ),
+    },
+    {
+      key: "load",
+      header: "Load",
+      render: (resource) => (
+        <div className="w-[130px] space-y-1.5">
+          <Progress
+            value={resource.allocation}
+            className="h-1.5 rounded-full bg-surface-hover [&_[data-slot=progress-indicator]]:bg-primary"
+          />
+          <p className="text-xs tabular-nums text-text-secondary">{resource.allocation}%</p>
+        </div>
+      ),
+    },
+    {
+      key: "starts",
+      header: "Starts",
+      render: (resource) => (
+        <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-sm text-muted-foreground">
+          <Calendar className="h-3.5 w-3.5 text-text-secondary" />
+          {formatDateLabel(resource.startsOn)}
+        </span>
+      ),
+    },
+    {
+      key: "ends",
+      header: "Ends",
+      render: (resource) => (
+        <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-sm text-muted-foreground">
+          <Calendar className="h-3.5 w-3.5 text-text-secondary" />
+          {formatDateLabel(resource.endsOn)}
+        </span>
+      ),
+    },
+    {
+      key: "notes",
+      header: "Notes",
+      render: (resource) => (
+        <span className="block max-w-[220px] truncate text-xs text-muted-foreground">
+          {resource.notes || "—"}
+        </span>
+      ),
+    },
+    {
+      key: "actions",
+      header: "",
+      align: "right",
+      className: "text-right",
+      render: (resource) => (
+        <ActionMenu
+          label={`Actions for ${resource.member}`}
+          items={[
+            {
+              icon: Pencil,
+              label: "Edit",
+              onSelect: () => {
+                setEditingAllocation(resource);
+                setAllocationDialogOpen(true);
+              },
+            },
+            { separator: true },
+            {
+              icon: Trash2,
+              label: "Delete",
+              destructive: true,
+              onSelect: () => setPendingDelete({ kind: "allocation", item: resource }),
+            },
+          ]}
+        />
+      ),
+    },
+  ];
+
+  const requestColumns = [
+    {
+      key: "request",
+      header: "Request",
+      render: (item) => (
+        <div className="flex min-w-[240px] flex-col gap-1">
+          <span className="font-medium text-foreground">{item.request}</span>
+          <span className="text-xs text-text-secondary">
+            {item.requester}
+            {item.target ? ` · ${item.target}` : ""} · Requested {formatDateLabel(item.requestedOn)}
+          </span>
+        </div>
+      ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      render: (item) => <StatusPill status={item.status} map={requestStatusPillMap} />,
+    },
+    {
+      key: "requested",
+      header: "Requested on",
+      render: (item) => (
+        <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-sm text-muted-foreground">
+          <Calendar className="h-3.5 w-3.5 text-text-secondary" />
+          {formatDateLabel(item.requestedOn)}
+        </span>
+      ),
+    },
+    {
+      key: "actions",
+      header: "",
+      align: "right",
+      className: "text-right",
+      render: (item) => (
+        <ActionMenu
+          label={`Actions for request ${item.request}`}
+          items={[
+            item.status === "pending" && {
+              icon: CheckCircle2,
+              label: "Approve",
+              onSelect: () => resolveRequest(item, "approved"),
+            },
+            item.status === "pending" && {
+              icon: UserX,
+              label: "Deny",
+              onSelect: () => resolveRequest(item, "denied"),
+            },
+            item.status !== "pending" && {
+              icon: Circle,
+              label: "Reopen",
+              onSelect: () => resolveRequest(item, "pending"),
+            },
+            { separator: true },
+            {
+              icon: Trash2,
+              label: "Delete",
+              destructive: true,
+              onSelect: () => setPendingDelete({ kind: "request", item }),
+            },
+          ]}
+        />
+      ),
+    },
+  ];
 
   return (
     <MainScreenWrapper>
-      <div className="flex flex-col gap-4 border-b border-border pb-6 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground md:text-3xl">Resource Allocation</h1>
-          <p className="mt-1 text-muted-foreground">
-            Assign people to project work and track resource requests.
-          </p>
-        </div>
-        <Button className="bg-primary text-primary-foreground hover:bg-primary" onClick={addRequest}>
-          <Plus className="mr-2 h-4 w-4" />
-          New Request
-        </Button>
-      </div>
+      <ScreenHeader
+        title="Resource Allocation"
+        description="Assign people to project work and track resource requests."
+        actions={
+          activeTab === "allocations" ? (
+            <Button
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+              onClick={() => {
+                setEditingAllocation(null);
+                setAllocationDialogOpen(true);
+              }}
+            >
+              <Plus className="h-4 w-4" /> New Allocation
+            </Button>
+          ) : (
+            <Button
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+              onClick={() => setRequestDialogOpen(true)}
+            >
+              <Plus className="h-4 w-4" /> New Request
+            </Button>
+          )
+        }
+      />
 
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-        <AllocationStats allocations={allocations} requests={requests} />
-        <div className="flex flex-col gap-2 lg:items-end">
-         
-          <div className="flex items-center gap-2 overflow-x-auto pb-1">
-            {FILTERS.map((filter) => (
-              <Button
-                key={filter.id}
-                type="button"
-                variant="ghost"
-                className={cn(
-                  "h-8 rounded-lg border px-3 text-xs",
-                  activeFilter === filter.id
-                    ? "border-border-strong bg-surface-hover text-foreground"
-                    : "border-border bg-surface-subtle text-text-secondary hover:bg-surface-card hover:text-foreground",
-                )}
-                onClick={() => setActiveFilter(filter.id)}
-              >
-                {filter.label}
-              </Button>
-            ))}
-          </div>
-        </div>
-      </div>
+      <StatsBar stats={stats} />
 
-      {filteredAllocations.length === 0 ? (
-        <div className="flex h-[260px] flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface-subtle text-text-secondary">
-          <BriefcaseBusiness className="h-10 w-10 opacity-30" />
-          <p className="mt-3 text-sm">No resources match your current filters.</p>
-        </div>
+      <SegmentedTabs tabs={TABS} value={activeTab} onChange={setActiveTab} />
+
+      {activeTab === "allocations" ? (
+        <>
+          <Toolbar>
+            <div className="flex items-center gap-2">
+              <FilterDropdown
+                value={activeFilter}
+                onValueChange={setActiveFilter}
+                options={ALLOCATION_STATUS_FILTER_OPTIONS}
+                height="h-9"
+              />
+            </div>
+            <SearchInput
+              value={query}
+              onChange={setQuery}
+              placeholder="Search by member, role or notes"
+            />
+          </Toolbar>
+
+          {loading ? (
+            <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Loading allocations…
+            </div>
+          ) : (
+            <div className="space-y-5">
+              <DataTable
+                columns={allocationColumns}
+                data={allocPager.pageItems}
+                getRowKey={(row) => row.id}
+                empty={
+                  <div className="rounded-xl border border-border bg-surface-subtle">
+                    <EmptyState
+                      icon={Users}
+                      title={
+                        hasAnyAllocations
+                          ? "No resources match your filters"
+                          : "No allocations yet"
+                      }
+                      description={
+                        hasAnyAllocations
+                          ? "Clear the search or switch status filters."
+                          : "Create the first allocation to assign a member to project work."
+                      }
+                      action={
+                        hasAnyAllocations ? (
+                          <Button
+                            variant="ghost"
+                            onClick={() => {
+                              setQuery("");
+                              setActiveFilter("all");
+                            }}
+                          >
+                            Clear filters
+                          </Button>
+                        ) : (
+                          <Button
+                            className="bg-primary text-primary-foreground hover:bg-primary/90"
+                            onClick={() => {
+                              setEditingAllocation(null);
+                              setAllocationDialogOpen(true);
+                            }}
+                          >
+                            <Plus className="h-4 w-4" /> New Allocation
+                          </Button>
+                        )
+                      }
+                    />
+                  </div>
+                }
+              />
+              <ListPagination {...allocPager} itemLabel="allocations" />
+            </div>
+          )}
+        </>
       ) : (
-        <AllocationTable allocations={filteredAllocations} />
+        <>
+          <Toolbar>
+            <div className="flex items-center gap-2">
+              <FilterDropdown
+                value={requestFilter}
+                onValueChange={setRequestFilter}
+                options={REQUEST_STATUS_FILTER_OPTIONS}
+                height="h-9"
+              />
+            </div>
+            <SearchInput
+              value={query}
+              onChange={setQuery}
+              placeholder="Search requests, requesters…"
+            />
+          </Toolbar>
+
+          {loading ? (
+            <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Loading requests…
+            </div>
+          ) : (
+            <div className="space-y-5">
+              <DataTable
+                columns={requestColumns}
+                data={reqPager.pageItems}
+                getRowKey={(row) => row.id}
+                empty={
+                  <div className="rounded-xl border border-border bg-surface-subtle">
+                    <EmptyState
+                      icon={ClipboardList}
+                      title={
+                        requests.length
+                          ? "No requests match your filters"
+                          : "No resource requests yet"
+                      }
+                      description={
+                        requests.length
+                          ? "Clear the search or switch status filters."
+                          : "Ask for extra capacity — requests stay pending until approved or denied."
+                      }
+                      action={
+                        requests.length ? (
+                          <Button
+                            variant="ghost"
+                            onClick={() => {
+                              setQuery("");
+                              setRequestFilter("all");
+                            }}
+                          >
+                            Clear filters
+                          </Button>
+                        ) : (
+                          <Button
+                            className="bg-primary text-primary-foreground hover:bg-primary/90"
+                            onClick={() => setRequestDialogOpen(true)}
+                          >
+                            <Plus className="h-4 w-4" /> New Request
+                          </Button>
+                        )
+                      }
+                    />
+                  </div>
+                }
+              />
+              <ListPagination {...reqPager} itemLabel="requests" />
+            </div>
+          )}
+        </>
       )}
+
+      <AllocationDialog
+        key={`allocation-${editingAllocation?.id ?? "new"}-${allocationDialogOpen}`}
+        allocation={editingAllocation}
+        open={allocationDialogOpen}
+        onOpenChange={(open) => {
+          setAllocationDialogOpen(open);
+          if (!open) setEditingAllocation(null);
+        }}
+        onSave={(input) => void saveAllocation(input)}
+      />
+
+      <RequestDialog
+        key={`request-${requestDialogOpen}`}
+        open={requestDialogOpen}
+        onOpenChange={setRequestDialogOpen}
+        onSave={(input) => void saveRequest(input)}
+      />
+
+      <Dialog open={Boolean(pendingDelete)} onOpenChange={(open) => !open && setPendingDelete(null)}>
+        <DialogContent className="sm:max-w-md border-border bg-background text-foreground">
+          <DialogHeader>
+            <DialogTitle className="text-foreground">
+              {pendingDelete?.kind === "allocation" ? "Delete allocation?" : "Delete request?"}
+            </DialogTitle>
+            <DialogDescription className="text-muted-foreground">
+              {pendingDelete?.kind === "allocation"
+                ? `“${pendingDelete?.item?.member}” will be removed. This can’t be undone from here.`
+                : `“${pendingDelete?.item?.request}” will be removed. This can’t be undone from here.`}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:justify-end">
+            <Button
+              variant="ghost"
+              onClick={() => setPendingDelete(null)}
+              disabled={deleting}
+              className="text-muted-foreground hover:bg-surface-hover hover:text-foreground"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmDelete}
+              disabled={deleting}
+              className="bg-red-500/90 text-white hover:bg-red-500"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </MainScreenWrapper>
   );
 }
+
+export default ResourceAllocationScreen;

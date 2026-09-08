@@ -2,9 +2,9 @@
 
 import React from "react";
 import { Input } from "@geiger/ui";
-import { Label } from "@geiger/ui";
 import { Textarea } from "@geiger/ui";
 import { Switch } from "@geiger/ui";
+import { Field } from "@/components/internal/shared/screen_kit";
 import {
   Select,
   SelectContent,
@@ -23,95 +23,94 @@ const ROLE_VISIBILITY = [
 export function TaskCollaborationTab({ formData, handleInputChange }) {
   return (
     <div className="space-y-4">
-      <div className="space-y-1.5">
-        <Label className="text-sm font-medium text-foreground">Latest Update</Label>
+      <Field label="Latest Update" htmlFor="task-latest-update">
         <Textarea
+          id="task-latest-update"
           value={formData.latestUpdate}
           onChange={(event) => handleInputChange("latestUpdate", event.target.value)}
           placeholder="Summarize latest status for async updates."
           className="bg-surface-card border-border text-foreground min-h-[70px] resize-none text-sm focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1"
         />
-      </div>
+      </Field>
 
-      <div className="space-y-1.5">
-        <Label className="text-sm font-medium text-foreground">Comments Seed (one per line)</Label>
+      <Field label="Comments Seed (one per line)" htmlFor="task-comments-seed">
         <Textarea
+          id="task-comments-seed"
           value={formData.comments}
           onChange={(event) => handleInputChange("comments", event.target.value)}
           placeholder="Waiting on API contract\nNeed review from design"
           className="bg-surface-card border-border text-foreground min-h-[84px] resize-none text-sm focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1"
         />
-      </div>
+      </Field>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div className="space-y-1.5">
-          <Label className="text-sm font-medium text-foreground">Git Branch Link</Label>
+        <Field label="Git Branch Link" htmlFor="task-git-branch">
           <Input
+            id="task-git-branch"
             value={formData.gitBranch}
             onChange={(event) => handleInputChange("gitBranch", event.target.value)}
             placeholder="feature/task-dependency-graph"
             className="bg-surface-card border-border text-foreground h-9 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1"
           />
-        </div>
+        </Field>
 
-        <div className="space-y-1.5">
-          <Label className="text-sm font-medium text-foreground">Commit / PR Links</Label>
+        <Field label="Commit / PR Links" htmlFor="task-pr-links">
           <Input
+            id="task-pr-links"
             value={formData.issues}
             onChange={(event) => handleInputChange("issues", event.target.value)}
             placeholder="PR-428, commit:17ea2b"
             className="bg-surface-card border-border text-foreground h-9 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1"
           />
-        </div>
+        </Field>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div className="space-y-1.5">
-          <Label className="text-sm font-medium text-foreground">Environment Vault</Label>
+        <Field label="Environment Vault" htmlFor="task-env-vault">
           <Input
+            id="task-env-vault"
             value={formData.environmentVault}
             onChange={(event) => handleInputChange("environmentVault", event.target.value)}
             placeholder="vault:production-secrets"
             className="bg-surface-card border-border text-foreground h-9 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1"
           />
-        </div>
+        </Field>
 
-        <div className="space-y-1.5">
-          <Label className="text-sm font-medium text-foreground">Agent Session</Label>
+        <Field label="Agent Session" htmlFor="task-agent-session">
           <Input
+            id="task-agent-session"
             value={formData.agentSession}
             onChange={(event) => handleInputChange("agentSession", event.target.value)}
             placeholder="copilot-session-22"
             className="bg-surface-card border-border text-foreground h-9 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1"
           />
-        </div>
+        </Field>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div className="space-y-1.5">
-          <Label className="text-sm font-medium text-foreground">Project</Label>
+        <Field label="Project" htmlFor="task-project">
           <Input
+            id="task-project"
             value={formData.project}
             onChange={(event) => handleInputChange("project", event.target.value)}
             placeholder="geiger-flow"
             className="bg-surface-card border-border text-foreground h-9 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1"
           />
-        </div>
+        </Field>
 
-        <div className="space-y-1.5">
-          <Label className="text-sm font-medium text-foreground">Workspace</Label>
+        <Field label="Workspace" htmlFor="task-workspace">
           <Input
+            id="task-workspace"
             value={formData.workspace}
             onChange={(event) => handleInputChange("workspace", event.target.value)}
             placeholder="product-engineering"
             className="bg-surface-card border-border text-foreground h-9 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1"
           />
-        </div>
+        </Field>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div className="space-y-1.5">
-          <Label className="text-sm font-medium text-foreground">Role Visibility</Label>
+        <Field label="Role Visibility">
           <Select
             value={formData.roleVisibility}
             onValueChange={(value) => handleInputChange("roleVisibility", value)}
@@ -127,17 +126,17 @@ export function TaskCollaborationTab({ formData, handleInputChange }) {
               ))}
             </SelectContent>
           </Select>
-        </div>
+        </Field>
 
-        <div className="space-y-1.5">
-          <Label className="text-sm font-medium text-foreground">Assist Panel Prompt</Label>
+        <Field label="Assist Panel Prompt" htmlFor="task-assist-prompt">
           <Input
+            id="task-assist-prompt"
             value={formData.assistPrompt}
             onChange={(event) => handleInputChange("assistPrompt", event.target.value)}
             placeholder="What is blocking this task?"
             className="bg-surface-card border-border text-foreground h-9 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1"
           />
-        </div>
+        </Field>
       </div>
 
       <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-surface-card">

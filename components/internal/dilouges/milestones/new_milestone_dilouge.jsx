@@ -12,7 +12,6 @@ import {
 } from "@geiger/ui";
 import { Input } from "@geiger/ui";
 import { Button } from "@geiger/ui";
-import { Label } from "@geiger/ui";
 import { Textarea } from "@geiger/ui";
 import { Separator } from "@geiger/ui";
 import {
@@ -23,6 +22,7 @@ import {
   SelectValue,
 } from "@geiger/ui";
 import { Plus, X, Flag, Pencil } from "lucide-react";
+import { Field } from "@/components/internal/shared/screen_kit";
 import { MILESTONE_TASK_STATUSES } from "@/features/milestones/constants";
 
 function newTaskId() {
@@ -153,10 +153,7 @@ export function NewMilestoneDialog({
             <h4 className="text-xs font-semibold text-text-secondary uppercase tracking-wider">
               General Information
             </h4>
-            <div className="space-y-1.5">
-              <Label htmlFor="ms-title" className="text-xs text-foreground">
-                Milestone Title *
-              </Label>
+            <Field label="Milestone Title *" htmlFor="ms-title">
               <Input
                 id="ms-title"
                 placeholder="e.g., Public Beta Launch"
@@ -164,10 +161,9 @@ export function NewMilestoneDialog({
                 onChange={(e) => set("title", e.target.value)}
                 className="bg-surface-card border-border focus-visible:ring-1 focus-visible:ring-ring text-foreground placeholder:text-text-tertiary h-10 text-sm"
               />
-            </div>
+            </Field>
 
-            <div className="space-y-1.5">
-              <Label className="text-xs text-foreground">Description</Label>
+            <Field label="Description">
               <Textarea
                 placeholder="Describe what this milestone delivers..."
                 value={formData.description}
@@ -175,13 +171,10 @@ export function NewMilestoneDialog({
                 rows={3}
                 className="bg-surface-card border-border text-foreground placeholder:text-text-tertiary text-sm resize-none focus-visible:ring-1 focus-visible:ring-ring"
               />
-            </div>
+            </Field>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="ms-owner" className="text-xs text-foreground">
-                  Owner
-                </Label>
+              <Field label="Owner" htmlFor="ms-owner">
                 <Input
                   id="ms-owner"
                   value={formData.owner}
@@ -189,11 +182,8 @@ export function NewMilestoneDialog({
                   placeholder="e.g., You"
                   className="bg-surface-card border-border focus-visible:ring-1 focus-visible:ring-ring text-foreground placeholder:text-text-tertiary h-10 text-sm"
                 />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="ms-target" className="text-xs text-foreground">
-                  Target Date
-                </Label>
+              </Field>
+              <Field label="Target Date" htmlFor="ms-target">
                 <Input
                   id="ms-target"
                   type="date"
@@ -201,7 +191,7 @@ export function NewMilestoneDialog({
                   onChange={(e) => set("targetDate", e.target.value)}
                   className="bg-surface-card border-border focus-visible:ring-1 focus-visible:ring-ring text-foreground h-10 text-sm"
                 />
-              </div>
+              </Field>
             </div>
           </div>
 

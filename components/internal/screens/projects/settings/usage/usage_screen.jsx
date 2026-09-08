@@ -36,6 +36,7 @@ import {
   TableRow,
 } from "@geiger/ui";
 import { cn } from "@/lib/utils";
+import { SectionCard } from "@/components/internal/shared/screen_kit";
 
 const zeroDailyUsage = Array.from({ length: 7 }, (_, index) => ({
   day: `D${index + 1}`,
@@ -151,7 +152,7 @@ function ChartSection({
         </span>
       </div>
       {included && (
-        <div className="text-[13px] text-[#34b27b] font-medium">{included}</div>
+        <div className="text-[13px] text-emerald-400 font-medium">{included}</div>
       )}
       <div className="h-[140px] w-full" style={{ height }}>
         <ChartContainer
@@ -274,7 +275,7 @@ export function UsageSettingsScreen() {
             <div className="flex items-center gap-3">
               <div className="flex-1 h-2 bg-surface-hover rounded-full overflow-hidden border border-border">
                 <div
-                  className="h-full bg-[#34b27b] rounded-full transition-all"
+                  className="h-full bg-emerald-400 rounded-full transition-all"
                   style={{ width: "0%" }}
                 />
               </div>
@@ -286,16 +287,10 @@ export function UsageSettingsScreen() {
         </div>
       </div>
 
-      <div className="space-y-8">
-        <div className="space-y-1">
-          <h3 className="text-xl font-medium text-foreground">
-            Request & Bandwidth
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            Daily API request volume and bandwidth consumption for the last 30
-            days.
-          </p>
-        </div>
+      <SectionCard
+        title="Request & Bandwidth"
+        description="Daily API request volume and bandwidth consumption for the last 30 days."
+      >
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <ChartSection
@@ -321,18 +316,12 @@ export function UsageSettingsScreen() {
             height={140}
           />
         </div>
-      </div>
+      </SectionCard>
 
-      <div className="space-y-8">
-        <div className="space-y-1">
-          <h3 className="text-xl font-medium text-foreground">
-            Storage & Compute
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            Track how your project&apos;s storage and compute resources are
-            being used over time.
-          </p>
-        </div>
+      <SectionCard
+        title="Storage & Compute"
+        description="Track how your project's storage and compute resources are being used over time."
+      >
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <ChartSection
@@ -356,7 +345,7 @@ export function UsageSettingsScreen() {
                 <span className="text-muted-foreground font-normal">/ 0 hrs</span>
               </span>
             </div>
-            <div className="text-[13px] text-[#34b27b] font-medium">
+            <div className="text-[13px] text-emerald-400 font-medium">
               No compute data
             </div>
 
@@ -393,17 +382,12 @@ export function UsageSettingsScreen() {
             </div>
           </div>
         </div>
-      </div>
+      </SectionCard>
 
-      <div className="space-y-8">
-        <div className="space-y-1">
-          <h3 className="text-xl font-medium text-foreground">
-            User Activity
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            Active user trends and session breakdown for the project.
-          </p>
-        </div>
+      <SectionCard
+        title="User Activity"
+        description="Active user trends and session breakdown for the project."
+      >
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <ChartSection
@@ -476,17 +460,12 @@ export function UsageSettingsScreen() {
             </div>
           </div>
         </div>
-      </div>
+      </SectionCard>
 
-      <div className="space-y-8">
-        <div className="space-y-1">
-          <h3 className="text-xl font-medium text-foreground">
-            Database Usage
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            Row counts and storage breakdown per table.
-          </p>
-        </div>
+      <SectionCard
+        title="Database Usage"
+        description="Row counts and storage breakdown per table."
+      >
 
         <div className="border border-border rounded-xl overflow-hidden bg-surface-subtle">
           <div className="border-b border-border">
@@ -550,7 +529,7 @@ export function UsageSettingsScreen() {
             </span>
           </div>
         </div>
-      </div>
+      </SectionCard>
 
       <div className="space-y-6">
         <div className="flex items-start gap-3 bg-surface-subtle border border-border rounded-2xl p-5 shadow-sm">

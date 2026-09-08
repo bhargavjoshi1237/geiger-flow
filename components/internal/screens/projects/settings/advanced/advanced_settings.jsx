@@ -9,6 +9,11 @@ import { Input } from "@geiger/ui";
 import { Badge } from "@geiger/ui";
 import { Switch } from "@geiger/ui";
 import {
+  SectionCard,
+  SettingRow,
+  SettingsList,
+} from "@/components/internal/shared/screen_kit";
+import {
   Trash2,
   AlertTriangle,
   RotateCcw,
@@ -34,46 +39,6 @@ import {
   SelectValue,
 } from "@geiger/ui";
 import { cn } from "@/lib/utils";
-
-function SettingRow({
-  label,
-  description,
-  children,
-  bordered = true,
-}) {
-  return (
-    <div
-      className={cn(
-        "flex flex-col md:flex-row md:items-center gap-4 py-4 px-6",
-        bordered && "border-b border-border"
-      )}
-    >
-      <div className="md:w-[300px] shrink-0">
-        <div className="text-sm font-medium text-foreground">{label}</div>
-        {description && (
-          <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-            {description}
-          </p>
-        )}
-      </div>
-      <div className="flex-1 flex items-center justify-end gap-3">{children}</div>
-    </div>
-  );
-}
-
-function ToggleRow({ label, description, checked, onCheckedChange }) {
-  return (
-    <div className="flex items-center justify-between py-3.5 px-5 border-b border-border last:border-0">
-      <div>
-        <div className="text-[13px] font-medium text-foreground">{label}</div>
-        {description && (
-          <p className="text-[12px] text-muted-foreground mt-0.5">{description}</p>
-        )}
-      </div>
-      <Switch checked={checked} onCheckedChange={onCheckedChange} />
-    </div>
-  );
-}
 
 function WebhookItem({ name, url, events, status, lastTriggered }) {
   return (
@@ -204,13 +169,13 @@ export function AdvancedSettingsScreen() {
           </p>
         </div>
 
-        <Card className="bg-surface-subtle border-border text-foreground rounded-xl overflow-hidden shadow-sm">
-       <div className="-my-6" >
-           <SettingRow
-            label="Project Visibility"
-            description="Control who can discover and access this project"
-          >
-            <Select defaultValue="private">
+        <SectionCard>
+          <SettingsList>
+            <SettingRow
+              title="Project Visibility"
+              description="Control who can discover and access this project"
+              control={
+                <Select defaultValue="private">
               <SelectTrigger className="w-[200px] bg-background border-border h-9 text-sm text-foreground">
                 <SelectValue />
               </SelectTrigger>
@@ -220,11 +185,12 @@ export function AdvancedSettingsScreen() {
                 <SelectItem value="public">Public</SelectItem>
               </SelectContent>
             </Select>
-          </SettingRow>
+              }
+            />
           <SettingRow
-            label="Read-Only Mode"
+            title="Read-Only Mode"
             description="Temporarily prevent any writes to the project"
-          >
+            control={
             <div className="flex items-center gap-2">
               <Switch checked={readOnly} onCheckedChange={setReadOnly} />
               <span
@@ -236,11 +202,12 @@ export function AdvancedSettingsScreen() {
                 {readOnly ? "Enabled" : "Disabled"}
               </span>
             </div>
-          </SettingRow>
+              }
+          />
           <SettingRow
-            label="Project Region"
+            title="Project Region"
             description="Primary deployment region for compute and data"
-          >
+            control={
             <Select defaultValue="us-east-1">
               <SelectTrigger className="w-[200px] bg-background border-border h-9 text-sm text-foreground">
                 <SelectValue />
@@ -253,8 +220,11 @@ export function AdvancedSettingsScreen() {
                 </SelectItem>
               </SelectContent>
             </Select>
-          </SettingRow>
-          <SettingRow label="Maintenance Mode" description={null} bordered={false}>
+              }
+          />
+          <SettingRow
+            title="Maintenance Mode"
+            control={
             <div className="flex items-center gap-3">
               <Switch
                 checked={maintenanceMode}
@@ -275,9 +245,10 @@ export function AdvancedSettingsScreen() {
                 </Badge>
               )}
             </div>
-          </SettingRow>
-       </div>
-        </Card>
+              }
+          />
+          </SettingsList>
+        </SectionCard>
       </div>
 
       <div className="space-y-4">
@@ -290,36 +261,34 @@ export function AdvancedSettingsScreen() {
           </p>
         </div>
 
-        <Card className="bg-surface-subtle border-border text-foreground rounded-xl overflow-hidden shadow-sm">
-          <div className="-my-6">
-            <div className=" ">
-              <ToggleRow
-                label="Audit Logging"
+        <SectionCard>
+          <SettingsList>
+            <SettingRow
+              title="Audit Logging"
               description="Log all API requests, mutations, and access events"
               checked={auditLogging}
               onCheckedChange={setAuditLogging}
             />
-            <ToggleRow
-              label="Rate Limiting"
+            <SettingRow
+              title="Rate Limiting"
               description="Throttle API requests to prevent abuse (100 req/min)"
               checked={rateLimiting}
               onCheckedChange={setRateLimiting}
             />
-            <ToggleRow
-              label="IP Restriction"
+            <SettingRow
+              title="IP Restriction"
               description="Allow access only from whitelisted IP addresses"
               checked={ipRestriction}
               onCheckedChange={setIpRestriction}
             />
-            <ToggleRow
-              label="Request Signing"
+            <SettingRow
+              title="Request Signing"
               description="Require signed requests for API mutations"
               checked={requestSigning}
               onCheckedChange={setRequestSigning}
             />
-          </div>
-          </div>
-        </Card>
+          </SettingsList>
+        </SectionCard>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-surface-subtle border border-border rounded-xl p-5 shadow-sm">

@@ -13,7 +13,6 @@ import {
 import { Button } from "@geiger/ui";
 import { Plus, Edit3 } from "lucide-react";
 import { TaskCoreTab } from "./tabs/task_core_tab";
-import { cn } from "@/lib/utils";
 
 const INITIAL_FORM_STATE = {
   title: "",
@@ -156,18 +155,18 @@ export function AddTaskDialog({
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       {children ? <DialogTrigger asChild>{children}</DialogTrigger> : null}
-      <DialogContent className="sm:max-w-3xl max-h-[88vh] overflow-y-auto bg-surface-dialog border-border text-foreground p-0 gap-0 sm:rounded-lg shadow-xl">
-        <DialogHeader className="p-4 border-b border-border ">
-          <DialogTitle className="text-base font-medium text-foreground flex items-center gap-2">
-            {task ? <Edit3 className="w-4 h-4 text-muted-foreground" /> : <Plus className="w-4 h-4 text-muted-foreground" />}
+      <DialogContent className="max-h-[88vh] overflow-y-auto bg-background sm:max-w-3xl">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            {task ? <Edit3 className="h-4 w-4 text-muted-foreground" /> : <Plus className="h-4 w-4 text-muted-foreground" />}
             {dialogTitle}
           </DialogTitle>
-          <DialogDescription className="text-text-secondary text-xs">
+          <DialogDescription>
             Configure core attributes for this task.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="px-8 py-4 bg-surface-dialog">
+        <div className="grid gap-4">
           <TaskCoreTab
             formData={formData}
             handleInputChange={handleInputChange}
@@ -176,12 +175,11 @@ export function AddTaskDialog({
           />
         </div>
 
-        <DialogFooter className="p-4 border-t border-border bg-surface-dialog gap-2 sm:justify-end">
+        <DialogFooter>
           <Button
             type="button"
-            variant="outline"
+            variant="ghost"
             onClick={() => setDialogOpen(false)}
-            className="border-border-strong text-foreground hover:text-foreground hover:bg-surface-card"
             disabled={saving}
           >
             Cancel

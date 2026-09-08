@@ -11,8 +11,18 @@
 
 import { createClient } from "@/lib/supabase/client";
 import { flowClient } from "@/supabase/components/flow-client";
+import { logActivity } from "@/features/activity_logs/actions";
+import { formatUpdateMessage } from "@/features/activity_logs/constants";
 
 const MILESTONES_TABLE = "milestones";
+
+// Readable labels for the activity-log change summary.
+const MILESTONE_FIELD_LABELS = {
+  title: "title",
+  description: "description",
+  owner: "owner",
+  targetDate: "target date",
+};
 
 // Attributes stored in the `metadata` jsonb expansion bag rather than dedicated
 // columns (see MODULE_CONVENTIONS.md -> metadata column).
@@ -132,6 +142,12 @@ export async function createMilestone(projectId, input) {
     return null;
   }
 
+  void logActivity(projectId, {
+    source: "milestones",
+    message: `Created milestone "${data.title}"`,
+    detail: { id: data.id, targetDate: data.target_date },
+  }).catch(() => {});
+
   return normalizeMilestone(data);
 }
 
@@ -158,6 +174,17 @@ export async function updateMilestone(id, patch) {
     return null;
   }
 
+  void logActivity(data.project_id, {
+    source: "milestones",
+    message: formatUpdateMessage({
+      entity: "milestone",
+      title: data.title,
+      patch,
+      fields: MILESTONE_FIELD_LABELS,
+    }),
+    detail: { id, patch },
+  }).catch(() => {});
+
   return normalizeMilestone(data);
 }
 
@@ -167,14 +194,25 @@ export async function softDeleteMilestone(id) {
     return false;
   }
 
-  const { error } = await flowClient()
+  const { data, error } = await flowClient()
     .from(MILESTONES_TABLE)
     .update({ deleted_at: new Date().toISOString() })
-    .eq("id", id);
+    .eq("id", id)
+    .select("project_id, title")
+    .maybeSingle();
 
   if (error) {
     console.error("[flow.milestones] delete error:", error);
     return false;
+  }
+
+  if (data?.project_id) {
+    void logActivity(data.project_id, {
+      source: "milestones",
+      level: "warning",
+      message: `Deleted milestone "${data.title}"`,
+      detail: { id },
+    }).catch(() => {});
   }
 
   return true;

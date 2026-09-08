@@ -12,7 +12,6 @@ import {
 } from "@geiger/ui";
 import { Input } from "@geiger/ui";
 import { Button } from "@geiger/ui";
-import { Label } from "@geiger/ui";
 import { Textarea } from "@geiger/ui";
 import { Separator } from "@geiger/ui";
 import {
@@ -30,6 +29,7 @@ import {
 import { ScrollArea } from "@geiger/ui";
 import { Plus, X, Target, Pencil, Search, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Field } from "@/components/internal/shared/screen_kit";
 import { OBJECTIVE_STATUSES } from "@/features/objectives/constants";
 
 const KEY_RESULT_SUGGESTIONS = [];
@@ -299,10 +299,7 @@ export function NewObjectiveDialog({
               General Information
             </h4>
             <div className="grid grid-cols-[1fr_160px] gap-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="obj-title" className="text-xs text-foreground">
-                  Objective Title *
-                </Label>
+              <Field label="Objective Title *" htmlFor="obj-title">
                 <Input
                   id="obj-title"
                   placeholder="e.g., Improve onboarding conversion rate"
@@ -310,9 +307,8 @@ export function NewObjectiveDialog({
                   onChange={(e) => set("title", e.target.value)}
                   className="bg-surface-card border-border focus-visible:ring-1 focus-visible:ring-ring text-foreground placeholder:text-text-tertiary h-10 text-sm"
                 />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs text-foreground">Status</Label>
+              </Field>
+              <Field label="Status">
                 <Select
                   value={formData.status}
                   onValueChange={(v) => set("status", v)}
@@ -332,11 +328,10 @@ export function NewObjectiveDialog({
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </Field>
             </div>
 
-            <div className="space-y-1.5">
-              <Label className="text-xs text-foreground">Description</Label>
+            <Field label="Description">
               <Textarea
                 placeholder="Describe what this objective aims to achieve..."
                 value={formData.description}
@@ -344,7 +339,7 @@ export function NewObjectiveDialog({
                 rows={3}
                 className="bg-surface-card border-border text-foreground placeholder:text-text-tertiary text-sm resize-none focus-visible:ring-1 focus-visible:ring-ring"
               />
-            </div>
+            </Field>
           </div>
 
           <Separator className="bg-surface-hover" />
@@ -354,10 +349,7 @@ export function NewObjectiveDialog({
               Timeline & Ownership
             </h4>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="obj-start" className="text-xs text-foreground">
-                  Start Date *
-                </Label>
+              <Field label="Start Date *" htmlFor="obj-start">
                 <Input
                   id="obj-start"
                   type="date"
@@ -365,11 +357,8 @@ export function NewObjectiveDialog({
                   onChange={(e) => set("startDate", e.target.value)}
                   className="bg-surface-card border-border focus-visible:ring-1 focus-visible:ring-ring text-foreground h-10 text-sm"
                 />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="obj-target" className="text-xs text-foreground">
-                  Target Date *
-                </Label>
+              </Field>
+              <Field label="Target Date *" htmlFor="obj-target">
                 <Input
                   id="obj-target"
                   type="date"
@@ -377,10 +366,9 @@ export function NewObjectiveDialog({
                   onChange={(e) => set("targetDate", e.target.value)}
                   className="bg-surface-card border-border focus-visible:ring-1 focus-visible:ring-ring text-foreground h-10 text-sm"
                 />
-              </div>
+              </Field>
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="obj-owner" className="text-xs text-foreground">Owner</Label>
+            <Field label="Owner" htmlFor="obj-owner">
               <Input
                 id="obj-owner"
                 value={formData.owner}
@@ -388,7 +376,7 @@ export function NewObjectiveDialog({
                 placeholder="e.g., You"
                 className="bg-surface-card border-border focus-visible:ring-1 focus-visible:ring-ring text-foreground placeholder:text-text-tertiary h-10 text-sm"
               />
-            </div>
+            </Field>
           </div>
 
           <Separator className="bg-surface-hover" />

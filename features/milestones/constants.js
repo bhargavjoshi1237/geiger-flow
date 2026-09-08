@@ -60,6 +60,24 @@ export const STATUS_FILTERS = [
   { id: "completed", label: "Completed" },
 ];
 
+// StatusPill-compatible map for the milestones list (`{ label, variant }` fed
+// to `<StatusPill status map />`). The className-based META maps above stay
+// for progress-bar accents and task badges.
+export const MILESTONE_STATUS_PILL_MAP = {
+  not_started: { label: "Not Started", variant: "neutral" },
+  on_track: { label: "On Track", variant: "info" },
+  at_risk: { label: "At Risk", variant: "warning" },
+  completed: { label: "Completed", variant: "success" },
+};
+
+export const MILESTONE_STATUS_FILTER_OPTIONS = [
+  { value: "all", label: "All Statuses" },
+  { value: "not_started", label: "Not Started" },
+  { value: "on_track", label: "On Track" },
+  { value: "at_risk", label: "At Risk" },
+  { value: "completed", label: "Completed" },
+];
+
 // Derives a milestone's completion metrics + status from its tasks.
 export function getMilestoneMetrics(milestone) {
   const tasks = Array.isArray(milestone.tasks) ? milestone.tasks : [];

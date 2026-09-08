@@ -1,214 +1,165 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@geiger/ui";
-import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
-} from "@geiger/ui";
 import { Button } from "@geiger/ui";
+import { ActionMenu } from "@geiger/ui";
+import {
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
+} from "@geiger/ui";
 import { Input } from "@geiger/ui";
 import { Badge } from "@geiger/ui";
 import { cn } from "@/lib/utils";
 import {
   Eye,
   Download as DownloadIcon,
-  MoreHorizontal,
   Pencil,
   Copy,
-  Share2,
   Link2Icon,
-  FolderInput,
-  ArchiveIcon,
   Trash2,
   Search,
-  Folder,
-  FolderOpen,
-  ChevronRight,
-  PanelLeftClose,
-  PanelLeftOpen,
   PanelRightClose,
   PanelRightOpen,
-  Home,
   HardDrive,
   Calendar,
   Ruler,
   User,
+  Loader2,
 } from "lucide-react";
-import { assetFolders, mediaItems, typeIcons, typeColors } from "./data";
-import { SegmentedTabs } from "@/components/internal/shared/segmented_tabs";
+import {
+  DataTable,
+  EmptyState,
+  SearchInput,
+  Toolbar,
+} from "@/components/internal/shared/screen_kit";
+import {
+  ListPagination,
+  usePagination,
+} from "@/components/internal/shared/pagination";
+import FilterDropdown from "@/components/internal/screens/projects/overview/filter_dropdown";
+import {
+  MEDIA_TYPE_FILTERS,
+  MEDIA_TYPE_MAP,
+  ASSET_SORTS,
+  DEFAULT_ASSET_SORT,
+  formatBytes,
+} from "@/features/assets/constants";
+import { typeIcons, typeColors } from "./data";
 
-const typeFilters = ["All", "Image", "Video", "Document", "Audio", "Archive"];
-
-function FileActionsDropdown() {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-7 w-7 text-text-tertiary hover:text-foreground">
-          <MoreHorizontal className="w-4 h-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48 bg-surface-dialog border-border text-foreground">
-        <DropdownMenuItem className="text-sm focus:bg-surface-active focus:text-foreground cursor-pointer">
-          <Eye className="w-4 h-4 mr-2 text-text-secondary" /> Preview
-        </DropdownMenuItem>
-        <DropdownMenuItem className="text-sm focus:bg-surface-active focus:text-foreground cursor-pointer">
-          <DownloadIcon className="w-4 h-4 mr-2 text-text-secondary" /> Download
-        </DropdownMenuItem>
-        <DropdownMenuSeparator className="bg-surface-hover" />
-        <DropdownMenuItem className="text-sm focus:bg-surface-active focus:text-foreground cursor-pointer">
-          <Pencil className="w-4 h-4 mr-2 text-text-secondary" /> Rename
-        </DropdownMenuItem>
-        <DropdownMenuItem className="text-sm focus:bg-surface-active focus:text-foreground cursor-pointer">
-          <Copy className="w-4 h-4 mr-2 text-text-secondary" /> Duplicate
-        </DropdownMenuItem>
-        <DropdownMenuItem className="text-sm focus:bg-surface-active focus:text-foreground cursor-pointer">
-          <Share2 className="w-4 h-4 mr-2 text-text-secondary" /> Share
-        </DropdownMenuItem>
-        <DropdownMenuItem className="text-sm focus:bg-surface-active focus:text-foreground cursor-pointer">
-          <Link2Icon className="w-4 h-4 mr-2 text-text-secondary" /> Copy Link
-        </DropdownMenuItem>
-        <DropdownMenuItem className="text-sm focus:bg-surface-active focus:text-foreground cursor-pointer">
-          <FolderInput className="w-4 h-4 mr-2 text-text-secondary" /> Move to...
-        </DropdownMenuItem>
-        <DropdownMenuSeparator className="bg-surface-hover" />
-        <DropdownMenuItem className="text-sm focus:bg-surface-active focus:text-foreground cursor-pointer">
-          <ArchiveIcon className="w-4 h-4 mr-2 text-text-secondary" /> Archive
-        </DropdownMenuItem>
-        <DropdownMenuItem className="text-sm focus:bg-surface-active text-red-400 focus:text-red-400 cursor-pointer">
-          <Trash2 className="w-4 h-4 mr-2" /> Delete
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
+function formatDate(value) {
+  if (!value) {
+    return "—";
+  }
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "—";
+  }
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
-function FolderTile({ folder, isActive, fileCount, onOpen }) {
-  return (
-    <Button
-      type="button"
-      variant="ghost"
-      onClick={onOpen}
-      className={cn(
-        "h-auto w-full flex-col items-stretch justify-start rounded-md border p-3.5 text-left transition-colors",
-        isActive
-          ? "border-border-strong bg-surface-active"
-          : "border-border bg-surface-dialog hover:border-border-strong hover:bg-surface-active"
-      )}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex min-w-0 items-start gap-2">
-          {isActive ? (
-            <FolderOpen className="mt-0.5 h-4 w-4 shrink-0 text-foreground" />
-          ) : (
-            <Folder className="mt-0.5 h-4 w-4 shrink-0 text-text-secondary" />
-          )}
-          <div className="min-w-0">
-            <p className="truncate text-sm font-medium text-foreground">{folder.name}</p>
-            <p className="mt-1 line-clamp-2 text-xs leading-4 text-text-secondary">{folder.description}</p>
-          </div>
-        </div>
-        <Badge className="shrink-0 border-border bg-surface-subtle text-muted-foreground">
-          {fileCount}
-        </Badge>
-      </div>
-      <p className="mt-3 text-xs text-text-tertiary">Updated {folder.updatedAt}</p>
-    </Button>
-  );
+function extensionOf(name) {
+  const ext = name.split(".").pop();
+  return ext && ext !== name ? ext.toUpperCase() : "—";
 }
 
-function DetailsPane({ selectedItem, onCollapse }) {
-  const IconComp = selectedItem ? typeIcons[selectedItem.type] : HardDrive;
-  const statusClassName = selectedItem?.status === "Active"
-    ? "border-emerald-500/15 bg-emerald-500/10 text-emerald-400"
-    : selectedItem?.status === "Draft"
-      ? "border-amber-500/15 bg-amber-500/10 text-amber-400"
-      : "border-border bg-surface-active text-muted-foreground";
+function DetailsPane({ item, onCollapse }) {
+  const IconComp = item ? typeIcons[item.mediaType] : HardDrive;
+  const meta = item ? MEDIA_TYPE_MAP[item.mediaType] : null;
+
+  const preview = () => {
+    if (item?.url) {
+      window.open(item.url, "_blank", "noopener,noreferrer");
+    }
+  };
 
   return (
     <aside className="border-t border-border bg-surface-subtle p-4 xl:border-l xl:border-t-0">
       <div className="flex items-center justify-between gap-3">
         <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary">Asset details</p>
-        <div className="flex items-center gap-2">
-          {selectedItem?.status ? (
-            <Badge className={cn("shrink-0", statusClassName)}>
-              {selectedItem.status}
-            </Badge>
-          ) : null}
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            onClick={onCollapse}
-            title="Collapse asset details"
-            className="hidden h-7 w-7 text-text-secondary hover:bg-surface-active hover:text-foreground xl:inline-flex"
-          >
-            <PanelRightClose className="h-4 w-4" />
-          </Button>
-        </div>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={onCollapse}
+          title="Collapse asset details"
+          className="hidden h-7 w-7 text-text-secondary hover:bg-surface-active hover:text-foreground xl:inline-flex"
+        >
+          <PanelRightClose className="h-4 w-4" />
+        </Button>
       </div>
 
-      {selectedItem ? (
+      {item ? (
         <div className="mt-4 space-y-4">
           <div className="rounded-lg border border-border bg-surface-dialog p-3">
             <div className="flex items-start gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-border bg-surface-active">
-                <IconComp className={cn("h-5 w-5", typeColors[selectedItem.type])} />
+                <IconComp className={cn("h-5 w-5", typeColors[item.mediaType])} />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="break-words text-sm font-medium leading-5 text-foreground">{selectedItem.name}</p>
+                <p className="break-words text-sm font-medium leading-5 text-foreground">{item.name}</p>
                 <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                  <Badge className="border-border bg-surface-active px-1.5 py-0 text-[11px] text-muted-foreground">
-                    {selectedItem.format}
+                  <Badge className={cn("border px-1.5 py-0 text-[11px]", meta?.className)}>
+                    {meta?.label ?? item.mediaType}
                   </Badge>
-                  <span className="text-xs text-text-tertiary">{selectedItem.size}</span>
-                  <span className="text-xs text-text-tertiary">/</span>
-                  <span className="text-xs text-text-tertiary">{selectedItem.type}</span>
+                  <span className="text-xs text-text-tertiary">{formatBytes(item.sizeBytes)}</span>
+                  <span className="text-xs text-text-tertiary">·</span>
+                  <span className="text-xs text-text-tertiary">{extensionOf(item.name)}</span>
                 </div>
               </div>
             </div>
 
             <div className="mt-3 grid grid-cols-2 gap-2">
-              <Button className="h-8 bg-primary text-xs text-primary-foreground hover:bg-primary/90" size="sm">
+              <Button
+                onClick={preview}
+                disabled={!item.url}
+                className="h-8 bg-primary text-xs text-primary-foreground hover:bg-primary/90"
+                size="sm"
+              >
                 <Eye className="h-3.5 w-3.5" />
                 Preview
               </Button>
               <Button
                 variant="outline"
                 size="sm"
+                disabled={!item.url}
+                onClick={() => navigator.clipboard?.writeText(item.url)}
                 className="h-8 border-border bg-transparent text-xs text-muted-foreground hover:bg-surface-active hover:text-foreground"
               >
-                <Share2 className="h-3.5 w-3.5" />
-                Share
+                <Copy className="h-3.5 w-3.5" />
+                Copy Link
               </Button>
             </div>
           </div>
 
           <div className="rounded-lg border border-border bg-surface-dialog">
             {[
-              [User, "Owner", selectedItem.uploadedBy],
-              [Calendar, "Uploaded", selectedItem.uploadedAt],
-              [Ruler, "Dimensions", selectedItem.dimensions],
-              [Eye, "Usage", `${selectedItem.usageCount} uses`],
+              [User, "Owner", item.owner || "—"],
+              [Calendar, "Uploaded", formatDate(item.createdAt)],
+              [Ruler, "Size", formatBytes(item.sizeBytes)],
+              [HardDrive, "Storage Path", item.storagePath || "—"],
             ].map(([MetaIcon, label, value]) => (
               <div key={label} className="flex items-center gap-3 border-b border-border px-3 py-2.5 last:border-0">
                 <MetaIcon className="h-3.5 w-3.5 shrink-0 text-text-secondary" />
                 <p className="min-w-20 text-xs text-text-secondary">{label}</p>
-                <p className="ml-auto truncate text-right text-xs font-medium text-foreground">{value}</p>
+                <p className="ml-auto min-w-0 truncate text-right text-xs font-medium text-foreground" title={value}>
+                  {value}
+                </p>
               </div>
             ))}
           </div>
 
           <div>
             <p className="mb-2 text-xs font-medium text-text-secondary">Tags</p>
-            <div className="flex flex-wrap gap-1.5">
-              {selectedItem.tags.map((tag) => (
-                <Badge key={tag} className="border-border bg-surface-card px-2 py-0.5 text-xs text-muted-foreground">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
+            {item.tags.length > 0 ? (
+              <div className="flex flex-wrap gap-1.5">
+                {item.tags.map((tag) => (
+                  <Badge key={tag} className="border-border bg-surface-card px-2 py-0.5 text-xs text-muted-foreground">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-text-tertiary">No tags yet.</p>
+            )}
           </div>
         </div>
       ) : (
@@ -221,216 +172,233 @@ function DetailsPane({ selectedItem, onCollapse }) {
   );
 }
 
-export function MediaTable() {
-  const [currentFolderId, setCurrentFolderId] = useState("all");
-  const [selectedId, setSelectedId] = useState(mediaItems[0]?.id);
+export function MediaTable({ assets = [], loading = false, onRename, onDelete }) {
   const [query, setQuery] = useState("");
-  const [typeFilter, setTypeFilter] = useState("All");
-  const [isFolderPaneCollapsed, setIsFolderPaneCollapsed] = useState(false);
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [sort, setSort] = useState(DEFAULT_ASSET_SORT);
+  // Selection falls back to the first sorted row until the user picks one;
+  // deriving it avoids a setState-in-effect dance when rows load or change.
+  const [userSelectedId, setUserSelectedId] = useState(null);
+  // Inline rename: { id, value } while editing, null otherwise.
+  const [renaming, setRenaming] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const [isDetailsPaneCollapsed, setIsDetailsPaneCollapsed] = useState(false);
 
-  const currentFolder = assetFolders.find((folder) => folder.id === currentFolderId);
-  const folderCounts = useMemo(() => {
-    return assetFolders.reduce((counts, folder) => {
-      counts[folder.id] = mediaItems.filter((item) => item.folderId === folder.id).length;
-      return counts;
-    }, {});
-  }, []);
+  const sortedAssets = useMemo(() => {
+    const rows = [...assets];
+    switch (sort) {
+      case "oldest":
+        return rows.sort(
+          (a, b) => new Date(a.createdAt ?? 0).getTime() - new Date(b.createdAt ?? 0).getTime(),
+        );
+      case "largest":
+        return rows.sort((a, b) => b.sizeBytes - a.sizeBytes);
+      case "name":
+        return rows.sort((a, b) => a.name.localeCompare(b.name));
+      case "newest":
+      default:
+        return rows.sort(
+          (a, b) => new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime(),
+        );
+    }
+  }, [assets, sort]);
+
+  const selectedId =
+    userSelectedId && assets.some((asset) => asset.id === userSelectedId)
+      ? userSelectedId
+      : sortedAssets[0]?.id ?? null;
+  const selectedItem = assets.find((item) => item.id === selectedId) || null;
 
   const visibleItems = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
 
-    return mediaItems.filter((item) => {
-      const inFolder = currentFolderId === "all" || item.folderId === currentFolderId;
-      const matchesType = typeFilter === "All" || item.type === typeFilter;
-      const matchesQuery = !normalizedQuery
-        || item.name.toLowerCase().includes(normalizedQuery)
-        || item.uploadedBy.toLowerCase().includes(normalizedQuery)
-        || item.tags.some((tag) => tag.toLowerCase().includes(normalizedQuery));
+    return sortedAssets.filter((item) => {
+      const matchesType = typeFilter === "all" || item.mediaType === typeFilter;
+      const matchesQuery =
+        !normalizedQuery ||
+        item.name.toLowerCase().includes(normalizedQuery) ||
+        (item.owner ?? "").toLowerCase().includes(normalizedQuery) ||
+        item.tags.some((tag) => tag.toLowerCase().includes(normalizedQuery));
 
-      return inFolder && matchesType && matchesQuery;
+      return matchesType && matchesQuery;
     });
-  }, [currentFolderId, query, typeFilter]);
+  }, [sortedAssets, query, typeFilter]);
 
-  const selectedItem = visibleItems.find((item) => item.id === selectedId) || visibleItems[0];
+  const pager = usePagination(visibleItems, {
+    resetKey: `${query}|${typeFilter}|${sort}`,
+  });
 
-  const openFolder = (folderId) => {
-    setCurrentFolderId(folderId);
-    const firstItem = mediaItems.find((item) => folderId === "all" || item.folderId === folderId);
-    setSelectedId(firstItem?.id);
+  const startRename = (item) => {
+    setRenaming({ id: item.id, value: item.name });
   };
 
-  return (
-    <div className="overflow-hidden rounded-lg border border-border bg-surface-subtle">
-      <div className="border-b border-border bg-surface-dialog p-4">
-        <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-          <div>
-            <div className="flex flex-wrap items-center gap-1 text-sm">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => openFolder("all")}
-                className="h-7 px-2 text-muted-foreground hover:bg-surface-active hover:text-foreground"
-              >
-                <Home className="h-3.5 w-3.5" />
-                Library
-              </Button>
-              {currentFolder ? (
-                <>
-                  <ChevronRight className="h-3.5 w-3.5 text-text-tertiary" />
-                  <span className="rounded-md bg-surface-active px-2 py-1 text-xs text-foreground">
-                    {currentFolder.name}
-                  </span>
-                </>
-              ) : null}
-            </div>
-          </div>
+  const commitRename = () => {
+    if (!renaming) {
+      return;
+    }
+    const nextName = renaming.value.trim();
+    const item = assets.find((asset) => asset.id === renaming.id);
+    setRenaming(null);
+    if (!item || !nextName || nextName === item.name) {
+      return;
+    }
+    onRename?.(item.id, nextName);
+  };
 
-          <div className="relative w-full xl:w-80">
-            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
-            <Input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search assets, tags, owners..."
-              className="!h-10 border-border bg-surface-subtle !pl-10 !pr-3 text-sm text-foreground placeholder:text-text-secondary focus-visible:border-border-strong focus-visible:ring-ring/30"
-            />
-          </div>
-        </div>
+  const handlePreview = (item) => {
+    if (item.url) {
+      window.open(item.url, "_blank", "noopener,noreferrer");
+    }
+  };
 
-        <SegmentedTabs
-          tabs={typeFilters}
-          value={typeFilter}
-          onChange={setTypeFilter}
-          className="mt-4"
-          buttonClassName="h-8 text-xs"
+  const handleCopyLink = (item) => {
+    if (item.url) {
+      void navigator.clipboard?.writeText(item.url);
+    }
+  };
+
+  const columns = [
+    {
+      key: "name",
+      header: "Name",
+      render: (item) => {
+        const IconComp = typeIcons[item.mediaType];
+        const isRenaming = renaming?.id === item.id;
+        return (
+          <div className="flex min-w-[190px] items-center gap-2 font-medium text-foreground">
+            <IconComp className={cn("h-4 w-4 shrink-0", typeColors[item.mediaType])} />
+            {isRenaming ? (
+              <Input
+                autoFocus
+                value={renaming.value}
+                onChange={(event) => setRenaming({ id: item.id, value: event.target.value })}
+                onBlur={commitRename}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    commitRename();
+                  } else if (event.key === "Escape") {
+                    setRenaming(null);
+                  }
+                }}
+                onClick={(event) => event.stopPropagation()}
+                className="!h-7 max-w-56 border-border-strong bg-background text-sm text-foreground"
+              />
+            ) : (
+              <span className="truncate">{item.name}</span>
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      key: "size",
+      header: "Size",
+      render: (item) => (
+        <span className="whitespace-nowrap text-muted-foreground">{formatBytes(item.sizeBytes)}</span>
+      ),
+    },
+    {
+      key: "owner",
+      header: "Owner",
+      render: (item) => (
+        <span className="whitespace-nowrap text-muted-foreground">{item.owner || "—"}</span>
+      ),
+    },
+    {
+      key: "date",
+      header: "Date",
+      render: (item) => (
+        <span className="whitespace-nowrap text-xs text-muted-foreground">{formatDate(item.createdAt)}</span>
+      ),
+    },
+    {
+      key: "actions",
+      header: "",
+      align: "right",
+      className: "text-right",
+      render: (item) => (
+        <ActionMenu
+          label={`Actions for ${item.name}`}
+          items={[
+            { icon: Eye, label: "Preview", disabled: !item.url, onSelect: () => handlePreview(item) },
+            { icon: DownloadIcon, label: "Download", disabled: !item.url, onSelect: () => handlePreview(item) },
+            { icon: Link2Icon, label: "Copy Link", disabled: !item.url, onSelect: () => handleCopyLink(item) },
+            { separator: true },
+            { icon: Pencil, label: "Rename", onSelect: () => startRename(item) },
+            { icon: Trash2, label: "Delete", destructive: true, onSelect: () => setDeleteTarget(item) },
+          ]}
         />
+      ),
+    },
+  ];
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
+        <Loader2 className="h-4 w-4 animate-spin" />
+        Loading assets…
       </div>
+    );
+  }
+
+  return (
+    <div className="space-y-5">
+      <Toolbar>
+        <div className="flex items-center gap-2">
+          <FilterDropdown
+            value={typeFilter}
+            onValueChange={setTypeFilter}
+            options={MEDIA_TYPE_FILTERS}
+            height="h-9"
+          />
+          <FilterDropdown
+            value={sort}
+            onValueChange={setSort}
+            options={ASSET_SORTS}
+            height="h-9"
+          />
+        </div>
+        <SearchInput
+          value={query}
+          onChange={setQuery}
+          placeholder="Search assets, tags, owners…"
+        />
+      </Toolbar>
 
       <div
         className={cn(
-          "grid min-h-[520px] grid-cols-1",
-          !isFolderPaneCollapsed && !isDetailsPaneCollapsed && "xl:grid-cols-[250px_minmax(0,1fr)_300px]",
-          isFolderPaneCollapsed && !isDetailsPaneCollapsed && "xl:grid-cols-[48px_minmax(0,1fr)_300px]",
-          !isFolderPaneCollapsed && isDetailsPaneCollapsed && "xl:grid-cols-[250px_minmax(0,1fr)_48px]",
-          isFolderPaneCollapsed && isDetailsPaneCollapsed && "xl:grid-cols-[48px_minmax(0,1fr)_48px]",
+          "grid grid-cols-1 overflow-hidden rounded-xl border border-border bg-surface-subtle",
+          isDetailsPaneCollapsed ? "xl:grid-cols-[48px_minmax(0,1fr)]" : "xl:grid-cols-[minmax(0,1fr)_300px]",
         )}
       >
-        <nav className="border-b border-border bg-surface-subtle xl:border-b-0 xl:border-r">
-          {isFolderPaneCollapsed ? (
-            <div className="hidden h-full items-start justify-center p-2 xl:flex">
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsFolderPaneCollapsed(false)}
-                title="Expand all assets"
-                className="h-8 w-8 text-text-secondary hover:bg-surface-active hover:text-foreground"
-              >
-                <PanelLeftOpen className="h-4 w-4" />
-              </Button>
-            </div>
-          ) : (
-            <div className="p-4">
-              <div className="mb-3 flex items-center gap-2">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => openFolder("all")}
-                  className={cn(
-                    "h-auto min-w-0 flex-1 justify-start rounded-md border px-3 py-2 text-left hover:bg-surface-active",
-                    currentFolderId === "all"
-                      ? "border-border-strong bg-surface-active text-foreground"
-                      : "border-border bg-surface-dialog text-muted-foreground"
-                  )}
-                >
-                  <HardDrive className="h-4 w-4" />
-                  All Assets
-                  <span className="ml-auto text-xs text-text-secondary">{mediaItems.length}</span>
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsFolderPaneCollapsed(true)}
-                  title="Collapse all assets"
-                  className="hidden h-9 w-9 text-text-secondary hover:bg-surface-active hover:text-foreground xl:inline-flex"
-                >
-                  <PanelLeftClose className="h-4 w-4" />
-                </Button>
+        <div className="order-2 min-w-0 xl:order-1">
+          <DataTable
+            columns={columns}
+            data={pager.pageItems}
+            getRowKey={(item) => item.id}
+            onRowClick={(item) => setUserSelectedId(item.id)}
+            className="rounded-none border-0"
+            empty={
+              <div className="rounded-xl border border-border bg-surface-subtle">
+                <EmptyState
+                  icon={Search}
+                  title="No assets found"
+                  description={
+                    assets.length === 0
+                      ? "Upload your first asset to get started."
+                      : "Try a different search or type filter."
+                  }
+                />
               </div>
-
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:!grid-cols-1">
-                {assetFolders.map((folder) => (
-                  <FolderTile
-                    key={folder.id}
-                    folder={folder}
-                    fileCount={folderCounts[folder.id]}
-                    isActive={currentFolderId === folder.id}
-                    onOpen={() => openFolder(folder.id)}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-        </nav>
-
-        <div className="min-w-0 overflow-auto">
-          <Table>
-            <TableHeader className="bg-surface-dialog">
-                <TableRow className="border-border hover:bg-surface-dialog">
-                  <TableHead className="min-w-[260px] text-muted-foreground">Name</TableHead>
-                  <TableHead className="hidden min-w-28 text-muted-foreground min-[1320px]:table-cell">Size</TableHead>
-                  <TableHead className="hidden min-w-36 text-muted-foreground min-[1320px]:table-cell">Owner</TableHead>
-                  <TableHead className="hidden min-w-32 text-muted-foreground min-[1320px]:table-cell">Date</TableHead>
-                  <TableHead className="w-10 text-muted-foreground" />
-                </TableRow>
-              </TableHeader>
-            <TableBody>
-              {visibleItems.map((item) => {
-                const IconComp = typeIcons[item.type];
-                const isSelected = item.id === selectedItem?.id;
-
-                return (
-                  <TableRow
-                    key={item.id}
-                    onClick={() => setSelectedId(item.id)}
-                    className={cn(
-                      "border-border hover:bg-surface-active cursor-pointer",
-                      isSelected && "bg-surface-active"
-                    )}
-                  >
-                    <TableCell className="font-medium text-foreground">
-                      <div className="flex min-w-[190px] items-center gap-2">
-                        <IconComp className={cn("h-4 w-4 shrink-0", typeColors[item.type])} />
-                        <span className="truncate">{item.name}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="hidden whitespace-nowrap text-muted-foreground min-[1320px]:table-cell">{item.size}</TableCell>
-                    <TableCell className="hidden whitespace-nowrap text-muted-foreground min-[1320px]:table-cell">{item.uploadedBy}</TableCell>
-                    <TableCell className="hidden whitespace-nowrap text-xs text-muted-foreground min-[1320px]:table-cell">{item.uploadedAt}</TableCell>
-                    <TableCell onClick={(event) => event.stopPropagation()}>
-                      <FileActionsDropdown />
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-
-          {visibleItems.length === 0 ? (
-            <div className="flex min-h-[260px] items-center justify-center p-6 text-center">
-              <div>
-                <Search className="mx-auto h-5 w-5 text-text-tertiary" />
-                <p className="mt-3 text-sm font-medium text-foreground">No assets found</p>
-                <p className="mt-1 text-xs text-text-secondary">Try a different folder, search, or type filter.</p>
-              </div>
-            </div>
-          ) : null}
+            }
+          />
+          <div className="border-t border-border px-4 py-4">
+            <ListPagination {...pager} itemLabel="assets" />
+          </div>
         </div>
 
         {isDetailsPaneCollapsed ? (
-          <aside className="hidden border-t border-border bg-surface-subtle p-2 xl:flex xl:items-start xl:justify-center xl:border-l xl:border-t-0">
+          <aside className="order-1 hidden border-t border-border bg-surface-subtle p-2 xl:order-2 xl:flex xl:items-start xl:justify-center xl:border-l xl:border-t-0">
             <Button
               type="button"
               variant="ghost"
@@ -443,9 +411,49 @@ export function MediaTable() {
             </Button>
           </aside>
         ) : (
-          <DetailsPane selectedItem={selectedItem} onCollapse={() => setIsDetailsPaneCollapsed(true)} />
+          <div className="order-1 xl:order-2">
+            <DetailsPane
+              item={selectedItem}
+              onCollapse={() => setIsDetailsPaneCollapsed(true)}
+            />
+          </div>
         )}
       </div>
+
+      {/* Delete confirmation */}
+      <Dialog open={Boolean(deleteTarget)} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <DialogContent className="bg-surface-subtle text-foreground sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete asset?</DialogTitle>
+            <DialogDescription className="text-text-secondary">
+              &quot;{deleteTarget?.name}&quot; will be removed from this project along with its stored
+              file. This can&apos;t be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="ghost"
+              className="text-text-tertiary hover:text-foreground"
+              onClick={() => setDeleteTarget(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="bg-red-500/90 text-white hover:bg-red-500"
+              onClick={() => {
+                const target = deleteTarget;
+                setDeleteTarget(null);
+                if (target) {
+                  onDelete?.(target.id);
+                }
+              }}
+            >
+              <Trash2 className="h-4 w-4" />
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

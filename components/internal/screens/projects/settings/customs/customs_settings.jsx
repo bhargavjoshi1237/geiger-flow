@@ -25,7 +25,6 @@ import {
   DialogTitle,
 } from "@geiger/ui";
 import { Input } from "@geiger/ui";
-import { Label } from "@geiger/ui";
 import {
   Select,
   SelectContent,
@@ -34,6 +33,12 @@ import {
   SelectValue,
 } from "@geiger/ui";
 import { Switch } from "@geiger/ui";
+import {
+  EmptyState,
+  Field,
+  SectionCard,
+  StatGrid,
+} from "@/components/internal/shared/screen_kit";
 
 const FIELD_TYPES = [
   { value: "text", label: "Text", Icon: TextCursorInput },
@@ -63,18 +68,6 @@ function FieldTypeIcon({ type }) {
 
 function getFieldTypeLabel(type) {
   return FIELD_TYPES.find((item) => item.value === type)?.label || "Text";
-}
-
-function FieldStat({ label, value, icon: Icon }) {
-  return (
-    <div className="rounded-lg border border-border bg-surface-subtle p-4">
-      <div className="flex items-center justify-between">
-        <p className="text-xs font-medium uppercase tracking-[0.08em] text-text-secondary">{label}</p>
-        <Icon className="h-4 w-4 text-text-secondary" />
-      </div>
-      <p className="mt-3 text-2xl font-semibold text-foreground">{value}</p>
-    </div>
-  );
 }
 
 export function CustomsCreateFieldButton({ onClick }) {
@@ -135,22 +128,25 @@ export function CustomsSettingsScreen({ isCreateOpen: controlledIsCreateOpen, on
 
   return (
     <div className="space-y-6 border-t border-border pt-6">
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
-        <FieldStat label="Total fields" value={fields.length} icon={ListChecks} />
-        <FieldStat label="Required" value={requiredCount} icon={ShieldCheck} />
-        <FieldStat label="Select lists" value={selectableCount} icon={ToggleLeft} />
-        <FieldStat label="Options" value={optionsCount} icon={Settings2} />
-      </div>
+      <StatGrid
+        stats={[
+          { label: "Total fields", value: String(fields.length), icon: ListChecks },
+          { label: "Required", value: String(requiredCount), icon: ShieldCheck },
+          { label: "Select lists", value: String(selectableCount), icon: ToggleLeft },
+          { label: "Options", value: String(optionsCount), icon: Settings2 },
+        ]}
+      />
 
-      <div>
-        <div className="overflow-hidden rounded-xl border border-border bg-surface-subtle">
-          <div className="flex items-center justify-between border-b border-border px-5 py-4">
-            <div>
-              <h2 className="text-base font-semibold text-foreground">Field Library</h2>
-              <p className="mt-1 text-sm text-text-secondary">Reusable definitions available inside project work items.</p>
-            </div>
-            <Badge className="border-border bg-surface-card text-muted-foreground">{fields.length} Fields</Badge>
-          </div>
+      <SectionCard
+        title="Field Library"
+        description="Reusable definitions available inside project work items."
+        action={
+          <Badge className="border-border bg-surface-card text-muted-foreground">
+            {fields.length} Fields
+          </Badge>
+        }
+        bodyPadding={false}
+      >
 
           {fields.length > 0 ? (
             <div className="divide-y divide-border">
@@ -212,20 +208,19 @@ export function CustomsSettingsScreen({ isCreateOpen: controlledIsCreateOpen, on
               ))}
             </div>
           ) : (
-            <div className="flex min-h-64 flex-col items-center justify-center px-5 py-12 text-center">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-surface-card">
-                <ListChecks className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <h3 className="mt-4 text-sm font-semibold text-foreground">No custom fields yet</h3>
-              <p className="mt-1 max-w-sm text-sm text-text-secondary">Create your first field to standardize the information teams capture on project work.</p>
-              <Button className="mt-4 bg-primary text-primary-foreground hover:bg-primary" onClick={() => handleCreateOpenChange(true)}>
-                <Plus className="mr-2 h-4 w-4" />
-                Create Field
-              </Button>
-            </div>
+            <EmptyState
+              icon={ListChecks}
+              title="No custom fields yet"
+              description="Create your first field to standardize the information teams capture on project work."
+              action={
+                <Button className="mt-4 bg-primary text-primary-foreground hover:bg-primary" onClick={() => handleCreateOpenChange(true)}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create Field
+                </Button>
+              }
+            />
           )}
-        </div>
-      </div>
+      </SectionCard>
 
       <Dialog open={isCreateOpen} onOpenChange={handleCreateOpenChange}>
         <DialogContent className="bg-background border-border text-foreground sm:max-w-xl">
@@ -239,20 +234,18 @@ export function CustomsSettingsScreen({ isCreateOpen: controlledIsCreateOpen, on
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-5">
-            <div className="space-y-2">
-              <Label className="text-sm text-foreground">Field name</Label>
+          <div className="grid gap-4">
+            <Field label="Field name">
               <Input
                 value={draft.name}
                 onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))}
                 placeholder="Customer impact"
                 className="border-border bg-surface-card text-foreground"
               />
-            </div>
+            </Field>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label className="text-sm text-foreground">Type</Label>
+              <Field label="Type">
                 <Select value={draft.type} onValueChange={(value) => setDraft((current) => ({ ...current, type: value }))}>
                   <SelectTrigger className="w-full border-border bg-surface-card text-foreground">
                     <SelectValue />
@@ -268,9 +261,8 @@ export function CustomsSettingsScreen({ isCreateOpen: controlledIsCreateOpen, on
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm text-foreground">Scope</Label>
+              </Field>
+              <Field label="Scope">
                 <Select value={draft.scope} onValueChange={(value) => setDraft((current) => ({ ...current, scope: value }))}>
                   <SelectTrigger className="w-full border-border bg-surface-card text-foreground">
                     <SelectValue />
@@ -283,20 +275,18 @@ export function CustomsSettingsScreen({ isCreateOpen: controlledIsCreateOpen, on
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </Field>
             </div>
 
             {draft.type === "select" ? (
-              <div className="space-y-2">
-                <Label className="text-sm text-foreground">Options</Label>
+              <Field label="Options" hint="Separate each value with a comma.">
                 <Input
                   value={draft.options}
                   onChange={(event) => setDraft((current) => ({ ...current, options: event.target.value }))}
                   placeholder="Low, Medium, High"
                   className="border-border bg-surface-card text-foreground"
                 />
-                <p className="text-xs text-text-secondary">Separate each value with a comma.</p>
-              </div>
+              </Field>
             ) : null}
 
             <div className="flex items-center justify-between rounded-lg border border-border bg-surface-card p-3">

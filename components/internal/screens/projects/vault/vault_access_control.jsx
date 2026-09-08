@@ -13,6 +13,7 @@ import { Button } from "@geiger/ui";
 import { Input } from "@geiger/ui";
 import { Label } from "@geiger/ui";
 import { Switch } from "@geiger/ui";
+import { Field } from "@/components/internal/shared/screen_kit";
 import {
   Users,
   Shield,
@@ -141,7 +142,7 @@ export function VaultAccessControl({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-5 ">
+        <div className="grid gap-4">
           <div className="space-y-3">
             <Label className="text-xs font-semibold text-muted-foreground tracking-wide">Access Type</Label>
             <div className="grid grid-cols-4 gap-2.5">
@@ -220,8 +221,7 @@ export function VaultAccessControl({
 
 
           {accessControl.type === "users" && (
-            <div className="space-y-3">
-              <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Email Addresses</Label>
+            <Field label="Email Addresses">
               <div className="space-y-2.5">
                 {accessControl.allowedUsers.length > 0 && (
                   <div className="space-y-2">
@@ -277,7 +277,7 @@ export function VaultAccessControl({
                   </div>
                 </div>
               </div>
-            </div>
+            </Field>
           )}
 
           {accessControl.type === "positions" && (
@@ -311,9 +311,8 @@ export function VaultAccessControl({
             </div>
           )}
 
-          <div className="mt-8" />
           <div className="space-y-4">
-            <div className="flex items-center justify-between mb-7">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div>
                   <Label className="text-sm text-muted-foreground">Keyless Entry</Label>
@@ -328,29 +327,26 @@ export function VaultAccessControl({
               </Switch>
             </div>
 
-            <div className="space-y-2">
+            <Field label="Time To Live">
               <div className="flex items-center gap-2 justify-between">
-<div>
-                  <Label className="text-sm text-muted-foreground">Time To Live</Label>
-                </div>
+                <span className="text-xs text-text-secondary">Expire access after</span>
                 <FilterDropdown
-                value={ttl}
-                onValueChange={setTtl}
-                options={TTL_OPTIONS}
-                placeholder="Select expiration"
-                height="h-9"
-              />
-              </div> 
-             
-            </div>
+                  value={ttl}
+                  onValueChange={setTtl}
+                  options={TTL_OPTIONS}
+                  placeholder="Select expiration"
+                  height="h-9"
+                />
+              </div>
+            </Field>
           </div>
         </div>
 
         <DialogFooter className="gap-3 pt-4">
           <Button
-            variant="outline"
+            variant="ghost"
             onClick={() => onOpenChange(false)}
-            className="flex-1 border-border text-text-secondary hover:text-foreground hover:bg-surface-card hover:border-border-strong h-9 text-sm font-medium transition-all duration-200"
+            className="flex-1 h-9 text-sm font-medium transition-all duration-200"
           >
             Cancel
           </Button>

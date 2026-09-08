@@ -14,32 +14,24 @@ import {
   Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  SectionCard,
+  SettingRow,
+  SettingsList,
+} from "@/components/internal/shared/screen_kit";
 
-function ToggleRow({ label, description, checked, onCheckedChange, badge }) {
+function StatusBadge({ text, variant }) {
   return (
-    <div className="flex items-center justify-between border-b border-border px-5 py-3.5 last:border-0">
-      <div className="pr-4">
-        <div className="flex items-center gap-2">
-          <span className="text-[13px] font-medium text-foreground">{label}</span>
-          {badge ? (
-            <Badge
-              className={cn(
-                "h-4 px-1.5 text-[9px]",
-                badge.variant === "green"
-                  ? "border-green-500/20 bg-green-500/10 text-green-400"
-                  : "border-border-strong bg-surface-hover text-muted-foreground",
-              )}
-            >
-              {badge.text}
-            </Badge>
-          ) : null}
-        </div>
-        {description ? (
-          <p className="mt-0.5 text-[12px] text-muted-foreground">{description}</p>
-        ) : null}
-      </div>
-      <Switch checked={checked} onCheckedChange={onCheckedChange} />
-    </div>
+    <Badge
+      className={cn(
+        "h-4 px-1.5 text-[9px]",
+        variant === "green"
+          ? "border-green-500/20 bg-green-500/10 text-green-400"
+          : "border-border-strong bg-surface-hover text-muted-foreground",
+      )}
+    >
+      {text}
+    </Badge>
   );
 }
 
@@ -105,27 +97,29 @@ export function EnterpriseSettingsScreen() {
           </p>
         </div>
 
-        <Card className="overflow-hidden rounded-xl border-border bg-surface-subtle text-foreground shadow-sm">
-          <div className="-my-6">
-            <ToggleRow
-              label="Single Sign-On (SSO)"
+        <SectionCard>
+          <SettingsList>
+            <SettingRow
+              title="Single Sign-On (SSO)"
               description="Require SSO authentication for all project members"
-              checked={ssoEnabled}
-              onCheckedChange={setSsoEnabled}
-              badge={
-                ssoEnabled
-                  ? { text: "ACTIVE", variant: "green" }
-                  : { text: "DISABLED", variant: "default" }
+              control={
+                <div className="flex items-center gap-2">
+                  <StatusBadge
+                    text={ssoEnabled ? "ACTIVE" : "DISABLED"}
+                    variant={ssoEnabled ? "green" : "default"}
+                  />
+                  <Switch checked={ssoEnabled} onCheckedChange={setSsoEnabled} />
+                </div>
               }
             />
-            <ToggleRow
-              label="SCIM User Provisioning"
+            <SettingRow
+              title="SCIM User Provisioning"
               description="Automatically sync users from your identity provider"
               checked={scimProvisioning}
               onCheckedChange={setScimProvisioning}
             />
-          </div>
-        </Card>
+          </SettingsList>
+        </SectionCard>
 
         <EmptyPanel
           title="No SSO providers configured"
@@ -141,48 +135,61 @@ export function EnterpriseSettingsScreen() {
           </p>
         </div>
 
-        <Card className="overflow-hidden rounded-xl border-border bg-surface-subtle text-foreground shadow-sm">
-          <div className="-my-6">
-            <ToggleRow
-              label="Encryption at Rest"
+        <SectionCard>
+          <SettingsList>
+            <SettingRow
+              title="Encryption at Rest"
               description="Enable encryption for stored data"
-              checked={encryptionAtRest}
-              onCheckedChange={setEncryptionAtRest}
-              badge={encryptionAtRest ? { text: "ACTIVE", variant: "green" } : undefined}
+              control={
+                <div className="flex items-center gap-2">
+                  {encryptionAtRest ? (
+                    <StatusBadge text="ACTIVE" variant="green" />
+                  ) : null}
+                  <Switch
+                    checked={encryptionAtRest}
+                    onCheckedChange={setEncryptionAtRest}
+                  />
+                </div>
+              }
             />
-            <ToggleRow
-              label="Field-Level Encryption"
+            <SettingRow
+              title="Field-Level Encryption"
               description="Encrypt sensitive fields with separate keys"
               checked={fieldEncryption}
               onCheckedChange={setFieldEncryption}
             />
-            <ToggleRow
-              label="IP Whitelist"
+            <SettingRow
+              title="IP Whitelist"
               description="Restrict API access to approved IP ranges"
               checked={ipWhitelist}
               onCheckedChange={setIpWhitelist}
             />
-            <ToggleRow
-              label="Audit Trail"
+            <SettingRow
+              title="Audit Trail"
               description="Log data access and mutations for compliance"
-              checked={auditTrail}
-              onCheckedChange={setAuditTrail}
-              badge={auditTrail ? { text: "ACTIVE", variant: "green" } : undefined}
+              control={
+                <div className="flex items-center gap-2">
+                  {auditTrail ? (
+                    <StatusBadge text="ACTIVE" variant="green" />
+                  ) : null}
+                  <Switch checked={auditTrail} onCheckedChange={setAuditTrail} />
+                </div>
+              }
             />
-            <ToggleRow
-              label="Data Retention Policy"
+            <SettingRow
+              title="Data Retention Policy"
               description="Automatically archive or purge data per compliance rules"
               checked={dataRetention}
               onCheckedChange={setDataRetention}
             />
-            <ToggleRow
-              label="Disable Public API"
+            <SettingRow
+              title="Disable Public API"
               description="Block all external API access to this project"
               checked={disablePublicApi}
               onCheckedChange={setDisablePublicApi}
             />
-          </div>
-        </Card>
+          </SettingsList>
+        </SectionCard>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
           <StatCard icon={KeyRound} label="Encryption Keys" helper="No key data" />

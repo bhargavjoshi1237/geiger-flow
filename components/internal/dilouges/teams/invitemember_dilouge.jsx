@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -12,7 +12,6 @@ import {
 } from "@geiger/ui";
 import { Input } from "@geiger/ui";
 import { Button } from "@geiger/ui";
-import { Label } from "@geiger/ui";
 
 import { ChevronDown } from "lucide-react";
 import {
@@ -22,6 +21,7 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@geiger/ui";
+import { Field } from "@/components/internal/shared/screen_kit";
 
 export function InviteMemberDialog({
   children,
@@ -29,10 +29,14 @@ export function InviteMemberDialog({
   defaultRole = "member",
   isEditMode = false,
   onInvite,
+  open: controlledOpen,
+  onOpenChange,
+  isOpen,
+  onClose,
 }) {
   const [email, setEmail] = useState(defaultEmail);
   const [role, setRole] = useState(defaultRole);
-  const [isOpen, setIsOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
 
   const roleLabels = {
     admin: "Admin",
@@ -40,23 +44,39 @@ export function InviteMemberDialog({
     viewer: "Viewer",
   };
 
-  useEffect(() => {
-    if (isOpen) {
+  const isControlled = controlledOpen !== undefined || isOpen !== undefined;
+  const open = controlledOpen ?? isOpen ?? internalOpen;
+
+  // Reset the form every time the dialog opens (and forget the session when
+  // it closes). Adjusted during render — React's recommended answer to
+  // "reset when a prop changes" — instead of an effect.
+  const [lastDefaultsKey, setLastDefaultsKey] = useState(null);
+  const defaultsKey = open ? `${defaultEmail}|${defaultRole}` : null;
+  if (defaultsKey !== lastDefaultsKey) {
+    setLastDefaultsKey(defaultsKey);
+    if (open) {
       setEmail(defaultEmail);
       setRole(defaultRole);
     }
-  }, [isOpen, defaultEmail, defaultRole]);
+  }
+
+  const setOpen = (next) => {
+    const value = typeof next === "function" ? next(open) : next;
+    if (!isControlled) setInternalOpen(value);
+    onOpenChange?.(value);
+    if (!value) onClose?.();
+  };
 
   const handleInvite = () => {
     if (onInvite) {
       onInvite(email, role);
     }
-    setIsOpen(false);
+    setOpen(false);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+    <Dialog open={open} onOpenChange={setOpen}>
+      {children ? <DialogTrigger asChild>{children}</DialogTrigger> : null}
       <DialogContent className="sm:max-w-md bg-background border-border text-foreground">
         <DialogHeader>
           <DialogTitle className="text-xl">
@@ -69,16 +89,10 @@ export function InviteMemberDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col space-y-6 py-4">
-          <div className="flex flex-col space-y-2">
-            <Label
-              htmlFor="email"
-              className="text-sm font-medium text-foreground"
-            >
-              Email Address
-            </Label>
+        <div className="grid gap-4 py-4">
+          <Field label="Email Address" htmlFor="invite-email">
             <Input
-              id="email"
+              id="invite-email"
               type="email"
               placeholder="name@example.com"
               value={email}
@@ -86,12 +100,9 @@ export function InviteMemberDialog({
               disabled={isEditMode}
               className="bg-surface-card border-border text-foreground focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1 disabled:opacity-50 disabled:cursor-not-allowed"
             />
-          </div>
+          </Field>
 
-          <div className="flex flex-col space-y-2">
-            <Label className="text-sm font-medium text-foreground">
-              Set Role
-            </Label>
+          <Field label="Set Role">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -123,14 +134,14 @@ export function InviteMemberDialog({
                 </DropdownMenuRadioGroup>
               </DropdownMenuContent>
             </DropdownMenu>
-          </div>
+          </Field>
         </div>
 
         <DialogFooter className="sm:justify-end gap-2 shrink-0">
           <Button
             type="button"
             variant="ghost"
-            onClick={() => setIsOpen(false)}
+            onClick={() => setOpen(false)}
             className="text-muted-foreground hover:text-foreground hover:bg-surface-card border border-transparent"
           >
             Cancel

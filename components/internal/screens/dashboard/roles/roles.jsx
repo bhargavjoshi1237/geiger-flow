@@ -4,9 +4,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   ChevronDown,
   ChevronRight,
-  MoreVertical,
+  ListChecks,
   Plus,
-  Search,
   ShieldCheck,
   SlidersHorizontal,
 } from "lucide-react";
@@ -20,24 +19,26 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@geiger/ui";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@geiger/ui";
 import { Input } from "@geiger/ui";
-import { Label } from "@geiger/ui";
 import { Switch } from "@geiger/ui";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@geiger/ui";
+import { ActionMenu } from "@geiger/ui";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
+import {
+  ListPagination,
+  usePagination,
+} from "@/components/internal/shared/pagination";
+import {
+  EmptyState,
+  Field,
+  ScreenHeader,
+  SearchInput,
+  SectionCard,
+  SettingRow,
+  SettingsList,
+  StatsBar,
+  Toolbar,
+} from "@/components/internal/shared/screen_kit";
+import FilterDropdown from "@/components/internal/screens/projects/overview/filter_dropdown";
 import { createClient } from "@/lib/supabase/client";
 import {
   ROLE_STORAGE_KEY,
@@ -45,6 +46,12 @@ import {
   mergeWorkspaceRoles,
   normalizeRoleId,
 } from "@/lib/rbac";
+
+const TYPE_FILTER_OPTIONS = [
+  { value: "all", label: "All Types" },
+  { value: "system", label: "System" },
+  { value: "custom", label: "Custom" },
+];
 
 function RoleCreateDialog({ onCreate }) {
   const [open, setOpen] = useState(false);
@@ -79,13 +86,12 @@ function RoleCreateDialog({ onCreate }) {
         <DialogHeader>
           <DialogTitle>Create role</DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            Add a role to the workspace, then expand it in the table to manage
+            Add a role to the workspace, then expand it in the list to manage
             permissions.
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 py-2">
-          <div className="space-y-2">
-            <Label htmlFor="role-name">Role name</Label>
+        <div className="grid gap-4 py-2">
+          <Field label="Role name" htmlFor="role-name">
             <Input
               id="role-name"
               value={name}
@@ -93,9 +99,8 @@ function RoleCreateDialog({ onCreate }) {
               placeholder="Finance reviewer"
               className="bg-surface-card border-border text-foreground"
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="role-description">Responsibility</Label>
+          </Field>
+          <Field label="Responsibility" htmlFor="role-description">
             <Input
               id="role-description"
               value={description}
@@ -103,7 +108,7 @@ function RoleCreateDialog({ onCreate }) {
               placeholder="Can review project usage and reporting"
               className="bg-surface-card border-border text-foreground"
             />
-          </div>
+          </Field>
         </div>
         <DialogFooter>
           <Button
@@ -134,6 +139,7 @@ export function RolesScreen({
 }) {
   const [expandedRoleId, setExpandedRoleId] = useState(null);
   const [query, setQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState("all");
   const [roleUsage, setRoleUsage] = useState({});
   const roles = externalRoles;
 
@@ -147,12 +153,47 @@ export function RolesScreen({
 
   const filteredRoles = useMemo(() => {
     const needle = query.trim().toLowerCase();
-    if (!needle) return roles;
+    return roles.filter((role) => {
+      if (typeFilter === "system" && !role.system) return false;
+      if (typeFilter === "custom" && role.system) return false;
+      if (
+        needle &&
+        !`${role.name} ${role.description || ""}`.toLowerCase().includes(needle)
+      )
+        return false;
+      return true;
+    });
+  }, [query, roles, typeFilter]);
 
-    return roles.filter((role) =>
-      `${role.name} ${role.description || ""}`.toLowerCase().includes(needle),
-    );
-  }, [query, roles]);
+  const pager = usePagination(filteredRoles, {
+    resetKey: `${query}|${typeFilter}`,
+  });
+
+  const stats = useMemo(() => {
+    const assigned = Object.values(roleUsage).reduce((s, n) => s + n, 0);
+    return [
+      {
+        label: "Total roles",
+        value: String(roles.length),
+        footer: `${assigned} users assigned`,
+      },
+      {
+        label: "System roles",
+        value: String(roles.filter((r) => r.system).length),
+        footer: "Shipped with the workspace",
+      },
+      {
+        label: "Custom roles",
+        value: String(roles.filter((r) => !r.system).length),
+        footer: "Created by your team",
+      },
+      {
+        label: "Permissions",
+        value: String(WORKSPACE_PERMISSIONS.length),
+        footer: "Across all groups",
+      },
+    ];
+  }, [roles, roleUsage]);
 
   useEffect(() => {
     const fetchRoleUsage = async () => {
@@ -251,127 +292,116 @@ export function RolesScreen({
     role.permissions.filter((permission) => permission.startsWith(prefix)).length;
 
   return (
-    <MainScreenWrapper className="flex flex-col gap-10 space-y-0 text-foreground">
-      <div className="flex flex-col gap-4 border-b border-border pb-6 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
-            Accesses
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Manage workspace roles and permission groups.
-          </p>
+    <MainScreenWrapper className="text-foreground">
+      <ScreenHeader
+        title="Accesses"
+        description="Manage workspace roles and permission groups."
+        actions={<RoleCreateDialog onCreate={handleCreateRole} />}
+      />
+
+      <StatsBar stats={stats} />
+
+      <Toolbar>
+        <div className="flex items-center gap-2">
+          <FilterDropdown
+            value={typeFilter}
+            onValueChange={setTypeFilter}
+            options={TYPE_FILTER_OPTIONS}
+            height="h-9"
+          />
         </div>
-        <div className="flex flex-wrap items-center gap-2 justify-end">
-          <div className="relative w-full sm:w-52">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
-            <Input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search groups"
-              className="!h-9 w-full rounded-lg border-border bg-surface-card !pl-9 !pr-3 text-sm text-foreground placeholder:text-text-secondary"
+        <SearchInput
+          value={query}
+          onChange={setQuery}
+          placeholder="Search roles…"
+        />
+      </Toolbar>
+
+      <div className="space-y-5">
+        {pager.pageItems.length === 0 ? (
+          <div className="rounded-xl border border-border bg-surface-subtle">
+            <EmptyState
+              icon={SlidersHorizontal}
+              title={roles.length ? "No roles match your search" : "No roles yet"}
+              description={
+                roles.length
+                  ? "Try clearing the search or filters."
+                  : "Create your first custom role to get started."
+              }
+              action={<RoleCreateDialog onCreate={handleCreateRole} />}
             />
           </div>
-          <RoleCreateDialog onCreate={handleCreateRole} />
-        </div>
-      </div>
-
-      <section className="overflow-hidden rounded-lg border border-border bg-surface-card">
-        <Table>
-          <TableHeader>
-            <TableRow className="border-border bg-surface-subtle">
-              <TableHead className="w-[38%]">Roles</TableHead>
-              <TableHead>Users</TableHead>
-              <TableHead>Views</TableHead>
-              <TableHead>Controls</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead className="w-12 text-right">
-                <Plus className="ml-auto h-4 w-4 text-text-secondary" />
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredRoles.map((role) => {
+        ) : (
+          <div className="space-y-4">
+            {pager.pageItems.map((role) => {
               const isExpanded = expandedRoleId === role.id;
               return (
-                <React.Fragment key={role.id}>
-                  <TableRow className="border-border hover:bg-surface-active">
-                    <TableCell>
+                <SectionCard
+                  key={role.id}
+                  title={
+                    <span className="inline-flex items-center gap-2">
+                      {role.name}
+                      {role.system && (
+                        <ShieldCheck className="h-3.5 w-3.5 text-text-secondary" />
+                      )}
+                    </span>
+                  }
+                  description={`${roleUsage[role.id] || 0} users · ${countPermissions(role, "view.")} views · ${role.permissions.length - countPermissions(role, "view.")} controls · ${role.system ? "System" : "Custom"}`}
+                  action={
+                    <div className="flex items-center gap-1">
                       <Button
                         type="button"
-                        onClick={() => setExpandedRoleId(isExpanded ? null : role.id)}
-                        className="flex w-full items-center gap-3 text-left"
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label={isExpanded ? "Collapse permissions" : "Expand permissions"}
+                        onClick={() =>
+                          setExpandedRoleId(isExpanded ? null : role.id)
+                        }
+                        className="text-muted-foreground hover:bg-surface-active hover:text-foreground"
                       >
                         {isExpanded ? (
-                          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                          <ChevronDown className="h-4 w-4" />
                         ) : (
-                          <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                        )}
-                        <span className="font-medium text-foreground">{role.name}</span>
-                        {role.system && (
-                          <ShieldCheck className="h-3.5 w-3.5 text-text-secondary" />
+                          <ChevronRight className="h-4 w-4" />
                         )}
                       </Button>
-                    </TableCell>
-                    <TableCell className="font-medium text-foreground">
-                      {roleUsage[role.id] || 0}
-                    </TableCell>
-                    <TableCell>{countPermissions(role, "view.")}</TableCell>
-                    <TableCell>
-                      {role.permissions.length - countPermissions(role, "view.")}
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-xs font-medium text-muted-foreground">
-                        {role.system ? "System" : "Custom"}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button className="rounded-md p-1 text-text-secondary hover:bg-surface-hover hover:text-foreground">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent
-                          align="end"
-                          className="border-border bg-surface-subtle text-foreground"
-                        >
-                          <DropdownMenuItem
-                            onClick={() => setExpandedRoleId(role.id)}
-                            className="focus:bg-surface-hover focus:text-foreground"
-                          >
-                            Manage permissions
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-
+                      <ActionMenu
+                        label={`Actions for ${role.name}`}
+                        items={[
+                          !isExpanded && {
+                            icon: ListChecks,
+                            label: "Manage permissions",
+                            onSelect: () => setExpandedRoleId(role.id),
+                          },
+                          isExpanded && {
+                            icon: ChevronDown,
+                            label: "Collapse",
+                            onSelect: () => setExpandedRoleId(null),
+                          },
+                        ]}
+                      />
+                    </div>
+                  }
+                >
                   {isExpanded && (
-                    <TableRow className="border-border bg-surface-subtle hover:bg-surface-subtle">
-                      <TableCell colSpan={6} className="p-0">
-                        <div className="grid gap-0 divide-y divide-border lg:grid-cols-3 lg:divide-x lg:divide-y-0">
-                          {Object.entries(permissionGroups).map(
-                            ([group, permissions]) => (
-                              <div key={group} className="space-y-3 p-5">
-                                <div>
-                                  <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary">
-                                    {group}
-                                  </p>
-                                  <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-                                    {role.description}
-                                  </p>
-                                </div>
-                                {permissions.map((permission) => (
-                                  <div
-                                    key={permission.key}
-                                    className="flex items-center justify-between gap-4"
-                                  >
-                                    <Label
-                                      htmlFor={`${role.id}-${permission.key}`}
-                                      className="text-sm text-foreground"
-                                    >
-                                      {permission.label}
-                                    </Label>
+                    <div className="grid gap-6 pt-1 lg:grid-cols-3">
+                      {Object.entries(permissionGroups).map(
+                        ([group, permissions]) => (
+                          <div key={group} className="space-y-1">
+                            <div className="pb-2">
+                              <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary">
+                                {group}
+                              </p>
+                              <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                                {role.description}
+                              </p>
+                            </div>
+                            <SettingsList>
+                              {permissions.map((permission) => (
+                                <SettingRow
+                                  key={permission.key}
+                                  title={permission.label}
+                                  control={
                                     <Switch
                                       id={`${role.id}-${permission.key}`}
                                       checked={Boolean(
@@ -385,29 +415,24 @@ export function RolesScreen({
                                         )
                                       }
                                     />
-                                  </div>
-                                ))}
-                              </div>
-                            ),
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
+                                  }
+                                />
+                              ))}
+                            </SettingsList>
+                          </div>
+                        ),
+                      )}
+                    </div>
                   )}
-                </React.Fragment>
+                </SectionCard>
               );
             })}
-
-            {filteredRoles.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={6} className="py-10 text-center text-text-secondary">
-                  No roles match your search.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </section>
+          </div>
+        )}
+        <ListPagination {...pager} itemLabel="roles" />
+      </div>
     </MainScreenWrapper>
   );
 }
+
+export default RolesScreen;

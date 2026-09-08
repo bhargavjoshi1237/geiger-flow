@@ -12,7 +12,7 @@ import {
 } from "@geiger/ui";
 import { Input } from "@geiger/ui";
 import { Button } from "@geiger/ui";
-import { Label } from "@geiger/ui";
+import { Field } from "@/components/internal/shared/screen_kit";
 import {
   Select,
   SelectContent,
@@ -203,28 +203,27 @@ export function AddVaultItemDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="">
-          <div className="space-y-5">
-            <div className="space-y-2">
-              <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Secret Name</Label>
+          <div className="grid gap-4">
+            <Field label="Secret Name" htmlFor="vault-secret-name">
               <Input
+                id="vault-secret-name"
                 placeholder="e.g. Production API Key"
                 value={formData.name}
                 onChange={(e) => handleInputChange("name", e.target.value)}
                 required
                 className="bg-surface-subtle border-border text-foreground placeholder:text-text-tertiary focus:border-border-strong focus:ring-1 focus:ring-ring h-9 transition-all duration-200"
               />
-            </div>
+            </Field>
 
-            <div className="space-y-2">
-              <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Type</Label>
+            <Field label="Type">
               <Select value={formData.type} onValueChange={(value) => handleInputChange("type", value)}>
                 <SelectTrigger className="bg-surface-subtle border-border text-foreground focus:border-border-strong h-9">
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent className="bg-surface-subtle border-border text-foreground">
                   {VAULT_TYPES.map((type) => (
-                    <SelectItem 
-                      key={type.value} 
+                    <SelectItem
+                      key={type.value}
                       value={type.value}
                       className="focus:bg-surface-hover focus:text-foreground"
                     >
@@ -236,12 +235,9 @@ export function AddVaultItemDialog({
                   ))}
                 </SelectContent>
               </Select>
-            </div>
+            </Field>
 
-            <div className="space-y-2">
-              <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                {formData.type === "api_key" ? "API Key" : "Secret Value"}
-              </Label>
+            <Field label={formData.type === "api_key" ? "API Key" : "Secret Value"}>
               <div className="relative">
                 <Input
                   type={showSecret ? "text" : "password"}
@@ -258,27 +254,25 @@ export function AddVaultItemDialog({
                   {showSecret ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </Button>
               </div>
-            </div>
+            </Field>
 
-            <div className="space-y-2">
-              <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">URL / Endpoint <span className="text-text-tertiary">(optional)</span></Label>
+            <Field label="URL / Endpoint" hint="Optional">
               <Input
                 placeholder="e.g. https://console.aws.amazon.com"
                 value={formData.url}
                 onChange={(e) => handleInputChange("url", e.target.value)}
                 className="bg-surface-subtle border-border text-foreground placeholder:text-text-tertiary focus:border-border-strong focus:ring-1 focus:ring-ring h-9 transition-all duration-200"
               />
-            </div>
+            </Field>
 
-            <div className="space-y-2">
-              <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Notes <span className="text-text-tertiary">(optional)</span></Label>
+            <Field label="Notes" hint="Optional">
               <Textarea
                 placeholder="Add any notes about this secret..."
                 value={formData.notes}
                 onChange={(e) => handleInputChange("notes", e.target.value)}
                 className="bg-surface-subtle border-border text-foreground placeholder:text-text-tertiary focus:border-border-strong min-h-[80px] resize-none"
               />
-            </div>
+            </Field>
 
             <div className="space-y-3 rounded-xl border border-border bg-surface-subtle p-4">
               <div className="flex items-start gap-3">
@@ -286,9 +280,9 @@ export function AddVaultItemDialog({
                   <ShieldCheck className="size-4 text-muted-foreground" />
                 </div>
                 <div>
-                  <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                     Access Secret
-                  </Label>
+                  </p>
                   <p className="mt-1 text-xs leading-5 text-text-secondary">
                     Configure the single method required to access this secret.
                   </p>
@@ -331,10 +325,7 @@ export function AddVaultItemDialog({
               </div>
 
               {formData.accessSetup.method === "pin" && (
-                <div className="space-y-2">
-                  <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                    PIN
-                  </Label>
+                <Field label="PIN">
                   <Input
                     type="password"
                     inputMode="numeric"
@@ -344,14 +335,11 @@ export function AddVaultItemDialog({
                     onChange={(e) => handleAccessSetupChange("pin", e.target.value.replace(/\D/g, ""))}
                     className="bg-background border-border text-foreground placeholder:text-text-tertiary focus:border-border-strong h-9"
                   />
-                </div>
+                </Field>
               )}
 
               {formData.accessSetup.method === "password" && (
-                <div className="space-y-2">
-                  <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                    Password
-                  </Label>
+                <Field label="Password">
                   <Input
                     type="password"
                     placeholder="Set access password"
@@ -359,13 +347,10 @@ export function AddVaultItemDialog({
                     onChange={(e) => handleAccessSetupChange("password", e.target.value)}
                     className="bg-background border-border text-foreground placeholder:text-text-tertiary focus:border-border-strong h-9"
                   />
-                </div>
+                </Field>
               )}
 
-              <div className="space-y-1">
-                <Label className="text-[11px] font-semibold text-text-secondary uppercase tracking-wide">
-                  Session TTL
-                </Label>
+              <Field label="Session TTL">
                 <Input
                   type="number"
                   min="1"
@@ -374,16 +359,16 @@ export function AddVaultItemDialog({
                   onChange={(e) => handleAccessSetupChange("sessionMinutes", e.target.value)}
                   className="bg-background border-border text-foreground h-8"
                 />
-              </div>
+              </Field>
             </div>
           </div>
 
           <DialogFooter className="gap-3 mt-6">
             <Button
               type="button"
-              variant="outline"
+              variant="ghost"
               onClick={() => dialogOnOpenChange(false)}
-              className="flex-1 border-border text-text-secondary hover:text-foreground hover:bg-surface-card hover:border-border-strong h-9 text-sm font-medium transition-all duration-200"
+              className="flex-1 h-9 text-sm font-medium transition-all duration-200"
             >
               Cancel
             </Button>

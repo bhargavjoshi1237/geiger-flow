@@ -3,6 +3,7 @@
 import React, { useState, useMemo, useRef } from "react";
 import { Input } from "@geiger/ui";
 import { Label } from "@geiger/ui";
+import { Field } from "@/components/internal/shared/screen_kit";
 import { Button } from "@geiger/ui";
 import { Slider } from "@geiger/ui";
 import { Textarea } from "@geiger/ui";
@@ -73,19 +74,18 @@ export function TaskCoreTab({
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-[1fr_160px] gap-3">
-        <div className="space-y-1.5">
-          <Label className="text-sm font-medium text-foreground">Title</Label>
+        <Field label="Title" htmlFor="task-title">
           <Input
+            id="task-title"
             value={formData.title}
             onChange={(event) => handleInputChange("title", event.target.value)}
             placeholder="Implement dependency graph for release tasks"
             className="bg-surface-card border-border text-foreground h-9 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1"
             autoFocus
           />
-        </div>
+        </Field>
 
-        <div className="space-y-1.5">
-          <Label className="text-sm font-medium text-foreground">Type</Label>
+        <Field label="Type">
           <Select
             value={formData.type}
             onValueChange={(value) => handleInputChange("type", value)}
@@ -102,22 +102,21 @@ export function TaskCoreTab({
               ))}
             </SelectContent>
           </Select>
-        </div>
+        </Field>
       </div>
 
-      <div className="space-y-1.5">
-        <Label className="text-sm font-medium text-foreground">Description</Label>
+      <Field label="Description" htmlFor="task-description">
         <Textarea
+          id="task-description"
           value={formData.description}
           onChange={(event) => handleInputChange("description", event.target.value)}
           placeholder="Rich text/markdown ready notes for implementation details and acceptance criteria."
           className="bg-surface-card border-border text-foreground min-h-[88px] resize-none text-sm focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1"
         />
-      </div>
+      </Field>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div className="space-y-1.5">
-          <Label className="text-sm font-medium text-foreground">Status</Label>
+        <Field label="Status">
           <Select
             value={formData.status}
             onValueChange={(value) => handleInputChange("status", value)}
@@ -134,10 +133,9 @@ export function TaskCoreTab({
               ))}
             </SelectContent>
           </Select>
-        </div>
+        </Field>
 
-        <div className="space-y-1.5">
-          <Label className="text-sm font-medium text-foreground">Priority</Label>
+        <Field label="Priority">
           <Select
             value={formData.priority}
             onValueChange={(value) => handleInputChange("priority", value)}
@@ -154,16 +152,15 @@ export function TaskCoreTab({
               ))}
             </SelectContent>
           </Select>
-        </div>
+        </Field>
 
-        <div className="space-y-1.5">
-          <Label className="text-sm font-medium text-foreground">Stage</Label>
+        <Field label="Stage">
           <StageSelect
             value={formData.stage}
             onValueChange={(value) => handleInputChange("stage", value)}
             triggerClassName="w-full bg-surface-card border-border text-foreground h-9 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1"
           />
-        </div>
+        </Field>
       </div>
 
       <div className="space-y-1.5">
@@ -182,18 +179,17 @@ export function TaskCoreTab({
         </div>
       </div>
 
-      <div className="space-y-1.5">
-        <Label className="text-sm font-medium text-foreground">Labels (comma separated)</Label>
+      <Field label="Labels (comma separated)" htmlFor="task-labels">
         <Input
+          id="task-labels"
           value={formData.labels}
           onChange={(event) => handleInputChange("labels", event.target.value)}
           placeholder="frontend, release, urgent"
           className="bg-surface-card border-border text-foreground h-9 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1"
         />
-      </div>
+      </Field>
 
-      <div className="space-y-1.5">
-        <Label className="text-sm font-medium text-foreground">Linked Goal</Label>
+      <Field label="Linked Goal">
         <Select
           value={formData.parentLink || "none"}
           onValueChange={(value) => handleInputChange("parentLink", value)}
@@ -216,7 +212,7 @@ export function TaskCoreTab({
             ))}
           </SelectContent>
         </Select>
-      </div>
+      </Field>
     </div>
   );
 }

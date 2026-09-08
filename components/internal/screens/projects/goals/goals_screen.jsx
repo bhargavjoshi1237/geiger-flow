@@ -1,31 +1,22 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@geiger/ui";
-import { Badge } from "@geiger/ui";
 import { Progress } from "@geiger/ui";
-import { Card, CardContent } from "@geiger/ui";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@geiger/ui";
+import { ActionMenu } from "@geiger/ui";
 import {
   Plus,
-  CheckCircle2,
-  Circle,
   Target,
   Calendar,
-  MoreHorizontal,
-  ChevronDown,
-  LayoutGrid,
-  List,
   Pencil,
   Trash2,
   Copy,
@@ -34,36 +25,37 @@ import {
   AlertTriangle,
   CheckCircle,
   User,
+  Loader2,
 } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
+import {
+  DataTable,
+  EmptyState,
+  ScreenHeader,
+  SearchInput,
+  StatsBar,
+  StatusPill,
+  Toolbar,
+} from "@/components/internal/shared/screen_kit";
+import {
+  ListPagination,
+  usePagination,
+} from "@/components/internal/shared/pagination";
+import FilterDropdown from "@/components/internal/screens/projects/overview/filter_dropdown";
 import { cn } from "@/lib/utils";
 import { NewGoalDialog } from "@/components/internal/dilouges/goals/new_goal_dilouge";
 import { useProject } from "@/context/project-context";
+import {
+  GOAL_STATUSES,
+  GOAL_STATUS_FILTER_OPTIONS,
+  goalStatusPillMap,
+} from "@/features/goals/constants";
 import {
   listGoals,
   createGoal,
   updateGoal,
   softDeleteGoal,
 } from "@/features/goals/actions";
-
-const STATUS_META = {
-  not_started: {
-    label: "Not Started",
-    className: "bg-zinc-500/10 text-muted-foreground border-zinc-500/20",
-  },
-  on_track: {
-    label: "On Track",
-    className: "bg-emerald-500/10 text-emerald-300 border-emerald-500/20",
-  },
-  at_risk: {
-    label: "At Risk",
-    className: "bg-amber-500/10 text-amber-300 border-amber-500/20",
-  },
-  completed: {
-    label: "Completed",
-    className: "bg-blue-500/10 text-blue-300 border-blue-500/20",
-  },
-};
 
 const STATUS_ICON = {
   not_started: CircleDot,
@@ -84,336 +76,18 @@ function formatDate(value) {
   return Number.isNaN(d.getTime()) ? "-" : dateFormatter.format(d);
 }
 
-function GoalCard({ goal, onEdit, onDelete, onDuplicate, onChangeStatus }) {
-  const [krsOpen, setKrsOpen] = useState(false);
-
-  const completedKR = goal.keyResults.filter((kr) => kr.done).length;
-  const totalKR = goal.keyResults.length;
-
-  const progressBarColor = (() => {
-    if (goal.status === "completed") return "[&_[data-slot=progress-indicator]]:bg-blue-400";
-    if (goal.status === "at_risk") return "[&_[data-slot=progress-indicator]]:bg-amber-400";
-    if (goal.status === "not_started") return "[&_[data-slot=progress-indicator]]:bg-zinc-500";
-    return "[&_[data-slot=progress-indicator]]:bg-emerald-400";
-  })();
-
-  return (
-    <Card className="bg-surface-subtle border-border text-foreground hover:border-border-strong transition-colors duration-200 rounded-xl py-0 gap-0 group">
-      <CardContent className="p-5 space-y-4">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1 min-w-0 space-y-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-sm font-semibold text-foreground leading-snug group-hover:text-foreground transition-colors">
-                {goal.title}
-              </h3>
-              <Badge
-                className={cn(
-                  "border text-[10px] px-2 py-0",
-                  STATUS_META[goal.status]?.className
-                )}
-              >
-                {STATUS_META[goal.status]?.label}
-              </Badge>
-            </div>
-            <p className="text-xs text-text-secondary line-clamp-2">
-              {goal.description}
-            </p>
-          </div>
-          <div className="flex items-center gap-1 shrink-0">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="w-7 h-7 text-text-tertiary hover:text-muted-foreground hover:bg-surface-active"
-                >
-                  <MoreHorizontal className="w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="bg-surface-subtle border-border text-foreground rounded-lg w-48"
-              >
-                <DropdownMenuItem
-                  className="text-xs gap-2 focus:bg-surface-active focus:text-foreground cursor-pointer"
-                  onSelect={() => onEdit?.(goal)}
-                >
-                  <Pencil className="w-3.5 h-3.5" />
-                  Edit Goal
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-xs gap-2 focus:bg-surface-active focus:text-foreground cursor-pointer"
-                  onSelect={() => onDuplicate?.(goal)}
-                >
-                  <Copy className="w-3.5 h-3.5" />
-                  Duplicate
-                </DropdownMenuItem>
-                <DropdownMenuSub>
-                  <DropdownMenuSubTrigger className="text-xs gap-2 focus:bg-surface-active focus:text-foreground cursor-pointer">
-                    <Target className="w-3.5 h-3.5" />
-                    Change Status
-                  </DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent className="bg-surface-subtle border-border text-foreground rounded-lg">
-                    {Object.entries(STATUS_META).map(([key, meta]) => {
-                      const SIcon = STATUS_ICON[key];
-                      return (
-                        <DropdownMenuItem
-                          key={key}
-                          className={cn(
-                            "text-xs gap-2 focus:bg-surface-active focus:text-foreground cursor-pointer",
-                            goal.status === key && "bg-surface-active"
-                          )}
-                          onSelect={() => onChangeStatus?.(goal.id, key)}
-                        >
-                          {SIcon && <SIcon className="w-3.5 h-3.5" />}
-                          {meta.label}
-                          {goal.status === key && (
-                            <CheckCircle2 className="w-3 h-3 ml-auto text-blue-400" />
-                          )}
-                        </DropdownMenuItem>
-                      );
-                    })}
-                  </DropdownMenuSubContent>
-                </DropdownMenuSub>
-                <DropdownMenuSeparator className="bg-surface-hover" />
-                <DropdownMenuItem
-                  variant="destructive"
-                  className="text-xs gap-2 focus:bg-red-500/10 focus:text-red-400 cursor-pointer"
-                  onSelect={() => onDelete?.(goal.id)}
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  Delete Goal
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-4 text-xs text-text-secondary">
-          <span className="inline-flex items-center gap-1">
-            <User className="w-3 h-3" />
-            {goal.owner}
-          </span>
-          <span className="inline-flex items-center gap-1">
-            <Calendar className="w-3 h-3" />
-            {formatDate(goal.targetDate)}
-          </span>
-          <span className="ml-auto inline-flex items-center gap-1 text-text-tertiary">
-            <Target className="w-3 h-3" />
-            {completedKR}/{totalKR} key results
-          </span>
-        </div>
-
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase tracking-wider text-text-tertiary font-medium">
-              Progress
-            </span>
-            <span className="text-xs text-muted-foreground tabular-nums">
-              {goal.progress}%
-            </span>
-          </div>
-          <Progress
-            value={goal.progress}
-            className={cn(
-              "h-1.5 bg-surface-hover rounded-full",
-              progressBarColor
-            )}
-          />
-        </div>
-
-        {goal.keyResults && goal.keyResults.length > 0 && (
-          <div className="border-t border-border pt-2">
-            <Button
-              type="button"
-              onClick={() => setKrsOpen((prev) => !prev)}
-              className="flex items-center justify-between w-full gap-2 group/acc cursor-pointer"
-            >
-              <span className="text-[10px] uppercase tracking-wider text-text-tertiary font-medium">
-                Key Results
-              </span>
-              <ChevronDown
-                className={cn(
-                  "w-3 h-3 text-text-tertiary transition-transform duration-200",
-                  krsOpen && "rotate-180"
-                )}
-              />
-            </Button>
-            <div
-              className={cn(
-                "grid transition-all duration-200 ease-in-out",
-                krsOpen
-                  ? "grid-rows-[1fr] opacity-100 mt-2"
-                  : "grid-rows-[0fr] opacity-0"
-              )}
-            >
-              <div className="overflow-hidden space-y-2">
-                {goal.keyResults.map((kr, idx) => (
-                  <div key={idx} className="flex items-center gap-2.5">
-                    {kr.done ? (
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                    ) : (
-                      <Circle className="w-3.5 h-3.5 text-text-tertiary shrink-0" />
-                    )}
-                    <span
-                      className={cn(
-                        "text-xs flex-1 truncate",
-                        kr.done ? "text-muted-foreground line-through" : "text-text-secondary"
-                      )}
-                    >
-                      {kr.label}
-                    </span>
-                    <span className="text-[10px] tabular-nums text-text-tertiary shrink-0">
-                      {kr.progress}%
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
-}
-
-function GoalListItem({ goal, onEdit, onDelete, onDuplicate, onChangeStatus }) {
-  const completedKR = goal.keyResults.filter((kr) => kr.done).length;
-  const totalKR = goal.keyResults.length;
-
-  const progressBarColor = (() => {
-    if (goal.status === "completed") return "[&_[data-slot=progress-indicator]]:bg-blue-400";
-    if (goal.status === "at_risk") return "[&_[data-slot=progress-indicator]]:bg-amber-400";
-    if (goal.status === "not_started") return "[&_[data-slot=progress-indicator]]:bg-zinc-500";
-    return "[&_[data-slot=progress-indicator]]:bg-emerald-400";
-  })();
-
-  return (
-    <div className="flex items-center gap-4 px-4 py-3 rounded-lg bg-surface-subtle border border-border hover:border-border-strong transition-colors group">
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
-          <h3 className="text-sm font-medium text-foreground group-hover:text-foreground transition-colors truncate">
-            {goal.title}
-          </h3>
-          <Badge
-            className={cn(
-              "border text-[10px] px-2 py-0 shrink-0",
-              STATUS_META[goal.status]?.className
-            )}
-          >
-            {STATUS_META[goal.status]?.label}
-          </Badge>
-        </div>
-        <div className="flex items-center gap-3 text-xs text-text-secondary">
-          <span className="inline-flex items-center gap-1">
-            <User className="w-3 h-3" />
-            {goal.owner}
-          </span>
-          <span className="inline-flex items-center gap-1">
-            <Calendar className="w-3 h-3" />
-            {formatDate(goal.targetDate)}
-          </span>
-          <span className="inline-flex items-center gap-1 text-text-tertiary">
-            <Target className="w-3 h-3" />
-            {completedKR}/{totalKR} KRs
-          </span>
-        </div>
-      </div>
-
-      <div className="w-32 shrink-0 space-y-1">
-        <div className="flex items-center justify-between">
-          <span className="text-[10px] text-text-tertiary">Progress</span>
-          <span className="text-xs text-muted-foreground tabular-nums">{goal.progress}%</span>
-        </div>
-        <Progress
-          value={goal.progress}
-          className={cn("h-1 bg-surface-hover rounded-full", progressBarColor)}
-        />
-      </div>
-
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="w-7 h-7 text-text-tertiary hover:text-muted-foreground hover:bg-surface-active shrink-0"
-          >
-            <MoreHorizontal className="w-4 h-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-          align="end"
-          className="bg-surface-subtle border-border text-foreground rounded-lg w-48"
-        >
-          <DropdownMenuItem
-            className="text-xs gap-2 focus:bg-surface-active focus:text-foreground cursor-pointer"
-            onSelect={() => onEdit?.(goal)}
-          >
-            <Pencil className="w-3.5 h-3.5" />
-            Edit Goal
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="text-xs gap-2 focus:bg-surface-active focus:text-foreground cursor-pointer"
-            onSelect={() => onDuplicate?.(goal)}
-          >
-            <Copy className="w-3.5 h-3.5" />
-            Duplicate
-          </DropdownMenuItem>
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger className="text-xs gap-2 focus:bg-surface-active focus:text-foreground cursor-pointer">
-              <Target className="w-3.5 h-3.5" />
-              Change Status
-            </DropdownMenuSubTrigger>
-            <DropdownMenuSubContent className="bg-surface-subtle border-border text-foreground rounded-lg">
-              {Object.entries(STATUS_META).map(([key, meta]) => {
-                const SIcon = STATUS_ICON[key];
-                return (
-                  <DropdownMenuItem
-                    key={key}
-                    className={cn(
-                      "text-xs gap-2 focus:bg-surface-active focus:text-foreground cursor-pointer",
-                      goal.status === key && "bg-surface-active"
-                    )}
-                    onSelect={() => onChangeStatus?.(goal.id, key)}
-                  >
-                    {SIcon && <SIcon className="w-3.5 h-3.5" />}
-                    {meta.label}
-                    {goal.status === key && (
-                      <CheckCircle2 className="w-3 h-3 ml-auto text-blue-400" />
-                    )}
-                  </DropdownMenuItem>
-                );
-              })}
-            </DropdownMenuSubContent>
-          </DropdownMenuSub>
-          <DropdownMenuSeparator className="bg-surface-hover" />
-          <DropdownMenuItem
-            variant="destructive"
-            className="text-xs gap-2 focus:bg-red-500/10 focus:text-red-400 cursor-pointer"
-            onSelect={() => onDelete?.(goal.id)}
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-            Delete Goal
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
-  );
-}
-
 export function GoalsScreen() {
   const { project } = useProject();
   const projectId = project?.id;
 
-  const [view, setView] = useState("grid");
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("all");
   const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [createOpen, setCreateOpen] = useState(false);
   const [editGoal, setEditGoal] = useState(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const goalColumns = [
-    goals.filter((_, index) => index % 2 === 0),
-    goals.filter((_, index) => index % 2 === 1),
-  ];
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   useEffect(() => {
     if (!projectId) {
@@ -432,6 +106,38 @@ export function GoalsScreen() {
       active = false;
     };
   }, [projectId]);
+
+  const filteredGoals = useMemo(() => {
+    const normalizedQuery = search.trim().toLowerCase();
+    return goals.filter((goal) => {
+      if (status !== "all" && goal.status !== status) return false;
+      if (!normalizedQuery) return true;
+      return [goal.title, goal.description, goal.owner]
+        .join(" ")
+        .toLowerCase()
+        .includes(normalizedQuery);
+    });
+  }, [goals, search, status]);
+
+  const pager = usePagination(filteredGoals, {
+    resetKey: `${search}|${status}`,
+  });
+
+  const stats = useMemo(() => {
+    const total = goals.length;
+    const completed = goals.filter((g) => g.status === "completed").length;
+    const onTrack = goals.filter((g) => g.status === "on_track").length;
+    const atRisk = goals.filter((g) => g.status === "at_risk").length;
+    const avgProgress = total
+      ? Math.round(goals.reduce((sum, g) => sum + (g.progress || 0), 0) / total)
+      : 0;
+    return [
+      { label: "Total goals", value: String(total), footer: `${completed} completed` },
+      { label: "On track", value: String(onTrack), footer: "Progressing well" },
+      { label: "At risk", value: String(atRisk), footer: "Needs attention" },
+      { label: "Avg. progress", value: `${avgProgress}%`, footer: "Across all goals" },
+    ];
+  }, [goals]);
 
   const handleCreateGoal = async (newGoal) => {
     const created = await createGoal(projectId, { ...newGoal, objectiveId: null });
@@ -463,6 +169,7 @@ export function GoalsScreen() {
   const handleDeleteGoal = async (id) => {
     const previous = goals;
     setGoals((prev) => prev.filter((g) => g.id !== id));
+    setDeleteTarget(null);
     const ok = await softDeleteGoal(id);
     if (!ok) {
       setGoals(previous);
@@ -504,111 +211,191 @@ export function GoalsScreen() {
     setGoals((prev) => prev.map((g) => (g.id === id ? saved : g)));
   };
 
+  const columns = [
+    {
+      key: "goal",
+      header: "Goal",
+      render: (goal) => {
+        const completedKR = goal.keyResults.filter((kr) => kr.done).length;
+        const totalKR = goal.keyResults.length;
+        return (
+          <div className="flex min-w-[240px] flex-col gap-1">
+            <span className="font-medium text-foreground">{goal.title}</span>
+            {goal.description ? (
+              <span className="line-clamp-2 text-xs text-text-secondary">
+                {goal.description}
+              </span>
+            ) : null}
+            <span className="flex flex-wrap items-center gap-3 text-xs text-text-secondary">
+              <span className="inline-flex items-center gap-1">
+                <User className="h-3 w-3" />
+                {goal.owner}
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <Calendar className="h-3 w-3" />
+                {formatDate(goal.targetDate)}
+              </span>
+              <span className="inline-flex items-center gap-1 text-text-tertiary">
+                <Target className="h-3 w-3" />
+                {completedKR}/{totalKR} key results
+              </span>
+            </span>
+          </div>
+        );
+      },
+    },
+    {
+      key: "status",
+      header: "Status",
+      render: (goal) => <StatusPill status={goal.status} map={goalStatusPillMap} />,
+    },
+    {
+      key: "progress",
+      header: "Progress",
+      render: (goal) => {
+        const barColor = (() => {
+          if (goal.status === "completed") return "[&_[data-slot=progress-indicator]]:bg-blue-400";
+          if (goal.status === "at_risk") return "[&_[data-slot=progress-indicator]]:bg-amber-400";
+          if (goal.status === "not_started") return "[&_[data-slot=progress-indicator]]:bg-zinc-500";
+          return "[&_[data-slot=progress-indicator]]:bg-emerald-400";
+        })();
+        return (
+          <div className="w-[150px] space-y-1.5">
+            <Progress
+              value={goal.progress}
+              className={cn("h-1.5 rounded-full bg-surface-hover", barColor)}
+            />
+            <p className="text-xs tabular-nums text-text-secondary">{goal.progress}%</p>
+          </div>
+        );
+      },
+    },
+    {
+      key: "target",
+      header: "Target date",
+      render: (goal) => (
+        <span className="whitespace-nowrap text-sm text-muted-foreground">
+          {formatDate(goal.targetDate)}
+        </span>
+      ),
+    },
+    {
+      key: "actions",
+      header: "",
+      align: "right",
+      className: "text-right",
+      render: (goal) => (
+        <ActionMenu
+          label={`Actions for ${goal.title}`}
+          items={[
+            { icon: Pencil, label: "Edit", onSelect: () => handleEditGoal(goal) },
+            { icon: Copy, label: "Duplicate", onSelect: () => handleDuplicateGoal(goal) },
+            { separator: true },
+            ...GOAL_STATUSES.map((entry) => ({
+              icon: STATUS_ICON[entry.value],
+              label: entry.label,
+              onSelect: () => handleChangeStatus(goal.id, entry.value),
+            })),
+            { separator: true },
+            {
+              icon: Trash2,
+              label: "Delete",
+              destructive: true,
+              onSelect: () => setDeleteTarget(goal),
+            },
+          ]}
+        />
+      ),
+    },
+  ];
+
   return (
     <MainScreenWrapper>
-      <div className="flex items-center justify-between border-b border-border pb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Goals</h1>
-          <p className="text-muted-foreground mt-1">
-            Define measurable targets & key business goals for this project. You can have max 6 goals at a time.
-          </p>
+      <ScreenHeader
+        title="Goals"
+        description="Define measurable targets & key business goals for this project. You can have max 6 goals at a time."
+        actions={
+          <Button
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
+            onClick={() => setCreateOpen(true)}
+          >
+            <Plus className="h-4 w-4" /> Define New Goal
+          </Button>
+        }
+      />
+
+      <StatsBar stats={stats} />
+
+      <Toolbar>
+        <div className="flex items-center gap-2">
+          <FilterDropdown
+            value={status}
+            onValueChange={setStatus}
+            options={GOAL_STATUS_FILTER_OPTIONS}
+            height="h-9"
+          />
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center bg-surface-subtle border border-border rounded-lg p-0.5">
-            <Button
-              variant="ghost"
-              size="icon"
-              className={cn(
-                "w-8 h-7 rounded-md",
-                view === "grid"
-                  ? "bg-surface-hover text-foreground"
-                  : "text-text-tertiary hover:text-muted-foreground hover:bg-transparent"
-              )}
-              onClick={() => setView("grid")}
-            >
-              <LayoutGrid className="w-3.5 h-3.5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className={cn(
-                "w-8 h-7 rounded-md",
-                view === "list"
-                  ? "bg-surface-hover text-foreground"
-                  : "text-text-tertiary hover:text-muted-foreground hover:bg-transparent"
-              )}
-              onClick={() => setView("list")}
-            >
-              <List className="w-3.5 h-3.5" />
-            </Button>
-          </div>
-          <NewGoalDialog onCreate={handleCreateGoal}>
-            <Button className="bg-primary text-primary-foreground hover:bg-primary">
-              <Plus className="w-4 h-4 mr-2" />
-              Define New Goal
-            </Button>
-          </NewGoalDialog>
-        </div>
-      </div>
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="Search goals, owners…"
+        />
+      </Toolbar>
 
       {loading ? (
-        <div className="h-[260px] flex flex-col items-center justify-center gap-3 text-text-tertiary">
-          <div className="w-5 h-5 rounded-full border-2 border-border-strong border-t-foreground animate-spin" />
-          <span className="text-sm">Loading goals...</span>
+        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Loading goals…
         </div>
-      ) : goals.length === 0 ? (
-        <div className="h-[260px] flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface-subtle text-text-secondary">
-          <Target className="w-10 h-10 opacity-30" />
-          <p className="mt-3 text-sm">No goals yet.</p>
-          <p className="text-xs text-text-tertiary mt-1">
-            Define your first measurable goal to get started.
-          </p>
-        </div>
-      ) : view === "grid" ? (
-        <>
-        <div className="space-y-4 lg:hidden">
-          {goals.map((goal) => (
-            <GoalCard
-              key={goal.id}
-              goal={goal}
-              onEdit={handleEditGoal}
-              onDelete={handleDeleteGoal}
-              onDuplicate={handleDuplicateGoal}
-              onChangeStatus={handleChangeStatus}
-            />
-          ))}
-        </div>
-        <div className="hidden lg:grid lg:grid-cols-2 gap-4 items-start">
-          {goalColumns.map((columnGoals, columnIndex) => (
-            <div key={columnIndex} className="space-y-4">
-              {columnGoals.map((goal) => (
-                <GoalCard
-                  key={goal.id}
-                  goal={goal}
-                  onEdit={handleEditGoal}
-                  onDelete={handleDeleteGoal}
-                  onDuplicate={handleDuplicateGoal}
-                  onChangeStatus={handleChangeStatus}
-                />
-              ))}
-            </div>
-          ))}
-        </div>
-        </>
       ) : (
-        <div className="space-y-2">
-          {goals.map((goal) => (
-            <GoalListItem
-              key={goal.id}
-              goal={goal}
-              onEdit={handleEditGoal}
-              onDelete={handleDeleteGoal}
-              onDuplicate={handleDuplicateGoal}
-              onChangeStatus={handleChangeStatus}
-            />
-          ))}
+        <div className="space-y-5">
+          <DataTable
+            columns={columns}
+            data={pager.pageItems}
+            getRowKey={(g) => g.id}
+            empty={
+              <div className="rounded-xl border border-border bg-surface-subtle">
+                <EmptyState
+                  icon={Target}
+                  title={goals.length ? "No goals match your filters" : "No goals yet"}
+                  description={
+                    goals.length
+                      ? "Try clearing the search or filters to see more goals."
+                      : "Define your first measurable goal to get started."
+                  }
+                  action={
+                    goals.length ? (
+                      <Button
+                        variant="ghost"
+                        onClick={() => {
+                          setSearch("");
+                          setStatus("all");
+                        }}
+                      >
+                        Clear filters
+                      </Button>
+                    ) : (
+                      <Button
+                        className="bg-primary text-primary-foreground hover:bg-primary/90"
+                        onClick={() => setCreateOpen(true)}
+                      >
+                        <Plus className="h-4 w-4" /> Define New Goal
+                      </Button>
+                    )
+                  }
+                />
+              </div>
+            }
+          />
+          <ListPagination {...pager} itemLabel="goals" />
         </div>
       )}
+
+      <NewGoalDialog
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        onCreate={handleCreateGoal}
+      />
 
       <NewGoalDialog
         editGoal={editGoal}
@@ -619,6 +406,32 @@ export function GoalsScreen() {
           if (!open) setEditGoal(null);
         }}
       />
+
+      <Dialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete goal</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete{" "}
+              <span className="font-medium text-foreground">{deleteTarget?.title}</span>?
+              This action can&apos;t be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setDeleteTarget(null)}>
+              Cancel
+            </Button>
+            <Button
+              className="bg-red-500/90 text-white hover:bg-red-500"
+              onClick={() => handleDeleteGoal(deleteTarget.id)}
+            >
+              <Trash2 className="h-4 w-4" /> Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </MainScreenWrapper>
   );
 }
+
+export default GoalsScreen;

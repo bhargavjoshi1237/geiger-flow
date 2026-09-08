@@ -14,14 +14,7 @@ import { Textarea } from "@geiger/ui";
 import { Badge } from "@geiger/ui";
 import { Progress } from "@geiger/ui";
 import { Slider } from "@geiger/ui";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@geiger/ui";
+import { ActionMenu } from "@geiger/ui";
 import {
   Select,
   SelectContent,
@@ -51,13 +44,6 @@ import {
   AvatarImage,
 } from "@geiger/ui";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@geiger/ui";
-import {
   AlertOctagon,
   AlertTriangle,
   Bug,
@@ -72,9 +58,7 @@ import {
   Hash,
   Link2,
   Loader2,
-  LucideGithub,
   MessageSquare,
-  MoreVertical,
   Pencil,
   Plus,
   Search,
@@ -89,6 +73,20 @@ import {
   X,
 } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
+import {
+  DataTable,
+  EmptyState,
+  ScreenHeader,
+  SearchInput,
+  StatsBar,
+  StatusPill,
+  Toolbar,
+} from "@/components/internal/shared/screen_kit";
+import {
+  ListPagination,
+  usePagination,
+} from "@/components/internal/shared/pagination";
+import FilterDropdown from "@/components/internal/screens/projects/overview/filter_dropdown";
 import { AddTaskDialog } from "./add_task_dialog";
 import { cn } from "@/lib/utils";
 import { useProject } from "@/context/project-context";
@@ -123,6 +121,31 @@ import {
   typeLabels,
   typeMeta,
 } from "@/features/tasks/constants";
+
+// Status/priority pills for the list (config only — rows come from the data layer).
+const TASK_STATUS_MAP = {
+  todo: { label: "To Do", variant: "neutral", dotClass: "bg-zinc-400" },
+  in_progress: { label: "In Progress", variant: "info", dotClass: "bg-sky-400" },
+  blocked: { label: "Blocked", variant: "danger", dotClass: "bg-red-400" },
+  done: { label: "Done", variant: "success", dotClass: "bg-emerald-400" },
+};
+
+const TASK_PRIORITY_MAP = {
+  low: { label: "Low", variant: "info", dotClass: "bg-sky-400" },
+  medium: { label: "Medium", variant: "neutral", dotClass: "bg-zinc-400" },
+  high: { label: "High", variant: "warning", dotClass: "bg-amber-400" },
+  critical: { label: "Critical", variant: "danger", dotClass: "bg-red-400" },
+};
+
+const STATUS_FILTER_OPTIONS = [
+  { value: "all", label: "All statuses" },
+  ...TASK_STATUSES.map((status) => ({ value: status.value, label: status.label })),
+];
+
+const PRIORITY_FILTER_OPTIONS = [
+  { value: "all", label: "All priorities" },
+  ...TASK_PRIORITIES.map((priority) => ({ value: priority.value, label: priority.label })),
+];
 
 const GOAL_OPTIONS = [
   { value: "goal:predictable-delivery", label: "Predictable delivery" },
@@ -1172,6 +1195,7 @@ export function TasksScreen() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [selectedTask, setSelectedTask] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const fetchTasks = useCallback(async () => {
     if (!projectId) {
@@ -1277,7 +1301,12 @@ export function TasksScreen() {
     );
   }, []);
 
-  const handleMenuDelete = async (task) => {
+  const handleMenuDelete = async () => {
+    const task = deleteTarget;
+    if (!task) {
+      return;
+    }
+    setDeleteTarget(null);
     const ok = await softDeleteTask(task.id);
     if (!ok) {
       toast.error("Couldn't delete task");
@@ -1308,250 +1337,231 @@ export function TasksScreen() {
     toast.success("Task created");
   };
 
-  const hasFilters =
-    search.trim() || statusFilter !== "all" || priorityFilter !== "all";
+  const clearFilters = () => {
+    setSearch("");
+    setStatusFilter("all");
+    setPriorityFilter("all");
+  };
+
+  const stats = useMemo(() => {
+    const inProgress = tasks.filter((task) => task.status === "in_progress").length;
+    const overdue = tasks.filter(isOverdue).length;
+    const done = tasks.filter((task) => task.status === "done").length;
+    return [
+      { label: "Total tasks", value: String(tasks.length), footer: `${done} done` },
+      { label: "In progress", value: String(inProgress), footer: "Actively being worked" },
+      { label: "Overdue", value: String(overdue), footer: "Past the due date" },
+      {
+        label: "Completion",
+        value: `${tasks.length ? Math.round((done / tasks.length) * 100) : 0}%`,
+        footer: "Share of tasks done",
+      },
+    ];
+  }, [tasks]);
+
+  const pager = usePagination(visibleTasks, {
+    resetKey: `${search}|${statusFilter}|${priorityFilter}|${sort}`,
+  });
+
+  const columns = [
+    {
+      key: "task",
+      header: "Task",
+      render: (task) => (
+        <div className="flex flex-col gap-1">
+          <span className="font-medium text-foreground">{task.title}</span>
+          {task.description ? (
+            <p className="line-clamp-1 text-xs text-text-secondary">
+              {task.description}
+            </p>
+          ) : null}
+        </div>
+      ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      render: (task) => <StatusPill status={task.status} map={TASK_STATUS_MAP} />,
+    },
+    {
+      key: "priority",
+      header: "Priority",
+      render: (task) => (
+        <StatusPill status={task.priority} map={TASK_PRIORITY_MAP} />
+      ),
+    },
+    {
+      key: "assignees",
+      header: "Assignees",
+      render: (task) => {
+        const assignees = (task.assignees || [])
+          .map((id) => memberMap[id])
+          .filter(Boolean);
+        if (assignees.length === 0) {
+          return <span className="text-xs text-text-tertiary">—</span>;
+        }
+        return (
+          <AvatarGroup>
+            {assignees.slice(0, 3).map((person) => (
+              <Avatar key={person.id} className="size-6">
+                {person.avatarUrl && (
+                  <AvatarImage src={person.avatarUrl} alt={person.name} />
+                )}
+                <AvatarFallback className="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-[9px] font-semibold text-white">
+                  {person.initials}
+                </AvatarFallback>
+              </Avatar>
+            ))}
+            {assignees.length > 3 && (
+              <AvatarGroupCount className="size-6 text-[9px]">
+                +{assignees.length - 3}
+              </AvatarGroupCount>
+            )}
+          </AvatarGroup>
+        );
+      },
+    },
+    {
+      key: "due",
+      header: "Due",
+      render: (task) => (
+        <div className="text-sm text-muted-foreground">
+          {task.dueDate ? formatDate(task.dueDate) : "—"}
+          {isOverdue(task) ? (
+            <span className="ml-1 text-orange-400">(Overdue)</span>
+          ) : null}
+        </div>
+      ),
+    },
+    {
+      key: "progress",
+      header: "Progress",
+      render: (task) => (
+        <div className="w-[130px] space-y-1.5">
+          <Progress
+            value={task.progress}
+            className="h-1.5 bg-surface-hover [&_[data-slot=progress-indicator]]:bg-primary"
+          />
+          <p className="text-xs text-text-secondary">{task.progress}%</p>
+        </div>
+      ),
+    },
+    {
+      key: "actions",
+      header: "",
+      align: "right",
+      className: "text-right",
+      render: (task) => (
+        <ActionMenu
+          label={`Actions for ${task.title}`}
+          items={[
+            { icon: Pencil, label: "Edit", onSelect: () => handleEdit(task) },
+            { separator: true },
+            {
+              icon: Trash2,
+              label: "Delete",
+              destructive: true,
+              onSelect: () => setDeleteTarget(task),
+            },
+          ]}
+        />
+      ),
+    },
+  ];
 
   return (
     <MainScreenWrapper>
-      <div className="flex flex-col gap-4 border-b border-border pb-6 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground md:text-3xl">Tasks</h1>
-          <p className="mt-1 text-muted-foreground">
-            Create, track and manage project tasks.
-          </p>
-        </div>
-        <div className="flex gap-2">
+      <ScreenHeader
+        title="Tasks"
+        description="Create, track and manage project tasks."
+        actions={
           <Button
             className="bg-primary text-primary-foreground hover:bg-primary/90"
             onClick={handleCreate}
           >
-            <Plus className="mr-2 h-4 w-4" />
-            Create New Task
+            <Plus className="h-4 w-4" />
+            Create Task
           </Button>
-          <Button
-            variant="outline"
-            className="border-border-strong text-foreground hover:bg-surface-card"
-            onClick={handleCreate}
-          >
-            <LucideGithub className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
+        }
+      />
 
-      {/* Toolbar */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search tasks…"
-            className="bg-surface-card border-border pl-9 text-foreground focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1"
+      <StatsBar stats={stats} />
+
+      <Toolbar>
+        <div className="flex items-center gap-2">
+          <FilterDropdown
+            value={statusFilter}
+            onValueChange={setStatusFilter}
+            options={STATUS_FILTER_OPTIONS}
+            height="h-9"
+          />
+          <FilterDropdown
+            value={priorityFilter}
+            onValueChange={setPriorityFilter}
+            options={PRIORITY_FILTER_OPTIONS}
+            height="h-9"
+          />
+          <FilterDropdown
+            value={sort}
+            onValueChange={setSort}
+            options={TASK_SORTS}
+            height="h-9"
           />
         </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full bg-surface-card border-border text-foreground sm:w-[150px]">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All statuses</SelectItem>
-            {TASK_STATUSES.map((status) => (
-              <SelectItem key={status.value} value={status.value}>
-                {status.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-          <SelectTrigger className="w-full bg-surface-card border-border text-foreground sm:w-[150px]">
-            <SelectValue placeholder="Priority" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All priorities</SelectItem>
-            {TASK_PRIORITIES.map((priority) => (
-              <SelectItem key={priority.value} value={priority.value}>
-                {priority.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={sort} onValueChange={setSort}>
-          <SelectTrigger className="w-full bg-surface-card border-border text-foreground sm:w-[150px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {TASK_SORTS.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="Search tasks…"
+        />
+      </Toolbar>
 
-      <div className="overflow-hidden rounded-2xl border border-border bg-surface-card">
-        <Table>
-          <TableHeader>
-            <TableRow className="border-border bg-surface-subtle">
-              <TableHead>Task</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Priority</TableHead>
-              <TableHead>Assignees</TableHead>
-              <TableHead>Due</TableHead>
-              <TableHead>Progress</TableHead>
-              <TableHead className="text-right"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={7} className="py-10 text-center text-text-secondary">
-                  Loading tasks…
-                </TableCell>
-              </TableRow>
-            ) : tasks.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="py-10 text-center text-text-secondary">
-                  No tasks yet. Create your first task to get started.
-                </TableCell>
-              </TableRow>
-            ) : visibleTasks.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="py-10 text-center text-text-secondary">
-                  No tasks match your filters.
-                  {hasFilters ? (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSearch("");
-                        setStatusFilter("all");
-                        setPriorityFilter("all");
-                      }}
-                      className="ml-1 text-primary hover:underline"
-                    >
-                      Clear filters
-                    </button>
-                  ) : null}
-                </TableCell>
-              </TableRow>
-            ) : (
-              visibleTasks.map((task) => {
-                const assignees = (task.assignees || [])
-                  .map((id) => memberMap[id])
-                  .filter(Boolean);
-                return (
-                  <TableRow
-                    key={task.id}
-                    onClick={() => setSelectedTask(task)}
-                    className="cursor-pointer border-border hover:bg-surface-active"
-                  >
-                    <TableCell>
-                      <div className="flex flex-col gap-1">
-                        <span className="font-medium text-foreground">
-                          {task.title}
-                        </span>
-                        {task.description ? (
-                          <p className="line-clamp-1 text-xs text-text-secondary">
-                            {task.description}
-                          </p>
-                        ) : null}
-                      </div>
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap">
-                      <StatusBadge status={task.status} />
-                    </TableCell>
-                    <TableCell>
-                      <IssueSeverityBadge severity={task.priority} />
-                    </TableCell>
-                    <TableCell>
-                      {assignees.length > 0 ? (
-                        <AvatarGroup>
-                          {assignees.slice(0, 3).map((person) => (
-                            <Avatar key={person.id} className="size-6">
-                              {person.avatarUrl && (
-                                <AvatarImage
-                                  src={person.avatarUrl}
-                                  alt={person.name}
-                                />
-                              )}
-                              <AvatarFallback className="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-[9px] font-semibold text-white">
-                                {person.initials}
-                              </AvatarFallback>
-                            </Avatar>
-                          ))}
-                          {assignees.length > 3 && (
-                            <AvatarGroupCount className="size-6 text-[9px]">
-                              +{assignees.length - 3}
-                            </AvatarGroupCount>
-                          )}
-                        </AvatarGroup>
-                      ) : (
-                        <span className="text-xs text-text-tertiary">—</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm text-muted-foreground">
-                        {task.dueDate ? formatDate(task.dueDate) : "—"}
-                        {isOverdue(task) ? (
-                          <span className="ml-1 text-orange-400">(Overdue)</span>
-                        ) : null}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="w-[130px] space-y-1.5">
-                        <Progress
-                          value={task.progress}
-                          className="h-1.5 bg-surface-hover [&_[data-slot=progress-indicator]]:bg-primary"
-                        />
-                        <p className="text-xs text-text-secondary">
-                          {task.progress}%
-                        </p>
-                      </div>
-                    </TableCell>
-                    <TableCell
-                      className="text-right"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="text-muted-foreground hover:bg-surface-active hover:text-foreground"
-                          >
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent
-                          align="end"
-                          className="w-[150px] border-border bg-surface-card p-1 text-foreground"
-                        >
-                          <DropdownMenuItem
-                            className="flex cursor-pointer items-center gap-2 px-2 py-1.5 focus:bg-surface-strong focus:text-foreground"
-                            onClick={() => handleEdit(task)}
-                          >
-                            <Pencil className="h-3.5 w-3.5" />
-                            <span className="text-xs">Edit</span>
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator className="bg-surface-hover" />
-                          <DropdownMenuItem
-                            className="flex cursor-pointer items-center gap-2 px-2 py-1.5 text-red-400 focus:bg-red-500/10 focus:text-red-500"
-                            onClick={() => handleMenuDelete(task)}
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                            <span className="text-xs font-medium">Delete</span>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                );
-              })
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      {loading ? (
+        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Loading tasks…
+        </div>
+      ) : (
+        <div className="space-y-5">
+          <DataTable
+            columns={columns}
+            data={pager.pageItems}
+            getRowKey={(task) => task.id}
+            onRowClick={(task) => setSelectedTask(task)}
+            empty={
+              <div className="rounded-xl border border-border bg-surface-subtle">
+                <EmptyState
+                  icon={ClipboardList}
+                  title={
+                    tasks.length
+                      ? "No tasks match your filters"
+                      : "No tasks yet"
+                  }
+                  description={
+                    tasks.length
+                      ? "Try clearing the search or filters, or create a new task to get started."
+                      : "Create your first task to start tracking work."
+                  }
+                  action={
+                    tasks.length ? (
+                      <Button variant="ghost" onClick={clearFilters}>
+                        Clear filters
+                      </Button>
+                    ) : (
+                      <Button
+                        className="bg-primary text-primary-foreground hover:bg-primary/90"
+                        onClick={handleCreate}
+                      >
+                        <Plus className="h-4 w-4" /> Create Task
+                      </Button>
+                    )
+                  }
+                />
+              </div>
+            }
+          />
+          <ListPagination {...pager} itemLabel="tasks" />
+        </div>
+      )}
 
       <AddTaskDialog
         open={dialogOpen}
@@ -1560,6 +1570,35 @@ export function TasksScreen() {
         onSave={handleSaveTask}
         goalOptions={GOAL_OPTIONS}
       />
+
+      <Dialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete task</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete{" "}
+              <span className="font-medium text-foreground">
+                {deleteTarget?.title}
+              </span>
+              ? This action can&apos;t be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setDeleteTarget(null)}>
+              Cancel
+            </Button>
+            <Button
+              className="bg-red-500/90 text-white hover:bg-red-500"
+              onClick={handleMenuDelete}
+            >
+              <Trash2 className="h-4 w-4" /> Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Sheet
         open={Boolean(selectedTask)}

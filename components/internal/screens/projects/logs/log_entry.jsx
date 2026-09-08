@@ -13,6 +13,8 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { StatusPill } from "@/components/internal/shared/screen_kit";
+import { LOG_LEVEL_PILL_MAP } from "@/features/activity_logs/constants";
 
 const LEVEL_CONFIG = {
   info: {
@@ -72,20 +74,7 @@ export function formatExactTime(timestamp) {
 }
 
 export function LevelBadge({ level }) {
-  const config = LEVEL_CONFIG[level] || LEVEL_CONFIG.info;
-  const Icon = config.icon;
-
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[10px] font-semibold uppercase tracking-wider",
-        config.className,
-      )}
-    >
-      <Icon className="w-3 h-3" />
-      {config.label}
-    </span>
-  );
+  return <StatusPill status={level} map={LOG_LEVEL_PILL_MAP} />;
 }
 
 export function LogEntry({ log, onClick }) {

@@ -1,440 +1,411 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
-import {
-  AlertTriangle,
-  Archive,
-  ArrowUpRight,
-  CalendarDays,
-  CheckCircle2,
-  Circle,
-  FileText,
-  Inbox,
-  ListChecks,
-  MessageSquareText,
-  MoreHorizontal,
-  NotebookText,
-  Plus,
-  Timer,
-  UserRound,
-  Maximize2,
-} from "lucide-react";
-import { Badge } from "@geiger/ui";
+import React, { useEffect, useMemo, useState } from "react";
+import { Inbox, Plus } from "lucide-react";
 import { Button } from "@geiger/ui";
 import { Progress } from "@geiger/ui";
-import { SearchBar } from "@geiger/ui";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@geiger/ui";
+import { toast } from "sonner";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { severityColors } from "@geiger/ui";
-import { cn } from "@/lib/utils";
+import {
+  DataTable,
+  EmptyState,
+  ScreenHeader,
+  SearchInput,
+  StatsBar,
+  StatusPill,
+  Toolbar,
+} from "@/components/internal/shared/screen_kit";
+import {
+  ListPagination,
+  usePagination,
+} from "@/components/internal/shared/pagination";
+import FilterDropdown from "@/components/internal/screens/projects/overview/filter_dropdown";
+import { AddTaskDialog } from "@/components/internal/screens/projects/tasks/add_task_dialog";
+import { useProject } from "@/context/project-context";
+import { listOrgMembers } from "@/lib/supabase/profiles";
+import {
+  listTasks,
+  createTask,
+} from "@/features/tasks/actions";
+import {
+  TASK_STATUSES,
+  priorityWeight,
+} from "@/features/tasks/constants";
 
-const QUEUE_VIEWS = [
-  { label: "Tasks", Icon: ListChecks, count: 0 },
-  { label: "Created", Icon: FileText, count: 0 },
-  { label: "Calendar", Icon: CalendarDays, count: 0 },
-  { label: "Files", Icon: Archive, count: 0 },
-  { label: "Notes", Icon: NotebookText, count: 0 },
-  { label: "Time", Icon: Timer, count: 0 },
+// Status/priority pills for the list (config only — rows come from the data layer).
+const QUEUE_STATUS_MAP = {
+  todo: { label: "To Do", variant: "neutral", dotClass: "bg-zinc-400" },
+  in_progress: { label: "In Progress", variant: "info", dotClass: "bg-sky-400" },
+  blocked: { label: "Blocked", variant: "danger", dotClass: "bg-red-400" },
+  done: { label: "Done", variant: "success", dotClass: "bg-emerald-400" },
+};
+
+const QUEUE_PRIORITY_MAP = {
+  low: { label: "Low", variant: "info", dotClass: "bg-sky-400" },
+  medium: { label: "Medium", variant: "neutral", dotClass: "bg-zinc-400" },
+  high: { label: "High", variant: "warning", dotClass: "bg-amber-400" },
+  critical: { label: "Critical", variant: "danger", dotClass: "bg-red-400" },
+};
+
+const STATUS_FILTER_OPTIONS = [
+  { value: "all", label: "All statuses" },
+  ...TASK_STATUSES.map((status) => ({ value: status.value, label: status.label })),
 ];
 
-const TASKS = [];
+function dueDateInfo(dueDate) {
+  if (!dueDate) {
+    return null;
+  }
 
-const SECONDARY_ROWS = {};
+  const due = new Date(`${dueDate}T00:00:00`);
+  if (Number.isNaN(due.getTime())) {
+    return null;
+  }
 
-const STATUS_META = {
-  "To Do": {
-    className: "border-zinc-500/25 bg-zinc-500/10 text-foreground",
-    Icon: Circle,
-  },
-  "In Progress": {
-    className: "border-blue-500/25 bg-blue-500/10 text-blue-300",
-    Icon: Timer,
-  },
-  "In Review": {
-    className: "border-violet-500/25 bg-violet-500/10 text-violet-300",
-    Icon: CheckCircle2,
-  },
-};
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-const PRIORITY_META = {
-  High: { key: "high", Icon: AlertTriangle },
-  Medium: { key: "medium", Icon: Maximize2 },
-  Low: { key: "low", Icon: ArrowUpRight },
-};
-
-const OWNER_META = {};
-
-function HeaderAction() {
-  return (
-    <Button className="bg-primary text-primary-foreground hover:bg-primary">
-      <Plus className="mr-2 h-4 w-4" />
-      Add Work
-    </Button>
-  );
+  return Math.round((due.getTime() - today.getTime()) / 86400000);
 }
 
-function SummaryCard({ label, value, detail, Icon, tone = "text-text-secondary" }) {
-  return (
-    <div className="rounded-xl border border-border bg-surface-subtle p-4">
-      <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-wide text-text-tertiary">
-        <Icon className={cn("h-3.5 w-3.5", tone)} />
-        {label}
-      </div>
-      <p className="mt-2 text-xl font-semibold tabular-nums text-foreground">{value}</p>
-      <p className="mt-1 text-xs text-text-secondary">{detail}</p>
-    </div>
-  );
+function formatDateLabel(dueDate) {
+  if (!dueDate) {
+    return "No date";
+  }
+
+  const date = new Date(`${dueDate}T00:00:00`);
+  if (Number.isNaN(date.getTime())) {
+    return dueDate;
+  }
+
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
-function QueueFilters({ activeView, onChange }) {
-  return (
-    <div className="flex items-center gap-2 overflow-x-auto pb-1">
-      {QUEUE_VIEWS.map(({ label, Icon, count }) => (
-        <Button
-          key={label}
-          type="button"
-          variant="ghost"
-          className={cn(
-            "h-8 rounded-lg border px-3 text-xs",
-            activeView === label
-              ? "border-border-strong bg-surface-hover text-foreground"
-              : "border-border bg-surface-subtle text-text-secondary hover:bg-surface-card hover:text-foreground",
-          )}
-          onClick={() => onChange(label)}
-        >
-          <Icon className="h-3.5 w-3.5" />
-          <span>{label}</span>
-          <span className="ml-1 rounded bg-surface-active px-1.5 py-0.5 text-[10px] text-text-secondary">
-            {count}
-          </span>
-        </Button>
-      ))}
-    </div>
-  );
-}
-
-function OwnerPill({ owner }) {
-  const meta = OWNER_META[owner] || { name: owner, color: "bg-zinc-300 text-primary-foreground" };
+function OwnerPill({ name }) {
+  const initials = (name || "?")
+    .split(" ")
+    .map((part) => part[0])
+    .filter(Boolean)
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
 
   return (
     <span className="inline-flex items-center gap-2 whitespace-nowrap">
-      <span className={cn("grid h-6 w-6 place-items-center rounded-full text-[10px] font-bold", meta.color)}>
-        {owner}
+      <span className="grid h-6 w-6 place-items-center rounded-full bg-zinc-300 text-[10px] font-bold text-primary-foreground">
+        {initials || "?"}
       </span>
-      <span className="hidden truncate text-xs font-medium text-foreground 2xl:inline">{meta.name}</span>
+      <span className="hidden truncate text-xs font-medium text-foreground 2xl:inline">{name}</span>
     </span>
-  );
-}
-
-function PriorityBadge({ priority }) {
-  const meta = PRIORITY_META[priority] || PRIORITY_META.Medium;
-  const Icon = meta.Icon;
-
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-xs font-medium capitalize",
-        severityColors[meta.key],
-      )}
-    >
-      <Icon className="h-3 w-3" />
-      {meta.key}
-    </span>
-  );
-}
-
-function TasksTable({ tasks }) {
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow className="bg-surface-subtle border-border">
-          <TableHead>Work</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Priority</TableHead>
-          <TableHead>Owner</TableHead>
-          <TableHead>Due</TableHead>
-          <TableHead>Progress</TableHead>
-          <TableHead className="text-right"></TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {tasks.map((task) => (
-          <TableRow key={task.id} className="border-border hover:bg-surface-active">
-            <TableCell>
-              <div className="flex min-w-[220px] flex-col gap-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-foreground">{task.title}</span>
-                  <span className="shrink-0 rounded-md border border-border px-1.5 py-0.5 font-mono text-[10px] text-text-secondary">
-                    {task.id}
-                  </span>
-                </div>
-                <p className="line-clamp-1 text-xs text-text-secondary">{task.description}</p>
-                <div className="flex min-w-0 items-center gap-3 text-xs text-text-secondary">
-                  <span className="inline-flex items-center gap-1.5">
-                    <Inbox className="h-3.5 w-3.5" />
-                    {task.project}
-                  </span>
-                  <span className="inline-flex items-center gap-1.5">
-                    <MessageSquareText className="h-3.5 w-3.5" />
-                    {task.list}
-                  </span>
-                </div>
-              </div>
-            </TableCell>
-            <TableCell className="whitespace-nowrap">
-              <Badge className={cn("min-w-[86px] justify-center whitespace-nowrap border px-2", STATUS_META[task.status]?.className)}>
-                {task.status}
-              </Badge>
-            </TableCell>
-            <TableCell>
-              <PriorityBadge priority={task.priority} />
-            </TableCell>
-            <TableCell>
-              <OwnerPill owner={task.owner} />
-            </TableCell>
-            <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
-              {task.due}
-            </TableCell>
-            <TableCell>
-              <div className="w-[130px] space-y-1.5">
-                <Progress
-                  value={task.progress}
-                  className="h-1.5 bg-surface-hover [&_[data-slot=progress-indicator]]:bg-primary"
-                />
-                <p className="text-xs tabular-nums text-text-secondary">{task.progress}%</p>
-              </div>
-            </TableCell>
-            <TableCell className="text-right">
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                className="text-text-tertiary hover:bg-surface-active hover:text-muted-foreground"
-              >
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
-}
-
-function TaskCards({ tasks }) {
-  return (
-    <div className="space-y-2 md:hidden">
-      {tasks.map((task) => {
-        const statusMeta = STATUS_META[task.status];
-        const StatusIcon = statusMeta?.Icon || Circle;
-
-        return (
-          <div
-            key={task.id}
-            className="rounded-xl border border-border bg-surface-subtle p-4"
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <h3 className="truncate text-sm font-semibold text-foreground">{task.title}</h3>
-                  <span className="shrink-0 rounded-md border border-border px-1.5 py-0.5 font-mono text-[10px] text-text-secondary">
-                    {task.id}
-                  </span>
-                </div>
-                <p className="mt-1 line-clamp-2 text-xs text-text-secondary">{task.description}</p>
-              </div>
-              <StatusIcon className="mt-0.5 h-4 w-4 shrink-0 text-text-secondary" />
-            </div>
-
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <Badge className={cn("border text-[10px] px-2 py-0", statusMeta?.className)}>
-                {task.status}
-              </Badge>
-              <PriorityBadge priority={task.priority} />
-              <span className="inline-flex items-center gap-1 text-xs text-text-secondary">
-                <CalendarDays className="h-3.5 w-3.5" />
-                {task.due}
-              </span>
-            </div>
-
-            <div className="mt-4 flex items-center gap-3">
-              <OwnerPill owner={task.owner} />
-              <div className="min-w-0 flex-1 space-y-1">
-                <Progress
-                  value={task.progress}
-                  className="h-1.5 bg-surface-hover [&_[data-slot=progress-indicator]]:bg-primary"
-                />
-                <p className="text-xs tabular-nums text-text-secondary">{task.progress}% complete</p>
-              </div>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-function SecondaryList({ activeView, rows }) {
-  return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-surface-card">
-      <div className="border-b border-border bg-surface-subtle px-5 py-4">
-        <h2 className="text-sm font-semibold text-foreground">{activeView}</h2>
-        <p className="mt-1 text-xs text-text-secondary">
-          Related queue items grouped by the selected project activity.
-        </p>
-      </div>
-      <div className="divide-y divide-border">
-        {rows.length > 0 ? (
-          rows.map((row, rowIndex) => (
-            <div
-              key={row.join("-")}
-              className="grid grid-cols-1 gap-2 px-5 py-4 md:grid-cols-[1.4fr_1fr_0.8fr_0.8fr] md:items-center"
-            >
-              {row.map((cell, index) => (
-                <span
-                  key={`${cell}-${index}`}
-                  className={cn(
-                    index === 0 ? "text-sm font-medium text-foreground" : "text-sm text-muted-foreground",
-                    index > 1 && "md:text-right",
-                  )}
-                >
-                  {index === 0 ? (
-                    <span className="inline-flex items-center gap-2">
-                      <span className="flex h-6 w-6 items-center justify-center rounded-md border border-border bg-surface-subtle text-[11px] text-text-secondary">
-                        {rowIndex + 1}
-                      </span>
-                      {cell}
-                    </span>
-                  ) : (
-                    cell
-                  )}
-                </span>
-              ))}
-            </div>
-          ))
-        ) : (
-          <div className="flex h-[220px] flex-col items-center justify-center text-text-secondary">
-            <UserRound className="h-10 w-10 opacity-30" />
-            <p className="mt-3 text-sm">No {activeView.toLowerCase()} items match your search.</p>
-          </div>
-        )}
-      </div>
-    </div>
   );
 }
 
 export function WorkQueueScreen() {
-  const [activeView, setActiveView] = useState("Tasks");
+  const { project } = useProject();
+  const projectId = project?.id;
+  const organizationId = project?.organization_id;
+
+  const [tasks, setTasks] = useState([]);
+  const [members, setMembers] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
+  const [activeStatus, setActiveStatus] = useState("all");
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-  const filteredTasks = useMemo(() => {
+  useEffect(() => {
+    if (!projectId) {
+      return;
+    }
+
+    let cancelled = false;
+
+    void listTasks(projectId).then((rows) => {
+      if (cancelled) {
+        return;
+      }
+      setTasks(rows ?? []);
+      setLoading(false);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [projectId]);
+
+  useEffect(() => {
+    if (!organizationId) {
+      return undefined;
+    }
+
+    let active = true;
+
+    void listOrgMembers(organizationId).then((rows) => {
+      if (active) {
+        setMembers(rows);
+      }
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [organizationId]);
+
+  const memberMap = useMemo(
+    () => Object.fromEntries(members.map((member) => [member.id, member])),
+    [members],
+  );
+
+  // View model rows with the first assignee resolved to a display name.
+  const queueRows = useMemo(
+    () =>
+      [...tasks]
+        .map((task) => ({
+          ...task,
+          ownerName:
+            memberMap[task.assignees?.[0]]?.name ||
+            (task.assignees?.length ? "Member" : "Unassigned"),
+        }))
+        .sort((a, b) => {
+          if (a.dueDate && b.dueDate && a.dueDate !== b.dueDate) {
+            return a.dueDate < b.dueDate ? -1 : 1;
+          }
+          if (a.dueDate && !b.dueDate) {
+            return -1;
+          }
+          if (!a.dueDate && b.dueDate) {
+            return 1;
+          }
+          return (priorityWeight[b.priority] || 0) - (priorityWeight[a.priority] || 0);
+        }),
+    [tasks, memberMap],
+  );
+
+  const visibleRows = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
-    if (!normalizedQuery) return TASKS;
 
-    return TASKS.filter((task) =>
-      [task.title, task.project, task.status, task.list, task.id]
+    return queueRows.filter((task) => {
+      if (activeStatus !== "all" && task.status !== activeStatus) {
+        return false;
+      }
+      if (!normalizedQuery) {
+        return true;
+      }
+
+      return [task.title, task.description, task.ownerName, task.type]
         .join(" ")
         .toLowerCase()
-        .includes(normalizedQuery),
-    );
-  }, [query]);
-
-  const filteredSecondaryRows = useMemo(() => {
-    const rows = SECONDARY_ROWS[activeView] || [];
-    const normalizedQuery = query.trim().toLowerCase();
-
-    if (!normalizedQuery) return rows;
-
-    return rows.filter((row) =>
-      row
-        .join(" ")
-        .toLowerCase()
-        .includes(normalizedQuery),
-    );
-  }, [activeView, query]);
+        .includes(normalizedQuery);
+    });
+  }, [queueRows, activeStatus, query]);
 
   const summary = useMemo(() => {
-    const overdue = 0;
-    const today = 0;
-    const progress = Math.round(TASKS.reduce((sum, task) => sum + task.progress, 0) / TASKS.length);
-    const inProgress = TASKS.filter((task) => task.status === "In Progress" || task.status === "In Review").length;
+    let dueToday = 0;
+    let overdue = 0;
 
-    return { overdue, today, progress, inProgress };
-  }, []);
+    for (const task of queueRows) {
+      if (task.status === "done") {
+        continue;
+      }
+
+      const days = dueDateInfo(task.dueDate);
+      if (days === null) {
+        continue;
+      }
+      if (days === 0) {
+        dueToday += 1;
+      }
+      if (days < 0) {
+        overdue += 1;
+      }
+    }
+
+    const progress =
+      queueRows.length > 0
+        ? Math.round(queueRows.reduce((sum, task) => sum + task.progress, 0) / queueRows.length)
+        : 0;
+    const inProgress = queueRows.filter((task) => task.status === "in_progress").length;
+
+    return { dueToday, overdue, progress, inProgress };
+  }, [queueRows]);
+
+  const stats = useMemo(
+    () => [
+      { label: "Queued", value: String(queueRows.length), footer: `${summary.inProgress} in progress` },
+      { label: "Due today", value: String(summary.dueToday), footer: "Needs attention this cycle" },
+      { label: "Overdue", value: String(summary.overdue), footer: "Past the planned due date" },
+      { label: "Progress", value: `${summary.progress}%`, footer: "Average completion" },
+    ],
+    [queueRows.length, summary],
+  );
+
+  const pager = usePagination(visibleRows, {
+    resetKey: `${query}|${activeStatus}`,
+  });
+
+  const columns = [
+    {
+      key: "work",
+      header: "Work",
+      render: (task) => (
+        <div className="flex min-w-[220px] flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-foreground">{task.title}</span>
+            <span className="shrink-0 rounded-md border border-border px-1.5 py-0.5 text-[10px] font-medium capitalize text-text-secondary">
+              {task.type}
+            </span>
+          </div>
+          <p className="line-clamp-1 text-xs text-text-secondary">{task.description}</p>
+        </div>
+      ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      render: (task) => <StatusPill status={task.status} map={QUEUE_STATUS_MAP} />,
+    },
+    {
+      key: "priority",
+      header: "Priority",
+      render: (task) => <StatusPill status={task.priority} map={QUEUE_PRIORITY_MAP} />,
+    },
+    {
+      key: "owner",
+      header: "Owner",
+      render: (task) => <OwnerPill name={task.ownerName} />,
+    },
+    {
+      key: "due",
+      header: "Due",
+      render: (task) => (
+        <span className="whitespace-nowrap text-sm text-muted-foreground">
+          {formatDateLabel(task.dueDate)}
+        </span>
+      ),
+    },
+    {
+      key: "progress",
+      header: "Progress",
+      render: (task) => (
+        <div className="w-[130px] space-y-1.5">
+          <Progress
+            value={task.progress}
+            className="h-1.5 bg-surface-hover [&_[data-slot=progress-indicator]]:bg-primary"
+          />
+          <p className="text-xs tabular-nums text-text-secondary">{task.progress}%</p>
+        </div>
+      ),
+    },
+  ];
+
+  const saveTask = async (input) => {
+    const optimisticId = crypto.randomUUID();
+    const optimistic = { id: optimisticId, projectId, ...input };
+
+    setTasks((prev) => [optimistic, ...prev]);
+    setDialogOpen(false);
+
+    const created = await createTask(projectId, input);
+    if (!created) {
+      setTasks((prev) => prev.filter((task) => task.id !== optimisticId));
+      toast.error("Couldn't add the work item.");
+      return;
+    }
+
+    setTasks((prev) => [created, ...prev.filter((task) => task.id !== optimisticId)]);
+    toast.success("Work added to the queue");
+  };
 
   return (
-    <MainScreenWrapper className="text-foreground">
-      <div className="flex flex-col gap-4 border-b border-border pb-6 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground md:text-3xl">Work Queue</h1>
-          <p className="mt-1 text-muted-foreground">Review assigned work, follow-ups, and project activity in one queue.</p>
+    <MainScreenWrapper>
+      <ScreenHeader
+        title="Work Queue"
+        description="Review assigned work and follow-ups in one ordered queue."
+        actions={
+          <Button
+            onClick={() => setDialogOpen(true)}
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
+          >
+            <Plus className="h-4 w-4" />
+            Add Work
+          </Button>
+        }
+      />
+
+      <StatsBar stats={stats} />
+
+      <Toolbar>
+        <div className="flex items-center gap-2">
+          <FilterDropdown
+            value={activeStatus}
+            onValueChange={setActiveStatus}
+            options={STATUS_FILTER_OPTIONS}
+            height="h-9"
+          />
         </div>
-        <HeaderAction />
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <SummaryCard
-          label="Assigned"
-          value={TASKS.length}
-          detail={`${summary.inProgress} currently active`}
-          Icon={ListChecks}
-        />
-        <SummaryCard
-          label="Due Today"
-          value={summary.today}
-          detail="Needs attention this cycle"
-          Icon={CalendarDays}
-        />
-        <SummaryCard
-          label="Overdue"
-          value={summary.overdue}
-          detail="Past planned due date"
-          Icon={AlertTriangle}
-          tone="text-amber-300"
-        />
-        <SummaryCard
-          label="Progress"
-          value={`${summary.progress}%`}
-          detail="Average completion"
-          Icon={CheckCircle2}
-        />
-      </div>
-
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <SearchBar
-          className="w-full lg:max-w-xl"
-          placeholder="Search work, lists, status, or project"
+        <SearchInput
           value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          onClear={() => setQuery("")}
+          onChange={setQuery}
+          placeholder="Search work by title, description or owner…"
         />
-        <QueueFilters activeView={activeView} onChange={setActiveView} />
-      </div>
+      </Toolbar>
 
-      {activeView === "Tasks" ? (
-        filteredTasks.length > 0 ? (
-          <>
-            <TaskCards tasks={filteredTasks} />
-            <div className="hidden overflow-hidden rounded-2xl border border-border bg-surface-card md:block">
-              <TasksTable tasks={filteredTasks} />
-            </div>
-          </>
-        ) : (
-          <div className="flex h-[260px] flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface-subtle text-text-secondary">
-            <UserRound className="h-10 w-10 opacity-30" />
-            <p className="mt-3 text-sm">No work matches your current search.</p>
-          </div>
-        )
+      {loading ? (
+        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
+          <Inbox className="h-4 w-4 animate-pulse" />
+          Loading the queue…
+        </div>
       ) : (
-        <SecondaryList activeView={activeView} rows={filteredSecondaryRows} />
+        <div className="space-y-5">
+          <DataTable
+            columns={columns}
+            data={pager.pageItems}
+            getRowKey={(task) => task.id}
+            empty={
+              <div className="rounded-xl border border-border bg-surface-subtle">
+                <EmptyState
+                  icon={Inbox}
+                  title={queueRows.length === 0 ? "The queue is empty" : "No work matches your filters"}
+                  description={
+                    queueRows.length === 0
+                      ? "Add the first item or create tasks from the Tasks board — both land here ordered by due date."
+                      : "Clear the search or switch status filters."
+                  }
+                  action={
+                    queueRows.length === 0 ? (
+                      <Button
+                        onClick={() => setDialogOpen(true)}
+                        className="bg-primary text-primary-foreground hover:bg-primary/90"
+                      >
+                        <Plus className="h-4 w-4" /> Add Work
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="ghost"
+                        onClick={() => {
+                          setQuery("");
+                          setActiveStatus("all");
+                        }}
+                      >
+                        Clear filters
+                      </Button>
+                    )
+                  }
+                />
+              </div>
+            }
+          />
+          <ListPagination {...pager} itemLabel="items" />
+        </div>
       )}
+
+      <AddTaskDialog
+        key={`queue-task-${dialogOpen}`}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        onSave={(input) => void saveTask(input)}
+      />
     </MainScreenWrapper>
   );
 }
+
+export default WorkQueueScreen;

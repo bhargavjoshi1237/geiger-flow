@@ -1,40 +1,49 @@
 "use client";
 
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@geiger/ui";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@geiger/ui";
 import { TrendingUp } from "lucide-react";
-import { mediaItems, typeIcons, typeColors } from "./data";
+import { MEDIA_TYPE_MAP, formatBytes } from "@/features/assets/constants";
+import { typeIcons, typeColors } from "./data";
 
-export function TopAssetsCard() {
-  const sorted = [...mediaItems].sort((a, b) => b.usageCount - a.usageCount).slice(0, 5);
-
+// assets: the largest rows first (sorted + sliced in assets_screen).
+export function TopAssetsCard({ assets = [] }) {
   return (
     <Card className="bg-surface-subtle border-border text-foreground hover:border-border-strong transition-all duration-300">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base">Top Used Assets</CardTitle>
+          <div>
+            <CardTitle className="text-base">Largest Assets</CardTitle>
+            <CardDescription className="text-xs text-text-tertiary mt-1">
+              Biggest files in this project
+            </CardDescription>
+          </div>
           <TrendingUp className="w-4 h-4 text-text-tertiary" />
         </div>
       </CardHeader>
       <CardContent>
-        <div className="space-y-3">
-          {sorted.map((item, i) => {
-            const IconComp = typeIcons[item.type];
-            return (
-              <div key={item.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
-                <div className="flex items-center gap-3">
-                  <span className="text-xs text-text-tertiary w-4">{i + 1}</span>
-                  <IconComp className={"w-4 h-4 " + typeColors[item.type]} />
-                  <span className="text-sm text-foreground">{item.name}</span>
+        {assets.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No assets uploaded yet.</p>
+        ) : (
+          <div className="space-y-3">
+            {assets.map((item, i) => {
+              const IconComp = typeIcons[item.mediaType];
+              return (
+                <div key={item.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span className="text-xs text-text-tertiary w-4">{i + 1}</span>
+                    <IconComp className={"w-4 h-4 shrink-0 " + typeColors[item.mediaType]} />
+                    <span className="truncate text-sm text-foreground">{item.name}</span>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-4 pl-3">
+                    <span className="text-xs text-text-tertiary">{MEDIA_TYPE_MAP[item.mediaType]?.label ?? item.mediaType}</span>
+                    <span className="text-sm font-medium text-muted-foreground">{formatBytes(item.sizeBytes)}</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-xs text-text-tertiary">{item.type}</span>
-                  <span className="text-sm font-medium text-muted-foreground">{item.usageCount} Use</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

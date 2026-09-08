@@ -1,19 +1,16 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Clock,
-  FileText,
-  FolderOpen,
   Loader2,
+  Pencil,
   Plus,
-  Presentation,
-  Search,
-  Sheet,
   Star,
   Trash2,
 } from "lucide-react";
 import { Button } from "@geiger/ui";
+import { ActionMenu } from "@geiger/ui";
 import { Input } from "@geiger/ui";
 import {
   Select,
@@ -23,13 +20,29 @@ import {
   SelectValue,
 } from "@geiger/ui";
 import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@geiger/ui";
 import { createClient } from "@/utils/supabase/client";
 import { useProject } from "@/context/project-context";
+import {
+  DataTable,
+  EmptyState,
+  Field,
+  SearchInput,
+  StatsBar,
+  StatusPill,
+  Toolbar,
+} from "@/components/internal/shared/screen_kit";
+import {
+  ListPagination,
+  usePagination,
+} from "@/components/internal/shared/pagination";
+import FilterDropdown from "@/components/internal/screens/projects/overview/filter_dropdown";
 import {
   OFFICE_FILE_TYPES,
   OFFICE_FILE_TYPE_LIST,
@@ -37,11 +50,17 @@ import {
   timeAgo,
 } from "@/lib/office/office-file-meta";
 
-const TYPE_ICONS = {
-  document: FileText,
-  spreadsheet: Sheet,
-  presentation: Presentation,
+// Config only — presentation lookup for the type StatusPill, never row data.
+const OFFICE_FILE_TYPE_MAP = {
+  document: { label: "Document", variant: "info", dotClass: "bg-sky-400" },
+  spreadsheet: { label: "Spreadsheet", variant: "success", dotClass: "bg-emerald-400" },
+  presentation: { label: "Presentation", variant: "warning", dotClass: "bg-amber-400" },
 };
+
+const TYPE_FILTER_OPTIONS = [
+  { value: "all", label: "All Types" },
+  ...OFFICE_FILE_TYPE_LIST.map((t) => ({ value: t.type, label: t.label })),
+];
 
 export function OfficeRecentScreen() {
   const { project } = useProject();
@@ -51,6 +70,9 @@ export function OfficeRecentScreen() {
   const [query, setQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [creating, setCreating] = useState(false);
+  const [renameTarget, setRenameTarget] = useState(null);
+  const [renameValue, setRenameValue] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const fetchFiles = useCallback(async () => {
     if (!project?.id) return;
@@ -136,22 +158,29 @@ export function OfficeRecentScreen() {
       .eq("project_id", project.id);
   };
 
-  const handleRename = async (file) => {
-    const newName = prompt("Rename file", file.name);
-    if (!newName || !newName.trim()) return;
+  const openRename = (file) => {
+    setRenameTarget(file);
+    setRenameValue(file.name);
+  };
+
+  const handleRename = async () => {
+    const file = renameTarget;
+    const newName = renameValue.trim();
+    if (!file || !newName) return;
+    setRenameTarget(null);
     setFiles((prev) =>
-      prev.map((f) => (f.id === file.id ? { ...f, name: newName.trim() } : f))
+      prev.map((f) => (f.id === file.id ? { ...f, name: newName } : f))
     );
     const supabase = createClient();
     await supabase
       .from("office_files")
-      .update({ name: newName.trim() })
+      .update({ name: newName })
       .eq("id", file.id)
       .eq("project_id", project.id);
   };
 
   const handleDelete = async (file) => {
-    if (!confirm(`Delete "${file.name}" permanently?`)) return;
+    setDeleteTarget(null);
     setFiles((prev) => prev.filter((f) => f.id !== file.id));
     const supabase = createClient();
     await supabase
@@ -161,90 +190,134 @@ export function OfficeRecentScreen() {
       .eq("project_id", project.id);
   };
 
-  const filtered = files.filter((f) =>
-    query.trim() ? f.name.toLowerCase().includes(query.toLowerCase()) : true
+  const filtered = useMemo(
+    () =>
+      files.filter((f) =>
+        query.trim() ? f.name.toLowerCase().includes(query.toLowerCase()) : true
+      ),
+    [files, query],
   );
 
-  const stats = {
-    total: files.length,
-    documents: files.filter((f) => f.type === "document").length,
-    spreadsheets: files.filter((f) => f.type === "spreadsheet").length,
-    presentations: files.filter((f) => f.type === "presentation").length,
-  };
+  const pager = usePagination(filtered, {
+    resetKey: `${query}|${typeFilter}`,
+  });
+
+  const stats = useMemo(
+    () => [
+      { label: "Total files", value: String(files.length), footer: "In this project" },
+      { label: "Documents", value: String(files.filter((f) => f.type === "document").length), footer: "Text documents" },
+      { label: "Spreadsheets", value: String(files.filter((f) => f.type === "spreadsheet").length), footer: "Sheets" },
+      { label: "Presentations", value: String(files.filter((f) => f.type === "presentation").length), footer: "Slide decks" },
+    ],
+    [files],
+  );
+
+  const columns = [
+    {
+      key: "name",
+      header: "Name",
+      render: (file) => {
+        const meta = getOfficeFileType(file.type);
+        const Icon = meta.icon;
+        return (
+          <div className="flex min-w-0 items-center gap-3">
+            <div
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border"
+              style={{ backgroundColor: meta.accent + "1a" }}
+            >
+              <Icon className="h-4 w-4" style={{ color: meta.accent }} />
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium text-foreground">{file.name}</p>
+              <p className="text-xs text-text-secondary">{meta.label}</p>
+            </div>
+            {file.starred && (
+              <Star className="h-3.5 w-3.5 shrink-0 fill-[#f4b400] text-[#f4b400]" />
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      key: "type",
+      header: "Type",
+      render: (file) => <StatusPill status={file.type} map={OFFICE_FILE_TYPE_MAP} />,
+    },
+    {
+      key: "updated",
+      header: "Updated",
+      render: (file) => (
+        <span className="whitespace-nowrap text-xs text-muted-foreground">
+          {timeAgo(file.updated_at)}
+        </span>
+      ),
+    },
+    {
+      key: "actions",
+      header: "",
+      align: "right",
+      className: "text-right",
+      render: (file) => (
+        <ActionMenu
+          label={`Actions for ${file.name}`}
+          items={[
+            { icon: Pencil, label: "Rename", onSelect: () => openRename(file) },
+            { icon: Star, label: file.starred ? "Unstar" : "Star", onSelect: () => handleToggleStar(file) },
+            { icon: Trash2, label: "Move to trash", onSelect: () => handleTrash(file) },
+            { separator: true },
+            { icon: Trash2, label: "Delete forever", destructive: true, onSelect: () => setDeleteTarget(file) },
+          ]}
+        />
+      ),
+    },
+  ];
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <StatCard
-          icon={<FileText className="w-4 h-4 text-muted-foreground" />}
-          label="Total files"
-          value={stats.total}
-        />
-        <StatCard
-          icon={<FileText className="w-4 h-4" style={{ color: OFFICE_FILE_TYPES.document.accent }} />}
-          label="Documents"
-          value={stats.documents}
-        />
-        <StatCard
-          icon={<Sheet className="w-4 h-4" style={{ color: OFFICE_FILE_TYPES.spreadsheet.accent }} />}
-          label="Spreadsheets"
-          value={stats.spreadsheets}
-        />
-        <StatCard
-          icon={<Presentation className="w-4 h-4" style={{ color: OFFICE_FILE_TYPES.presentation.accent }} />}
-          label="Presentations"
-          value={stats.presentations}
-        />
-      </div>
+      <StatsBar stats={stats} />
 
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1">
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
-          <Input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search files"
-            className="h-9 pl-8 bg-surface-card border-border text-foreground placeholder:text-text-secondary focus:border-border-strong"
+      <Toolbar>
+        <div className="flex items-center gap-2">
+          <FilterDropdown
+            value={typeFilter}
+            onValueChange={setTypeFilter}
+            options={TYPE_FILTER_OPTIONS}
+            height="h-9"
           />
         </div>
-        <Select value={typeFilter} onValueChange={setTypeFilter}>
-          <SelectTrigger className="h-9 w-36 bg-surface-card border-border text-muted-foreground">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="bg-surface-card border-border">
-            <SelectItem value="all">All types</SelectItem>
-            {OFFICE_FILE_TYPE_LIST.map((t) => (
-              <SelectItem key={t.type} value={t.type}>
-                {t.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select
-          disabled={creating}
-          onValueChange={(type) => handleCreate(type)}
-          value=""
-        >
-          <SelectTrigger className="h-9 bg-primary text-primary-foreground hover:bg-primary font-medium border-none">
-            <Plus className="w-4 h-4 mr-1" />
-            <span>New</span>
-          </SelectTrigger>
-          <SelectContent className="bg-surface-card border-border">
-            {OFFICE_FILE_TYPE_LIST.map((t) => (
-              <SelectItem key={t.type} value={t.type}>
-                <div className="flex items-center gap-2">
-                  <t.icon className="w-4 h-4" style={{ color: t.accent }} />
-                  {t.label}
-                </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+        <div className="flex items-center gap-2">
+          <SearchInput
+            value={query}
+            onChange={setQuery}
+            placeholder="Search files…"
+          />
+          <Select
+            disabled={creating}
+            onValueChange={(type) => handleCreate(type)}
+            value=""
+          >
+            <SelectTrigger className="h-9 border-none bg-primary font-medium text-primary-foreground hover:bg-primary/90">
+              <Plus className="h-4 w-4" />
+              <span>New</span>
+            </SelectTrigger>
+            <SelectContent className="border-border bg-surface-card">
+              {OFFICE_FILE_TYPE_LIST.map((t) => (
+                <SelectItem key={t.type} value={t.type}>
+                  <div className="flex items-center gap-2">
+                    <t.icon className="h-4 w-4" style={{ color: t.accent }} />
+                    {t.label}
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </Toolbar>
 
       {loading ? (
-        <div className="flex min-h-[30vh] items-center justify-center text-text-secondary">
-          <Loader2 className="h-5 w-5 animate-spin" />
+        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Loading files…
         </div>
       ) : error ? (
         <div className="flex min-h-[30vh] flex-col items-center justify-center gap-3 text-center">
@@ -258,102 +331,101 @@ export function OfficeRecentScreen() {
             Try again
           </Button>
         </div>
-      ) : filtered.length === 0 ? (
-        <div className="flex min-h-56 flex-col items-center justify-center rounded-md border border-dashed border-border bg-surface-subtle p-8 text-center">
-          <Clock className="mb-3 h-6 w-6 text-text-tertiary" />
-          <p className="text-sm font-medium text-foreground">
-            {query.trim() ? "No files match your search" : "No files yet"}
-          </p>
-          <p className="mt-1 max-w-md text-xs leading-5 text-text-secondary">
-            {query.trim()
-              ? "Try a different search term."
-              : "Create a new document, spreadsheet, or presentation to get started."}
-          </p>
-        </div>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((file) => {
-            const meta = getOfficeFileType(file.type);
-            const Icon = meta.icon;
-            return (
-              <ContextMenu key={file.id}>
-                <ContextMenuTrigger asChild>
-                  <button
-                    type="button"
-                    className="flex flex-col gap-3 rounded-md border border-border bg-surface-subtle p-4 text-left transition-colors hover:border-border-strong"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div
-                        className="flex h-9 w-9 items-center justify-center rounded-md border border-border"
-                        style={{ backgroundColor: meta.accent + "1a" }}
-                      >
-                        <Icon className="h-4 w-4" style={{ color: meta.accent }} />
-                      </div>
-                      {file.starred && (
-                        <Star className="h-3.5 w-3.5 fill-[#f4b400] text-[#f4b400]" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-medium text-foreground truncate">
-                        {file.name}
-                      </h3>
-                      <p className="text-xs text-text-secondary mt-0.5">
-                        {meta.label}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-1 border-t border-border pt-2.5 text-[10px] text-text-tertiary">
-                      <Clock className="h-3 w-3" />
-                      {timeAgo(file.updated_at)}
-                    </div>
-                  </button>
-                </ContextMenuTrigger>
-                <ContextMenuContent className="w-48 bg-surface-card border-border shadow-xl">
-                  <ContextMenuItem
-                    className="text-muted-foreground focus:bg-surface-hover focus:text-foreground cursor-pointer gap-2"
-                    onSelect={() => handleRename(file)}
-                  >
-                    <FileText className="h-3.5 w-3.5" />
-                    Rename
-                  </ContextMenuItem>
-                  <ContextMenuItem
-                    className="text-muted-foreground focus:bg-surface-hover focus:text-foreground cursor-pointer gap-2"
-                    onSelect={() => handleToggleStar(file)}
-                  >
-                    <Star className="h-3.5 w-3.5" />
-                    {file.starred ? "Unstar" : "Star"}
-                  </ContextMenuItem>
-                  <ContextMenuItem
-                    className="text-muted-foreground focus:bg-surface-hover focus:text-foreground cursor-pointer gap-2"
-                    onSelect={() => handleTrash(file)}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                    Move to trash
-                  </ContextMenuItem>
-                  <ContextMenuItem
-                    className="text-red-400 focus:bg-surface-hover focus:text-red-300 cursor-pointer gap-2"
-                    onSelect={() => handleDelete(file)}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                    Delete forever
-                  </ContextMenuItem>
-                </ContextMenuContent>
-              </ContextMenu>
-            );
-          })}
+        <div className="space-y-5">
+          <DataTable
+            columns={columns}
+            data={pager.pageItems}
+            getRowKey={(f) => f.id}
+            empty={
+              <div className="rounded-xl border border-border bg-surface-subtle">
+                <EmptyState
+                  icon={Clock}
+                  title={query.trim() ? "No files match your search" : "No files yet"}
+                  description={
+                    query.trim()
+                      ? "Try a different search term."
+                      : "Create a new document, spreadsheet, or presentation to get started."
+                  }
+                />
+              </div>
+            }
+          />
+          <ListPagination {...pager} itemLabel="files" />
         </div>
       )}
-    </div>
-  );
-}
 
-function StatCard({ icon, label, value }) {
-  return (
-    <div className="rounded-md border border-border bg-surface-subtle p-3">
-      <div className="flex items-center gap-2 mb-1">
-        {icon}
-        <span className="text-xs text-text-secondary">{label}</span>
-      </div>
-      <p className="text-lg font-semibold text-foreground">{value}</p>
+      <Dialog
+        open={!!renameTarget}
+        onOpenChange={(isOpen) => !isOpen && setRenameTarget(null)}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Rename file</DialogTitle>
+            <DialogDescription>
+              Give &quot;{renameTarget?.name}&quot; a new name.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4">
+            <Field label="File name" htmlFor="office-file-name">
+              <Input
+                id="office-file-name"
+                autoFocus
+                value={renameValue}
+                onChange={(e) => setRenameValue(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleRename();
+                  }
+                }}
+                placeholder="Enter file name"
+              />
+            </Field>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setRenameTarget(null)}>
+              Cancel
+            </Button>
+            <Button
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+              disabled={!renameValue.trim()}
+              onClick={handleRename}
+            >
+              Rename
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={!!deleteTarget}
+        onOpenChange={(isOpen) => !isOpen && setDeleteTarget(null)}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete file permanently</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to permanently delete{" "}
+              <span className="font-medium text-foreground">
+                {deleteTarget?.name}
+              </span>
+              ? This action can&apos;t be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setDeleteTarget(null)}>
+              Cancel
+            </Button>
+            <Button
+              className="bg-red-500/90 text-white hover:bg-red-500"
+              onClick={() => handleDelete(deleteTarget)}
+            >
+              <Trash2 className="h-4 w-4" /> Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

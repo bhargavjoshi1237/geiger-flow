@@ -1,14 +1,33 @@
 import React from "react";
 import * as LucideIcons from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@geiger/ui";
-import { MoreVertical, Check, Trash2, Bell } from "lucide-react";
+import { ActionMenu } from "@geiger/ui";
+import { Check, Trash2, Bell } from "lucide-react";
 import { Button } from "@geiger/ui";
+
+export function formatNotificationTime(time) {
+  try {
+    const date = new Date(time);
+    return isNaN(date.getTime())
+      ? time
+      : formatDistanceToNow(date, { addSuffix: true });
+  } catch {
+    return time;
+  }
+}
+
+export function parseNotificationExtra(extra) {
+  try {
+    if (!extra) return null;
+    return typeof extra === "string" ? JSON.parse(extra) : extra;
+  } catch {
+    return null;
+  }
+}
+
+export function getNotificationIcon(icon) {
+  return LucideIcons[icon] || Bell;
+}
 
 export function NotificationItem({
   notification,
@@ -17,28 +36,16 @@ export function NotificationItem({
   onClick,
 }) {
   const IconComponent = LucideIcons[notification.icon] || Bell;
-  
-  const formattedTime = React.useMemo(() => {
-    try {
-      const date = new Date(notification.time);
-      return isNaN(date.getTime()) 
-        ? notification.time 
-        : formatDistanceToNow(date, { addSuffix: true });
-    } catch {
-      return notification.time;
-    }
-  }, [notification.time]);
 
-  const extraContent = React.useMemo(() => {
-    try {
-      if (!notification.extra) return null;
-      return typeof notification.extra === "string" 
-        ? JSON.parse(notification.extra) 
-        : notification.extra;
-    } catch {
-      return null;
-    }
-  }, [notification.extra]);
+  const formattedTime = React.useMemo(
+    () => formatNotificationTime(notification.time),
+    [notification.time],
+  );
+
+  const extraContent = React.useMemo(
+    () => parseNotificationExtra(notification.extra),
+    [notification.extra],
+  );
 
   const bgColor = notification.bg_color || notification.bgColor || "bg-surface-hover";
   const iconColor = notification.icon_color || notification.iconColor || "text-text-secondary";
@@ -118,41 +125,24 @@ export function NotificationItem({
         </div>
       </div>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-          <Button className="p-1.5 rounded-lg text-text-secondary hover:text-foreground hover:bg-surface-hover transition-colors opacity-0 group-hover:opacity-100">
-            <MoreVertical className="w-4 h-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-          align="end"
-          className="w-[160px] bg-surface-subtle border-border text-muted-foreground"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {isUnread && (
-            <DropdownMenuItem
-              onClick={(e) => {
-                e.stopPropagation();
-                onMarkAsRead(notification.id);
-              }}
-              className="cursor-pointer text-[12px]"
-            >
-              <Check className="w-3.5 h-3.5 mr-2 text-green-400" />
-              Mark as read
-            </DropdownMenuItem>
-          )}
-          <DropdownMenuItem
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete(notification.id);
-            }}
-            className="cursor-pointer text-[12px] text-red-400 focus:text-red-400"
-          >
-            <Trash2 className="w-3.5 h-3.5 mr-2" />
-            Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <ActionMenu
+        label={`Actions for ${notification.title}`}
+        triggerClassName="opacity-0 group-hover:opacity-100"
+        items={[
+          isUnread && {
+            icon: Check,
+            label: "Mark as read",
+            onSelect: () => onMarkAsRead(notification.id),
+          },
+          { separator: true },
+          {
+            icon: Trash2,
+            label: "Delete",
+            destructive: true,
+            onSelect: () => onDelete(notification.id),
+          },
+        ]}
+      />
     </div>
   );
 }

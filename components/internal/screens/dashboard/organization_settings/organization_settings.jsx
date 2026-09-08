@@ -3,11 +3,15 @@
 import React, { useState } from "react";
 import { Button } from "@geiger/ui";
 import { Input } from "@geiger/ui";
-import { Card } from "@geiger/ui";
 import { Label } from "@geiger/ui";
 import { RadioGroup, RadioGroupItem } from "@geiger/ui";
 import { Copy, Check } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
+import {
+  Field,
+  ScreenHeader,
+  SectionCard,
+} from "@/components/internal/shared/screen_kit";
 
 export function OrganizationSettingsScreen() {
   const [copied, setCopied] = useState(false);
@@ -21,60 +25,14 @@ export function OrganizationSettingsScreen() {
 
   return (
     <MainScreenWrapper className="flex flex-col gap-10 space-y-0 text-foreground">
-      <div className="flex flex-col gap-4 border-b border-border pb-6 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-semibold text-foreground tracking-tight">
-            Organization Settings
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            General configuration, privacy, and lifecycle controls
-          </p>
-        </div>
-      </div>
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium text-foreground">
-          Organization details
-        </h3>
-        <Card className="bg-surface-subtle border-border text-foreground rounded-xl overflow-hidden shadow-sm">
-          <div className="flex flex-col">
-            <div className="flex flex-col md:flex-row md:items-center gap-4 py-4 px-6 border-b border-border">
-              <div className="md:w-[250px] shrink-0 text-sm font-medium text-foreground">
-                Organization name
-              </div>
-              <div className="flex-1">
-                <Input
-                  className="bg-background border-border h-9 text-sm text-foreground focus-visible:ring-1 focus-visible:ring-ring"
-                  defaultValue="bhargavjoshi1237's Org"
-                />
-              </div>
-            </div>
-
-            <div className="flex flex-col md:flex-row md:items-center gap-4 py-4 px-6">
-              <div className="md:w-[250px] shrink-0 text-sm font-medium text-foreground">
-                Organization slug
-              </div>
-              <div className="flex-1 flex gap-2">
-                <Input
-                  className="bg-background border-border h-9 text-sm text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring font-mono"
-                  defaultValue={orgSlug}
-                  readOnly
-                />
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="bg-surface-subtle border-border h-9 w-9 shrink-0 hover:bg-surface-hover text-muted-foreground hover:text-foreground"
-                  onClick={handleCopy}
-                >
-                  {copied ? (
-                    <Check className="w-4 h-4 text-primary" />
-                  ) : (
-                    <Copy className="w-4 h-4" />
-                  )}
-                </Button>
-              </div>
-            </div>
-          </div>
-          <div className="py-3 px-6 flex justify-end gap-3 border-t border-border">
+      <ScreenHeader
+        title="Organization Settings"
+        description="General configuration, privacy, and lifecycle controls"
+      />
+      <SectionCard
+        title="Organization details"
+        action={
+          <div className="flex justify-end gap-3">
             <Button
               variant="ghost"
               className="h-8 text-sm hover:bg-surface-hover text-muted-foreground hover:text-foreground"
@@ -85,12 +43,44 @@ export function OrganizationSettingsScreen() {
               Save
             </Button>
           </div>
-        </Card>
-      </div>
+        }
+      >
+        <div className="grid gap-4">
+          <Field label="Organization name" htmlFor="org-name">
+            <Input
+              id="org-name"
+              className="bg-background border-border h-9 text-sm text-foreground focus-visible:ring-1 focus-visible:ring-ring"
+              defaultValue="bhargavjoshi1237's Org"
+            />
+          </Field>
 
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium text-foreground">Data privacy</h3>
-        <Card className="bg-surface-subtle border-border text-foreground p-6 rounded-xl flex flex-col lg:flex-row gap-6 lg:gap-8 shadow-sm">
+          <Field label="Organization slug" htmlFor="org-slug">
+            <div className="flex gap-2">
+              <Input
+                id="org-slug"
+                className="bg-background border-border h-9 text-sm text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring font-mono"
+                defaultValue={orgSlug}
+                readOnly
+              />
+              <Button
+                variant="outline"
+                size="icon"
+                className="bg-surface-subtle border-border h-9 w-9 shrink-0 hover:bg-surface-hover text-muted-foreground hover:text-foreground"
+                onClick={handleCopy}
+              >
+                {copied ? (
+                  <Check className="w-4 h-4 text-primary" />
+                ) : (
+                  <Copy className="w-4 h-4" />
+                )}
+              </Button>
+            </div>
+          </Field>
+        </div>
+      </SectionCard>
+
+      <SectionCard title="Data privacy">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
           <div className="lg:w-5/12 shrink-0">
             <h4 className="text-sm font-medium mb-3 text-foreground">
               Supabase Assistant Opt-in Level
@@ -172,8 +162,8 @@ export function OrganizationSettingsScreen() {
               </span>
             </Label>
           </RadioGroup>
-        </Card>
-      </div>
+        </div>
+      </SectionCard>
     </MainScreenWrapper>
   );
 }

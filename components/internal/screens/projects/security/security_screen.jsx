@@ -1,28 +1,60 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import { toast } from "sonner";
 import {
-  AlertTriangle,
   CheckCircle2,
-  ChevronRight,
-  ExternalLink,
   Eye,
   Fingerprint,
   KeyRound,
   Lock,
-  Search,
+  Plus,
+  RotateCcw,
   Shield,
-  ShieldCheck,
   ShieldAlert,
-  Terminal,
-  UserRound,
+  ShieldCheck,
+  Trash2,
+  Wrench,
 } from "lucide-react";
-import { Badge } from "@geiger/ui";
 import { Button } from "@geiger/ui";
-import { Input } from "@geiger/ui";
+import { ActionMenu } from "@geiger/ui";
 import { Switch } from "@geiger/ui";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@geiger/ui";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
+import {
+  DataTable,
+  EmptyState,
+  ScreenHeader,
+  SearchInput,
+  StatsBar,
+  StatusPill,
+  Toolbar,
+} from "@/components/internal/shared/screen_kit";
+import {
+  ListPagination,
+  usePagination,
+} from "@/components/internal/shared/pagination";
+import FilterDropdown from "@/components/internal/screens/projects/overview/filter_dropdown";
 import { cn } from "@/lib/utils";
+import { NewApiKeyDialog } from "@/components/internal/dilouges/security/new_api_key_dilouge";
+import { NewVulnerabilityDialog } from "@/components/internal/dilouges/security/new_vulnerability_dilouge";
+import {
+  ACCESS_RESULT_PILL_MAP,
+  API_KEY_STATUS_PILL_MAP,
+  SEVERITY_FILTER_OPTIONS,
+  SEVERITY_PILL_MAP,
+  VULNERABILITY_STATUS_FILTER_OPTIONS,
+  VULNERABILITY_STATUS_PILL_MAP,
+  formatDate,
+  formatDateTime,
+} from "@/features/security/constants";
 
 const SECURITY_VIEWS = ["Overview", "Access", "Vulnerabilities", "Keys"];
 
@@ -34,21 +66,19 @@ const ACCESS_EVENTS = [];
 
 const API_KEYS = [];
 
-const SEVERITY_CLASS = {
-  High: "border-orange-500/25 bg-orange-500/10 text-orange-300",
-  Medium: "border-amber-500/25 bg-amber-500/10 text-amber-300",
-  Low: "border-blue-500/25 bg-blue-500/10 text-blue-300",
-};
+// Case-insensitive StatusPill lookup — rows predate the lowercase constants.
+function pillProps(value, map) {
+  const key = String(value ?? "").toLowerCase();
+  return { status: key, map, fallback: String(value ?? "—") };
+}
 
-const STATUS_CLASS = {
-  Open: "border-red-500/25 bg-red-500/10 text-red-300",
-  Fixing: "border-blue-500/25 bg-blue-500/10 text-blue-300",
-  Resolved: "border-emerald-500/25 bg-emerald-500/10 text-emerald-300",
-  Allowed: "border-emerald-500/25 bg-emerald-500/10 text-emerald-300",
-  Blocked: "border-red-500/25 bg-red-500/10 text-red-300",
-  Active: "border-emerald-500/25 bg-emerald-500/10 text-emerald-300",
-  Rotate: "border-amber-500/25 bg-amber-500/10 text-amber-300",
-};
+function Pill({ value, map }) {
+  const { status, fallback } = pillProps(value, map);
+  if (!map[status]) {
+    return <span className="text-xs text-muted-foreground">{fallback}</span>;
+  }
+  return <StatusPill status={status} map={map} />;
+}
 
 function ViewSwitch({ activeView, onChange }) {
   return (
@@ -71,45 +101,6 @@ function ViewSwitch({ activeView, onChange }) {
         </Button>
       ))}
     </div>
-  );
-}
-
-function SecuritySummary() {
-  return (
-    <section className="rounded-2xl border border-border bg-surface-subtle p-5">
-      <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-        <div className="flex items-start gap-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-300">
-            <ShieldCheck className="h-5 w-5" />
-          </div>
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-base font-semibold text-foreground">Security posture is healthy</h2>
-              <span className="text-xs font-medium text-emerald-300">
-                Live
-              </span>
-            </div>
-            <p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">
-              Core protections are enabled. Two vulnerabilities still need owners, and one stale API key should be rotated.
-            </p>
-          </div>
-        </div>
-        <div className="grid grid-cols-3 gap-3 text-center">
-          <div className="rounded-xl border border-border bg-surface-card px-4 py-3">
-            <p className="text-lg font-semibold text-foreground">3/4</p>
-            <p className="text-[11px] text-text-secondary">Policies on</p>
-          </div>
-          <div className="rounded-xl border border-border bg-surface-card px-4 py-3">
-            <p className="text-lg font-semibold text-foreground">2</p>
-            <p className="text-[11px] text-text-secondary">Open risks</p>
-          </div>
-          <div className="rounded-xl border border-border bg-surface-card px-4 py-3">
-            <p className="text-lg font-semibold text-foreground">1</p>
-            <p className="text-[11px] text-text-secondary">Key to rotate</p>
-          </div>
-        </div>
-      </div>
-    </section>
   );
 }
 
@@ -142,97 +133,306 @@ function PolicyCard({ policy }) {
   );
 }
 
-function VulnerabilityItem({ item }) {
-  return (
-    <article className="rounded-xl border border-border bg-surface-subtle p-4 transition-colors hover:border-border-strong">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-        <div className="min-w-0 flex-1">
+export function SecurityScreen() {
+  const [activeView, setActiveView] = useState("Overview");
+  const [query, setQuery] = useState("");
+  const [severityFilter, setSeverityFilter] = useState("all");
+  const [vulnStatusFilter, setVulnStatusFilter] = useState("all");
+
+  const [policies] = useState(POLICIES);
+  const [vulnerabilities, setVulnerabilities] = useState(VULNERABILITIES);
+  const [accessEvents] = useState(ACCESS_EVENTS);
+  const [apiKeys, setApiKeys] = useState(API_KEYS);
+
+  const [vulnDialogOpen, setVulnDialogOpen] = useState(false);
+  const [keyDialogOpen, setKeyDialogOpen] = useState(false);
+  const [vulnDeleteTarget, setVulnDeleteTarget] = useState(null);
+  const [keyDeleteTarget, setKeyDeleteTarget] = useState(null);
+
+  const filteredVulnerabilities = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+    return vulnerabilities.filter((item) => {
+      if (severityFilter !== "all" && String(item.severity ?? "").toLowerCase() !== severityFilter) {
+        return false;
+      }
+      if (vulnStatusFilter !== "all" && String(item.status ?? "").toLowerCase() !== vulnStatusFilter) {
+        return false;
+      }
+      if (!normalizedQuery) return true;
+      return [item.id, item.title, item.area, item.affected, item.owner, item.severity, item.status]
+        .join(" ")
+        .toLowerCase()
+        .includes(normalizedQuery);
+    });
+  }, [vulnerabilities, query, severityFilter, vulnStatusFilter]);
+
+  const vulnPager = usePagination(filteredVulnerabilities, {
+    resetKey: `${query}|${severityFilter}|${vulnStatusFilter}|${activeView}`,
+  });
+  const accessPager = usePagination(accessEvents, { resetKey: activeView });
+  const keyPager = usePagination(apiKeys, { resetKey: activeView });
+
+  const stats = useMemo(() => {
+    const enabledPolicies = policies.filter((policy) => policy.enabled).length;
+    const openVulns = vulnerabilities.filter(
+      (item) => String(item.status ?? "").toLowerCase() !== "resolved",
+    ).length;
+    const denied = accessEvents.filter(
+      (event) => String(event.state ?? event.result ?? "").toLowerCase() === "denied" ||
+        String(event.state ?? "").toLowerCase() === "blocked",
+    ).length;
+    const activeKeys = apiKeys.filter((key) => !key.isRevoked && String(key.state ?? "Active").toLowerCase() === "active").length;
+    return [
+      { label: "Policies enabled", value: `${enabledPolicies}/${policies.length}`, footer: "Access controls currently active" },
+      { label: "Open vulnerabilities", value: String(openVulns), footer: "Findings to triage" },
+      { label: "Denied access", value: String(denied), footer: "Blocked actions" },
+      { label: "Active keys", value: String(activeKeys), footer: "Credentials in use" },
+    ];
+  }, [policies, vulnerabilities, accessEvents, apiKeys]);
+
+  const handleCreateVulnerability = async (form) => {
+    setVulnerabilities((prev) => [
+      {
+        id: `vuln_${Date.now()}`,
+        owner: "Unassigned",
+        ...form,
+      },
+      ...prev,
+    ]);
+    toast.success("Finding logged");
+  };
+
+  const handleChangeVulnerabilityStatus = (item, status) => {
+    setVulnerabilities((prev) =>
+      prev.map((entry) => (entry.id === item.id ? { ...entry, status } : entry)),
+    );
+    toast.success(`Marked ${VULNERABILITY_STATUS_PILL_MAP[status]?.label?.toLowerCase() ?? status}`);
+  };
+
+  const handleDeleteVulnerability = (item) => {
+    setVulnerabilities((prev) => prev.filter((entry) => entry.id !== item.id));
+    setVulnDeleteTarget(null);
+    toast.success("Finding deleted");
+  };
+
+  const handleCreateKey = async (form) => {
+    setApiKeys((prev) => [
+      {
+        id: `key_${Date.now()}`,
+        state: "Active",
+        isRevoked: false,
+        lastUsed: "Never",
+        ...form,
+      },
+      ...prev,
+    ]);
+    toast.success("API key created — store the secret somewhere safe now");
+  };
+
+  const handleToggleKeyRevoked = (apiKey) => {
+    const nextRevoked = !(apiKey.isRevoked ?? String(apiKey.state ?? "").toLowerCase() !== "active");
+    setApiKeys((prev) =>
+      prev.map((key) =>
+        key.id === apiKey.id
+          ? { ...key, isRevoked: nextRevoked, state: nextRevoked ? "Revoked" : "Active" }
+          : key,
+      ),
+    );
+    toast.success(nextRevoked ? "Key revoked" : "Key restored");
+  };
+
+  const handleDeleteKey = (apiKey) => {
+    setApiKeys((prev) => prev.filter((key) => key.id !== apiKey.id));
+    setKeyDeleteTarget(null);
+    toast.success("Key deleted");
+  };
+
+  const vulnColumns = [
+    {
+      key: "finding",
+      header: "Finding",
+      render: (item) => (
+        <div className="flex min-w-0 flex-col gap-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="truncate text-sm font-semibold text-foreground">{item.title}</h3>
-            <span className="font-mono text-[10px] text-text-secondary">{item.id}</span>
+            <span className="truncate text-sm font-semibold text-foreground">{item.title}</span>
+            <span className="font-mono text-[10px] text-text-secondary">{String(item.id ?? "").slice(0, 8)}</span>
           </div>
-          <p className="mt-1 text-xs text-text-secondary">{item.area}</p>
+          <span className="truncate text-xs text-text-secondary">{item.affected || item.area || "No affected surface recorded"}</span>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge className={cn("border px-2 py-0.5 text-[10px]", SEVERITY_CLASS[item.severity])}>
-            {item.severity}
-          </Badge>
-          <Badge className={cn("border px-2 py-0.5 text-[10px]", STATUS_CLASS[item.status])}>
-            {item.status}
-          </Badge>
-          <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-            <UserRound className="h-3.5 w-3.5 text-text-secondary" />
-            {item.owner}
-          </span>
-          <span className="text-xs text-text-secondary">{item.due}</span>
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-text-secondary hover:bg-surface-active hover:text-foreground">
-            <ChevronRight className="h-4 w-4" />
-          </Button>
+      ),
+    },
+    {
+      key: "severity",
+      header: "Severity",
+      render: (item) => <Pill value={item.severity} map={SEVERITY_PILL_MAP} />,
+    },
+    {
+      key: "status",
+      header: "Status",
+      render: (item) => <Pill value={item.status} map={VULNERABILITY_STATUS_PILL_MAP} />,
+    },
+    {
+      key: "meta",
+      header: "Detail",
+      render: (item) => (
+        <span className="text-xs text-text-secondary">
+          {[item.owner, item.due || (item.detectedOn ? formatDate(item.detectedOn) : null)]
+            .filter(Boolean)
+            .join(" · ") || "—"}
+        </span>
+      ),
+    },
+    {
+      key: "actions",
+      header: "",
+      align: "right",
+      className: "text-right",
+      render: (item) => {
+        const statusKey = String(item.status ?? "").toLowerCase();
+        return (
+          <ActionMenu
+            label={`Actions for ${item.title}`}
+            items={[
+              statusKey === "open" && {
+                icon: Wrench,
+                label: "Mark triaged",
+                onSelect: () => handleChangeVulnerabilityStatus(item, "triaged"),
+              },
+              statusKey !== "resolved" && {
+                icon: CheckCircle2,
+                label: "Mark resolved",
+                onSelect: () => handleChangeVulnerabilityStatus(item, "resolved"),
+              },
+              statusKey === "resolved" && {
+                icon: RotateCcw,
+                label: "Reopen",
+                onSelect: () => handleChangeVulnerabilityStatus(item, "open"),
+              },
+              { separator: true },
+              {
+                icon: Trash2,
+                label: "Delete",
+                destructive: true,
+                onSelect: () => setVulnDeleteTarget(item),
+              },
+            ]}
+          />
+        );
+      },
+    },
+  ];
+
+  const accessColumns = [
+    {
+      key: "event",
+      header: "Event",
+      render: (event) => (
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <span className="truncate text-sm font-medium text-foreground">{event.actor || "Unknown actor"}</span>
+          <span className="truncate text-xs text-text-secondary">{event.action}</span>
         </div>
-      </div>
-    </article>
-  );
-}
+      ),
+    },
+    {
+      key: "device",
+      header: "Target",
+      render: (event) => (
+        <span className="truncate text-xs text-muted-foreground">{event.device || event.target || "-"}</span>
+      ),
+    },
+    {
+      key: "time",
+      header: "Time",
+      render: (event) => (
+        <span className="truncate text-xs text-text-secondary">
+          {event.occurredAt ? formatDateTime(event.occurredAt) : (event.location || event.time || "-")}
+        </span>
+      ),
+    },
+    {
+      key: "state",
+      header: "Result",
+      render: (event) => <Pill value={event.result || event.state} map={ACCESS_RESULT_PILL_MAP} />,
+    },
+  ];
 
-function AccessEvent({ event }) {
-  const blocked = event.state === "Blocked";
-
-  return (
-    <div className="grid grid-cols-1 gap-2 border-b border-border px-4 py-3 last:border-b-0 md:grid-cols-[1.2fr_1fr_1fr_0.7fr_auto] md:items-center">
-      <div className="min-w-0">
-        <p className={cn("truncate text-sm font-medium", blocked ? "text-red-300" : "text-foreground")}>{event.actor}</p>
-        <p className="mt-0.5 truncate text-xs text-text-secondary">{event.action}</p>
-      </div>
-      <span className="text-xs text-muted-foreground">{event.device}</span>
-      <span className="text-xs text-text-secondary">{event.location}</span>
-      <span className="text-xs text-text-secondary">{event.time}</span>
-      <span className={cn("text-xs font-medium", blocked ? "text-red-300" : "text-emerald-300")}>
-        {event.state}
-      </span>
-    </div>
-  );
-}
-
-function KeyItem({ apiKey }) {
-  return (
-    <article className="rounded-xl border border-border bg-surface-subtle p-4 transition-colors hover:border-border-strong">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-        <div className="flex min-w-0 flex-1 items-center gap-3">
+  const keyColumns = [
+    {
+      key: "key",
+      header: "Key",
+      render: (apiKey) => (
+        <div className="flex min-w-0 items-center gap-3">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-card text-muted-foreground">
             <KeyRound className="h-4 w-4" />
           </div>
           <div className="min-w-0">
-            <h3 className="truncate text-sm font-semibold text-foreground">{apiKey.name}</h3>
-            <p className="mt-0.5 font-mono text-xs text-text-secondary">{apiKey.key}</p>
+            <p className="truncate text-sm font-medium text-foreground">{apiKey.name}</p>
+            <p className="mt-0.5 truncate font-mono text-xs text-text-secondary">
+              {apiKey.keyPrefix ? `${apiKey.keyPrefix}••••••••` : apiKey.key}
+            </p>
           </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs text-muted-foreground">{apiKey.scopes.join(", ")}</span>
-          <span className="text-xs text-text-secondary">Last used {apiKey.lastUsed}</span>
-          <Badge className={cn("border px-2 py-0.5 text-[10px]", STATUS_CLASS[apiKey.state])}>
-            {apiKey.state}
-          </Badge>
-        </div>
-      </div>
-    </article>
-  );
-}
-
-export function SecurityScreen() {
-  const [activeView, setActiveView] = useState("Overview");
-  const [query, setQuery] = useState("");
-
-  const filteredVulnerabilities = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
-    if (!normalizedQuery) return VULNERABILITIES;
-
-    return VULNERABILITIES.filter((item) =>
-      [item.id, item.title, item.area, item.owner, item.severity, item.status]
-        .join(" ")
-        .toLowerCase()
-        .includes(normalizedQuery),
-    );
-  }, [query]);
+      ),
+    },
+    {
+      key: "scopes",
+      header: "Scopes",
+      render: (apiKey) => (
+        <span className="truncate text-xs text-muted-foreground">
+          {(apiKey.scopes || []).length > 0 ? apiKey.scopes.join(", ") : "no scopes"}
+        </span>
+      ),
+    },
+    {
+      key: "meta",
+      header: "Detail",
+      render: (apiKey) => (
+        <span className="text-xs text-text-secondary">
+          {[apiKey.lastUsed ? `Last used ${apiKey.lastUsed}` : null, apiKey.expiresAt ? `Expires ${formatDate(apiKey.expiresAt)}` : null]
+            .filter(Boolean)
+            .join(" · ") || "—"}
+        </span>
+      ),
+    },
+    {
+      key: "state",
+      header: "Status",
+      render: (apiKey) => (
+        <Pill
+          value={apiKey.isRevoked ? "revoked" : (apiKey.state || "active")}
+          map={API_KEY_STATUS_PILL_MAP}
+        />
+      ),
+    },
+    {
+      key: "actions",
+      header: "",
+      align: "right",
+      className: "text-right",
+      render: (apiKey) => {
+        const revoked = apiKey.isRevoked ?? String(apiKey.state ?? "").toLowerCase() !== "active";
+        return (
+          <ActionMenu
+            label={`Actions for ${apiKey.name}`}
+            items={[
+              {
+                icon: Eye,
+                label: revoked ? "Restore key" : "Revoke key",
+                onSelect: () => handleToggleKeyRevoked(apiKey),
+              },
+              { separator: true },
+              {
+                icon: Trash2,
+                label: "Delete",
+                destructive: true,
+                onSelect: () => setKeyDeleteTarget(apiKey),
+              },
+            ]}
+          />
+        );
+      },
+    },
+  ];
 
   const showOverview = activeView === "Overview";
   const showAccess = activeView === "Access" || showOverview;
@@ -241,55 +441,107 @@ export function SecurityScreen() {
 
   return (
     <MainScreenWrapper className="text-foreground">
-      <div className="flex flex-col gap-4 border-b border-border pb-6 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground md:text-3xl">Security</h1>
-          <p className="mt-1 text-muted-foreground">
-            Review access, fix risks, and manage project credentials.
-          </p>
-        </div>
+      <ScreenHeader
+        title="Security"
+        description="Review access, fix risks, and manage project credentials."
+        actions={
+          <>
+            <Button
+              variant="outline"
+              onClick={() => setVulnDialogOpen(true)}
+              className="border-border bg-transparent text-muted-foreground hover:bg-surface-active hover:text-foreground"
+            >
+              <ShieldAlert className="mr-2 h-4 w-4" />
+              Log finding
+            </Button>
+            <Button
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+              onClick={() => setKeyDialogOpen(true)}
+            >
+              <Lock className="mr-2 h-4 w-4" />
+              Create key
+            </Button>
+          </>
+        }
+      />
+
+      <StatsBar stats={stats} />
+
+      <Toolbar>
         <div className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" className="border-border bg-transparent text-muted-foreground hover:bg-surface-active hover:text-foreground">
-            <Eye className="mr-2 h-4 w-4" />
-            Audit log
-          </Button>
-          <Button className="bg-primary text-primary-foreground hover:bg-primary">
-            <Lock className="mr-2 h-4 w-4" />
-            Create key
-          </Button>
+          <ViewSwitch activeView={activeView} onChange={setActiveView} />
+          {(showVulnerabilities && !showAccess) || activeView === "Vulnerabilities" ? (
+            <>
+              <FilterDropdown
+                value={severityFilter}
+                onValueChange={setSeverityFilter}
+                options={SEVERITY_FILTER_OPTIONS}
+                height="h-9"
+              />
+              <FilterDropdown
+                value={vulnStatusFilter}
+                onValueChange={setVulnStatusFilter}
+                options={VULNERABILITY_STATUS_FILTER_OPTIONS}
+                height="h-9"
+              />
+            </>
+          ) : null}
         </div>
-      </div>
-
-      <SecuritySummary />
-
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <ViewSwitch activeView={activeView} onChange={setActiveView} />
-        <div className="relative w-full lg:w-[320px]">
-          <Search className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-text-secondary" />
-          <Input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search security items"
-            className="!h-10 border-border bg-surface-subtle !pl-10 !pr-3 text-sm text-foreground placeholder:text-text-secondary"
-          />
-        </div>
-      </div>
+        <SearchInput
+          value={query}
+          onChange={setQuery}
+          placeholder="Search security items"
+        />
+      </Toolbar>
 
       {showAccess ? (
         <section className="space-y-4">
           <div className="flex items-center justify-between gap-3">
             <div>
               <h2 className="text-lg font-semibold text-foreground">Access Controls</h2>
-              <p className="mt-1 text-sm text-text-secondary">Policies that decide who can enter, merge, and act.</p>
+              <p className="mt-1 text-sm text-text-secondary">
+                Policies that decide who can enter, merge, and act.
+              </p>
             </div>
-            <span className="text-sm font-medium text-emerald-300">
-              3 enabled
-            </span>
           </div>
-          <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
-            {POLICIES.map((policy) => (
-              <PolicyCard key={policy.name} policy={policy} />
-            ))}
+          {policies.length === 0 ? (
+            <div className="rounded-xl border border-border bg-surface-subtle">
+              <EmptyState
+                icon={Shield}
+                title="No policies yet"
+                description="Access policies will appear here once configured."
+              />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
+              {policies.map((policy) => (
+                <PolicyCard key={policy.name} policy={policy} />
+              ))}
+            </div>
+          )}
+
+          <div>
+            <h2 className="text-lg font-semibold text-foreground">Recent Access</h2>
+            <p className="mt-1 text-sm text-text-secondary">
+              Recent authentication and sensitive project actions.
+            </p>
+          </div>
+          <div className="space-y-5">
+            <DataTable
+              columns={accessColumns}
+              data={accessPager.pageItems}
+              getRowKey={(event, index) => event.id || `${event.actor}-${event.time}-${index}`}
+              empty={
+                <div className="rounded-xl border border-border bg-surface-subtle">
+                  <EmptyState
+                    icon={Fingerprint}
+                    title="No access events yet"
+                    description="Entries will appear here as they happen."
+                  />
+                </div>
+              }
+            />
+            <ListPagination {...accessPager} itemLabel="events" />
           </div>
         </section>
       ) : null}
@@ -299,31 +551,50 @@ export function SecurityScreen() {
           <div className="flex items-center justify-between gap-3">
             <div>
               <h2 className="text-lg font-semibold text-foreground">Risk Queue</h2>
-              <p className="mt-1 text-sm text-text-secondary">Actionable findings with owner, status, and next due date.</p>
+              <p className="mt-1 text-sm text-text-secondary">
+                Actionable findings with severity, status, and resolution trail.
+              </p>
             </div>
-            <Button variant="ghost" size="sm" className="text-text-secondary hover:bg-surface-active hover:text-foreground">
-              Export
-              <ExternalLink className="ml-2 h-3.5 w-3.5" />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setVulnDialogOpen(true)}
+              className="text-text-secondary hover:bg-surface-active hover:text-foreground"
+            >
+              New finding
+              <Plus className="ml-2 h-3.5 w-3.5" />
             </Button>
           </div>
-          <div className="space-y-2">
-            {filteredVulnerabilities.map((item) => (
-              <VulnerabilityItem key={item.id} item={item} />
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      {showAccess ? (
-        <section className="space-y-4">
-          <div>
-            <h2 className="text-lg font-semibold text-foreground">Recent Access</h2>
-            <p className="mt-1 text-sm text-text-secondary">Recent authentication and sensitive project actions.</p>
-          </div>
-          <div className="overflow-hidden rounded-xl border border-border bg-surface-subtle">
-            {ACCESS_EVENTS.map((event) => (
-              <AccessEvent key={`${event.actor}-${event.time}`} event={event} />
-            ))}
+          <div className="space-y-5">
+            <DataTable
+              columns={vulnColumns}
+              data={vulnPager.pageItems}
+              getRowKey={(item, index) => item.id || `${item.title}-${index}`}
+              empty={
+                <div className="rounded-xl border border-border bg-surface-subtle">
+                  <EmptyState
+                    icon={ShieldAlert}
+                    title={vulnerabilities.length ? "No matching findings" : "No findings yet"}
+                    description={
+                      vulnerabilities.length
+                        ? "Try clearing the search or filters."
+                        : "Log the first finding to start the risk queue."
+                    }
+                    action={
+                      !vulnerabilities.length ? (
+                        <Button
+                          className="bg-primary text-primary-foreground hover:bg-primary/90"
+                          onClick={() => setVulnDialogOpen(true)}
+                        >
+                          <Plus className="h-4 w-4" /> Log finding
+                        </Button>
+                      ) : undefined
+                    }
+                  />
+                </div>
+              }
+            />
+            <ListPagination {...vulnPager} itemLabel="findings" />
           </div>
         </section>
       ) : null}
@@ -333,45 +604,119 @@ export function SecurityScreen() {
           <div className="flex items-center justify-between gap-3">
             <div>
               <h2 className="text-lg font-semibold text-foreground">Keys & Tokens</h2>
-              <p className="mt-1 text-sm text-text-secondary">Project credentials and automation tokens that need periodic review.</p>
+              <p className="mt-1 text-sm text-text-secondary">
+                Project credentials and automation tokens that need periodic review.
+              </p>
             </div>
-            <span className="text-sm font-medium text-amber-300">
-              1 rotate
-            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setKeyDialogOpen(true)}
+              className="text-text-secondary hover:bg-surface-active hover:text-foreground"
+            >
+              New key
+              <Plus className="ml-2 h-3.5 w-3.5" />
+            </Button>
           </div>
-          <div className="space-y-2">
-            {API_KEYS.map((apiKey) => (
-              <KeyItem key={apiKey.name} apiKey={apiKey} />
-            ))}
+          <div className="space-y-5">
+            <DataTable
+              columns={keyColumns}
+              data={keyPager.pageItems}
+              getRowKey={(apiKey, index) => apiKey.id || `${apiKey.name}-${index}`}
+              empty={
+                <div className="rounded-xl border border-border bg-surface-subtle">
+                  <EmptyState
+                    icon={KeyRound}
+                    title="No keys yet"
+                    description="Create the first key to get started."
+                    action={
+                      <Button
+                        className="bg-primary text-primary-foreground hover:bg-primary/90"
+                        onClick={() => setKeyDialogOpen(true)}
+                      >
+                        <Plus className="h-4 w-4" /> Create key
+                      </Button>
+                    }
+                  />
+                </div>
+              }
+            />
+            <ListPagination {...keyPager} itemLabel="keys" />
           </div>
         </section>
       ) : null}
 
-      {showOverview ? (
-        <section className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <div className="rounded-xl border border-border bg-surface-subtle p-4">
-            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-              <Fingerprint className="h-4 w-4 text-text-secondary" />
-              Data protection
-            </div>
-            <p className="mt-2 text-xs leading-5 text-text-secondary">AES-256 at rest, TLS 1.3 in transit, partial masking on sensitive fields.</p>
-          </div>
-          <div className="rounded-xl border border-border bg-surface-subtle p-4">
-            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-              <ShieldAlert className="h-4 w-4 text-text-secondary" />
-              Compliance
-            </div>
-            <p className="mt-2 text-xs leading-5 text-text-secondary">SOC 2 Type II and GDPR controls are active. Next audit window opens in September.</p>
-          </div>
-          <div className="rounded-xl border border-border bg-surface-subtle p-4">
-            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-              <Terminal className="h-4 w-4 text-text-secondary" />
-              Automation
-            </div>
-            <p className="mt-2 text-xs leading-5 text-text-secondary">CI/CD keys are scoped to deploy actions and should be reviewed every 30 days.</p>
-          </div>
-        </section>
-      ) : null}
+      <NewVulnerabilityDialog
+        open={vulnDialogOpen}
+        onOpenChange={setVulnDialogOpen}
+        onCreate={handleCreateVulnerability}
+      />
+
+      <NewApiKeyDialog
+        open={keyDialogOpen}
+        onOpenChange={setKeyDialogOpen}
+        onCreate={handleCreateKey}
+      />
+
+      <Dialog
+        open={!!vulnDeleteTarget}
+        onOpenChange={(open) => !open && setVulnDeleteTarget(null)}
+      >
+        <DialogContent className="sm:max-w-md bg-background border-border text-foreground">
+          <DialogHeader>
+            <DialogTitle className="text-foreground">Delete finding</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
+              Are you sure you want to delete{" "}
+              <span className="font-medium text-foreground">
+                {vulnDeleteTarget?.title}
+              </span>
+              ? This action can&apos;t be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setVulnDeleteTarget(null)}>
+              Cancel
+            </Button>
+            <Button
+              className="bg-red-500/90 text-white hover:bg-red-500"
+              onClick={() => handleDeleteVulnerability(vulnDeleteTarget)}
+            >
+              <Trash2 className="h-4 w-4" /> Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={!!keyDeleteTarget}
+        onOpenChange={(open) => !open && setKeyDeleteTarget(null)}
+      >
+        <DialogContent className="sm:max-w-md bg-background border-border text-foreground">
+          <DialogHeader>
+            <DialogTitle className="text-foreground">Delete key</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
+              Are you sure you want to delete the{" "}
+              <span className="font-medium text-foreground">
+                {keyDeleteTarget?.name}
+              </span>{" "}
+              key? This action can&apos;t be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setKeyDeleteTarget(null)}>
+              Cancel
+            </Button>
+            <Button
+              className="bg-red-500/90 text-white hover:bg-red-500"
+              onClick={() => handleDeleteKey(keyDeleteTarget)}
+            >
+              <Trash2 className="h-4 w-4" /> Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </MainScreenWrapper>
   );
 }
+
+export default SecurityScreen;

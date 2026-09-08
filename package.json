@@ -18,7 +18,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@geiger/orm": "github:bhargavjoshi1237/geiger-orm#master",
-    "@geiger/ui": "github:bhargavjoshi1237/geiger-ui#7a40509cace6cde1f3666106ba2eee050c350d24",
+    "@geiger/ui": "github:bhargavjoshi1237/geiger-ui#f66c10da7a5544b462360a747c2a40987493b5a9",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.98.0",
     "@xyflow/react": "^12.10.2",

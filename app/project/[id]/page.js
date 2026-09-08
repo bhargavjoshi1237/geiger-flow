@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Suspense } from "react";
+import React, { Suspense, useState } from "react";
 import { use, useCallback, useMemo } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -11,7 +11,6 @@ import { ProjectTopbar } from "@/components/internal/topbar/projects/topbar";
 import { SidebarProvider, SidebarInset } from "@geiger/ui";
 import { ProjectDetailsScreen } from "@/components/internal/screens/projects/overview/project_details";
 import { WorkflowsScreen } from "@/components/internal/screens/projects/issues/workflows";
-import { DatasetsScreen } from "@/components/internal/screens/projects/datasets";
 import { ObjectivesScreen } from "@/components/internal/screens/projects/objectives/objectives_screen";
 import { TasksScreen } from "@/components/internal/screens/projects/tasks/tasks_screen";
 import { WorkQueueScreen } from "@/components/internal/screens/projects/work_queue/work_queue_screen";
@@ -33,10 +32,15 @@ import { OfficeScreen } from "@/components/internal/screens/projects/office/offi
 import { ProjectProvider, useProject } from "@/context/project-context";
 import { ProjectBudgetProvider } from "@/context/project-budget-context";
 import { settingsNav } from "@/components/internal/sidebar/projects/sidebar_data";
-import { getProjectExternalLinksStorageKey } from "@/components/internal/externals/external_links";
 import { AddonRegistryProvider, useAddonRegistry } from "@/addons/registry";
 import { NavVisibilityProvider } from "@/context/nav-visibility-context";
 import { getAddonScreens, getAddonScreenOptions } from "@/addons/registry";
+import {
+  listExternalLinks,
+  createExternalLink,
+  softDeleteExternalLink,
+} from "@/features/external_links/actions";
+import { toast } from "sonner";
 import "@/addons/sql";
 import "@/addons/project-plus";
 import "@/addons/forms";
@@ -47,21 +51,8 @@ import { useEffect } from "react";
 function ProjectLayoutContent({ id }) {
   const { fetchProjectInfo, project, loading, notFound } = useProject();
   const { enabledAddons } = useAddonRegistry();
-  const [externalLinks, setExternalLinks] = React.useState(() => {
-    if (typeof window === "undefined") {
-      return [];
-    }
-
-    try {
-      const storedLinks = JSON.parse(
-        localStorage.getItem(getProjectExternalLinksStorageKey(id)) || "[]",
-      );
-
-      return Array.isArray(storedLinks) ? storedLinks : [];
-    } catch {
-      return [];
-    }
-  });
+  const [externalLinks, setExternalLinks] = useState([]);
+  const [linksLoading, setLinksLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -73,11 +64,69 @@ function ProjectLayoutContent({ id }) {
   }, [id, fetchProjectInfo]);
 
   useEffect(() => {
-    localStorage.setItem(
-      getProjectExternalLinksStorageKey(id),
-      JSON.stringify(externalLinks),
-    );
-  }, [id, externalLinks]);
+    if (!id) {
+      return;
+    }
+
+    let cancelled = false;
+
+    void listExternalLinks(id).then((rows) => {
+      if (cancelled) {
+        return;
+      }
+      setExternalLinks(rows ?? []);
+      setLinksLoading(false);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  const createLink = useCallback(
+    async (link) => {
+      const optimisticId = crypto.randomUUID();
+      const optimistic = { ...link, id: optimisticId };
+
+      setExternalLinks((currentLinks) => [optimistic, ...currentLinks]);
+
+      const created = await createExternalLink(id, { ...link, id: optimisticId });
+      if (!created) {
+        setExternalLinks((currentLinks) =>
+          currentLinks.filter((entry) => entry.id !== optimisticId),
+        );
+        toast.error("Couldn't save the link.");
+        return;
+      }
+
+      setExternalLinks((currentLinks) =>
+        currentLinks.map((entry) => (entry.id === created.id ? created : entry)),
+      );
+      toast.success("Link added");
+    },
+    [id],
+  );
+
+  const deleteLink = useCallback(
+    async (linkId) => {
+      const previous = externalLinks.find((entry) => entry.id === linkId);
+
+      setExternalLinks((currentLinks) =>
+        currentLinks.filter((entry) => entry.id !== linkId),
+      );
+
+      const ok = await softDeleteExternalLink(linkId);
+      if (!ok) {
+        setExternalLinks((currentLinks) =>
+          previous && !currentLinks.some((entry) => entry.id === previous.id)
+            ? [previous, ...currentLinks]
+            : currentLinks,
+        );
+        toast.error("Couldn't delete the link.");
+      }
+    },
+    [externalLinks],
+  );
 
   const screenParamKeys = [];
   searchParams.forEach((_, key) => {
@@ -144,14 +193,9 @@ function ProjectLayoutContent({ id }) {
         return (
           <ExternalsScreen
             links={externalLinks}
-            onCreateLink={(link) =>
-              setExternalLinks((currentLinks) => [link, ...currentLinks])
-            }
-            onDeleteLink={(linkId) =>
-              setExternalLinks((currentLinks) =>
-                currentLinks.filter((link) => link.id !== linkId),
-              )
-            }
+            linksLoading={linksLoading}
+            onCreateLink={createLink}
+            onDeleteLink={deleteLink}
           />
         );
       case "Assets":

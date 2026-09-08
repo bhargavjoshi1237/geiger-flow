@@ -4,7 +4,14 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@geiger/ui";
 import { Button } from "@geiger/ui";
 import { ExternalLink, Package, Layers, File, Eye, HardDrive } from "lucide-react";
-import { damFeatures } from "./data";
+
+// Static UI copy for the DAM teaser chips (config, not row data).
+const DAM_FEATURES = [
+  { iconKey: "Layers", label: "Bulk Actions" },
+  { iconKey: "File", label: "Versioning" },
+  { iconKey: "Eye", label: "Previews" },
+  { iconKey: "HardDrive", label: "Storage Insights" },
+];
 
 const featureIconMap = { Layers, File, Eye, HardDrive };
 
@@ -30,7 +37,7 @@ export function DamCard() {
           </a>
         </Button>
         <div className="grid grid-cols-2 gap-2">
-          {damFeatures.map((feature) => {
+          {DAM_FEATURES.map((feature) => {
             const Icon = featureIconMap[feature.iconKey];
             return (
               <div key={feature.label} className="flex items-center gap-2 p-2 rounded-md bg-surface-active border border-border">

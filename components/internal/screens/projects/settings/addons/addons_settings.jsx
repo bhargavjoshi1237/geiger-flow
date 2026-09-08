@@ -23,6 +23,7 @@ import {
 } from "@geiger/ui";
 import { cn } from "@/lib/utils";
 import { Button } from "@geiger/ui";
+import { EmptyState } from "@/components/internal/shared/screen_kit";
 
 function AddonCard({ addon, enabled, positionOptions, selectValue, currentColor, onToggle, onPositionChange, onColorChange }) {
   const [expanded, setExpanded] = useState(false);
@@ -231,18 +232,12 @@ export function AddonsSettingsScreen({ compactView: controlledCompactView }) {
   return (
     <div className="space-y-8 border-t border-border pt-6">
       {installedAddons.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-border bg-background p-12 flex flex-col items-center justify-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-surface-dialog border border-border flex items-center justify-center">
-            <LucidePackagePlus className="w-6 h-6 text-muted-foreground" />
-          </div>
-          <div className="text-center">
-            <p className="text-sm font-medium text-muted-foreground">
-              No add-ons available
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Add-ons will appear here when installed.
-            </p>
-          </div>
+        <div className="rounded-xl border border-dashed border-border bg-background">
+          <EmptyState
+            icon={LucidePackagePlus}
+            title="No add-ons available"
+            description="Add-ons will appear here when installed."
+          />
         </div>
       ) : (
         <div

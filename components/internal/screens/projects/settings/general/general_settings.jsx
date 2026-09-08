@@ -3,7 +3,12 @@
 import React, { useState } from "react";
 import { Input } from "@geiger/ui";
 import { Button } from "@geiger/ui";
-import { Label } from "@geiger/ui";
+import {
+  Field,
+  SectionCard,
+  SettingRow,
+  SettingsList,
+} from "@/components/internal/shared/screen_kit";
 import { useProject } from "@/context/project-context";
 import {
   Copy,
@@ -35,26 +40,27 @@ export function GeneralSettingsScreen() {
   return (
     <div className="space-y-12">
       <div className="space-y-6 my-10">
-       <div className="space-y-2 w-full">
-              <Label htmlFor="project-name" className="text-foreground">
-                Project Name
-              </Label>
-              <Input
-                id="project-name"
-                value={projectName}
-                onChange={(e) => setEditedProjectName(e.target.value)}
-                className="bg-background border-border text-foreground focus-visible:ring-ring"
-                placeholder="e.g. My Awesome Project"
-              />
-              <p className="text-xs text-muted-foreground/70">
-                This name appears throughout Geiger Flow.
-              </p>
-            </div>
+       <Field
+         label="Project Name"
+         htmlFor="project-name"
+         hint="This name appears throughout Geiger Flow."
+         className="w-full"
+       >
+         <Input
+           id="project-name"
+           value={projectName}
+           onChange={(e) => setEditedProjectName(e.target.value)}
+           className="bg-background border-border text-foreground focus-visible:ring-ring"
+           placeholder="e.g. My Awesome Project"
+         />
+       </Field>
 
-            <div className="space-y-2 w-full">
-              <Label htmlFor="project-id" className="text-foreground">
-                Project ID
-              </Label>
+       <Field
+         label="Project ID"
+         htmlFor="project-id"
+         hint="Used when interacting with the Geiger API."
+         className="w-full"
+       >
               <div className="flex w-full gap-2">
                 <Input
                   id="project-id"
@@ -76,10 +82,7 @@ export function GeneralSettingsScreen() {
                   )}
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground/70">
-                Used when interacting with the Geiger API.
-              </p>
-            </div>
+            </Field>
             <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
               Save Changes
             </Button>
@@ -87,25 +90,17 @@ export function GeneralSettingsScreen() {
 
       
 
-      <div className="space-y-4">
-        <div className="space-y-1.5">
-          <h3 className="text-xl font-medium text-foreground">
-            Project availability
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            Restart or pause your project when performing maintenance
-          </p>
-        </div>
-
-        <div className="flex flex-col gap-0 border border-border rounded-xl overflow-hidden bg-background">
-          <div>
-            <IconButtonCard
-              classNames={{
-                container: "border-0 rounded-none bg-transparent shadow-none",
-              }}
+      <SectionCard
+        title="Project availability"
+        description="Restart or pause your project when performing maintenance"
+        bodyPadding={false}
+      >
+        <div className="px-5">
+          <SettingsList>
+            <SettingRow
               title="Pause project"
-              subtitle="Your project will not be accessible while it is paused."
-              endingComponent={
+              description="Your project will not be accessible while it is paused."
+              control={
                 <Button
                   variant="outline"
                   className="bg-card border-border text-foreground hover:bg-accent hover:text-accent-foreground gap-2"
@@ -114,9 +109,9 @@ export function GeneralSettingsScreen() {
                 </Button>
               }
             />
-          </div>
+          </SettingsList>
         </div>
-      </div>
+      </SectionCard>
 
       <IconButtonCard
         classNames={{
@@ -143,7 +138,7 @@ export function GeneralSettingsScreen() {
         title="Custom domains are a Pro Plan add-on"
         subtitle="Paid Plans come with free vanity subdomains or Custom Domains for an additional $10/month per domain."
         endingComponent={
-          <Button className="bg-[#0f5c35] hover:bg-[#127040] text-white border border-[#1b7e4a]">
+          <Button className="bg-primary text-primary-foreground hover:bg-primary/90 border border-primary">
             Enable add-on
           </Button>
         }
@@ -167,12 +162,12 @@ export function GeneralSettingsScreen() {
       <IconButtonCard
         banner="Delete project"
         subBanner="Permanently remove your project and its database"
-        icon={<AlertTriangle className="w-5 h-5 text-black" />}
+        icon={<AlertTriangle className="w-5 h-5 text-red-400" />}
         title="Deleting this project will also remove your database."
         subtitle="Make sure you have made a backup if you want to keep your data."
         classNames={{
-          container: "bg-[#180505] border-[#4a1616]",
-          iconWrapper: "bg-[#e55740] border-none mt-0.5",
+          container: "bg-surface-subtle border-red-500/20",
+          iconWrapper: "bg-red-500/10 border-red-500/20 mt-0.5",
           title: "text-foreground font-semibold text-base",
           subtitle: "text-muted-foreground mt-0.5",
           endingComponent: "!block !ml-14 mt-4",

@@ -4,6 +4,8 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -18,11 +20,9 @@ import {
 import { Input } from "@geiger/ui";
 import { Textarea } from "@geiger/ui";
 import { Button } from "@geiger/ui";
-import { Label } from "@geiger/ui";
+import { Field } from "@/components/internal/shared/screen_kit";
 import {
   Bug,
-  CalendarClock,
-  CalendarDays,
   CircleDot,
   ClipboardList,
   Cog,
@@ -30,7 +30,6 @@ import {
   Loader2,
   Pencil,
   Sparkles,
-  Tag,
   Wrench,
   X,
 } from "lucide-react";
@@ -79,8 +78,6 @@ const buildFormFromIssue = (issue) => ({
   labels: Array.isArray(issue.labels) ? issue.labels : [],
 });
 
-const fieldLabelClass =
-  "text-xs font-medium uppercase tracking-wider text-text-secondary";
 const controlClass =
   "bg-surface-card border-border text-foreground focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1";
 const selectTriggerClass =
@@ -207,16 +204,18 @@ export function IssueDialog({
             <DialogTitle className="text-base font-medium text-foreground">
               {title}
             </DialogTitle>
+            <DialogDescription>
+              {isEditing
+                ? "Update the issue details below."
+                : "Describe the work, set its properties, and create it."}
+            </DialogDescription>
           </div>
         </DialogHeader>
 
-        <div className="max-h-[64vh] space-y-5 overflow-y-auto p-5">
+        <div className="grid max-h-[64vh] gap-4 overflow-y-auto p-5">
           {/* Title + Type */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_180px]">
-            <div className="flex flex-col space-y-2">
-              <Label htmlFor="issue-title" className={fieldLabelClass}>
-                Title *
-              </Label>
+            <Field label="Title *" htmlFor="issue-title">
               <Input
                 id="issue-title"
                 placeholder="e.g. Login fails on expired session"
@@ -225,10 +224,9 @@ export function IssueDialog({
                 required
                 className={controlClass}
               />
-            </div>
+            </Field>
 
-            <div className="flex flex-col space-y-2">
-              <Label className={fieldLabelClass}>Type</Label>
+            <Field label="Type">
               <Select
                 value={form.type}
                 onValueChange={(value) => setField("type", value)}
@@ -250,14 +248,11 @@ export function IssueDialog({
                   })}
                 </SelectContent>
               </Select>
-            </div>
+            </Field>
           </div>
 
           {/* Description */}
-          <div className="flex flex-col space-y-2">
-            <Label htmlFor="issue-description" className={fieldLabelClass}>
-              Description
-            </Label>
+          <Field label="Description" htmlFor="issue-description">
             <Textarea
               id="issue-description"
               placeholder="Add context, reproduction steps, expected vs actual, or impact…"
@@ -266,7 +261,7 @@ export function IssueDialog({
               rows={4}
               className={controlClass}
             />
-          </div>
+          </Field>
 
           {/* Properties */}
           <div className="space-y-3">
@@ -274,8 +269,7 @@ export function IssueDialog({
               Properties
             </p>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-              <div className="flex flex-col space-y-2">
-                <Label className={fieldLabelClass}>Status</Label>
+              <Field label="Status">
                 <Select
                   value={form.status}
                   onValueChange={(value) => setField("status", value)}
@@ -294,10 +288,9 @@ export function IssueDialog({
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </Field>
 
-              <div className="flex flex-col space-y-2">
-                <Label className={fieldLabelClass}>Priority</Label>
+              <Field label="Priority">
                 <Select
                   value={form.priority}
                   onValueChange={(value) => setField("priority", value)}
@@ -316,10 +309,9 @@ export function IssueDialog({
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </Field>
 
-              <div className="flex flex-col space-y-2">
-                <Label className={fieldLabelClass}>Estimate</Label>
+              <Field label="Estimate">
                 <Select
                   value={form.estimate || "none"}
                   onValueChange={(value) =>
@@ -343,19 +335,13 @@ export function IssueDialog({
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </Field>
             </div>
           </div>
 
           {/* Schedule */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="flex flex-col space-y-2">
-              <Label htmlFor="issue-start-date" className={fieldLabelClass}>
-                <span className="flex items-center gap-1.5">
-                  <CalendarDays className="h-3.5 w-3.5" />
-                  Start date
-                </span>
-              </Label>
+            <Field label="Start date" htmlFor="issue-start-date">
               <Input
                 id="issue-start-date"
                 type="date"
@@ -363,15 +349,9 @@ export function IssueDialog({
                 onChange={(e) => setField("startDate", e.target.value)}
                 className={controlClass}
               />
-            </div>
+            </Field>
 
-            <div className="flex flex-col space-y-2">
-              <Label htmlFor="issue-due-date" className={fieldLabelClass}>
-                <span className="flex items-center gap-1.5">
-                  <CalendarClock className="h-3.5 w-3.5" />
-                  Due date
-                </span>
-              </Label>
+            <Field label="Due date" htmlFor="issue-due-date">
               <Input
                 id="issue-due-date"
                 type="date"
@@ -379,17 +359,11 @@ export function IssueDialog({
                 onChange={(e) => setField("dueDate", e.target.value)}
                 className={controlClass}
               />
-            </div>
+            </Field>
           </div>
 
           {/* Labels */}
-          <div className="flex flex-col space-y-2">
-            <Label htmlFor="issue-labels" className={fieldLabelClass}>
-              <span className="flex items-center gap-1.5">
-                <Tag className="h-3.5 w-3.5" />
-                Labels
-              </span>
-            </Label>
+          <Field label="Labels" htmlFor="issue-labels">
             <div
               onMouseDown={(e) => {
                 if (e.target === e.currentTarget) {
@@ -439,10 +413,10 @@ export function IssueDialog({
                 className="h-7 min-w-[140px] flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-text-tertiary"
               />
             </div>
-          </div>
+          </Field>
         </div>
 
-        <div className="flex items-center justify-end gap-2 border-t border-border bg-surface-subtle/50 p-4">
+        <DialogFooter className="border-t border-border bg-surface-subtle/50 p-4">
           <Button
             type="button"
             variant="ghost"
@@ -469,7 +443,7 @@ export function IssueDialog({
               "Create Issue"
             )}
           </Button>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

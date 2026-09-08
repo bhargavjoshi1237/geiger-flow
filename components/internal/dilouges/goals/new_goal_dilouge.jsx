@@ -12,7 +12,6 @@ import {
 } from "@geiger/ui";
 import { Input } from "@geiger/ui";
 import { Button } from "@geiger/ui";
-import { Label } from "@geiger/ui";
 import { Textarea } from "@geiger/ui";
 import { Separator } from "@geiger/ui";
 import {
@@ -23,6 +22,7 @@ import {
   SelectValue,
 } from "@geiger/ui";
 import { Plus, X, Target, Pencil } from "lucide-react";
+import { Field } from "@/components/internal/shared/screen_kit";
 import {
   GOAL_STATUSES,
   PROGRESS_SOURCE_OPTIONS,
@@ -185,10 +185,7 @@ export function NewGoalDialog({
               General Information
             </h4>
             <div className="grid grid-cols-[1fr_160px] gap-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="goal-title" className="text-xs text-foreground">
-                  Goal Title *
-                </Label>
+              <Field label="Goal Title *" htmlFor="goal-title">
                 <Input
                   id="goal-title"
                   placeholder="e.g., Improve onboarding conversion rate"
@@ -196,9 +193,8 @@ export function NewGoalDialog({
                   onChange={(e) => set("title", e.target.value)}
                   className="bg-surface-card border-border focus-visible:ring-1 focus-visible:ring-ring text-foreground placeholder:text-text-tertiary h-10 text-sm"
                 />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs text-foreground">Status</Label>
+              </Field>
+              <Field label="Status">
                 <Select
                   value={formData.status}
                   onValueChange={(v) => set("status", v)}
@@ -218,11 +214,10 @@ export function NewGoalDialog({
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </Field>
             </div>
 
-            <div className="space-y-1.5">
-              <Label className="text-xs text-foreground">Description</Label>
+            <Field label="Description">
               <Textarea
                 placeholder="Describe what this goal aims to achieve..."
                 value={formData.description}
@@ -230,12 +225,9 @@ export function NewGoalDialog({
                 rows={3}
                 className="bg-surface-card border-border text-foreground placeholder:text-text-tertiary text-sm resize-none focus-visible:ring-1 focus-visible:ring-ring"
               />
-            </div>
+            </Field>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="goal-target-date" className="text-xs text-foreground">
-                Target Date
-              </Label>
+            <Field label="Target Date" htmlFor="goal-target-date">
               <Input
                 id="goal-target-date"
                 type="date"
@@ -243,7 +235,7 @@ export function NewGoalDialog({
                 onChange={(e) => set("targetDate", e.target.value)}
                 className="bg-surface-card border-border focus-visible:ring-1 focus-visible:ring-ring text-foreground h-10 text-sm"
               />
-            </div>
+            </Field>
           </div>
 
           <Separator className="bg-surface-hover" />
@@ -253,8 +245,7 @@ export function NewGoalDialog({
               Ownership & Progress
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-1.5">
-                <Label className="text-xs text-foreground">Progress Source</Label>
+              <Field label="Progress Source">
                 <Select
                   value={formData.progressSource}
                   onValueChange={(v) => set("progressSource", v)}
@@ -275,10 +266,9 @@ export function NewGoalDialog({
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </Field>
 
-              <div className="space-y-1.5">
-                <Label className="text-xs text-foreground">Track Metric</Label>
+              <Field label="Track Metric">
                 <Select
                   value={formData.trackMetric}
                   onValueChange={(v) => set("trackMetric", v)}
@@ -299,10 +289,9 @@ export function NewGoalDialog({
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </Field>
 
-              <div className="space-y-1.5">
-                <Label className="text-xs text-foreground">Target</Label>
+              <Field label="Target">
                 <Select
                   value={formData.target}
                   onValueChange={(v) => set("target", v)}
@@ -326,14 +315,11 @@ export function NewGoalDialog({
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </Field>
             </div>
 
             {formData.target === "static" && (
-              <div className="space-y-1.5">
-                <Label htmlFor="goal-target-value" className="text-xs text-foreground">
-                  Static Target Value
-                </Label>
+              <Field label="Static Target Value" htmlFor="goal-target-value">
                 <Input
                   id="goal-target-value"
                   type="number"
@@ -343,12 +329,11 @@ export function NewGoalDialog({
                   placeholder="Enter the fixed goal value"
                   className="bg-surface-card border-border focus-visible:ring-1 focus-visible:ring-ring text-foreground placeholder:text-text-tertiary h-10 text-sm"
                 />
-              </div>
+              </Field>
             )}
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="goal-owner" className="text-xs text-foreground">Owner</Label>
+              <Field label="Owner" htmlFor="goal-owner">
                 <Input
                   id="goal-owner"
                   value={formData.owner}
@@ -356,11 +341,8 @@ export function NewGoalDialog({
                   placeholder="e.g., You"
                   className="bg-surface-card border-border focus-visible:ring-1 focus-visible:ring-ring text-foreground placeholder:text-text-tertiary h-10 text-sm"
                 />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="goal-progress" className="text-xs text-foreground">
-                  Progress (%)
-                </Label>
+              </Field>
+              <Field label="Progress (%)" htmlFor="goal-progress">
                 <Input
                   id="goal-progress"
                   type="number"
@@ -375,7 +357,7 @@ export function NewGoalDialog({
                   }
                   className="bg-surface-card border-border focus-visible:ring-1 focus-visible:ring-ring text-foreground h-10 text-sm"
                 />
-              </div>
+              </Field>
             </div>
           </div>
 

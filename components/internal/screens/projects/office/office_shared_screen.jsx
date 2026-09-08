@@ -1,36 +1,44 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Clock,
-  FileText,
   Loader2,
-  Presentation,
-  Search,
-  Sheet,
   Users,
 } from "lucide-react";
-import { Input } from "@geiger/ui";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@geiger/ui";
+import { Button } from "@geiger/ui";
 import { createClient } from "@/utils/supabase/client";
 import { useProject } from "@/context/project-context";
+import {
+  DataTable,
+  EmptyState,
+  SearchInput,
+  StatsBar,
+  StatusPill,
+  Toolbar,
+} from "@/components/internal/shared/screen_kit";
+import {
+  ListPagination,
+  usePagination,
+} from "@/components/internal/shared/pagination";
+import FilterDropdown from "@/components/internal/screens/projects/overview/filter_dropdown";
 import {
   OFFICE_FILE_TYPE_LIST,
   getOfficeFileType,
   timeAgo,
 } from "@/lib/office/office-file-meta";
 
-const TYPE_ICONS = {
-  document: FileText,
-  spreadsheet: Sheet,
-  presentation: Presentation,
+// Config only — presentation lookup for the type StatusPill, never row data.
+const OFFICE_FILE_TYPE_MAP = {
+  document: { label: "Document", variant: "info", dotClass: "bg-sky-400" },
+  spreadsheet: { label: "Spreadsheet", variant: "success", dotClass: "bg-emerald-400" },
+  presentation: { label: "Presentation", variant: "warning", dotClass: "bg-amber-400" },
 };
+
+const TYPE_FILTER_OPTIONS = [
+  { value: "all", label: "All Types" },
+  ...OFFICE_FILE_TYPE_LIST.map((t) => ({ value: t.type, label: t.label })),
+];
 
 export function OfficeSharedScreen() {
   const { project } = useProject();
@@ -78,98 +86,138 @@ export function OfficeSharedScreen() {
     fetchSharedFiles();
   }, [fetchSharedFiles]);
 
-  const filtered = files.filter((f) => {
-    const matchesQuery = query.trim()
-      ? f.name.toLowerCase().includes(query.toLowerCase())
-      : true;
-    const matchesType = typeFilter !== "all" ? f.type === typeFilter : true;
-    return matchesQuery && matchesType;
+  const filtered = useMemo(
+    () =>
+      files.filter((f) => {
+        const matchesQuery = query.trim()
+          ? f.name.toLowerCase().includes(query.toLowerCase())
+          : true;
+        const matchesType = typeFilter !== "all" ? f.type === typeFilter : true;
+        return matchesQuery && matchesType;
+      }),
+    [files, query, typeFilter],
+  );
+
+  const pager = usePagination(filtered, {
+    resetKey: `${query}|${typeFilter}`,
   });
+
+  const stats = useMemo(
+    () => [
+      { label: "Shared files", value: String(files.length), footer: "With this project" },
+      { label: "Documents", value: String(files.filter((f) => f.type === "document").length), footer: "Text documents" },
+      { label: "Spreadsheets", value: String(files.filter((f) => f.type === "spreadsheet").length), footer: "Sheets" },
+      { label: "Presentations", value: String(files.filter((f) => f.type === "presentation").length), footer: "Slide decks" },
+    ],
+    [files],
+  );
+
+  const columns = [
+    {
+      key: "name",
+      header: "Name",
+      render: (file) => {
+        const meta = getOfficeFileType(file.type);
+        const Icon = meta.icon;
+        return (
+          <div className="flex min-w-0 items-center gap-3">
+            <div
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border"
+              style={{ backgroundColor: meta.accent + "1a" }}
+            >
+              <Icon className="h-4 w-4" style={{ color: meta.accent }} />
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium text-foreground">{file.name}</p>
+              <p className="text-xs text-text-secondary">{meta.label}</p>
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      key: "type",
+      header: "Type",
+      render: (file) => <StatusPill status={file.type} map={OFFICE_FILE_TYPE_MAP} />,
+    },
+    {
+      key: "shared",
+      header: "Shared",
+      render: (file) => (
+        <span className="whitespace-nowrap text-xs text-muted-foreground">
+          {timeAgo(file._sharedAt || file.updated_at)}
+        </span>
+      ),
+    },
+    {
+      key: "owner",
+      header: "Owner",
+      render: (file) => (
+        <span className="max-w-[180px] truncate text-xs text-muted-foreground">
+          {file._sharedBy || "—"}
+        </span>
+      ),
+    },
+  ];
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1">
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
-          <Input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search shared files"
-            className="h-9 pl-8 bg-surface-card border-border text-foreground placeholder:text-text-secondary focus:border-border-strong"
+      <StatsBar stats={stats} />
+
+      <Toolbar>
+        <div className="flex items-center gap-2">
+          <FilterDropdown
+            value={typeFilter}
+            onValueChange={setTypeFilter}
+            options={TYPE_FILTER_OPTIONS}
+            height="h-9"
           />
         </div>
-        <Select value={typeFilter} onValueChange={setTypeFilter}>
-          <SelectTrigger className="h-9 w-36 bg-surface-card border-border text-muted-foreground">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="bg-surface-card border-border">
-            <SelectItem value="all">All types</SelectItem>
-            {OFFICE_FILE_TYPE_LIST.map((t) => (
-              <SelectItem key={t.type} value={t.type}>
-                {t.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+        <SearchInput
+          value={query}
+          onChange={setQuery}
+          placeholder="Search shared files…"
+        />
+      </Toolbar>
 
       {loading ? (
-        <div className="flex min-h-[30vh] items-center justify-center text-text-secondary">
-          <Loader2 className="h-5 w-5 animate-spin" />
+        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Loading shared files…
         </div>
       ) : error ? (
         <div className="flex min-h-[30vh] flex-col items-center justify-center gap-3 text-center">
           <p className="text-sm text-red-300">{error}</p>
-        </div>
-      ) : filtered.length === 0 ? (
-        <div className="flex min-h-56 flex-col items-center justify-center rounded-md border border-dashed border-border bg-surface-subtle p-8 text-center">
-          <Users className="mb-3 h-6 w-6 text-text-tertiary" />
-          <p className="text-sm font-medium text-foreground">
-            {query.trim() ? "No files match your search" : "No shared files"}
-          </p>
-          <p className="mt-1 max-w-md text-xs leading-5 text-text-secondary">
-            {query.trim()
-              ? "Try a different search term."
-              : "Files shared with this project will appear here."}
-          </p>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={fetchSharedFiles}
+            className="border-border text-muted-foreground hover:bg-surface-active hover:text-foreground"
+          >
+            Try again
+          </Button>
         </div>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((file) => {
-            const meta = getOfficeFileType(file.type);
-            const Icon = meta.icon;
-            return (
-              <div
-                key={file.id}
-                className="flex flex-col gap-3 rounded-md border border-border bg-surface-subtle p-4"
-              >
-                <div className="flex items-start justify-between">
-                  <div
-                    className="flex h-9 w-9 items-center justify-center rounded-md border border-border"
-                    style={{ backgroundColor: meta.accent + "1a" }}
-                  >
-                    <Icon className="h-4 w-4" style={{ color: meta.accent }} />
-                  </div>
-                  <div className="flex items-center gap-1 text-[10px] text-text-tertiary">
-                    <Users className="h-3 w-3" />
-                    Shared
-                  </div>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-medium text-foreground truncate">
-                    {file.name}
-                  </h3>
-                  <p className="text-xs text-text-secondary mt-0.5">{meta.label}</p>
-                </div>
-                <div className="flex items-center justify-between border-t border-border pt-2.5">
-                  <div className="flex items-center gap-1 text-[10px] text-text-tertiary">
-                    <Clock className="h-3 w-3" />
-                    {timeAgo(file._sharedAt || file.updated_at)}
-                  </div>
-                </div>
+        <div className="space-y-5">
+          <DataTable
+            columns={columns}
+            data={pager.pageItems}
+            getRowKey={(f) => f.id}
+            empty={
+              <div className="rounded-xl border border-border bg-surface-subtle">
+                <EmptyState
+                  icon={query.trim() ? Clock : Users}
+                  title={query.trim() ? "No files match your search" : "No shared files"}
+                  description={
+                    query.trim()
+                      ? "Try a different search term."
+                      : "Files shared with this project will appear here."
+                  }
+                />
               </div>
-            );
-          })}
+            }
+          />
+          <ListPagination {...pager} itemLabel="files" />
         </div>
       )}
     </div>

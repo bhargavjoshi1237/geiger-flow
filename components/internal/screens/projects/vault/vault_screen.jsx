@@ -1,28 +1,50 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Key,
+  KeyRound,
   Plus,
-  Search,
+  Loader2,
 } from "lucide-react";
-import { Input } from "@geiger/ui";
+import { toast } from "sonner";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
+import {
+  EmptyState,
+  ScreenHeader,
+  SearchInput,
+  StatsBar,
+  Toolbar,
+} from "@/components/internal/shared/screen_kit";
+import {
+  ListPagination,
+  usePagination,
+} from "@/components/internal/shared/pagination";
+import { useProject } from "@/context/project-context";
 import { VaultItemCard } from "./vault_item_card";
 import { AddVaultItemDialog, VAULT_TYPES } from "./add_vault_item_dialog";
 import { VaultCredentialAccessDialog } from "./vault_credential_access_dialog";
 import { VaultAccessControl } from "./vault_access_control";
 import FilterDropdown from "../overview/filter_dropdown";
 import { Button } from "@geiger/ui";
+import {
+  listVaultItems,
+  createVaultItem,
+  updateVaultItem,
+  softDeleteVaultItem,
+} from "@/features/vault/actions";
 
-const initialVaultItems = [];
-
-function createVaultItemId() {
-  return `${new Date().getTime()}`;
-}
+const TYPE_FILTER_OPTIONS = [
+  { value: "all", label: "All Types" },
+  ...VAULT_TYPES.map((type) => ({ value: type.value, label: type.label })),
+];
 
 export function VaultScreen() {
-  const [vaultItems, setVaultItems] = useState(initialVaultItems);
+  const { project } = useProject();
+  const projectId = project?.id;
+
+  const [vaultItems, setVaultItems] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [editingItem, setEditingItem] = useState(null);
@@ -30,48 +52,148 @@ export function VaultScreen() {
   const [viewingAccessControl, setViewingAccessControl] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const filteredItems = vaultItems.filter((item) => {
-    const matchesSearch =
-      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.notes?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.username?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesType = filterType === "all" || item.type === filterType;
-    return matchesSearch && matchesType;
+  useEffect(() => {
+    if (!projectId) {
+      return;
+    }
+
+    let cancelled = false;
+
+    void listVaultItems(projectId).then((rows) => {
+      if (cancelled) {
+        return;
+      }
+      if (rows === null) {
+        toast.error("Couldn't load vault items.");
+      }
+      setVaultItems(rows ?? []);
+      setLoading(false);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [projectId]);
+
+  const filteredItems = useMemo(
+    () =>
+      vaultItems.filter((item) => {
+        const matchesSearch =
+          item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.notes?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.username?.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesType = filterType === "all" || item.type === filterType;
+        return matchesSearch && matchesType;
+      }),
+    [vaultItems, searchQuery, filterType],
+  );
+
+  const pager = usePagination(filteredItems, {
+    resetKey: `${searchQuery}|${filterType}`,
   });
 
-  const handleAddItem = (newItem) => {
-    const item = {
-      ...newItem,
-      id: createVaultItemId(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+  const stats = useMemo(() => {
+    const withAccessControl = vaultItems.filter((item) => item.accessControl).length;
+    const keyless = vaultItems.filter((item) => item.keylessEntry).length;
+    return [
+      { label: "Total secrets", value: String(vaultItems.length), footer: `${VAULT_TYPES.length} secret types` },
+      { label: "Passwords", value: String(vaultItems.filter((item) => item.type === "password").length), footer: "Password secrets" },
+      { label: "API keys", value: String(vaultItems.filter((item) => item.type === "api_key").length), footer: "API key secrets" },
+      { label: "Access controlled", value: String(withAccessControl), footer: `${keyless} keyless` },
+    ];
+  }, [vaultItems]);
+
+  // Maps the dialog's form payload onto the persisted shape.
+  const toItemInput = (form) => ({
+    name: form.name,
+    type: form.type,
+    secret: form.secret || "",
+    url: form.url || "",
+    notes: form.notes || "",
+    accessSetup: form.accessSetup,
+  });
+
+  const handleAddItem = async (form) => {
+    const optimisticId = crypto.randomUUID();
+    const optimistic = {
+      id: optimisticId,
+      projectId,
+      username: "",
+      ...toItemInput(form),
     };
-    setVaultItems([...vaultItems, item]);
+
+    setVaultItems((prev) => [...prev, optimistic]);
+
+    const created = await createVaultItem(projectId, { ...optimistic, id: optimisticId });
+    if (!created) {
+      setVaultItems((prev) => prev.filter((item) => item.id !== optimisticId));
+      toast.error("Couldn't save the secret.");
+      return;
+    }
+
+    setVaultItems((prev) => prev.map((item) => (item.id === created.id ? created : item)));
+    toast.success("Secret saved");
   };
 
-  const handleUpdateItem = (updatedItem) => {
-    setVaultItems(
-      vaultItems.map((item) =>
-        item.id === updatedItem.id
-          ? { ...updatedItem, updatedAt: new Date().toISOString() }
-          : item,
-      ),
+  const handleUpdateItem = async (updatedForm) => {
+    const previous = vaultItems.find((item) => item.id === updatedForm.id);
+    if (!previous) {
+      return;
+    }
+
+    const optimistic = { ...previous, ...toItemInput(updatedForm), id: previous.id };
+    setVaultItems((prev) =>
+      prev.map((item) => (item.id === previous.id ? optimistic : item)),
     );
+
+    const updated = await updateVaultItem(previous.id, toItemInput(updatedForm));
+    if (!updated) {
+      setVaultItems((prev) =>
+        prev.map((item) => (item.id === previous.id ? previous : item)),
+      );
+      toast.error("Couldn't save the secret.");
+      return;
+    }
+
+    setVaultItems((prev) => prev.map((item) => (item.id === updated.id ? updated : item)));
+    toast.success("Secret updated");
   };
 
-  const handleDeleteItem = (itemId) => {
-    setVaultItems(vaultItems.filter((item) => item.id !== itemId));
+  const handleDeleteItem = async (itemId) => {
+    const previous = vaultItems.find((item) => item.id === itemId);
+    setVaultItems((prev) => prev.filter((item) => item.id !== itemId));
+
+    const ok = await softDeleteVaultItem(itemId);
+    if (!ok) {
+      setVaultItems((prev) => (previous ? [...prev, previous] : prev));
+      toast.error("Couldn't delete the secret.");
+    } else {
+      toast.success("Secret deleted");
+    }
   };
 
-  const handleDuplicate = (item) => {
+  const handleDuplicate = async (item) => {
+    const optimisticId = crypto.randomUUID();
     const duplicate = {
       ...item,
-      id: createVaultItemId(),
+      id: optimisticId,
       name: `${item.name} (Copy)`,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
     };
-    setVaultItems([...vaultItems, duplicate]);
+
+    setVaultItems((prev) => [...prev, duplicate]);
+
+    const created = await createVaultItem(projectId, {
+      ...duplicate,
+      id: optimisticId,
+    });
+    if (!created) {
+      setVaultItems((prev) => prev.filter((entry) => entry.id !== optimisticId));
+      toast.error("Couldn't duplicate the secret.");
+      return;
+    }
+
+    setVaultItems((prev) => prev.map((entry) => (entry.id === created.id ? created : entry)));
+    toast.success("Secret duplicated");
   };
 
   const handleRevealSecret = (item) => {
@@ -86,99 +208,114 @@ export function VaultScreen() {
 
   return (
     <MainScreenWrapper>
-      <div className="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-center sm:justify-between">
-        <div className="min-w-0">
-          <h1 className="text-3xl font-bold text-foreground">Vault</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage your assets and store them securely.
-          </p>
-        </div>
-        <AddVaultItemDialog
-          key={editingItem?.id || "new-vault-item"}
-          open={dialogOpen} 
-          onOpenChange={(open) => {
-            setDialogOpen(open);
-            if (!open) setEditingItem(null);
-          }}
-          item={editingItem}
-          onSave={(item) => {
-            if (editingItem) {
-              handleUpdateItem(item);
-            } else {
-              handleAddItem(item);
-            }
-            setDialogOpen(false);
-            setEditingItem(null);
-          }}
-        >
-          <Button 
+      <ScreenHeader
+        title="Vault"
+        description="Manage your assets and store them securely."
+        actions={
+          <Button
             onClick={() => {
               setEditingItem(null);
               setDialogOpen(true);
             }}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold flex w-full items-center justify-center gap-2 transition-colors sm:w-auto"
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
-            <Plus className="w-4 h-4 text-primary-foreground font-bold stroke-[3]" />
+            <Plus className="h-4 w-4" />
             Add Secret
           </Button>
-        </AddVaultItemDialog>
-      </div>
+        }
+      />
 
-      <div className="flex flex-col gap-3 mb-6 sm:flex-row sm:items-center">
-        <div className="relative w-full sm:max-w-md sm:flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
-          <Input
-            placeholder="Search secrets..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="!pl-10 !pr-4 !py-[7px] bg-surface-subtle border-border text-foreground text-sm placeholder:text-text-secondary focus-visible:ring-0 focus-visible:border-border-strong"
-          />
-        </div>
-        <div className="flex w-full sm:w-auto">
+      <StatsBar stats={stats} />
+
+      <Toolbar>
+        <div className="flex items-center gap-2">
           <FilterDropdown
             value={filterType}
             onValueChange={setFilterType}
-            options={VAULT_TYPES.map(type => ({ value: type.value, label: type.label }))}
+            options={TYPE_FILTER_OPTIONS}
             placeholder="Select type"
-            height="h-10"
+            height="h-9"
           />
         </div>
-      </div>
+        <SearchInput
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder="Search secrets…"
+        />
+      </Toolbar>
 
-      {filteredItems.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-border rounded-2xl">
-          <div className="w-16 h-16 rounded-2xl bg-surface-subtle flex items-center justify-center mb-4">
-            <Key className="w-7 h-7 text-text-tertiary" strokeWidth={1.5} />
-          </div>
-          <p className="text-muted-foreground font-medium mb-1">
-            {searchQuery || filterType !== "all"
-              ? "No secrets found"
-              : "No secrets yet"}
-          </p>
-          <p className="text-text-secondary text-sm">
-            {searchQuery || filterType !== "all"
-              ? "Try adjusting your search or filters"
-              : "Add your first secret to get started"}
-          </p>
+      {loading ? (
+        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Loading vault…
+        </div>
+      ) : filteredItems.length === 0 ? (
+        <div className="rounded-xl border border-border bg-surface-subtle">
+          <EmptyState
+            icon={searchQuery || filterType !== "all" ? KeyRound : Key}
+            title={
+              searchQuery || filterType !== "all"
+                ? "No secrets found"
+                : "No secrets yet"
+            }
+            description={
+              searchQuery || filterType !== "all"
+                ? "Try adjusting your search or filters."
+                : "Add your first secret to get started."
+            }
+            action={
+              <Button
+                onClick={() => {
+                  setEditingItem(null);
+                  setDialogOpen(true);
+                }}
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
+              >
+                <Plus className="h-4 w-4" />
+                Add Secret
+              </Button>
+            }
+          />
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredItems.map((item) => (
-            <VaultItemCard
-              key={item.id}
-              item={item}
-              onEdit={() => {
-                setEditingItem(item);
-                setDialogOpen(true);
-              }}
-              onDelete={() => handleDeleteItem(item.id)}
-              onDuplicate={() => handleDuplicate(item)}
-              onAccessCredential={() => handleRevealSecret(item)}
-              onAccessControl={() => handleOpenAccessControl(item)}
-            />
-          ))}
+        <div className="space-y-5">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {pager.pageItems.map((item) => (
+              <VaultItemCard
+                key={item.id}
+                item={item}
+                onEdit={() => {
+                  setEditingItem(item);
+                  setDialogOpen(true);
+                }}
+                onDelete={() => handleDeleteItem(item.id)}
+                onDuplicate={() => handleDuplicate(item)}
+                onAccessCredential={() => handleRevealSecret(item)}
+                onAccessControl={() => handleOpenAccessControl(item)}
+              />
+            ))}
+          </div>
+          <ListPagination {...pager} itemLabel="secrets" />
         </div>
       )}
+      <AddVaultItemDialog
+        key={editingItem?.id || "new-vault-item"}
+        open={dialogOpen}
+        onOpenChange={(open) => {
+          setDialogOpen(open);
+          if (!open) setEditingItem(null);
+        }}
+        item={editingItem}
+        onSave={(item) => {
+          if (editingItem) {
+            handleUpdateItem(item);
+          } else {
+            handleAddItem(item);
+          }
+          setDialogOpen(false);
+          setEditingItem(null);
+        }}
+      />
       {accessingItem && (
         <VaultCredentialAccessDialog
           item={accessingItem}
@@ -205,3 +342,5 @@ export function VaultScreen() {
     </MainScreenWrapper>
   );
 }
+
+export default VaultScreen;

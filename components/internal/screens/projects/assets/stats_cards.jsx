@@ -1,6 +1,8 @@
+"use client";
+
 import React from "react";
 import { Card, CardContent } from "@geiger/ui";
-import { FolderOpen, HardDrive, Download, Layers } from "lucide-react";
+import { FolderOpen, HardDrive, Layers, File } from "lucide-react";
 
 export function StatsCard({ icon: Icon, label, value }) {
   return (
@@ -18,13 +20,17 @@ export function StatsCard({ icon: Icon, label, value }) {
   );
 }
 
-export function StatsRow() {
+// stats: { total, storageUsed, typeCount, largest } — all derived from the
+// fetched rows in assets_screen (see useMemo there).
+export function StatsRow({ stats }) {
+  const { total = 0, storageUsed = "0 B", typeCount = 0, largest = "0 B" } = stats ?? {};
+
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-      <StatsCard icon={FolderOpen} label="Total Assets" value="0" />
-      <StatsCard icon={HardDrive} label="Storage Used" value="0 B" />
-      <StatsCard icon={Download} label="Downloads" value="0" />
-      <StatsCard icon={Layers} label="Asset Types" value="0" />
+      <StatsCard icon={FolderOpen} label="Total Assets" value={String(total)} />
+      <StatsCard icon={HardDrive} label="Storage Used" value={storageUsed} />
+      <StatsCard icon={Layers} label="Asset Types" value={String(typeCount)} />
+      <StatsCard icon={File} label="Largest Asset" value={largest} />
     </div>
   );
 }

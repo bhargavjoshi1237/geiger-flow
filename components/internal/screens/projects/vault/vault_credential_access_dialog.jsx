@@ -11,6 +11,7 @@ import {
 } from "@geiger/ui";
 import { Button } from "@geiger/ui";
 import { Input } from "@geiger/ui";
+import { Field } from "@/components/internal/shared/screen_kit";
 import {
   InputOTP,
   InputOTPGroup,
@@ -137,12 +138,13 @@ export function VaultCredentialAccessDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="grid gap-4">
           {!isUnlocked ? (
             <div className="space-y-4">
               <div className="rounded-xl p-4">
-                 
+
                 {activeMethod === "pin" && (
+                  <Field label="PIN">
                   <InputOTP
                     maxLength={pinLength}
                     value={pin}
@@ -160,9 +162,11 @@ export function VaultCredentialAccessDialog({
                       ))}
                     </InputOTPGroup>
                   </InputOTP>
+                  </Field>
                 )}
 
                 {activeMethod === "password" && (
+                  <Field label="Passphrase">
                   <Input
                     type="password"
                     placeholder="Enter passphrase"
@@ -171,6 +175,7 @@ export function VaultCredentialAccessDialog({
                     disabled={isLockedOut}
                     className="bg-background border-border text-foreground placeholder:text-text-tertiary h-9"
                   />
+                  </Field>
                 )}
 
                 {activeMethod === "passkey" && (
@@ -212,9 +217,9 @@ export function VaultCredentialAccessDialog({
         <DialogFooter className="gap-3">
           <Button
             type="button"
-            variant="outline"
+            variant="ghost"
             onClick={() => onOpenChange(false)}
-            className="flex-1 border-border text-text-secondary hover:text-foreground hover:bg-surface-card hover:border-border-strong h-9"
+            className="flex-1 h-9"
           >
             Close
           </Button>

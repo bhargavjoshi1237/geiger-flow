@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { ExternalLink, Plus, Trash2 } from "lucide-react";
+import { useMemo, useState } from "react";
+import { ExternalLink, Link2, Plus, Trash2 } from "lucide-react";
 import { Badge } from "@geiger/ui";
 import { Button } from "@geiger/ui";
+import { ActionMenu } from "@geiger/ui";
 import {
   Dialog,
   DialogContent,
@@ -11,10 +12,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@geiger/ui";
 import { Input } from "@geiger/ui";
-import { Label } from "@geiger/ui";
 import {
   Select,
   SelectContent,
@@ -23,20 +22,27 @@ import {
   SelectValue,
 } from "@geiger/ui";
 import { Switch } from "@geiger/ui";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@geiger/ui";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
+import {
+  DataTable,
+  EmptyState,
+  Field,
+  ScreenHeader,
+  SearchInput,
+  StatsBar,
+  Toolbar,
+} from "@/components/internal/shared/screen_kit";
+import {
+  ListPagination,
+  usePagination,
+} from "@/components/internal/shared/pagination";
+import FilterDropdown from "@/components/internal/screens/projects/overview/filter_dropdown";
 import {
   EXTERNAL_ICON_OPTIONS,
   ExternalLinkIcon,
   normalizeExternalUrl,
 } from "@/components/internal/externals/external_links";
+import { Loader2 } from "lucide-react";
 
 const DEFAULT_FORM = {
   title: "",
@@ -47,6 +53,13 @@ const DEFAULT_FORM = {
   showOnDashboard: true,
   openInNewTab: true,
 };
+
+const PLACEMENT_FILTER_OPTIONS = [
+  { value: "all", label: "All Placements" },
+  { value: "topbar", label: "Top bar" },
+  { value: "dashboard", label: "Dashboard" },
+  { value: "newtab", label: "New tab" },
+];
 
 function VisibilityBadge({ active, children }) {
   return (
@@ -63,9 +76,12 @@ function VisibilityBadge({ active, children }) {
   );
 }
 
-export function ExternalsScreen({ links = [], onCreateLink, onDeleteLink }) {
+export function ExternalsScreen({ links = [], linksLoading = false, onCreateLink, onDeleteLink }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(DEFAULT_FORM);
+  const [search, setSearch] = useState("");
+  const [placement, setPlacement] = useState("all");
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const updateForm = (key, value) => {
     setForm((current) => ({ ...current, [key]: value }));
@@ -82,7 +98,6 @@ export function ExternalsScreen({ links = [], onCreateLink, onDeleteLink }) {
     }
 
     onCreateLink?.({
-      id: `${Date.now()}`,
       title,
       url: normalizedUrl,
       icon: form.icon,
@@ -90,72 +105,230 @@ export function ExternalsScreen({ links = [], onCreateLink, onDeleteLink }) {
       showOnTopbar: form.showOnTopbar,
       showOnDashboard: form.showOnDashboard,
       openInNewTab: form.openInNewTab,
-      createdAt: new Date().toISOString(),
     });
 
     setForm(DEFAULT_FORM);
     setOpen(false);
   };
 
-  return (
-    <MainScreenWrapper className="flex flex-col gap-8 space-y-0 text-foreground">
-      <div className="flex flex-col gap-4 border-b border-border pb-6 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-semibold text-foreground tracking-tight">
-            Externals
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Save app-related external links and choose where they appear.
-          </p>
-        </div>
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return links.filter((link) => {
+      if (placement === "topbar" && !link.showOnTopbar) return false;
+      if (placement === "dashboard" && !link.showOnDashboard) return false;
+      if (placement === "newtab" && !link.openInNewTab) return false;
+      if (
+        q &&
+        !`${link.title} ${link.url}`.toLowerCase().includes(q)
+      )
+        return false;
+      return true;
+    });
+  }, [links, search, placement]);
 
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button className="h-9 bg-primary text-primary-foreground hover:bg-primary/90">
-              <Plus className="h-4 w-4" />
-              Create external
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="border-border bg-surface-subtle text-foreground sm:max-w-xl">
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <DialogHeader>
-                <DialogTitle>Create external link</DialogTitle>
-                <DialogDescription className="text-muted-foreground">
-                  Add a link, choose its icon, and decide where it should be shown.
-                </DialogDescription>
-              </DialogHeader>
+  const pager = usePagination(filtered, {
+    resetKey: `${search}|${placement}`,
+  });
+
+  const stats = useMemo(
+    () => [
+      { label: "Total links", value: String(links.length), footer: "External links" },
+      { label: "Top bar", value: String(links.filter((l) => l.showOnTopbar).length), footer: "Shown on top bar" },
+      { label: "Dashboard", value: String(links.filter((l) => l.showOnDashboard).length), footer: "Shown on dashboard" },
+      { label: "New tab", value: String(links.filter((l) => l.openInNewTab).length), footer: "Open in new tab" },
+    ],
+    [links],
+  );
+
+  const columns = [
+    {
+      key: "link",
+      header: "Link",
+      render: (link) => (
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-md border border-border bg-surface-subtle">
+            <ExternalLinkIcon
+              iconName={link.icon}
+              className="h-4 w-4"
+              style={{ color: link.textColor }}
+            />
+          </div>
+          <span
+            className="truncate font-medium"
+            style={{ color: link.textColor }}
+          >
+            {link.title}
+          </span>
+        </div>
+      ),
+    },
+    {
+      key: "url",
+      header: "URL",
+      render: (link) => (
+        <a
+          href={link.url}
+          target={link.openInNewTab ? "_blank" : undefined}
+          rel={link.openInNewTab ? "noreferrer" : undefined}
+          onClick={(e) => e.stopPropagation()}
+          className="block max-w-[360px] truncate text-muted-foreground hover:text-foreground"
+        >
+          {link.url}
+        </a>
+      ),
+    },
+    {
+      key: "placement",
+      header: "Placement",
+      render: (link) => (
+        <div className="flex flex-wrap gap-2">
+          <VisibilityBadge active={link.showOnTopbar}>
+            Top bar
+          </VisibilityBadge>
+          <VisibilityBadge active={link.showOnDashboard}>
+            Dashboard
+          </VisibilityBadge>
+          <VisibilityBadge active={link.openInNewTab}>
+            New tab
+          </VisibilityBadge>
+        </div>
+      ),
+    },
+    {
+      key: "actions",
+      header: "",
+      align: "right",
+      className: "text-right",
+      render: (link) => (
+        <ActionMenu
+          label={`Actions for ${link.title}`}
+          items={[
+            {
+              icon: ExternalLink,
+              label: "Open link",
+              onSelect: () => window.open(link.url, link.openInNewTab ? "_blank" : "_self", "noopener,noreferrer"),
+            },
+            { separator: true },
+            {
+              icon: Trash2,
+              label: "Delete",
+              destructive: true,
+              onSelect: () => setDeleteTarget(link),
+            },
+          ]}
+        />
+      ),
+    },
+  ];
+
+  return (
+    <MainScreenWrapper className="text-foreground">
+      <ScreenHeader
+        title="Externals"
+        description="Save app-related external links and choose where they appear."
+        actions={
+          <Button
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
+            onClick={() => setOpen(true)}
+          >
+            <Plus className="h-4 w-4" />
+            Create external
+          </Button>
+        }
+      />
+
+      <StatsBar stats={stats} />
+
+      <Toolbar>
+        <div className="flex items-center gap-2">
+          <FilterDropdown
+            value={placement}
+            onValueChange={setPlacement}
+            options={PLACEMENT_FILTER_OPTIONS}
+            height="h-9"
+          />
+        </div>
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="Search links…"
+        />
+      </Toolbar>
+
+      {linksLoading ? (
+        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Loading links…
+        </div>
+      ) : (
+        <div className="space-y-5">
+          <DataTable
+            columns={columns}
+            data={pager.pageItems}
+            getRowKey={(link) => link.id}
+            onRowClick={(link) => window.open(link.url, link.openInNewTab ? "_blank" : "_self", "noopener,noreferrer")}
+            empty={
+              <div className="rounded-xl border border-border bg-surface-subtle">
+                <EmptyState
+                  icon={Link2}
+                  title={links.length ? "No links match your filters" : "No external links yet"}
+                  description={
+                    links.length
+                      ? "Try clearing the search or filters."
+                      : "Create one to surface it on the top bar or dashboard."
+                  }
+                  action={
+                    <Button
+                      className="bg-primary text-primary-foreground hover:bg-primary/90"
+                      onClick={() => setOpen(true)}
+                    >
+                      <Plus className="h-4 w-4" />
+                      Create external
+                    </Button>
+                  }
+                />
+              </div>
+            }
+          />
+          <ListPagination {...pager} itemLabel="links" />
+        </div>
+      )}
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="border-border bg-surface-subtle text-foreground sm:max-w-xl">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <DialogHeader>
+              <DialogTitle>Create external link</DialogTitle>
+              <DialogDescription className="text-muted-foreground">
+                Add a link, choose its icon, and decide where it should be shown.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="grid gap-4">
+              <Field label="Name" htmlFor="external-title">
+                <Input
+                  id="external-title"
+                  value={form.title}
+                  onChange={(event) => updateForm("title", event.target.value)}
+                  placeholder="Documentation"
+                  className="border-border bg-surface-card text-foreground placeholder:text-text-secondary"
+                  required
+                />
+              </Field>
+
+              <Field label="URL" htmlFor="external-url">
+                <Input
+                  id="external-url"
+                  value={form.url}
+                  onChange={(event) => updateForm("url", event.target.value)}
+                  placeholder="https://example.com"
+                  className="border-border bg-surface-card text-foreground placeholder:text-text-secondary"
+                  required
+                />
+              </Field>
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2 sm:col-span-2">
-                  <Label htmlFor="external-title" className="text-foreground">
-                    Name
-                  </Label>
-                  <Input
-                    id="external-title"
-                    value={form.title}
-                    onChange={(event) => updateForm("title", event.target.value)}
-                    placeholder="Documentation"
-                    className="border-border bg-surface-card text-foreground placeholder:text-text-secondary"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2 sm:col-span-2">
-                  <Label htmlFor="external-url" className="text-foreground">
-                    URL
-                  </Label>
-                  <Input
-                    id="external-url"
-                    value={form.url}
-                    onChange={(event) => updateForm("url", event.target.value)}
-                    placeholder="https://example.com"
-                    className="border-border bg-surface-card text-foreground placeholder:text-text-secondary"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-foreground">Icon</Label>
+                <Field label="Icon">
                   <Select
                     value={form.icon}
                     onValueChange={(value) => updateForm("icon", value)}
@@ -175,12 +348,9 @@ export function ExternalsScreen({ links = [], onCreateLink, onDeleteLink }) {
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
+                </Field>
 
-                <div className="space-y-2">
-                  <Label htmlFor="external-color" className="text-foreground">
-                    Text color
-                  </Label>
+                <Field label="Text color" htmlFor="external-color">
                   <div className="flex h-10 items-center gap-2 rounded-md border border-border bg-surface-card px-3">
                     <input
                       id="external-color"
@@ -193,7 +363,7 @@ export function ExternalsScreen({ links = [], onCreateLink, onDeleteLink }) {
                     />
                     <span className="text-sm text-muted-foreground">{form.textColor}</span>
                   </div>
-                </div>
+                </Field>
               </div>
 
               <div className="rounded-lg border border-border bg-surface-card">
@@ -227,107 +397,56 @@ export function ExternalsScreen({ links = [], onCreateLink, onDeleteLink }) {
                   {form.title || "External preview"}
                 </span>
               </div>
+            </div>
 
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="border-border bg-surface-card text-foreground hover:bg-surface-hover"
-                  onClick={() => setOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" className="bg-primary text-primary-foreground hover:bg-primary/90">
-                  Save external
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" className="bg-primary text-primary-foreground hover:bg-primary/90">
+                Save external
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
-      <div className="overflow-hidden rounded-lg border border-border bg-surface-card">
-        {links.length === 0 ? (
-          <div className="p-12 text-center">
-            <ExternalLink className="mx-auto mb-3 h-7 w-7 text-text-tertiary" />
-            <p className="text-sm font-medium text-foreground">No external links yet</p>
-            <p className="mt-1 text-xs text-text-secondary">
-              Create one to surface it on the top bar or dashboard.
-            </p>
-          </div>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Link</TableHead>
-                <TableHead>URL</TableHead>
-                <TableHead>Placement</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {links.map((link) => {
-                return (
-                  <TableRow key={link.id}>
-                    <TableCell>
-                      <div className="flex min-w-0 items-center gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-md border border-border bg-surface-subtle">
-                          <ExternalLinkIcon
-                            iconName={link.icon}
-                            className="h-4 w-4"
-                            style={{ color: link.textColor }}
-                          />
-                        </div>
-                        <span
-                          className="truncate font-medium"
-                          style={{ color: link.textColor }}
-                        >
-                          {link.title}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <a
-                        href={link.url}
-                        target={link.openInNewTab ? "_blank" : undefined}
-                        rel={link.openInNewTab ? "noreferrer" : undefined}
-                        className="block max-w-[360px] truncate text-muted-foreground hover:text-foreground"
-                      >
-                        {link.url}
-                      </a>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-2">
-                        <VisibilityBadge active={link.showOnTopbar}>
-                          Top bar
-                        </VisibilityBadge>
-                        <VisibilityBadge active={link.showOnDashboard}>
-                          Dashboard
-                        </VisibilityBadge>
-                        <VisibilityBadge active={link.openInNewTab}>
-                          New tab
-                        </VisibilityBadge>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-sm"
-                        className="text-text-secondary hover:bg-surface-hover hover:text-foreground"
-                        onClick={() => onDeleteLink?.(link.id)}
-                        aria-label={`Delete ${link.title}`}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        )}
-      </div>
+      <Dialog
+        open={!!deleteTarget}
+        onOpenChange={(isOpen) => !isOpen && setDeleteTarget(null)}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete external link</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete{" "}
+              <span className="font-medium text-foreground">
+                {deleteTarget?.title}
+              </span>
+              ? This action can&apos;t be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setDeleteTarget(null)}>
+              Cancel
+            </Button>
+            <Button
+              className="bg-red-500/90 text-white hover:bg-red-500"
+              onClick={() => {
+                const target = deleteTarget;
+                setDeleteTarget(null);
+                if (target) onDeleteLink?.(target.id);
+              }}
+            >
+              <Trash2 className="h-4 w-4" /> Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </MainScreenWrapper>
   );
 }
