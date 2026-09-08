@@ -6,6 +6,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { toast } from "sonner";
@@ -108,8 +109,8 @@ export function TrackerProvider({ children }) {
     void listOrgMembers(organizationId).then((rows) => setMembers(rows ?? []));
   }, [organizationId]);
 
-  // Assignees can be workspace users who aren't org members (or whose profile
-  // row is missing), so backfill anything the member list didn't cover.
+  const requestedProfileIds = useRef(new Set());
+
   useEffect(() => {
     const ids = new Set();
     for (const issue of issues) {
@@ -117,12 +118,15 @@ export function TrackerProvider({ children }) {
       if (issue.createdBy) ids.add(issue.createdBy);
     }
     for (const member of members) ids.delete(member.id);
-    const missing = [...ids].filter((id) => !profiles[id]);
+    const missing = [...ids].filter(
+      (id) => !requestedProfileIds.current.has(id),
+    );
     if (missing.length === 0) return;
+    for (const id of missing) requestedProfileIds.current.add(id);
     void getProfilesByIds(missing).then((map) => {
       setProfiles((current) => ({ ...current, ...map }));
     });
-  }, [issues, members, profiles]);
+  }, [issues, members]);
 
   const peopleById = useMemo(() => {
     const map = { ...profiles };
