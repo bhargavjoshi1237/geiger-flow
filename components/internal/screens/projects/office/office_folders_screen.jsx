@@ -41,6 +41,7 @@ import {
   FOLDER_COLORS,
   timeAgo,
 } from "@/lib/office/office-file-meta";
+import { cn } from "@/lib/utils";
 
 export function OfficeFoldersScreen() {
   const { project } = useProject();
@@ -244,7 +245,7 @@ export function OfficeFoldersScreen() {
           <div
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border"
             style={{
-              backgroundColor: (folder.color || "#4285f4") + "1a",
+              backgroundColor: `${folder.color || FOLDER_COLORS[0]}1a`,
             }}
           >
             <FolderOpen
@@ -299,10 +300,12 @@ export function OfficeFoldersScreen() {
         return (
           <div className="flex min-w-0 items-center gap-3">
             <div
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border"
-              style={{ backgroundColor: meta.accent + "1a" }}
+              className={cn(
+                "flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border",
+                meta.tintClass,
+              )}
             >
-              <Icon className="h-4 w-4" style={{ color: meta.accent }} />
+              <Icon className={cn("h-4 w-4", meta.iconClass)} />
             </div>
             <div className="min-w-0">
               <p className="truncate text-sm font-medium text-foreground">{file.name}</p>
@@ -570,11 +573,11 @@ function CreateFolderDialog({ open, onOpenChange, onSubmit }) {
                     type="button"
                     onClick={() => setColor(c)}
                     aria-label={`Folder color ${c}`}
-                    className="h-6 w-6 rounded-full border-2 transition-colors"
-                    style={{
-                      backgroundColor: c,
-                      borderColor: color === c ? "#fff" : "transparent",
-                    }}
+                    className={cn(
+                      "h-6 w-6 rounded-full ring-2 ring-offset-2 ring-offset-surface-dialog transition-all",
+                      color === c ? "ring-foreground" : "ring-transparent",
+                    )}
+                    style={{ backgroundColor: c }}
                   />
                 ))}
               </div>
@@ -799,10 +802,7 @@ function AddToFolderDialog({
                         onChange={() => toggleSelect(file.id)}
                         className="accent-white"
                       />
-                      <Icon
-                        className="h-4 w-4 shrink-0"
-                        style={{ color: meta.accent }}
-                      />
+                      <Icon className={cn("h-4 w-4 shrink-0", meta.iconClass)} />
                       <span className="truncate text-sm text-foreground">
                         {file.name}
                       </span>

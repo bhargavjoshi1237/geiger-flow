@@ -483,7 +483,7 @@ export function ProjectionsScreen() {
 
                   <div
                   className="pointer mr-2 flex flex-col items-center justify-center w-11 h-11 rounded-lg border border-border bg-surface-active text-center leading-none">
-                    <span className="text-[9px] font-bold text-[#60a5fa] uppercase tracking-widest">
+                    <span className="text-[9px] font-bold text-blue-400 uppercase tracking-widest">
                       {MONTHS[today.getMonth()].slice(0, 3)}
                     </span>
                     <span className="text-[17px] font-bold text-foreground leading-none mt-0.5">

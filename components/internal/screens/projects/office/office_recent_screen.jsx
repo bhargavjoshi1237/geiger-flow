@@ -46,21 +46,13 @@ import FilterDropdown from "@/components/internal/screens/projects/overview/filt
 import {
   OFFICE_FILE_TYPES,
   OFFICE_FILE_TYPE_LIST,
+  OFFICE_FILE_TYPE_MAP,
+  OFFICE_TYPE_FILTER_OPTIONS,
   getOfficeFileType,
   timeAgo,
 } from "@/lib/office/office-file-meta";
+import { cn } from "@/lib/utils";
 
-// Config only — presentation lookup for the type StatusPill, never row data.
-const OFFICE_FILE_TYPE_MAP = {
-  document: { label: "Document", variant: "info", dotClass: "bg-sky-400" },
-  spreadsheet: { label: "Spreadsheet", variant: "success", dotClass: "bg-emerald-400" },
-  presentation: { label: "Presentation", variant: "warning", dotClass: "bg-amber-400" },
-};
-
-const TYPE_FILTER_OPTIONS = [
-  { value: "all", label: "All Types" },
-  ...OFFICE_FILE_TYPE_LIST.map((t) => ({ value: t.type, label: t.label })),
-];
 
 export function OfficeRecentScreen() {
   const { project } = useProject();
@@ -222,17 +214,19 @@ export function OfficeRecentScreen() {
         return (
           <div className="flex min-w-0 items-center gap-3">
             <div
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border"
-              style={{ backgroundColor: meta.accent + "1a" }}
+              className={cn(
+                "flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border",
+                meta.tintClass,
+              )}
             >
-              <Icon className="h-4 w-4" style={{ color: meta.accent }} />
+              <Icon className={cn("h-4 w-4", meta.iconClass)} />
             </div>
             <div className="min-w-0">
               <p className="truncate text-sm font-medium text-foreground">{file.name}</p>
               <p className="text-xs text-text-secondary">{meta.label}</p>
             </div>
             {file.starred && (
-              <Star className="h-3.5 w-3.5 shrink-0 fill-[#f4b400] text-[#f4b400]" />
+              <Star className="h-3.5 w-3.5 shrink-0 fill-amber-400 text-amber-400" />
             )}
           </div>
         );
@@ -281,7 +275,7 @@ export function OfficeRecentScreen() {
           <FilterDropdown
             value={typeFilter}
             onValueChange={setTypeFilter}
-            options={TYPE_FILTER_OPTIONS}
+            options={OFFICE_TYPE_FILTER_OPTIONS}
             height="h-9"
           />
         </div>
@@ -304,7 +298,7 @@ export function OfficeRecentScreen() {
               {OFFICE_FILE_TYPE_LIST.map((t) => (
                 <SelectItem key={t.type} value={t.type}>
                   <div className="flex items-center gap-2">
-                    <t.icon className="h-4 w-4" style={{ color: t.accent }} />
+                    <t.icon className={cn("h-4 w-4", t.iconClass)} />
                     {t.label}
                   </div>
                 </SelectItem>

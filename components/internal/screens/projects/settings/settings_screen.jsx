@@ -8,7 +8,20 @@ import { EnterpriseSettingsScreen } from "./enterprise/enterprise_settings";
 import { ConnectionsScreen } from "./connections/connections_screen";
 import { NavigationSettingsScreen } from "./navigation/navigation_settings";
 import { SecondaryScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { ScreenHeader } from "@/components/internal/shared/screen_kit";
+import { EmptyState, ScreenHeader } from "@/components/internal/shared/screen_kit";
+import { SlidersHorizontal } from "lucide-react";
+
+// Header copy per settings tab — config, not data.
+const SETTINGS_TAB_META = {
+  General: "Name, identifiers, and the basics that describe this project.",
+  Connections: "Services and repositories wired into this project.",
+  Customs: "Custom fields that extend this project's entities.",
+  Navigation: "Choose which sections appear in this project's sidebar.",
+  "Add-ons": "Optional modules that add screens and capabilities.",
+  Usage: "Resource consumption and activity across this project.",
+  Advanced: "Operational controls, API access, and destructive actions.",
+  Enterprise: "SSO, provisioning, retention, and compliance controls.",
+};
 
 export function SettingsScreen({ activeSettingsTab = "General" }) {
   const [addonsCompactView, setAddonsCompactView] = useState(false);
@@ -39,10 +52,12 @@ export function SettingsScreen({ activeSettingsTab = "General" }) {
         return <EnterpriseSettingsScreen />;
       default:
         return (
-          <div className="h-[400px] flex items-center justify-center border-2 border-dashed border-border rounded-lg text-muted-foreground">
-            <div className="flex flex-col items-center gap-2">
-              <span>{activeSettingsTab} settings placeholder</span>
-            </div>
+          <div className="rounded-xl border border-dashed border-border bg-surface-subtle">
+            <EmptyState
+              icon={SlidersHorizontal}
+              title={`${activeSettingsTab} settings aren't available yet`}
+              description="This section has no configurable options in this project yet."
+            />
           </div>
         );
     }
@@ -52,7 +67,10 @@ export function SettingsScreen({ activeSettingsTab = "General" }) {
     <SecondaryScreenWrapper>
       <ScreenHeader
         title={activeSettingsTab}
-        description={`Manage your ${activeSettingsTab.toLowerCase()} settings for this project.`}
+        description={
+          SETTINGS_TAB_META[activeSettingsTab] ??
+          `Manage your ${activeSettingsTab.toLowerCase()} settings for this project.`
+        }
         actions={
           <>
             {activeSettingsTab === "Customs" && (

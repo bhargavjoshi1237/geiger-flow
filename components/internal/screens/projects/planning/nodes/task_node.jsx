@@ -4,11 +4,12 @@ import React, { memo } from "react";
 import { Handle, Position, NodeResizer } from "@xyflow/react";
 import { cn } from "@/lib/utils";
 
-const STATUS_COLORS = {
-  todo: "#525252",
-  progress: "#f59e0b",
-  done: "#10b981",
-  blocked: "#ef4444",
+// Status accents as utility classes on the shared palette — never raw hex.
+const STATUS_CLASSES = {
+  todo: { text: "text-text-tertiary", dot: "bg-text-tertiary" },
+  progress: { text: "text-amber-400", dot: "bg-amber-400" },
+  done: { text: "text-emerald-400", dot: "bg-emerald-400" },
+  blocked: { text: "text-red-400", dot: "bg-red-400" },
 };
 
 const TYPE_ICONS = {
@@ -21,7 +22,7 @@ const TYPE_ICONS = {
 function TaskNode({ data, selected }) {
   const status = data.status || "todo";
   const nodeType = data.nodeType || "task";
-  const statusColor = STATUS_COLORS[status] || STATUS_COLORS.todo;
+  const statusClass = STATUS_CLASSES[status] || STATUS_CLASSES.todo;
   const typeIcon = TYPE_ICONS[nodeType] || TYPE_ICONS.task;
 
   return (
@@ -31,14 +32,14 @@ function TaskNode({ data, selected }) {
         minWidth={220}
         minHeight={80}
         lineStyle={{
-          borderColor: "#474747",
+          borderColor: "var(--border-strong)",
           borderWidth: 1,
         }}
         handleStyle={{
           width: 8,
           height: 8,
           borderRadius: 4,
-          backgroundColor: "#474747",
+          backgroundColor: "var(--border-strong)",
           border: "2px solid var(--background)",
         }}
       />
@@ -49,17 +50,12 @@ function TaskNode({ data, selected }) {
         )}
       >
         <div className="flex items-center gap-2 px-3 py-1.5 border-b border-border bg-surface-subtle">
-          <span className="text-xs" style={{ color: statusColor }}>
-            {typeIcon}
-          </span>
+          <span className={cn("text-xs", statusClass.text)}>{typeIcon}</span>
           <span className="text-[10px] uppercase tracking-wider text-text-secondary font-medium">
             {nodeType}
           </span>
           <div className="flex-1" />
-          <div
-            className="w-2 h-2 rounded-full"
-            style={{ backgroundColor: statusColor }}
-          />
+          <div className={cn("w-2 h-2 rounded-full", statusClass.dot)} />
         </div>
         <div className="px-3 py-2.5">
           <div className="text-foreground text-sm leading-relaxed whitespace-pre-wrap break-words">

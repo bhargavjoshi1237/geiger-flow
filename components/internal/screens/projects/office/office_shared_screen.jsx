@@ -23,22 +23,12 @@ import {
 } from "@/components/internal/shared/pagination";
 import FilterDropdown from "@/components/internal/screens/projects/overview/filter_dropdown";
 import {
-  OFFICE_FILE_TYPE_LIST,
+  OFFICE_FILE_TYPE_MAP,
+  OFFICE_TYPE_FILTER_OPTIONS,
   getOfficeFileType,
   timeAgo,
 } from "@/lib/office/office-file-meta";
-
-// Config only — presentation lookup for the type StatusPill, never row data.
-const OFFICE_FILE_TYPE_MAP = {
-  document: { label: "Document", variant: "info", dotClass: "bg-sky-400" },
-  spreadsheet: { label: "Spreadsheet", variant: "success", dotClass: "bg-emerald-400" },
-  presentation: { label: "Presentation", variant: "warning", dotClass: "bg-amber-400" },
-};
-
-const TYPE_FILTER_OPTIONS = [
-  { value: "all", label: "All Types" },
-  ...OFFICE_FILE_TYPE_LIST.map((t) => ({ value: t.type, label: t.label })),
-];
+import { cn } from "@/lib/utils";
 
 export function OfficeSharedScreen() {
   const { project } = useProject();
@@ -122,10 +112,12 @@ export function OfficeSharedScreen() {
         return (
           <div className="flex min-w-0 items-center gap-3">
             <div
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border"
-              style={{ backgroundColor: meta.accent + "1a" }}
+              className={cn(
+                "flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border",
+                meta.tintClass,
+              )}
             >
-              <Icon className="h-4 w-4" style={{ color: meta.accent }} />
+              <Icon className={cn("h-4 w-4", meta.iconClass)} />
             </div>
             <div className="min-w-0">
               <p className="truncate text-sm font-medium text-foreground">{file.name}</p>
@@ -169,7 +161,7 @@ export function OfficeSharedScreen() {
           <FilterDropdown
             value={typeFilter}
             onValueChange={setTypeFilter}
-            options={TYPE_FILTER_OPTIONS}
+            options={OFFICE_TYPE_FILTER_OPTIONS}
             height="h-9"
           />
         </div>

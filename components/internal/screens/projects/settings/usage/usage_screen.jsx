@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { useProject } from "@/context/project-context";
 import {
   Info,
   ArrowUpRight,
@@ -193,20 +192,8 @@ function ChartSection({
 }
 
 export function UsageSettingsScreen() {
-  const { project } = useProject();
-
   return (
     <div className="space-y-12">
-      <div className="space-y-1.5">
-        <h3 className="text-xl font-medium text-foreground">
-          Project Usage
-        </h3>
-        <p className="text-sm text-muted-foreground">
-          Track resource consumption and activity across{" "}
-          <span className="text-foreground font-medium">{project?.name || "this project"}</span>
-        </p>
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <UsageMetricCard
           icon={Zap}
@@ -332,7 +319,7 @@ export function UsageSettingsScreen() {
             data={zeroDailyUsage}
             dataKey="size"
             chartType="area"
-            chartColor="#8b5cf6"
+            chartColor="var(--chart-4)"
             height={140}
           />
           <div className="space-y-4">
@@ -398,7 +385,7 @@ export function UsageSettingsScreen() {
             data={zeroDailyUsage}
             dataKey="users"
             chartType="bar"
-            chartColor="#e7e7e7"
+            chartColor="var(--foreground)"
             barSize={28}
             height={140}
           />

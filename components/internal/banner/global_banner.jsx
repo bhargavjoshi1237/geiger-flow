@@ -6,43 +6,43 @@ import { AlertCircle, X, ExternalLink } from "lucide-react";
 import { Button } from "@geiger/ui";
 import { cn } from "@/lib/utils";
 
+// Hazard-stripe banner variants. The 45° stripe is a deliberate design motif;
+// every colour is a tailwind palette utility rather than a raw hex.
+const BANNER_THEMES = {
+  warning: {
+    surface:
+      "bg-[repeating-linear-gradient(45deg,var(--color-orange-900)_0_8px,var(--color-orange-800)_8px_16px)]",
+    border: "border-amber-600",
+    text: "text-orange-100",
+    iconBg: "bg-orange-950/40",
+    linkDecoration: "decoration-orange-300/40",
+  },
+  info: {
+    surface:
+      "bg-[repeating-linear-gradient(45deg,var(--color-blue-900)_0_8px,var(--color-blue-700)_8px_16px)]",
+    border: "border-blue-700",
+    text: "text-blue-100",
+    iconBg: "bg-blue-950/40",
+    linkDecoration: "decoration-blue-300/40",
+  },
+};
+
 export function GlobalBanner() {
   const { banner, hideBanner } = useBanner();
 
   if (!banner.isVisible) return null;
 
-  const themes = {
-    warning: {
-      bg: "linear-gradient(45deg, #7c2d12 25%, #9a3412 25%, #9a3412 50%, #7c2d12 50%, #7c2d12 75%, #9a3412 75%, #9a3412 100%)",
-      border: "#b45309",
-      text: "#ffedd5",
-      iconBg: "bg-orange-950/40",
-      iconColor: "#e7e7e7",
-      linkDecoration: "decoration-orange-300/40",
-    },
-    info: {
-      bg: "linear-gradient(45deg, #1e3a8a 25%, #1d4ed8 25%, #1d4ed8 50%, #1e3a8a 50%, #1e3a8a 75%, #1d4ed8 75%, #1d4ed8 100%)",
-      border: "#1d4ed8",
-      text: "#dbeafe",
-      iconBg: "bg-blue-950/40",
-      iconColor: "#e7e7e7",
-      linkDecoration: "decoration-blue-300/40",
-    },
-  };
-
-  const currentTheme = themes[banner.type] || themes.warning;
+  const currentTheme = BANNER_THEMES[banner.type] || BANNER_THEMES.warning;
 
   return (
     <div
       className={cn(
-        "relative w-full border-b px-4 py-2.5 flex items-center justify-center gap-3 transition-all duration-500 animate-in fade-in slide-in-from-top-full z-[100]",
+        "relative z-[100] flex w-full items-center justify-center gap-3 border-b px-4 py-2.5 transition-all duration-500 animate-in fade-in slide-in-from-top-full",
+        currentTheme.surface,
+        currentTheme.border,
+        currentTheme.text,
       )}
-      style={{
-        background: currentTheme.bg,
-        backgroundSize: "32px 32px",
-        borderColor: currentTheme.border,
-        color: currentTheme.text,
-      }}
+      style={{ backgroundSize: "32px 32px" }}
     >
       <div className="flex items-center gap-3 max-w-7xl mx-auto w-full justify-center">
         <div
@@ -51,7 +51,7 @@ export function GlobalBanner() {
             currentTheme.iconBg,
           )}
         >
-          <AlertCircle className={cn("w-3.5 h-3.5", currentTheme.iconColor)} />
+          <AlertCircle className="w-3.5 h-3.5 text-foreground" />
         </div>
         <div className="flex items-center gap-2 text-[13px] font-semibold tracking-tight leading-none">
           <span className="translate-y-[0.5px] -mt-1.5">{banner.message}</span>

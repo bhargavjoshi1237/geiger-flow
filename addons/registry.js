@@ -112,8 +112,15 @@ export function mergeNavWithAddons(baseNav, addonNavItems) {
   return merged;
 }
 
-export function AddonRegistryProvider({ children }) {
-  const [enabledAddons, setEnabledAddons] = useState(DEFAULT_ENABLED_ADDONS);
+// `initialEnabledAddons` lets a host start from a different set — the landing
+// playground passes [] so an addon that mounts heavy UI (system-architecture's
+// React Flow canvas) never loads on a public page. Set at initial state rather
+// than corrected in an effect, so no child can mount against the wrong set.
+export function AddonRegistryProvider({
+  children,
+  initialEnabledAddons = DEFAULT_ENABLED_ADDONS,
+}) {
+  const [enabledAddons, setEnabledAddons] = useState(initialEnabledAddons);
   const [navPositions, setNavPositions] = useState({});
   const [addonColors, setAddonColors] = useState({});
 

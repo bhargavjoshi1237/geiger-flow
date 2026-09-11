@@ -1,0 +1,4 @@
+{
+  "//": "Marks the demo modules as ESM so verify-fixtures.mjs can run them directly under Node — the bundler already treats them that way. Safe to delete if that script goes.",
+  "type": "module"
+}

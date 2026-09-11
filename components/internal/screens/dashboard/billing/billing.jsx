@@ -6,22 +6,17 @@ import { Card } from "@geiger/ui";
 import { Info, ExternalLink, FileText } from "lucide-react";
 import UpgradePlanDialogue from "./upgrade_plan_dialouge";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
+import { ScreenHeader } from "@/components/internal/shared/screen_kit";
 
 export function BillingScreen({ invoices = [] }) {
   const [isUpgradeOpen, setIsUpgradeOpen] = useState(false);
 
   return (
     <MainScreenWrapper className="flex flex-col gap-10 space-y-0 text-foreground">
-      <div className="flex flex-col gap-4 border-b border-border pb-6 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-semibold text-foreground tracking-tight">
-            Billing
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Manage billing, view past invoices, and update your subscription plan.
-          </p>
-        </div>
-      </div>
+      <ScreenHeader
+        title="Billing"
+        description="Manage billing, view past invoices, and update your subscription plan."
+      />
 
       <div className="flex flex-col lg:flex-row gap-8 border-b border-border pb-10">
         <div className="lg:w-4/12 space-y-3 shrink-0">

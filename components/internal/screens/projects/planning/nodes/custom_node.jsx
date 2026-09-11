@@ -16,14 +16,14 @@ function CustomNode({ data, selected, id }) {
         minWidth={180}
         minHeight={50}
         lineStyle={{
-          borderColor: "#474747",
+          borderColor: "var(--border-strong)",
           borderWidth: 1,
         }}
         handleStyle={{
           width: 8,
           height: 8,
           borderRadius: 4,
-          backgroundColor: "#474747",
+          backgroundColor: "var(--border-strong)",
           border: "2px solid var(--background)",
         }}
       />

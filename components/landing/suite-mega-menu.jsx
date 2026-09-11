@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Button } from "@geiger/ui";
 
 import {
   ArrowRight,
@@ -133,7 +134,9 @@ export function SuiteMegaMenu() {
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             {resources.map((item) => <a href={item.href} key={item.label} className="rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-surface-hover hover:text-foreground">{item.label}</a>)}
           </div>
-          <Link href="/pricing" className="mt-3 inline-flex w-full items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">View Pricing</Link>
+          <Button asChild className="mt-3 w-full rounded-lg">
+            <Link href="/pricing">View Pricing</Link>
+          </Button>
         </div>
       </details>
     </>

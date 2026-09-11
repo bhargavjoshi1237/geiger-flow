@@ -12,14 +12,15 @@ import {
   SidebarRail,
   useSidebar,
 } from "@geiger/ui";
-import { PanelLeft, ChevronLeft, Search, Bell, X } from "lucide-react";
+import { PanelLeft, ChevronLeft } from "lucide-react";
 import { SidebarOption } from "../sidebar_option";
 import { useProject } from "@/context/project-context";
 import { useVisibleProjectNav } from "@/lib/hooks/use-visible-project-nav";
+import { isDemoMode } from "@/supabase/demo/demo-mode";
 import { Button } from "@geiger/ui";
 
 function MobileSidebarHeader() {
-  const { isMobile, toggleSidebar } = useSidebar();
+  const { isMobile } = useSidebar();
   const { project } = useProject();
 
   if (!isMobile) {
@@ -57,6 +58,7 @@ export function ProjectSidebar({
   subMenuMode = "dropdown",
 }) {
   const { toggleSidebar } = useSidebar();
+  const { project } = useProject();
   const [activeMenu, setActiveMenu] = useState("main");
   const [expandedItems, setExpandedItems] = useState({});
 
@@ -65,11 +67,15 @@ export function ProjectSidebar({
   // a hidden settings tab disappears with it.
   const { nav: mergedNav, settingsNav } = useVisibleProjectNav();
 
-  const toggleExpand = (title) => {
-    setExpandedItems((prev) => ({
-      ...prev,
-      [title]: !prev[title],
-    }));
+  // A group is open when the user has toggled it, else when one of its children
+  // is the active tab — so a deep link into a submenu opens its parent.
+  const isGroupExpanded = (item) =>
+    expandedItems[item.title] ??
+    Boolean(item.subItems?.some((sub) => sub.title === activeTab));
+
+  const toggleExpand = (item) => {
+    const next = !isGroupExpanded(item);
+    setExpandedItems((prev) => ({ ...prev, [item.title]: next }));
   };
 
   return (
@@ -104,31 +110,34 @@ export function ProjectSidebar({
                             : item.subItems || null
                           : null
                       }
-                      isExpanded={expandedItems[item.title] !== undefined ? expandedItems[item.title] : !!item.subItems?.find((s) => s.title === activeTab)}
-                      onToggle={() => toggleExpand(item.title)}
+                      isExpanded={isGroupExpanded(item)}
+                      onToggle={() => toggleExpand(item)}
                       activeSubTab={activeTab}
-                      onClick={(tabTitle) => {
-                        if (tabTitle && typeof tabTitle === "string") {
-                          onTabChange(tabTitle);
-                        } else if (subMenuMode === "slide" && item.hasSubmenu) {
+                      onClick={(subTitle) => {
+                        // A submenu child passes its own title; a leaf passes nothing.
+                        if (typeof subTitle === "string" && subTitle) {
+                          onTabChange(subTitle);
+                          return;
+                        }
+                        if (subMenuMode === "slide" && item.hasSubmenu) {
                           setExpandedItems({});
                           setActiveMenu(item.title.toLowerCase());
                           if (item.title === "Settings") {
                             onTabChange("General");
                           }
-                        } else if (item.hasSubmenu) {
-                          setExpandedItems({
-                            [item.title]: !expandedItems[item.title],
-                          });
-                        } else if (item.subItems) {
-                          setExpandedItems((prev) => ({
-                            ...prev,
-                            [item.title]: !prev[item.title],
-                          }));
-                        } else {
-                          setExpandedItems({});
-                          onTabChange(item.title);
+                          return;
                         }
+                        // Issues opens the standalone tracker in a new tab; the demo playground has no real project, so it stays in-app.
+                        if (item.title === "Issues" && project?.id && !isDemoMode()) {
+                          window.open(
+                            `${process.env.NEXT_PUBLIC_BASE_PATH || ""}/it/${project.id}`,
+                            "_blank",
+                            "noopener,noreferrer",
+                          );
+                          return;
+                        }
+                        setExpandedItems({});
+                        onTabChange(item.title);
                       }}
                       badge={item.badge}
                     />

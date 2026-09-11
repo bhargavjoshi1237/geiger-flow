@@ -14,7 +14,7 @@ function GroupNode({ data, selected }) {
         minWidth={300}
         minHeight={200}
         lineStyle={{
-          borderColor: "#333",
+          borderColor: "var(--border)",
           borderWidth: 1,
           borderStyle: "dashed",
         }}
@@ -22,7 +22,7 @@ function GroupNode({ data, selected }) {
           width: 8,
           height: 8,
           borderRadius: 4,
-          backgroundColor: "#333",
+          backgroundColor: "var(--border)",
           border: "2px solid var(--background)",
         }}
       />

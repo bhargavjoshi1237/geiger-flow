@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
-  Check,
   ChevronDown,
   Copy,
   Hash,
+  Loader2,
   Lock,
   Megaphone,
   MessageSquare,
@@ -25,9 +25,18 @@ import { ActionMenu } from "@geiger/ui";
 import { Input } from "@geiger/ui";
 import { Avatar, AvatarFallback } from "@geiger/ui";
 import { Textarea } from "@geiger/ui";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@geiger/ui";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import {
   EmptyState,
+  Field,
   ScreenHeader,
   SearchInput,
   StatsBar,
@@ -37,23 +46,29 @@ import {
 import FilterDropdown from "@/components/internal/screens/projects/overview/filter_dropdown";
 import { cn } from "@/lib/utils";
 import {
+  DEFAULT_MESSAGE_TYPE,
   MESSAGE_TYPE_FILTER_OPTIONS,
   MESSAGE_TYPE_PILL_MAP,
+  avatarToneClasses,
+  formatChannelDescription,
+  formatMessageTime,
+  initialsOf,
+  toneForText,
 } from "@/features/grounding/constants";
-
-const CHANNELS = [];
-
-const MESSAGES = [];
-
-const toneClasses = {
-  amber: "bg-amber-300 text-amber-950",
-  emerald: "bg-emerald-300 text-emerald-950",
-  sky: "bg-sky-300 text-sky-950",
-  violet: "bg-violet-300 text-violet-950",
-};
+import {
+  createChannel,
+  createMessage,
+  listChannels,
+  listMessages,
+  normalizeMessage,
+  softDeleteMessage,
+  updateMessage,
+} from "@/features/grounding/actions";
+import { useProject } from "@/context/project-context";
+import { createClient } from "@/lib/supabase/client";
 
 function ChannelButton({ channel, active, collapsed, onClick }) {
-  const ChannelIcon = channel.locked ? Lock : Hash;
+  const ChannelIcon = channel.isLocked ? Lock : Hash;
 
   if (collapsed) {
     return (
@@ -71,11 +86,6 @@ function ChannelButton({ channel, active, collapsed, onClick }) {
         )}
       >
         <ChannelIcon className="h-4 w-4" />
-        {channel.unread > 0 ? (
-          <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-400 px-1 text-[9px] font-bold text-emerald-950">
-            {channel.unread}
-          </span>
-        ) : null}
       </Button>
     );
   }
@@ -95,20 +105,35 @@ function ChannelButton({ channel, active, collapsed, onClick }) {
       <div className="flex items-center gap-2.5">
         <ChannelIcon className="h-3.5 w-3.5 shrink-0 text-text-secondary" />
         <span className="min-w-0 flex-1 truncate text-sm font-medium">{channel.name}</span>
-        {channel.unread > 0 ? (
-          <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-emerald-400 px-1.5 text-[10px] font-bold text-emerald-950">
-            {channel.unread}
-          </span>
-        ) : null}
       </div>
       <p className="mt-1 truncate pl-6 text-xs text-text-secondary">
-        {channel.description} | {channel.members} members | {channel.lastActive}
+        {formatChannelDescription(channel)}
       </p>
     </Button>
   );
 }
 
-function ChannelRail({ selectedChannel, collapsed, onToggleCollapsed, onSelectChannel }) {
+function ChannelRail({
+  channels,
+  loading,
+  selectedChannel,
+  collapsed,
+  onToggleCollapsed,
+  onSelectChannel,
+  onAddChannel,
+}) {
+  const [channelQuery, setChannelQuery] = useState("");
+
+  const filteredChannels = useMemo(() => {
+    const query = channelQuery.trim().toLowerCase();
+    if (!query) {
+      return channels;
+    }
+    return channels.filter((channel) =>
+      String(channel.name || "").toLowerCase().includes(query),
+    );
+  }, [channels, channelQuery]);
+
   if (collapsed) {
     return (
       <aside className="hidden h-full w-10 shrink-0 xl:flex xl:flex-col xl:items-center">
@@ -152,18 +177,29 @@ function ChannelRail({ selectedChannel, collapsed, onToggleCollapsed, onSelectCh
         <div className="relative mt-4">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-secondary" />
           <Input
+            value={channelQuery}
+            onChange={(event) => setChannelQuery(event.target.value)}
             placeholder="Search channels..."
             className="h-9 w-full border-border bg-surface-card py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-text-secondary focus-visible:border-border-strong focus-visible:ring-ring/50"
           />
         </div>
       </div>
       <div className="min-h-0 flex-1 space-y-1 overflow-y-auto p-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {CHANNELS.length === 0 ? (
+        {loading ? (
+          <div className="flex items-center justify-center gap-2 px-3 py-6 text-xs text-text-secondary">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Loading channels…
+          </div>
+        ) : channels.length === 0 ? (
           <div className="rounded-lg border border-dashed border-border bg-surface-card px-3 py-6 text-center text-xs text-text-secondary">
-            Channels will appear here after backend data is connected.
+            No channels yet. Create one to get started.
+          </div>
+        ) : filteredChannels.length === 0 ? (
+          <div className="rounded-lg border border-dashed border-border bg-surface-card px-3 py-6 text-center text-xs text-text-secondary">
+            No matching channels.
           </div>
         ) : (
-          CHANNELS.map((channel) => (
+          filteredChannels.map((channel) => (
             <ChannelButton
               key={channel.id}
               channel={channel}
@@ -175,7 +211,11 @@ function ChannelRail({ selectedChannel, collapsed, onToggleCollapsed, onSelectCh
         )}
       </div>
       <div className="border-t border-border p-2">
-        <Button variant="ghost" className="h-8 w-full justify-start gap-2 text-xs text-text-secondary hover:bg-surface-active hover:text-foreground">
+        <Button
+          variant="ghost"
+          onClick={onAddChannel}
+          className="h-8 w-full justify-start gap-2 text-xs text-text-secondary hover:bg-surface-active hover:text-foreground"
+        >
           <Plus className="h-3.5 w-3.5" />
           Add channel
         </Button>
@@ -184,8 +224,8 @@ function ChannelRail({ selectedChannel, collapsed, onToggleCollapsed, onSelectCh
   );
 }
 
-function MobileChannelPicker({ selectedChannel, onSelectChannel }) {
-  const activeChannel = CHANNELS.find((channel) => channel.id === selectedChannel);
+function MobileChannelPicker({ channels, selectedChannel, onSelectChannel }) {
+  const activeChannel = channels.find((channel) => channel.id === selectedChannel);
 
   return (
     <div className="mb-3 rounded-xl border border-border bg-surface-subtle p-3 xl:hidden">
@@ -199,10 +239,10 @@ function MobileChannelPicker({ selectedChannel, onSelectChannel }) {
         <ChevronDown className="h-4 w-4 text-text-secondary" />
       </div>
       <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-        {CHANNELS.length === 0 ? (
-          <span className="text-xs text-text-secondary">Backend channels are not connected yet.</span>
+        {channels.length === 0 ? (
+          <span className="text-xs text-text-secondary">No channels yet.</span>
         ) : (
-          CHANNELS.map((channel) => (
+          channels.map((channel) => (
             <Button
               key={channel.id}
               type="button"
@@ -226,28 +266,28 @@ function MobileChannelPicker({ selectedChannel, onSelectChannel }) {
 }
 
 function MessageItem({ message, onReply, onTogglePin, onCopyText, onArchive }) {
-  const typeKey = String(message.type || "message").toLowerCase();
+  const typeKey = String(message.messageType || "message").toLowerCase();
+  const authorName = message.authorName || "Member";
+  const tone = toneForText(authorName);
 
   return (
     <article className="rounded-xl border border-border bg-surface-subtle px-4 py-3 transition-colors hover:border-border-strong">
       <div className="flex items-start gap-3">
         <Avatar className="h-8 w-8 rounded-md">
-          <AvatarFallback className={cn("rounded-md text-[11px] font-bold", toneClasses[message.tone])}>
-            {message.initials}
+          <AvatarFallback className={cn("rounded-md text-[11px] font-bold", avatarToneClasses[tone])}>
+            {initialsOf(authorName)}
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 items-start justify-between gap-3">
             <div className="flex min-w-0 items-center gap-2">
-              <h3 className="truncate text-sm font-semibold text-foreground">{message.author}</h3>
-              <span className="text-xs text-text-tertiary">|</span>
-              <p className="truncate text-xs text-text-secondary">{message.role}</p>
+              <h3 className="truncate text-sm font-semibold text-foreground">{authorName}</h3>
             </div>
             <div className="flex shrink-0 items-center gap-2">
               <StatusPill status={typeKey} map={MESSAGE_TYPE_PILL_MAP} />
               <span className="text-xs text-text-tertiary">|</span>
-              <span className="text-xs text-text-secondary">{message.time}</span>
-              {message.pinned ? (
+              <span className="text-xs text-text-secondary">{formatMessageTime(message.createdAt)}</span>
+              {message.isPinned ? (
                 <Pin className="h-3.5 w-3.5 text-emerald-300" />
               ) : null}
             </div>
@@ -256,22 +296,19 @@ function MessageItem({ message, onReply, onTogglePin, onCopyText, onArchive }) {
           <p className="mt-2 text-sm leading-6 text-foreground">{message.body}</p>
 
           <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-text-secondary">
-            <span className="inline-flex items-center gap-1 tabular-nums">
-              <MessageSquare className="h-3 w-3" />
-              {message.replies} replies
-            </span>
-            <span className="inline-flex items-center gap-1 tabular-nums">
-              <Check className="h-3 w-3" />
-              {message.acknowledgements} acknowledged
-            </span>
-            <Button variant="ghost" size="sm" className="ml-auto h-6 px-2 text-xs text-muted-foreground hover:bg-surface-active hover:text-foreground">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onReply?.(message)}
+              className="ml-auto h-6 px-2 text-xs text-muted-foreground hover:bg-surface-active hover:text-foreground"
+            >
               Reply
             </Button>
             <ActionMenu
-              label={`Actions for message from ${message.author}`}
+              label={`Actions for message from ${authorName}`}
               items={[
                 { icon: Reply, label: "Reply in thread", onSelect: () => onReply?.(message) },
-                { icon: Pin, label: message.pinned ? "Unpin message" : "Pin message", onSelect: () => onTogglePin?.(message) },
+                { icon: Pin, label: message.isPinned ? "Unpin message" : "Pin message", onSelect: () => onTogglePin?.(message) },
                 { icon: Copy, label: "Copy text", onSelect: () => onCopyText?.(message) },
                 { separator: true },
                 { icon: Trash2, label: "Archive", destructive: true, onSelect: () => onArchive?.(message) },
@@ -285,15 +322,142 @@ function MessageItem({ message, onReply, onTogglePin, onCopyText, onArchive }) {
 }
 
 export function GroundingScreen() {
-  const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState(MESSAGES);
+  const { project } = useProject();
+  const { id: projectId } = project ?? {};
+
+  const [channels, setChannels] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [channelsLoading, setChannelsLoading] = useState(true);
+  const [messagesLoading, setMessagesLoading] = useState(false);
   const [selectedChannel, setSelectedChannel] = useState("");
+  const [message, setMessage] = useState("");
   const [channelsCollapsed, setChannelsCollapsed] = useState(false);
-  const [mode, setMode] = useState("message");
+  const [mode, setMode] = useState(DEFAULT_MESSAGE_TYPE);
   const [messageQuery, setMessageQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
+  const [channelDialogOpen, setChannelDialogOpen] = useState(false);
+  const [newChannelName, setNewChannelName] = useState("");
+  const [creatingChannel, setCreatingChannel] = useState(false);
 
-  const activeChannel = CHANNELS.find((channel) => channel.id === selectedChannel);
+  useEffect(() => {
+    let cancelled = false;
+
+    void Promise.resolve().then(() => {
+      if (cancelled) {
+        return;
+      }
+      if (!projectId) {
+        setChannels([]);
+        setChannelsLoading(false);
+        setSelectedChannel("");
+        return;
+      }
+
+      setChannelsLoading(true);
+      void listChannels(projectId).then((rows) => {
+        if (cancelled) {
+          return;
+        }
+        const next = rows ?? [];
+        setChannels(next);
+        setSelectedChannel((current) => {
+          if (current && next.some((channel) => channel.id === current)) {
+            return current;
+          }
+          return next[0]?.id ?? "";
+        });
+        setChannelsLoading(false);
+      });
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [projectId]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    void Promise.resolve().then(() => {
+      if (cancelled) {
+        return;
+      }
+      if (!selectedChannel) {
+        setMessages([]);
+        setMessagesLoading(false);
+        return;
+      }
+
+      setMessagesLoading(true);
+      void listMessages(selectedChannel).then((rows) => {
+        if (cancelled) {
+          return;
+        }
+        setMessages(rows ?? []);
+        setMessagesLoading(false);
+      });
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedChannel]);
+
+  useEffect(() => {
+    if (!selectedChannel) {
+      return undefined;
+    }
+
+    let subscription = null;
+    try {
+      const supabase = createClient();
+      subscription = supabase
+        .channel(`grounding:${selectedChannel}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "INSERT",
+            schema: "flow",
+            table: "grounding_messages",
+            filter: `channel_id=eq.${selectedChannel}`,
+          },
+          (payload) => {
+            const row = payload?.new ? normalizeMessage(payload.new) : null;
+            if (!row) {
+              void listMessages(selectedChannel).then((rows) => {
+                setMessages(rows ?? []);
+              });
+              return;
+            }
+            setMessages((current) => {
+              if (current.some((item) => item.id === row.id)) {
+                return current.map((item) => (item.id === row.id ? row : item));
+              }
+              return [...current, row];
+            });
+          },
+        )
+        .subscribe();
+    } catch {
+      return undefined;
+    }
+
+    return () => {
+      try {
+        if (subscription) {
+          void createClient().removeChannel(subscription);
+        }
+      } catch {
+        // Realtime unavailable — the list fetch already covers the data.
+      }
+    };
+  }, [selectedChannel]);
+
+  const activeChannel = useMemo(
+    () => channels.find((channel) => channel.id === selectedChannel) ?? null,
+    [channels, selectedChannel],
+  );
+
   const visibleMessages = useMemo(
     () => messages.filter((messageItem) => messageItem.channelId === selectedChannel),
     [messages, selectedChannel],
@@ -302,69 +466,91 @@ export function GroundingScreen() {
   const filteredMessages = useMemo(() => {
     const query = messageQuery.trim().toLowerCase();
     return visibleMessages.filter((item) => {
-      if (typeFilter !== "all" && String(item.type || "").toLowerCase() !== typeFilter) {
+      if (typeFilter !== "all" && String(item.messageType || "").toLowerCase() !== typeFilter) {
         return false;
       }
       if (!query) {
         return true;
       }
-      return [item.author, item.role, item.body]
+      return [item.authorName, item.body]
         .filter(Boolean)
         .some((field) => String(field).toLowerCase().includes(query));
     });
   }, [visibleMessages, messageQuery, typeFilter]);
 
   const stats = useMemo(() => {
-    const pinned = messages.filter((item) => item.pinned).length;
+    const pinned = messages.filter((item) => item.isPinned).length;
     const broadcasts = messages.filter(
-      (item) => String(item.type || "").toLowerCase() === "broadcast",
+      (item) => String(item.messageType || "").toLowerCase() === "broadcast",
     ).length;
     return [
-      { label: "Channels", value: String(CHANNELS.length), footer: "Project-wide context" },
+      { label: "Channels", value: String(channels.length), footer: "Project-wide context" },
       { label: "Messages", value: String(messages.length), footer: activeChannel ? `In ${activeChannel.name}` : "Select a channel" },
       { label: "Pinned", value: String(pinned), footer: "Saved highlights" },
       { label: "Broadcasts", value: String(broadcasts), footer: "Announcements" },
     ];
-  }, [messages, activeChannel]);
+  }, [channels, messages, activeChannel]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     const trimmedMessage = message.trim();
 
-    if (!trimmedMessage || !activeChannel || activeChannel.locked) {
+    if (!trimmedMessage || !activeChannel || activeChannel.isLocked) {
       return;
     }
 
-    const sentAt = new Date().toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
+    const optimisticId = crypto.randomUUID();
+    const optimistic = {
+      id: optimisticId,
+      channelId: activeChannel.id,
+      authorName: "You",
+      body: trimmedMessage,
+      messageType: mode,
+      isPinned: false,
+      createdAt: new Date().toISOString(),
+    };
+
+    setMessages((currentMessages) => [...currentMessages, optimistic]);
+    setMessage("");
+
+    const created = await createMessage(activeChannel.id, {
+      id: optimisticId,
+      body: trimmedMessage,
+      messageType: mode,
     });
 
-    setMessages((currentMessages) => [
-      ...currentMessages,
-      {
-        id: `msg_${Date.now()}`,
-        channelId: activeChannel.id,
-        author: "You",
-        role: "Project Member",
-        initials: "YO",
-        time: sentAt,
-        tone: "emerald",
-        type: mode === "broadcast" ? "Broadcast" : "Message",
-        body: trimmedMessage,
-        replies: 0,
-        acknowledgements: 0,
-        pinned: false,
-      },
-    ]);
-    setMessage("");
+    if (created) {
+      setMessages((currentMessages) =>
+        currentMessages.map((item) => (item.id === optimisticId ? created : item)),
+      );
+    } else {
+      setMessages((currentMessages) =>
+        currentMessages.filter((item) => item.id !== optimisticId),
+      );
+      toast.error("Couldn't send message");
+    }
   };
 
-  const handleTogglePin = (target) => {
+  const handleTogglePin = async (target) => {
+    const next = !target.isPinned;
     setMessages((current) =>
       current.map((item) =>
-        item.id === target.id ? { ...item, pinned: !item.pinned } : item,
+        item.id === target.id ? { ...item, isPinned: next } : item,
       ),
     );
+
+    const updated = await updateMessage(target.id, { isPinned: next });
+    if (updated) {
+      setMessages((current) =>
+        current.map((item) => (item.id === target.id ? updated : item)),
+      );
+    } else {
+      setMessages((current) =>
+        current.map((item) =>
+          item.id === target.id ? { ...item, isPinned: target.isPinned } : item,
+        ),
+      );
+      toast.error("Couldn't update message");
+    }
   };
 
   const handleCopyText = async (target) => {
@@ -377,13 +563,75 @@ export function GroundingScreen() {
   };
 
   const handleReply = (target) => {
-    setMessage((current) => (current ? `${current} @${target.author} ` : `@${target.author} `));
+    setMessage((current) => (current ? `${current} @${target.authorName} ` : `@${target.authorName} `));
   };
 
-  const handleArchive = (target) => {
+  const handleArchive = async (target) => {
     setMessages((current) => current.filter((item) => item.id !== target.id));
-    toast.success("Message archived");
+    const ok = await softDeleteMessage(target.id);
+    if (ok) {
+      toast.success("Message archived");
+    } else {
+      setMessages((current) => {
+        if (current.some((item) => item.id === target.id)) {
+          return current;
+        }
+        return [...current, target];
+      });
+      toast.error("Couldn't archive message");
+    }
   };
+
+  const handleOpenChannelDialog = () => {
+    setNewChannelName("");
+    setChannelDialogOpen(true);
+  };
+
+  const handleCreateChannel = async () => {
+    const name = newChannelName.trim();
+    if (!name || !projectId || creatingChannel) {
+      return;
+    }
+
+    const previousSelection = selectedChannel;
+    const optimisticId = crypto.randomUUID();
+    const now = new Date().toISOString();
+    const optimistic = {
+      id: optimisticId,
+      projectId,
+      name,
+      description: "",
+      isLocked: false,
+      metadata: {},
+      createdBy: null,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    setCreatingChannel(true);
+    setChannels((current) => [...current, optimistic]);
+    setSelectedChannel(optimisticId);
+
+    const created = await createChannel(projectId, { id: optimisticId, name });
+    setCreatingChannel(false);
+
+    if (created) {
+      setChannels((current) =>
+        current.map((channel) => (channel.id === optimisticId ? created : channel)),
+      );
+      setSelectedChannel(created.id);
+      setNewChannelName("");
+      setChannelDialogOpen(false);
+      toast.success("Channel created");
+    } else {
+      setChannels((current) => current.filter((channel) => channel.id !== optimisticId));
+      setSelectedChannel(previousSelection ?? "");
+      toast.error("Couldn't create channel");
+    }
+  };
+
+  const composerDisabled = !message.trim() || !activeChannel || activeChannel.isLocked;
+  const paneLoading = channelsLoading || messagesLoading;
 
   return (
     <MainScreenWrapper className="text-foreground">
@@ -430,22 +678,42 @@ export function GroundingScreen() {
 
       <div className="relative flex h-[calc(100dvh-250px)] min-h-[500px] gap-4">
         <ChannelRail
+          channels={channels}
+          loading={channelsLoading}
           selectedChannel={selectedChannel}
           collapsed={channelsCollapsed}
           onToggleCollapsed={() => setChannelsCollapsed((current) => !current)}
           onSelectChannel={setSelectedChannel}
+          onAddChannel={handleOpenChannelDialog}
         />
 
         <main className="flex min-h-0 min-w-0 flex-1 flex-col">
-          <MobileChannelPicker selectedChannel={selectedChannel} onSelectChannel={setSelectedChannel} />
+          <MobileChannelPicker
+            channels={channels}
+            selectedChannel={selectedChannel}
+            onSelectChannel={setSelectedChannel}
+          />
 
           <section className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {!activeChannel ? (
+            {paneLoading ? (
+              <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Loading messages…
+              </div>
+            ) : !activeChannel ? (
               <div className="rounded-xl border border-border bg-surface-subtle">
                 <EmptyState
                   icon={Megaphone}
                   title="No channels yet"
-                  description="Create or fetch channels from the backend to start grounding discussions."
+                  description="Create your first channel to start grounding discussions."
+                  action={
+                    <Button
+                      onClick={handleOpenChannelDialog}
+                      className="bg-primary text-primary-foreground hover:bg-primary/90"
+                    >
+                      <Plus className="h-4 w-4" /> New channel
+                    </Button>
+                  }
                 />
               </div>
             ) : filteredMessages.length > 0 ? (
@@ -467,7 +735,7 @@ export function GroundingScreen() {
                   description={
                     visibleMessages.length
                       ? "Try clearing the search or type filter."
-                      : "Messages will appear here after backend data is connected."
+                      : "Be the first to post in this channel."
                   }
                 />
               </div>
@@ -478,14 +746,15 @@ export function GroundingScreen() {
             <Textarea
               value={message}
               onChange={(event) => setMessage(event.target.value)}
-              placeholder={activeChannel ? `Write a ${mode} for ${activeChannel.name}...` : "Connect backend channels to start messaging..."}
+              placeholder={activeChannel ? `Write a ${mode} for ${activeChannel.name}...` : channelsLoading ? "Loading channels..." : "Create a channel to start messaging..."}
+              disabled={!activeChannel || activeChannel.isLocked}
               className="min-h-[50px] resize-none border-border bg-surface-card text-foreground placeholder:text-text-secondary"
             />
-             <div className="flex flex-wrap items-center justify-between ">
+              <div className="flex flex-wrap items-center justify-between ">
               <Button
                 type="button"
                 className="h-full bg-primary text-sm text-primary-foreground hover:bg-primary/90"
-                disabled={!message.trim() || !activeChannel || activeChannel.locked}
+                disabled={composerDisabled}
                 onClick={handleSendMessage}
               >
                 <Send className="h-2 w-2" />
@@ -495,6 +764,57 @@ export function GroundingScreen() {
         </main>
 
       </div>
+
+      <Dialog open={channelDialogOpen} onOpenChange={setChannelDialogOpen}>
+        <DialogContent className="border-border bg-background text-foreground sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-foreground">New channel</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
+              Channels group grounding context for this project.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4">
+            <Field label="Name *" htmlFor="grounding-channel-name">
+              <Input
+                id="grounding-channel-name"
+                value={newChannelName}
+                onChange={(event) => setNewChannelName(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" && newChannelName.trim() && !creatingChannel) {
+                    event.preventDefault();
+                    void handleCreateChannel();
+                  }
+                }}
+                placeholder="e.g. announcements"
+                autoFocus
+                className="border-border bg-surface-card text-foreground placeholder:text-text-secondary"
+              />
+            </Field>
+          </div>
+          <DialogFooter className="gap-2 sm:justify-end">
+            <Button
+              variant="ghost"
+              onClick={() => setChannelDialogOpen(false)}
+              disabled={creatingChannel}
+              className="text-muted-foreground hover:bg-surface-hover hover:text-foreground"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCreateChannel}
+              disabled={!newChannelName.trim() || creatingChannel}
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              {creatingChannel ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Plus className="mr-2 h-4 w-4" />
+              )}
+              {creatingChannel ? "Creating…" : "Create channel"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </MainScreenWrapper>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { Suspense, useState } from "react";
-import { use, useCallback, useMemo } from "react";
+import { use, useCallback } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, FolderX } from "lucide-react";
@@ -9,32 +9,15 @@ import { Button } from "@geiger/ui";
 import { ProjectSidebar } from "@/components/internal/sidebar/projects/project_sidebar";
 import { ProjectTopbar } from "@/components/internal/topbar/projects/topbar";
 import { SidebarProvider, SidebarInset } from "@geiger/ui";
-import { ProjectDetailsScreen } from "@/components/internal/screens/projects/overview/project_details";
-import { WorkflowsScreen } from "@/components/internal/screens/projects/issues/workflows";
-import { ObjectivesScreen } from "@/components/internal/screens/projects/objectives/objectives_screen";
-import { TasksScreen } from "@/components/internal/screens/projects/tasks/tasks_screen";
-import { WorkQueueScreen } from "@/components/internal/screens/projects/work_queue/work_queue_screen";
-import { GroundingScreen } from "@/components/internal/screens/projects/grounding/grounding_screen";
-import { GoalsScreen } from "@/components/internal/screens/projects/goals/goals_screen";
-import { ReportingScreen } from "@/components/internal/screens/reporting/reporting_screen";
-import { TeamScreen } from "@/components/internal/screens/projects/team/team";
-import { ResourceAllocationScreen } from "@/components/internal/screens/projects/resource_allocation/resource_allocation_screen";
-import { MilestonesScreen } from "@/components/internal/screens/projects/milestones/milestones_screen";
-import { ProjectionsScreen } from "@/components/internal/screens/projects/projections/projections_screen";
-import { SecurityScreen } from "@/components/internal/screens/projects/security/security_screen";
-import { SettingsScreen } from "@/components/internal/screens/projects/settings/settings_screen";
-import { VaultScreen } from "@/components/internal/screens/projects/vault/vault_screen";
-import { LogsScreen } from "@/components/internal/screens/projects/logs/logs_screen";
-import { AssetsScreen } from "@/components/internal/screens/projects/assets/assets_screen";
-import { PlanningScreen } from "@/components/internal/screens/projects/planning/planning_screen";
-import { ExternalsScreen } from "@/components/internal/screens/projects/externals/externals_screen";
-import { OfficeScreen } from "@/components/internal/screens/projects/office/office_screen";
 import { ProjectProvider, useProject } from "@/context/project-context";
 import { ProjectBudgetProvider } from "@/context/project-budget-context";
-import { settingsNav } from "@/components/internal/sidebar/projects/sidebar_data";
 import { AddonRegistryProvider, useAddonRegistry } from "@/addons/registry";
 import { NavVisibilityProvider } from "@/context/nav-visibility-context";
-import { getAddonScreens, getAddonScreenOptions } from "@/addons/registry";
+import { ProjectDetailsScreen } from "@/components/internal/screens/projects/overview/project_details";
+import {
+  isFullBleedScreen,
+  resolveProjectScreen,
+} from "@/components/internal/screens/projects/resolve_project_screen";
 import {
   listExternalLinks,
   createExternalLink,
@@ -145,73 +128,24 @@ function ProjectLayoutContent({ id }) {
     [router, pathname]
   );
 
-  const addonScreens = getAddonScreens(enabledAddons);
-  const addonScreenOptions = getAddonScreenOptions(enabledAddons);
-  const isFullBleedScreen = Boolean(addonScreenOptions[currentTab]?.fullBleed);
+  const fullBleed = isFullBleedScreen(currentTab, enabledAddons);
 
-  const renderScreen = () => {
-    const isSettingsTab = settingsNav.some((item) => item.title === currentTab);
-    if (isSettingsTab) {
-      return <SettingsScreen activeSettingsTab={currentTab} />;
-    }
-
-    if (addonScreens[currentTab]) {
-      const AddonScreen = addonScreens[currentTab];
-      return <AddonScreen />;
-    }
-
-    switch (currentTab) {
-      case "Overview":
-        return <ProjectDetailsScreen id={id} externalLinks={externalLinks} />;
-      case "Issues":
-        return <WorkflowsScreen />;
-      case "Tasks":
-        return <TasksScreen />;
-      case "Work Queue":
-        return <WorkQueueScreen />;
-      case "Grounding":
-        return <GroundingScreen />;
-      case "Goals":
-        return <GoalsScreen />;
-      case "Reporting":
-        return <ReportingScreen />;
-      case "Objectives":
-        return <ObjectivesScreen />;
-      case "Projections":
-        return <ProjectionsScreen />;
-      case "Planning":
-        return <PlanningScreen />;
-      case "Milestones":
-        return <MilestonesScreen />;
-      case "Team":
-        return <TeamScreen />;
-      case "Resource Allocation":
-        return <ResourceAllocationScreen />;
-      case "Vault":
-        return <VaultScreen />;
-      case "Externals":
-        return (
-          <ExternalsScreen
-            links={externalLinks}
-            linksLoading={linksLoading}
-            onCreateLink={createLink}
-            onDeleteLink={deleteLink}
-          />
-        );
-      case "Assets":
-        return <AssetsScreen />;
-      case "Recent Files":
-      case "Folders":
-      case "Shared with Project":
-        return <OfficeScreen activeTab={currentTab} />;
-      case "Logs":
-        return <LogsScreen />;
-      case "Security":
-        return <SecurityScreen />;
-      default:
-        return <ProjectDetailsScreen id={id} externalLinks={externalLinks} />;
-    }
-  };
+  const renderScreen = () =>
+    resolveProjectScreen(currentTab, {
+      id,
+      externalLinks,
+      linksLoading,
+      onCreateLink: createLink,
+      onDeleteLink: deleteLink,
+      onViewIssues: () => setCurrentTab("Issues"),
+      enabledAddons,
+    }) ?? (
+      <ProjectDetailsScreen
+        id={id}
+        externalLinks={externalLinks}
+        onViewIssues={() => setCurrentTab("Issues")}
+      />
+    );
 
   if (loading) {
     return (
@@ -254,7 +188,7 @@ function ProjectLayoutContent({ id }) {
           <ProjectSidebar activeTab={currentTab} onTabChange={setCurrentTab} />
           <SidebarInset className="flex-1 flex flex-col h-full bg-transparent overflow-hidden relative border-none">
             <div className="absolute top-0 right-0 w-[500px] h-[300px] bg-foreground/[0.02] blur-[120px] pointer-events-none rounded-full"></div>
-            <main className={`flex-1 relative z-10 w-full min-w-0 [&::-webkit-scrollbar]:hidden [&]:-ms-overflow-style:none [&]:scrollbar-width:none ${isFullBleedScreen ? "min-h-0 overflow-hidden p-0" : "overflow-y-auto p-4 md:p-8"}`}>
+            <main className={`flex-1 relative z-10 w-full min-w-0 [&::-webkit-scrollbar]:hidden [&]:-ms-overflow-style:none [&]:scrollbar-width:none ${fullBleed ? "min-h-0 overflow-hidden p-0" : "overflow-y-auto p-4 md:p-8"}`}>
               {renderScreen()}
             </main>
           </SidebarInset>

@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { GripVertical } from "lucide-react";
 
 function NoteNode({ data, selected }) {
-  const color = data.color || "#f59e0b";
+  const color = data.color;
 
   return (
     <div
@@ -16,8 +16,8 @@ function NoteNode({ data, selected }) {
       )}
     >
       <div
-        className="h-1 rounded-t-lg"
-        style={{ backgroundColor: color }}
+        className={cn("h-1 rounded-t-lg", !color && "bg-amber-400")}
+        style={color ? { backgroundColor: color } : undefined}
       />
       <div className="px-3 py-2.5">
         {data.label && (

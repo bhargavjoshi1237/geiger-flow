@@ -11,9 +11,14 @@ import { ProfileDropdown } from "../dialogue/profile_dropdown";
 import { SupabaseActivityLine } from "../supabase_activity_line";
 import { ExternalLinkIcon } from "@/components/internal/externals/external_links";
 
-export function ProjectTopbar({ externalLinks = [] }) {
+export function ProjectTopbar({ externalLinks = [], onLogoClick }) {
   const { project } = useProject();
   const topbarLinks = externalLinks.filter((link) => link.showOnTopbar);
+
+  // Defaults to the dashboard, which is what the logo means on a real project
+  // page. The landing playground passes a no-op so a click can't reload the page
+  // out from under the embed.
+  const handleLogoClick = onLogoClick ?? (() => { window.location.href = "/"; });
 
   return (
     <header className="relative h-14 px-4 flex items-center justify-between border-b border-topbar-border bg-topbar-bg backdrop-blur-md text-foreground z-20 w-full shrink-0">
@@ -25,9 +30,7 @@ export function ProjectTopbar({ externalLinks = [] }) {
               src="/logo1.svg"
               alt=""
               className="geiger-logo w-7 h-7 -mr-0.5 hover:bg-surface-active rounded-md p-1"
-              onClick={() => {
-                window.location.href = "/";
-              }}
+              onClick={handleLogoClick}
               onError={(e) => {
                 e.currentTarget.style.display = "none";
                 e.currentTarget.parentElement.innerHTML =

@@ -14,9 +14,20 @@ import {
   Users,
   Workflow,
 } from "lucide-react";
+import { toast } from "sonner";
 import { InviteMemberDialog } from "@/components/internal/dilouges/teams/invitemember_dilouge";
-import { createClient } from "@/lib/supabase/client";
 import { useProject } from "@/context/project-context";
+import {
+  inviteMember,
+  listMembers,
+  softDeleteMember,
+  updateMemberRole,
+} from "@/features/team/actions";
+import {
+  MEMBER_ROLE_MAP,
+  MEMBER_STATUS_MAP,
+  ROLE_FILTER_OPTIONS,
+} from "@/features/team/constants";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import {
   ListPagination,
@@ -45,25 +56,6 @@ import {
   DialogTitle,
 } from "@geiger/ui";
 
-const MEMBER_ROLE_MAP = {
-  admin: { label: "Admin", variant: "success" },
-  member: { label: "Member", variant: "info" },
-  viewer: { label: "Viewer", variant: "neutral" },
-  manager: { label: "Manager", variant: "purple" },
-};
-
-const MEMBER_STATUS_MAP = {
-  Active: { label: "Active", variant: "success" },
-  Invited: { label: "Invited", variant: "warning" },
-};
-
-const ROLE_FILTER_OPTIONS = [
-  { value: "all", label: "All Roles" },
-  { value: "admin", label: "Admin" },
-  { value: "member", label: "Member" },
-  { value: "viewer", label: "Viewer" },
-];
-
 function RoleBadgeIcon({ role }) {
   const iconClassName = "mr-1 h-3 w-3";
   const iconByRole = {
@@ -79,6 +71,7 @@ function RoleBadgeIcon({ role }) {
 
 export function TeamScreen() {
   const { project } = useProject();
+  const { id: projectId } = project ?? {};
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -88,67 +81,115 @@ export function TeamScreen() {
   const [deleteTarget, setDeleteTarget] = useState(null);
 
   useEffect(() => {
-    const fetchTeam = async () => {
-      if (!project?.id) return;
-      const supabase = createClient();
-      const { data, error } = await supabase
-        .from("flow_teams")
-        .select("*")
-        .eq("id", project.id)
-        .maybeSingle();
+    if (!projectId) {
+      return undefined;
+    }
 
-      if (error) {
-        console.error(
-          "[flow_teams] fetch error:",
-          error.message || error,
-          error.code,
-        );
-        if (error.code === "PGRST116") {
-          setMembers([]);
-        }
-      }
+    let cancelled = false;
 
-      if (data && data.members) {
-        setMembers(
-          Array.isArray(data.members)
-            ? data.members
-            : Object.values(data.members),
-        );
-      } else {
-        setMembers([]);
+    void listMembers(projectId).then((rows) => {
+      if (cancelled) {
+        return;
       }
+      setMembers(rows ?? []);
       setLoading(false);
+    });
+
+    return () => {
+      cancelled = true;
     };
-    fetchTeam();
-  }, [project?.id]);
+  }, [projectId]);
 
-  const saveMembers = async (newMembers) => {
-    setMembers(newMembers);
-    if (!project?.id) return;
-    const supabase = createClient();
-    await supabase
-      .from("flow_teams")
-      .upsert({ id: project.id, members: newMembers });
-  };
+  const handleInvite = async (email, role) => {
+    const trimmedEmail = email?.trim();
+    if (!trimmedEmail) {
+      toast.error("Enter an email address");
+      return;
+    }
+    if (!projectId) {
+      toast.error("Couldn't invite member");
+      return;
+    }
 
-  const handleInvite = (email, role) => {
-    const newMember = {
-      name: email.split("@")[0],
-      email,
+    const optimistic = {
+      id: crypto.randomUUID(),
+      projectId,
+      userId: null,
+      email: trimmedEmail,
+      name: trimmedEmail.split("@")[0],
       role,
       status: "Active",
     };
-    saveMembers([...members, newMember]);
+    setMembers((current) => [...current, optimistic]);
+
+    const created = await inviteMember(projectId, {
+      id: optimistic.id,
+      email: trimmedEmail,
+      role,
+      name: optimistic.name,
+    });
+
+    if (created) {
+      setMembers((current) =>
+        current.map((m) => (m.id === optimistic.id ? created : m)),
+      );
+      toast.success("Member invited");
+    } else {
+      setMembers((current) =>
+        current.filter((m) => m.id !== optimistic.id),
+      );
+      toast.error("Couldn't invite member");
+    }
   };
 
-  const handleEditRole = (email, newRole) => {
-    saveMembers(
-      members.map((m) => (m.email === email ? { ...m, role: newRole } : m)),
+  const handleEditRole = async (email, newRole) => {
+    const target = members.find((m) => m.email === email);
+    if (!target) {
+      return;
+    }
+
+    const previousRole = target.role;
+    setMembers((current) =>
+      current.map((m) => (m.id === target.id ? { ...m, role: newRole } : m)),
     );
+
+    const updated = await updateMemberRole(target.id, newRole);
+    if (updated) {
+      setMembers((current) =>
+        current.map((m) => (m.id === target.id ? updated : m)),
+      );
+      toast.success("Member role updated");
+    } else {
+      setMembers((current) =>
+        current.map((m) =>
+          m.id === target.id ? { ...m, role: previousRole } : m,
+        ),
+      );
+      toast.error("Couldn't update member role");
+    }
   };
 
-  const handleRemove = (email) => {
-    saveMembers(members.filter((m) => m.email !== email));
+  const handleRemove = async (email) => {
+    const target = members.find((m) => m.email === email);
+    if (!target) {
+      return;
+    }
+
+    setMembers((current) => current.filter((m) => m.id !== target.id));
+
+    const ok = await softDeleteMember(target.id);
+    if (ok) {
+      toast.success("Member removed");
+    } else {
+      setMembers((current) => {
+        const next = [...current, target];
+        next.sort((a, b) =>
+          String(a.createdAt ?? "") < String(b.createdAt ?? "") ? -1 : 1,
+        );
+        return next;
+      });
+      toast.error("Couldn't remove member");
+    }
   };
 
   const filtered = useMemo(() => {
@@ -319,7 +360,7 @@ export function TeamScreen() {
           <DataTable
             columns={columns}
             data={pager.pageItems}
-            getRowKey={(m, i) => m.email || i}
+            getRowKey={(m, i) => m.id || m.email || i}
             empty={
               <div className="rounded-xl border border-border bg-surface-subtle">
                 <EmptyState
@@ -363,7 +404,7 @@ export function TeamScreen() {
         open={!!editingMember}
         onOpenChange={(open) => !open && setEditingMember(null)}
         onInvite={(email, role) => {
-          handleEditRole(email, role);
+          void handleEditRole(email, role);
           setEditingMember(null);
         }}
       />
@@ -390,7 +431,7 @@ export function TeamScreen() {
             <Button
               className="bg-red-500/90 text-white hover:bg-red-500"
               onClick={() => {
-                handleRemove(deleteTarget.email);
+                void handleRemove(deleteTarget.email);
                 setDeleteTarget(null);
               }}
             >

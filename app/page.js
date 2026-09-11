@@ -9,6 +9,7 @@ import {
   Zap,
 } from "lucide-react";
 import { Footer } from "@geiger/ui";
+import { Button } from "@geiger/ui";
 import {
   Accordion,
   AccordionContent,
@@ -16,7 +17,7 @@ import {
   AccordionTrigger,
 } from "@geiger/ui";
 import { Header } from "@/components/header";
-import LandingWorkspaceShowcase from "@/components/landing/workspace_showcase";
+import FlowPlaygroundShowcase from "@/components/landing/flow_playground_showcase";
 
 export const metadata = {
   title: "Flow - Geiger Studio",
@@ -99,7 +100,7 @@ const faqs = [
 ];
 
 export default function FlowLandingPage() {
-  const showcaseBg = pickRandomShowcaseBackground();
+  const playgroundBg = pickRandomShowcaseBackground();
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-background text-foreground selection:bg-indigo-500/30 font-sans">
@@ -118,19 +119,18 @@ export default function FlowLandingPage() {
               Geiger Flow is your team&apos;s project and issue tracker — built for clarity,
               speed, and the way modern teams actually work.
             </p>
-            <Link
-              href="/org"
-              className="inline-flex h-10 items-center gap-2 rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80 sm:text-base"
-            >
-              Open Flow
-              <ArrowRight className="h-4 w-4" />
-            </Link>
+            <Button asChild size="lg" className="rounded-full sm:text-base">
+              <Link href="/org">
+                Open Flow
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
           </div>
         </section>
 
-        {/* Workspace showcase */}
+        {/* Live playground: the real project workspace on a demo project */}
         <div className="mx-auto my-10 w-[94%] sm:my-20 md:w-[80%]">
-          <LandingWorkspaceShowcase backgroundImage={showcaseBg} />
+          <FlowPlaygroundShowcase backgroundImage={playgroundBg} />
         </div>
 
         {/* Feature cards */}
@@ -182,20 +182,18 @@ export default function FlowLandingPage() {
               TRY GEIGER NOW
             </h2>
             <div className="flex w-full max-w-md flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
-              <Link
-                href="/org"
-                className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80 sm:w-auto"
-              >
-                Open Flow
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <a
-                href="#"
-                className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-full border border-border px-6 text-sm font-medium text-foreground transition-colors hover:bg-surface-hover sm:w-auto"
-              >
-                Contact Sales
-                <ArrowRight className="h-4 w-4" />
-              </a>
+              <Button asChild size="lg" className="w-full rounded-full sm:w-auto">
+                <Link href="/org">
+                  Open Flow
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="lg" className="w-full rounded-full sm:w-auto">
+                <a href="#">
+                  Contact Sales
+                  <ArrowRight className="h-4 w-4" />
+                </a>
+              </Button>
             </div>
           </div>
         </section>

@@ -3,7 +3,9 @@
 import React, { createContext, useContext, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 
-const ProjectContext = createContext();
+// Exported so a host can serve a static project through the same context — see
+// components/landing/playground/playground_project_provider.jsx.
+export const ProjectContext = createContext();
 
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -62,4 +64,9 @@ export function useProject() {
     throw new Error("useProject must be used within a ProjectProvider");
   }
   return context;
+}
+
+// Non-throwing variant for surfaces rendered both inside and outside a ProjectProvider (e.g. the landing header).
+export function useOptionalProject() {
+  return useContext(ProjectContext) ?? null;
 }
