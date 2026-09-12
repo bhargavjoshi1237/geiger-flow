@@ -5,7 +5,7 @@ import { use, useCallback } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, FolderX } from "lucide-react";
-import { Button } from "@geiger/ui";
+import { Button, LogoLoading } from "@geiger/ui";
 import { ProjectSidebar } from "@/components/internal/sidebar/projects/project_sidebar";
 import { ProjectTopbar } from "@/components/internal/topbar/projects/topbar";
 import { SidebarProvider, SidebarInset } from "@geiger/ui";
@@ -150,7 +150,7 @@ function ProjectLayoutContent({ id }) {
   if (loading) {
     return (
       <div className="flex flex-col h-[100dvh] w-full bg-background items-center justify-center gap-3">
-        <div className="w-5 h-5 rounded-full border-2 border-border-strong border-t-foreground animate-spin" />
+        <LogoLoading size={72} />
         <span className="text-text-tertiary text-sm">Loading project...</span>
       </div>
     );
@@ -212,7 +212,7 @@ export default function ProjectPage({ params: paramsPromise }) {
             <Suspense
               fallback={
                 <div className="flex flex-col h-[100dvh] w-full bg-background items-center justify-center gap-3">
-                  <div className="w-5 h-5 rounded-full border-2 border-border-strong border-t-foreground animate-spin" />
+                  <LogoLoading size={72} />
                   <span className="text-text-tertiary text-sm">Loading...</span>
                 </div>
               }

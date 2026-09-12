@@ -14,6 +14,7 @@ import {
   DialogTitle,
 } from "@geiger/ui";
 import { ActionMenu } from "@geiger/ui";
+import { LogoLoading } from "@geiger/ui";
 import {
   Flag,
   Calendar,
@@ -25,7 +26,6 @@ import {
   SquareStack,
   Pencil,
   Trash2,
-  Loader2,
 } from "lucide-react";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import {
@@ -413,7 +413,7 @@ export function MilestonesScreen() {
 
       {loading ? (
         <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <LogoLoading size={40} />
           Loading milestones…
         </div>
       ) : (

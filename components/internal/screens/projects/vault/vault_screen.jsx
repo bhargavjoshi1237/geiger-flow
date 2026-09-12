@@ -5,7 +5,6 @@ import {
   Key,
   KeyRound,
   Plus,
-  Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
@@ -26,7 +25,7 @@ import { AddVaultItemDialog, VAULT_TYPES } from "./add_vault_item_dialog";
 import { VaultCredentialAccessDialog } from "./vault_credential_access_dialog";
 import { VaultAccessControl } from "./vault_access_control";
 import FilterDropdown from "../overview/filter_dropdown";
-import { Button } from "@geiger/ui";
+import { Button, LogoLoading } from "@geiger/ui";
 import {
   listVaultItems,
   createVaultItem,
@@ -246,7 +245,7 @@ export function VaultScreen() {
 
       {loading ? (
         <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <LogoLoading size={40} />
           Loading vault…
         </div>
       ) : filteredItems.length === 0 ? (

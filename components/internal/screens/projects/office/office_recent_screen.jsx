@@ -3,13 +3,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Clock,
-  Loader2,
   Pencil,
   Plus,
   Star,
   Trash2,
 } from "lucide-react";
-import { Button } from "@geiger/ui";
+import { Button, LogoLoading } from "@geiger/ui";
 import { ActionMenu } from "@geiger/ui";
 import { Input } from "@geiger/ui";
 import {
@@ -310,7 +309,7 @@ export function OfficeRecentScreen() {
 
       {loading ? (
         <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <LogoLoading size={40} />
           Loading files…
         </div>
       ) : error ? (

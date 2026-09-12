@@ -33,6 +33,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@geiger/ui";
+import { LogoLoading } from "@geiger/ui";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import {
   EmptyState,
@@ -187,7 +188,7 @@ function ChannelRail({
       <div className="min-h-0 flex-1 space-y-1 overflow-y-auto p-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {loading ? (
           <div className="flex items-center justify-center gap-2 px-3 py-6 text-xs text-text-secondary">
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <LogoLoading size={32} />
             Loading channels…
           </div>
         ) : channels.length === 0 ? (
@@ -697,7 +698,7 @@ export function GroundingScreen() {
           <section className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {paneLoading ? (
               <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <LogoLoading size={40} />
                 Loading messages…
               </div>
             ) : !activeChannel ? (

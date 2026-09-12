@@ -2,7 +2,7 @@
 
 import React, { Suspense, use, useEffect } from "react";
 import { ProjectTopbar } from "@/components/internal/topbar/projects/topbar";
-import { SidebarProvider } from "@geiger/ui";
+import { SidebarProvider, LogoLoading } from "@geiger/ui";
 import { ProjectProvider, useProject } from "@/context/project-context";
 import { FormBuilderScreen } from "@/addons/forms/screens/form_builder_screen";
 
@@ -18,7 +18,7 @@ function BuilderContent({ id }) {
   if (loading || !project) {
     return (
       <div className="flex h-[100dvh] w-full flex-col items-center justify-center gap-3 bg-background">
-        <div className="h-5 w-5 animate-spin rounded-full border-2 border-border-strong border-t-foreground" />
+        <LogoLoading size={72} />
         <span className="text-sm text-text-tertiary">Loading builder...</span>
       </div>
     );
@@ -42,7 +42,7 @@ export default function ProjectFormBuilderPage({ params: paramsPromise }) {
       <Suspense
         fallback={
           <div className="flex h-[100dvh] w-full flex-col items-center justify-center gap-3 bg-background">
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-border-strong border-t-foreground" />
+            <LogoLoading size={72} />
             <span className="text-sm text-text-tertiary">Loading...</span>
           </div>
         }

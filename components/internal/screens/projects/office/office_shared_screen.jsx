@@ -3,10 +3,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Clock,
-  Loader2,
   Users,
 } from "lucide-react";
-import { Button } from "@geiger/ui";
+import { Button, LogoLoading } from "@geiger/ui";
 import { createClient } from "@/utils/supabase/client";
 import { useProject } from "@/context/project-context";
 import {
@@ -174,7 +173,7 @@ export function OfficeSharedScreen() {
 
       {loading ? (
         <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <LogoLoading size={40} />
           Loading shared files…
         </div>
       ) : error ? (

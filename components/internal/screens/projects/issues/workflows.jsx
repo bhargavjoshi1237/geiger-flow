@@ -74,7 +74,7 @@ import {
   usePagination,
 } from "@/components/internal/shared/pagination";
 import FilterDropdown from "@/components/internal/screens/projects/overview/filter_dropdown";
-import { SegmentedTabs } from "@geiger/ui";
+import { SegmentedTabs, LogoLoading } from "@geiger/ui";
 import { IssueBoard } from "@/components/internal/screens/projects/issues/issue_board";
 import { IssueStats } from "@/components/internal/screens/projects/issues/issue_stats";
 import {
@@ -1008,7 +1008,7 @@ function IssueCaseDetails({ issue, members = [], onUpdate, onDelete }) {
           </div>
         ) : loading ? (
           <div className="flex items-center justify-center gap-2 py-10 text-sm text-text-secondary">
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <LogoLoading size={36} />
             Loading comments…
           </div>
         ) : comments.length === 0 ? (
@@ -1337,7 +1337,7 @@ export function WorkflowsScreen() {
 
       {loading ? (
         <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <LogoLoading size={40} />
           Loading issues…
         </div>
       ) : issues.length === 0 ? (

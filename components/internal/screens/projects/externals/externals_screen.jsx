@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { ExternalLink, Link2, Plus, Trash2 } from "lucide-react";
+import { LogoLoading } from "@geiger/ui";
 import { Badge } from "@geiger/ui";
 import { Button } from "@geiger/ui";
 import { ActionMenu } from "@geiger/ui";
@@ -42,7 +43,6 @@ import {
   ExternalLinkIcon,
   normalizeExternalUrl,
 } from "@/components/internal/externals/external_links";
-import { Loader2 } from "lucide-react";
 
 const DEFAULT_FORM = {
   title: "",
@@ -257,7 +257,7 @@ export function ExternalsScreen({ links = [], linksLoading = false, onCreateLink
 
       {linksLoading ? (
         <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <LogoLoading size={40} />
           Loading links…
         </div>
       ) : (

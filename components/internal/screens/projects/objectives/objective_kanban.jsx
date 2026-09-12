@@ -37,8 +37,8 @@ import {
   Pencil,
   Trash2,
   Copy,
-  Loader2,
 } from "lucide-react";
+import { LogoLoading } from "@geiger/ui";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { StatusPill } from "@/components/internal/shared/screen_kit";
 import { NewGoalDialog } from "@/components/internal/dilouges/goals/new_goal_dilouge";
@@ -634,7 +634,7 @@ export function ObjectiveKanban({ objective, onBack }) {
 
         {loading ? (
           <div className="flex flex-1 items-center justify-center gap-2 text-sm text-text-secondary">
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <LogoLoading size={40} />
             Loading goals…
           </div>
         ) : (

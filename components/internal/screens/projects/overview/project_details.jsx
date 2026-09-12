@@ -11,7 +11,6 @@ import {
   ClipboardList,
   Expand,
   GitMerge,
-  Loader2,
   Maximize2,
   Sparkles,
 } from "lucide-react";
@@ -43,6 +42,7 @@ import {
   StatsBar,
 } from "@/components/internal/shared/screen_kit";
 import { severityColors } from "@geiger/ui";
+import { LogoLoading } from "@geiger/ui";
 import { cn } from "@/lib/utils";
 import { ExternalLinkIcon } from "@/components/internal/externals/external_links";
 import { listTasks } from "@/features/tasks/actions";
@@ -964,7 +964,7 @@ export function ProjectDetailsScreen({ externalLinks = [], onViewIssues }) {
 
       {loading ? (
         <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <LogoLoading size={48} />
           Loading overview…
         </div>
       ) : (

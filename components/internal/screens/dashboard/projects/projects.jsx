@@ -8,7 +8,6 @@ import {
   Layers,
   LayoutGrid,
   List,
-  Loader2,
   Pencil,
   Plus,
   Settings,
@@ -36,6 +35,7 @@ import FilterDropdown from "@/components/internal/screens/projects/overview/filt
 import { ActionMenu } from "@geiger/ui";
 import { Button } from "@geiger/ui";
 import { Badge } from "@geiger/ui";
+import { LogoLoading } from "@geiger/ui";
 import {
   Dialog,
   DialogContent,
@@ -389,7 +389,7 @@ export function ProjectsScreen() {
 
       {loading ? (
         <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <LogoLoading size={40} />
           Loading projects…
         </div>
       ) : viewMode === "grid" ? (
