@@ -335,8 +335,7 @@ export function MediaTable({ assets = [], loading = false, onRename, onDelete })
   if (loading) {
     return (
       <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-        <LogoLoading size={40} />
-        Loading assets…
+        <LogoLoading size={40} label="Loading assets" />
       </div>
     );
   }

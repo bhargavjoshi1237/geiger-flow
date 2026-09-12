@@ -634,8 +634,7 @@ export function ObjectiveKanban({ objective, onBack }) {
 
         {loading ? (
           <div className="flex flex-1 items-center justify-center gap-2 text-sm text-text-secondary">
-            <LogoLoading size={40} />
-            Loading goals…
+            <LogoLoading size={40} label="Loading goals" />
           </div>
         ) : (
         <DndContext

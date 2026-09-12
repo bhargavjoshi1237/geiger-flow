@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
-import { Button } from "@geiger/ui";
+import { Button, LoadingArea } from "@geiger/ui";
 import { Upload, ExternalLink, FolderPlus } from "lucide-react";
 import { toast } from "sonner";
 import { useProject } from "@/context/project-context";
@@ -196,10 +196,7 @@ export function AssetsScreen() {
       />
 
       {loading ? (
-        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-          <Upload className="h-4 w-4 animate-pulse" />
-          Loading assets…
-        </div>
+        <LoadingArea panel label="Loading assets" />
       ) : assets.length === 0 ? (
         <div className="rounded-xl border border-border bg-surface-subtle">
           <EmptyState

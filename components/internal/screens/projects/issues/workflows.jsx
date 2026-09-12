@@ -1008,8 +1008,7 @@ function IssueCaseDetails({ issue, members = [], onUpdate, onDelete }) {
           </div>
         ) : loading ? (
           <div className="flex items-center justify-center gap-2 py-10 text-sm text-text-secondary">
-            <LogoLoading size={36} />
-            Loading comments…
+            <LogoLoading size={36} label="Loading comments" />
           </div>
         ) : comments.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
@@ -1337,8 +1336,7 @@ export function WorkflowsScreen() {
 
       {loading ? (
         <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-          <LogoLoading size={40} />
-          Loading issues…
+          <LogoLoading size={40} label="Loading issues" />
         </div>
       ) : issues.length === 0 ? (
         <div className="rounded-xl border border-border bg-surface-subtle">

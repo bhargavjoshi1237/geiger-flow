@@ -14,14 +14,12 @@ import dynamic from "next/dynamic";
 import { settingsNav } from "@/components/internal/sidebar/projects/sidebar_data";
 import { getAddonScreens, getAddonScreenOptions } from "@/addons/registry";
 
+import { LoadingArea } from "@geiger/ui";
 // Shared while a screen chunk arrives. Sized to the main area rather than the
 // viewport, since the shell (sidebar + topbar) is already on screen.
 function ScreenLoading() {
   return (
-    <div className="flex h-full min-h-[240px] w-full items-center justify-center gap-3">
-      <div className="h-5 w-5 animate-spin rounded-full border-2 border-border-strong border-t-foreground" />
-      <span className="text-sm text-text-tertiary">Loading...</span>
-    </div>
+    <LoadingArea className="min-h-[240px] w-full py-0" />
   );
 }
 

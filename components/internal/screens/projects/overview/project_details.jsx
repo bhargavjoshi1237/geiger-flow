@@ -964,8 +964,7 @@ export function ProjectDetailsScreen({ externalLinks = [], onViewIssues }) {
 
       {loading ? (
         <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-          <LogoLoading size={48} />
-          Loading overview…
+          <LogoLoading size={48} label="Loading overview" />
         </div>
       ) : (
         <>

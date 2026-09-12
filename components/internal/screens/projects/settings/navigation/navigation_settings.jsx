@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { toast } from "sonner";
-import { NavVisibilitySettings } from "@geiger/ui";
+import { LoadingArea, NavVisibilitySettings } from "@geiger/ui";
 
 import { useCuratableProjectNav } from "@/lib/hooks/use-visible-project-nav";
 import { useNavVisibility } from "@/context/nav-visibility-context";
@@ -41,9 +41,10 @@ export function NavigationSettingsScreen() {
 
   if (loading) {
     return (
-      <div className="h-[400px] flex items-center justify-center rounded-lg border border-border text-muted-foreground">
-        Loading your navigation…
-      </div>
+      <LoadingArea
+        className="h-[400px] rounded-lg border border-border py-0"
+        label="Loading your navigation"
+      />
     );
   }
 

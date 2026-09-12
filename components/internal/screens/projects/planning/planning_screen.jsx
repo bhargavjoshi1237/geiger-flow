@@ -22,7 +22,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { Button } from "@geiger/ui";
+import { Button, LogoLoading } from "@geiger/ui";
 import { Input } from "@geiger/ui";
 import { Avatar, AvatarFallback } from "@geiger/ui";
 import { toast } from "sonner";
@@ -772,7 +772,7 @@ export function PlanningScreen() {
       <div className="relative h-[calc(100dvh-8rem)] min-h-[640px] overflow-hidden rounded-xl border border-border bg-background text-foreground">
         {boardLoading ? (
           <div className="absolute inset-0 z-50 flex items-center justify-center bg-background">
-            <span className="text-xs text-text-tertiary">Loading board…</span>
+            <LogoLoading size={40} label="Loading board" />
           </div>
         ) : null}
         <ReactFlow

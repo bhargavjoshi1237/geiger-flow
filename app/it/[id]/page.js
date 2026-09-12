@@ -4,7 +4,7 @@ import React, { Suspense, use, useEffect } from "react";
 import Link from "next/link";
 import { Inter } from "next/font/google";
 import { ArrowLeft, FolderX } from "lucide-react";
-import { Button, LogoLoading } from "@geiger/ui";
+import { Button, LoadingScreen, LogoLoading } from "@geiger/ui";
 import { ProjectProvider, useProject } from "@/context/project-context";
 import { ItShell } from "@/components/internal/screens/it/it_shell";
 
@@ -28,8 +28,7 @@ function ItContent({ id }) {
   if (loading) {
     return (
       <div className="flex h-[100dvh] w-full flex-col items-center justify-center gap-3 bg-background">
-        <LogoLoading size={72} />
-        <span className="text-sm text-text-tertiary">Loading tracker...</span>
+        <LogoLoading size={72} label="Loading tracker" />
       </div>
     );
   }
@@ -72,10 +71,7 @@ export default function ItProjectPage({ params: paramsPromise }) {
     <ProjectProvider>
       <Suspense
         fallback={
-          <div className="flex h-[100dvh] w-full flex-col items-center justify-center gap-3 bg-background">
-            <LogoLoading size={72} />
-            <span className="text-sm text-text-tertiary">Loading...</span>
-          </div>
+          <LoadingScreen />
         }
       >
         <ItContent id={id} />

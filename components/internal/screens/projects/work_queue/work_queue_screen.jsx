@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { Inbox, Plus } from "lucide-react";
-import { Button } from "@geiger/ui";
+import { Button, LoadingArea } from "@geiger/ui";
 import { Progress } from "@geiger/ui";
 import { toast } from "sonner";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
@@ -350,10 +350,7 @@ export function WorkQueueScreen() {
       </Toolbar>
 
       {loading ? (
-        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-          <Inbox className="h-4 w-4 animate-pulse" />
-          Loading the queue…
-        </div>
+        <LoadingArea panel label="Loading the queue" />
       ) : (
         <div className="space-y-5">
           <DataTable

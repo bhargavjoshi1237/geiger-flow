@@ -344,8 +344,7 @@ export function OfficeFoldersScreen() {
   if (loading) {
     return (
       <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-        <LogoLoading size={48} />
-        Loading folders…
+        <LogoLoading size={48} label="Loading folders" />
       </div>
     );
   }
@@ -387,8 +386,7 @@ export function OfficeFoldersScreen() {
 
         {filesLoading ? (
           <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-            <LogoLoading size={40} />
-            Loading files…
+            <LogoLoading size={40} label="Loading files" />
           </div>
         ) : (
           <div className="space-y-5">
