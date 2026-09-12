@@ -28,6 +28,28 @@ const KIND_META = {
   activity: { icon: MessageSquare, label: "Activity", priority: false },
 };
 
+// `flow.activity_logs.detail` is a jsonb payload ({ id, patch }, …) meant for
+// the log detail sheet, not notification copy — only surface it when a caller
+// actually stored a string. Everything else falls back to the source module.
+function detailText(detail) {
+  return typeof detail === "string" && detail.trim() ? detail : null;
+}
+
+const SOURCE_LABELS = {
+  issues: "Issues",
+  tasks: "Tasks",
+  milestones: "Milestones",
+  objectives: "Objectives",
+  goals: "Goals",
+  vault: "Vault",
+  time: "Time entries",
+};
+
+function sourceLabel(source) {
+  if (!source) return null;
+  return SOURCE_LABELS[source] ?? String(source);
+}
+
 function buildNotifications({ issues, activity, me }) {
   const rows = [];
 
@@ -78,7 +100,7 @@ function buildNotifications({ issues, activity, me }) {
       issue: null,
       at: log.occurredAt || log.createdAt,
       title: log.message,
-      detail: log.detail || log.source,
+      detail: detailText(log.detail) || sourceLabel(log.source),
       actorId: log.createdBy,
     });
   }

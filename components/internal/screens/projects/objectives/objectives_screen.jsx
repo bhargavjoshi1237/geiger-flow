@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Button } from "@geiger/ui";
+import { Button, LoadingArea } from "@geiger/ui";
 import { Progress } from "@geiger/ui";
 import { Card, CardContent } from "@geiger/ui";
 import {
@@ -14,7 +14,6 @@ import {
   DialogTitle,
 } from "@geiger/ui";
 import { ActionMenu } from "@geiger/ui";
-import { LogoLoading } from "@geiger/ui";
 import {
   Plus,
   CheckCircle2,
@@ -524,9 +523,7 @@ export function ObjectivesScreen() {
       </Toolbar>
 
       {loading ? (
-        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-          <LogoLoading size={40} label="Loading objectives" />
-        </div>
+        <LoadingArea panel label="Loading objectives" className="rounded-none min-h-[280px]" />
       ) : filteredObjectives.length === 0 ? (
         <div className="rounded-xl border border-border bg-surface-subtle">
           <EmptyState

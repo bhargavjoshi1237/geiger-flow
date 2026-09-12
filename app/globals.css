@@ -270,3 +270,13 @@
     left: 100%;
   }
 }
+
+/* Tame the LogoLoading glow — the library's drop-shadow is a fixed 12-16px blur
+   that doesn't scale with `size`, so at small marks it swamps the shape and the
+   bars' sharp corners read as rounded. 3px keeps a hint of the halo while the
+   edges stay sharp. Matches the library's (0,3,0) specificity and sits last, so
+   it wins without !important. */
+.geiger-loading[data-variant] .gl-bar,
+.geiger-loading[data-variant] .gl-mark {
+  filter: drop-shadow(0 0 3px var(--gl-accent, #e7e7e7));
+}

@@ -36,7 +36,7 @@ function Row({ children }) {
 }
 
 export function SettingsView() {
-  const { project, projectKey, issues, people, cycles, projects } = useTracker();
+  const { project, projectKey, issues, people, cycles, divisions } = useTracker();
 
   const labels = useMemo(
     () => [...new Set(issues.flatMap((issue) => issue.labels ?? []))].sort(),
@@ -64,8 +64,8 @@ export function SettingsView() {
             <dd className="font-mono text-[var(--lnr-ink)]">{projectKey}-123</dd>
             <dt className="text-[var(--lnr-ink-subtle)]">Issues</dt>
             <dd className="tabular-nums text-[var(--lnr-ink)]">{issues.length}</dd>
-            <dt className="text-[var(--lnr-ink-subtle)]">Projects</dt>
-            <dd className="tabular-nums text-[var(--lnr-ink)]">{projects.length}</dd>
+            <dt className="text-[var(--lnr-ink-subtle)]">Divisions</dt>
+            <dd className="tabular-nums text-[var(--lnr-ink)]">{divisions.length}</dd>
             <dt className="text-[var(--lnr-ink-subtle)]">Cycles</dt>
             <dd className="tabular-nums text-[var(--lnr-ink)]">{cycles.length}</dd>
           </dl>

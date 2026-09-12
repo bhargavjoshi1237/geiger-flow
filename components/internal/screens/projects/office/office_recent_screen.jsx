@@ -8,7 +8,7 @@ import {
   Star,
   Trash2,
 } from "lucide-react";
-import { Button, LogoLoading } from "@geiger/ui";
+import { Button, LoadingArea } from "@geiger/ui";
 import { ActionMenu } from "@geiger/ui";
 import { Input } from "@geiger/ui";
 import {
@@ -308,9 +308,7 @@ export function OfficeRecentScreen() {
       </Toolbar>
 
       {loading ? (
-        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-          <LogoLoading size={40} label="Loading files" />
-        </div>
+        <LoadingArea panel label="Loading files" className="rounded-none min-h-[280px]" />
       ) : error ? (
         <div className="flex min-h-[30vh] flex-col items-center justify-center gap-3 text-center">
           <p className="text-sm text-red-300">{error}</p>

@@ -7,10 +7,10 @@ import { formatShortDate } from "../constants";
 import { cycleStats } from "../grouping";
 import { ProgressRing } from "../icons";
 import { HeaderButton, ViewHeader } from "../view_header";
-import { projectStats } from "./projects";
+import { divisionStats } from "./divisions";
 import { useTracker } from "../use_tracker";
 
-// Linear's roadmap: every project and cycle laid out as a bar across a shared
+// Linear's roadmap: every division and cycle laid out as a bar across a shared
 // timeline, so overlapping work and slipping target dates are visible at a
 // glance. Range is quarters or months; today is a vertical marker.
 //
@@ -48,20 +48,20 @@ function buildTimeline(items, months) {
   return { columns, bars, todayLeft: ((now - start) / span) * 100 };
 }
 
-export function InitiativesView({ onSelectProject, onSelectCycle }) {
-  const { projects, cycles, issues } = useTracker();
+export function InitiativesView({ onSelectDivision, onSelectCycle }) {
+  const { divisions, cycles, issues } = useTracker();
   const [months, setMonths] = useState(6);
 
   const items = useMemo(() => {
-    const fromProjects = projects.map((project) => {
-      const stats = projectStats(project, issues);
+    const fromDivisions = divisions.map((division) => {
+      const stats = divisionStats(division, issues);
       return {
-        id: `project:${project.id}`,
-        entityId: project.id,
-        kind: "project",
-        title: project.title,
-        start: project.startDate || project.createdAt,
-        end: project.targetDate,
+        id: `division:${division.id}`,
+        entityId: division.id,
+        kind: "division",
+        title: division.title,
+        start: division.startDate || division.createdAt,
+        end: division.targetDate,
         progress: stats.progress,
         detail: `${stats.completed}/${stats.total} issues`,
       };
@@ -81,10 +81,10 @@ export function InitiativesView({ onSelectProject, onSelectCycle }) {
       };
     });
 
-    return [...fromProjects, ...fromCycles].sort(
+    return [...fromDivisions, ...fromCycles].sort(
       (a, b) => new Date(a.start) - new Date(b.start),
     );
-  }, [projects, cycles, issues]);
+  }, [divisions, cycles, issues]);
 
   const { columns, bars, todayLeft } = useMemo(
     () => buildTimeline(items, months),
@@ -114,7 +114,7 @@ export function InitiativesView({ onSelectProject, onSelectCycle }) {
           <Target className="h-6 w-6 text-[var(--lnr-ink-tertiary)]" />
           <p className="text-[14px] font-medium text-[var(--lnr-ink)]">Nothing on the roadmap</p>
           <p className="max-w-sm text-[13px] text-[var(--lnr-ink-subtle)]">
-            Projects and cycles with target dates are laid out here as a timeline.
+            Divisions and cycles with target dates are laid out here as a timeline.
           </p>
         </div>
       ) : (
@@ -144,13 +144,13 @@ export function InitiativesView({ onSelectProject, onSelectCycle }) {
                 <button
                   type="button"
                   onClick={() =>
-                    bar.kind === "project"
-                      ? onSelectProject(bar.entityId)
+                    bar.kind === "division"
+                      ? onSelectDivision(bar.entityId)
                       : onSelectCycle(bar.entityId)
                   }
                   className="flex w-[var(--lnr-roadmap-label)] shrink-0 items-center gap-2 border-r border-[var(--lnr-border)] px-3 py-2.5 text-left"
                 >
-                  {bar.kind === "project" ? (
+                  {bar.kind === "division" ? (
                     <Box className="h-3.5 w-3.5 shrink-0 text-[var(--lnr-accent)]" />
                   ) : (
                     <Repeat className="h-3.5 w-3.5 shrink-0 text-[var(--lnr-started)]" />
@@ -182,7 +182,7 @@ export function InitiativesView({ onSelectProject, onSelectCycle }) {
                       "relative h-5 overflow-hidden rounded-full border",
                       bar.overdue
                         ? "border-[var(--lnr-urgent)] bg-[color-mix(in_srgb,var(--lnr-urgent)_18%,transparent)]"
-                        : "border-[var(--lnr-border-strong)] bg-[var(--lnr-elevated)]",
+                        : "border-[var(--lnr-border-strong)] bg-[var(--lnr-strong)]",
                     )}
                     style={{ marginLeft: `${bar.left}%`, width: `${bar.width}%` }}
                   >

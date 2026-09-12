@@ -9,7 +9,7 @@ import {
   Trash2,
 } from "lucide-react";
 import * as LucideIcons from "lucide-react";
-import { ActionMenu } from "@geiger/ui";
+import { ActionMenu, LoadingArea } from "@geiger/ui";
 import { Badge } from "@geiger/ui";
 import {
   Sheet,
@@ -17,7 +17,7 @@ import {
   SheetTitle,
 } from "@geiger/ui";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
-import { SegmentedTabs, LogoLoading } from "@geiger/ui";
+import { SegmentedTabs } from "@geiger/ui";
 import {
   ListPagination,
   usePagination,
@@ -374,9 +374,7 @@ export function InboxScreen() {
       </Toolbar>
 
       {loading ? (
-        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-          <LogoLoading size={40} label="Loading notifications" />
-        </div>
+        <LoadingArea panel label="Loading notifications" className="rounded-none min-h-[280px]" />
       ) : (
         <div className="space-y-5">
           <DataTable

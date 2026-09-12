@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Calendar } from "@geiger/ui";
+import { Calendar, LoadingArea } from "@geiger/ui";
 import { Button } from "@geiger/ui";
 import {
   Select,
@@ -26,7 +26,7 @@ import {
   StatsBar,
   Toolbar,
 } from "@/components/internal/shared/screen_kit";
-import { SegmentedTabs, LogoLoading } from "@geiger/ui";
+import { SegmentedTabs } from "@geiger/ui";
 import { NewProjectionDialog } from "@/components/internal/dilouges/projections/new_projection_dilouge";
 import { useProject } from "@/context/project-context";
 import { DEFAULT_PROJECTION_KIND, DEFAULT_PROJECTION_VISIBILITY, toDayKey } from "@/features/projections/constants";
@@ -373,9 +373,7 @@ export function ProjectionsScreen() {
       </Toolbar>
 
       {loading ? (
-        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-          <LogoLoading size={40} label="Loading projections" />
-        </div>
+        <LoadingArea panel label="Loading projections" className="rounded-none min-h-[280px]" />
       ) : events.length === 0 ? (
         <div className="rounded-xl border border-border bg-surface-subtle">
           <EmptyState

@@ -2,9 +2,8 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Button } from "@geiger/ui";
+import { Button, LoadingArea } from "@geiger/ui";
 import { ActionMenu } from "@geiger/ui";
-import { LogoLoading } from "@geiger/ui";
 import {
   Sheet,
   SheetContent,
@@ -453,9 +452,7 @@ export function LogsScreen() {
       </Toolbar>
 
       {loading ? (
-        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-          <LogoLoading size={40} label="Loading logs" />
-        </div>
+        <LoadingArea panel label="Loading logs" className="rounded-none min-h-[280px]" />
       ) : (
         <div className="space-y-5">
           <DataTable

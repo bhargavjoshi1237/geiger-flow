@@ -196,7 +196,7 @@ export function AssetsScreen() {
       />
 
       {loading ? (
-        <LoadingArea panel label="Loading assets" />
+        <LoadingArea panel label="Loading assets" className="rounded-none" />
       ) : assets.length === 0 ? (
         <div className="rounded-xl border border-border bg-surface-subtle">
           <EmptyState

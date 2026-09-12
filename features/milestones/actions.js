@@ -181,6 +181,10 @@ export async function updateMilestone(id, patch) {
       title: data.title,
       patch,
       fields: MILESTONE_FIELD_LABELS,
+      values: {
+        tasks: (value) =>
+          `${Array.isArray(value) ? value.length : 0} task(s)`,
+      },
     }),
     detail: { id, patch },
   }).catch(() => {});

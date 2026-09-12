@@ -19,9 +19,9 @@ import { PriorityIcon, StatusIcon, priorityLabel, statusLabel } from "./icons";
 import {
   AssigneePicker,
   CyclePicker,
+  DivisionPicker,
   LabelPicker,
   PriorityPicker,
-  ProjectPicker,
   StatusPicker,
 } from "./pickers";
 import { useTracker } from "./use_tracker";
@@ -41,7 +41,10 @@ const EMPTY = {
   cycleId: null,
 };
 
-function Pill({ children, active }) {
+// `Pill` is the trigger surface for every picker, so it has to forward the
+// props Radix's `asChild` slot injects (`onClick` toggles the popover,
+// `data-state`/`aria-expanded` drive its accessibility state).
+function Pill({ children, active, ...props }) {
   return (
     <button
       type="button"
@@ -50,6 +53,7 @@ function Pill({ children, active }) {
           ? "border-[var(--lnr-border-strong)] bg-[var(--lnr-selected)] text-[var(--lnr-ink)]"
           : "border-[var(--lnr-border-strong)] text-[var(--lnr-ink-subtle)] hover:bg-[var(--lnr-hover)] hover:text-[var(--lnr-ink)]"
       }`}
+      {...props}
     >
       {children}
     </button>
@@ -57,7 +61,7 @@ function Pill({ children, active }) {
 }
 
 export function CreateIssueDialog({ open, onOpenChange, defaults, onCreated }) {
-  const { addIssue, projectKey, peopleById, projects, cycles } = useTracker();
+  const { addIssue, projectKey, peopleById, divisions, cycles } = useTracker();
   const [draft, setDraft] = useState(EMPTY);
   const [seeded, setSeeded] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -87,7 +91,7 @@ export function CreateIssueDialog({ open, onOpenChange, defaults, onCreated }) {
     }
   };
 
-  const linkedProject = projects.find((entry) => entry.id === draft.objectiveId);
+  const linkedDivision = divisions.find((entry) => entry.id === draft.objectiveId);
   const linkedCycle = cycles.find((entry) => entry.id === draft.cycleId);
 
   return (
@@ -186,15 +190,15 @@ export function CreateIssueDialog({ open, onOpenChange, defaults, onCreated }) {
               </Pill>
             </LabelPicker>
 
-            <ProjectPicker
+            <DivisionPicker
               value={draft.objectiveId}
               onSelect={(objectiveId) => set({ objectiveId })}
             >
               <Pill active={Boolean(draft.objectiveId)}>
                 <Box className="h-3.5 w-3.5" />
-                {linkedProject?.title || "Project"}
+                {linkedDivision?.title || "Division"}
               </Pill>
-            </ProjectPicker>
+            </DivisionPicker>
 
             <CyclePicker value={draft.cycleId} onSelect={(cycleId) => set({ cycleId })}>
               <Pill active={Boolean(draft.cycleId)}>
@@ -218,7 +222,7 @@ export function CreateIssueDialog({ open, onOpenChange, defaults, onCreated }) {
               type="submit"
               size="sm"
               disabled={saving}
-              className="h-7 bg-[var(--lnr-accent)] px-3 text-[12px] text-white hover:bg-[var(--lnr-accent-hover)]"
+              className="h-7 bg-[var(--lnr-accent)] px-3 text-[12px] text-[var(--primary-foreground)] hover:bg-[var(--lnr-accent-hover)]"
             >
               Create issue
             </Button>

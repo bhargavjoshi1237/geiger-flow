@@ -42,11 +42,10 @@ import {
   Toolbar,
 } from "@/components/internal/shared/screen_kit";
 import FilterDropdown from "@/components/internal/screens/projects/overview/filter_dropdown";
-import { ActionMenu } from "@geiger/ui";
+import { ActionMenu, LoadingArea } from "@geiger/ui";
 import { Avatar, AvatarFallback } from "@geiger/ui";
 import { Badge } from "@geiger/ui";
 import { Button } from "@geiger/ui";
-import { LogoLoading } from "@geiger/ui";
 import {
   Dialog,
   DialogContent,
@@ -351,9 +350,7 @@ export function TeamScreen() {
       </Toolbar>
 
       {loading ? (
-        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-          <LogoLoading size={40} label="Loading team members" />
-        </div>
+        <LoadingArea panel label="Loading team members" className="rounded-none min-h-[280px]" />
       ) : (
         <div className="space-y-5">
           <DataTable

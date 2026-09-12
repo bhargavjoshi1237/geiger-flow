@@ -37,7 +37,7 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@geiger/ui";
+import { Button, LoadingArea } from "@geiger/ui";
 import { Input } from "@geiger/ui";
 import { Textarea } from "@geiger/ui";
 import { Badge } from "@geiger/ui";
@@ -74,7 +74,7 @@ import {
   usePagination,
 } from "@/components/internal/shared/pagination";
 import FilterDropdown from "@/components/internal/screens/projects/overview/filter_dropdown";
-import { SegmentedTabs, LogoLoading } from "@geiger/ui";
+import { SegmentedTabs } from "@geiger/ui";
 import { IssueBoard } from "@/components/internal/screens/projects/issues/issue_board";
 import { IssueStats } from "@/components/internal/screens/projects/issues/issue_stats";
 import {
@@ -1007,9 +1007,7 @@ function IssueCaseDetails({ issue, members = [], onUpdate, onDelete }) {
             </div>
           </div>
         ) : loading ? (
-          <div className="flex items-center justify-center gap-2 py-10 text-sm text-text-secondary">
-            <LogoLoading size={36} label="Loading comments" />
-          </div>
+          <LoadingArea size={36} label="Loading comments" className="py-10" />
         ) : comments.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
             <MessageSquare className="h-8 w-8 text-text-tertiary" />
@@ -1335,9 +1333,7 @@ export function WorkflowsScreen() {
       </Toolbar>
 
       {loading ? (
-        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-          <LogoLoading size={40} label="Loading issues" />
-        </div>
+        <LoadingArea panel label="Loading issues" className="rounded-none min-h-[280px]" />
       ) : issues.length === 0 ? (
         <div className="rounded-xl border border-border bg-surface-subtle">
           <EmptyState

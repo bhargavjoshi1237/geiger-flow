@@ -150,7 +150,7 @@ function ProjectLayoutContent({ id }) {
   if (loading) {
     return (
       <div className="flex flex-col h-[100dvh] w-full bg-background items-center justify-center gap-3">
-        <LogoLoading size={72} label="Loading project" />
+        <LogoLoading size={96} label="Loading project" />
       </div>
     );
   }
@@ -210,7 +210,7 @@ export default function ProjectPage({ params: paramsPromise }) {
           <NavVisibilityProvider>
             <Suspense
               fallback={
-                <LoadingScreen />
+                <LoadingScreen size={96} />
               }
             >
               <ProjectLayoutContent id={id} />

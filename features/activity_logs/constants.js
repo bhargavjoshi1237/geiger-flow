@@ -72,6 +72,18 @@ export function formatExportDate(date) {
   return dateFormatter.format(date);
 }
 
+// Formatters win; otherwise render safely — a raw array/object would come out
+// as the useless "[object Object]" in the stored message.
+function formatPatchValue(raw, formatter) {
+  if (formatter) return String(formatter(raw));
+  if (raw == null) return "";
+  if (Array.isArray(raw)) {
+    return `${raw.length} item${raw.length === 1 ? "" : "s"}`;
+  }
+  if (typeof raw === "object") return JSON.stringify(raw);
+  return String(raw);
+}
+
 // Builds a past-tense update message from a mutation patch, e.g.
 //   { entity: "issue", patch: { status: "in_progress" }, values: {...} }
 //   -> "Updated issue status → In Progress"
@@ -89,7 +101,7 @@ export function formatUpdateMessage({ entity, title, patch, fields = {}, values 
   const changes = keys.map((key) => {
     const field = fields[key] ?? key;
     const raw = patch[key];
-    const value = values[key] ? String(values[key](raw)) : String(raw ?? "");
+    const value = formatPatchValue(raw, values[key]);
     return `${field} → ${value}`;
   });
 

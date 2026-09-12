@@ -17,7 +17,7 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Button } from "@geiger/ui";
+import { Button, LoadingArea } from "@geiger/ui";
 import { Input } from "@geiger/ui";
 import { Progress } from "@geiger/ui";
 import { Card, CardContent } from "@geiger/ui";
@@ -38,7 +38,6 @@ import {
   Trash2,
   Copy,
 } from "lucide-react";
-import { LogoLoading } from "@geiger/ui";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { StatusPill } from "@/components/internal/shared/screen_kit";
 import { NewGoalDialog } from "@/components/internal/dilouges/goals/new_goal_dilouge";
@@ -633,9 +632,7 @@ export function ObjectiveKanban({ objective, onBack }) {
         </div>
 
         {loading ? (
-          <div className="flex flex-1 items-center justify-center gap-2 text-sm text-text-secondary">
-            <LogoLoading size={40} label="Loading goals" />
-          </div>
+          <LoadingArea label="Loading goals" className="flex-1 py-0" />
         ) : (
         <DndContext
           sensors={sensors}

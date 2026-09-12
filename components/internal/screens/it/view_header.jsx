@@ -138,7 +138,7 @@ const FILTER_FIELDS = [
   { key: "priority", label: "Priority" },
   { key: "assignee", label: "Assignee" },
   { key: "label", label: "Label" },
-  { key: "project", label: "Project" },
+  { key: "division", label: "Division" },
   { key: "cycle", label: "Cycle" },
 ];
 
@@ -165,10 +165,10 @@ function optionsFor(key, tracker) {
       return [...new Set(tracker.issues.flatMap((issue) => issue.labels ?? []))].map(
         (label) => ({ value: label, label }),
       );
-    case "project":
-      return tracker.projects.map((project) => ({
-        value: project.id,
-        label: project.title,
+    case "division":
+      return tracker.divisions.map((division) => ({
+        value: division.id,
+        label: division.title,
       }));
     case "cycle":
       return tracker.cycles.map((cycle) => ({ value: cycle.id, label: cycle.title }));

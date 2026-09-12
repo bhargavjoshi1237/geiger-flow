@@ -32,10 +32,9 @@ import {
   Toolbar,
 } from "@/components/internal/shared/screen_kit";
 import FilterDropdown from "@/components/internal/screens/projects/overview/filter_dropdown";
-import { ActionMenu } from "@geiger/ui";
+import { ActionMenu, LoadingArea } from "@geiger/ui";
 import { Button } from "@geiger/ui";
 import { Badge } from "@geiger/ui";
-import { LogoLoading } from "@geiger/ui";
 import {
   Dialog,
   DialogContent,
@@ -388,9 +387,7 @@ export function ProjectsScreen() {
       </Toolbar>
 
       {loading ? (
-        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-          <LogoLoading size={40} label="Loading projects" />
-        </div>
+        <LoadingArea panel label="Loading projects" className="rounded-none min-h-[280px]" />
       ) : viewMode === "grid" ? (
         <div className="space-y-5">
           {pager.pageItems.length === 0 ? (

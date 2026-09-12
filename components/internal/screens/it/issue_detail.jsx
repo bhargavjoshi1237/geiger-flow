@@ -44,9 +44,9 @@ import { PriorityIcon, StatusIcon, priorityLabel, statusLabel } from "./icons";
 import {
   AssigneePicker,
   CyclePicker,
+  DivisionPicker,
   LabelPicker,
   PriorityPicker,
-  ProjectPicker,
   StatusPicker,
 } from "./pickers";
 import { useTracker } from "./use_tracker";
@@ -181,7 +181,7 @@ function CommentThread({ issueId }) {
               type="submit"
               size="sm"
               disabled={!draft.trim() || sending}
-              className="h-7 bg-[var(--lnr-accent)] px-3 text-[12px] text-white hover:bg-[var(--lnr-accent-hover)]"
+              className="h-7 bg-[var(--lnr-accent)] px-3 text-[12px] text-[var(--primary-foreground)] hover:bg-[var(--lnr-accent-hover)]"
             >
               Comment
             </Button>
@@ -193,7 +193,7 @@ function CommentThread({ issueId }) {
 }
 
 export function IssueDetail({ issueId, onClose, onNavigate }) {
-  const { issues, project, peopleById, projects, cycles, patchIssue, removeIssue, copyIssue } =
+  const { issues, project, peopleById, divisions, cycles, patchIssue, removeIssue, copyIssue } =
     useTracker();
 
   const index = issues.findIndex((entry) => entry.id === issueId);
@@ -235,7 +235,7 @@ export function IssueDetail({ issueId, onClose, onNavigate }) {
     );
   }
 
-  const linkedProject = projects.find((entry) => entry.id === issue.objectiveId);
+  const linkedDivision = divisions.find((entry) => entry.id === issue.objectiveId);
   const linkedCycle = cycles.find((entry) => entry.id === issue.cycleId);
   const creator = peopleById[issue.createdBy];
 
@@ -444,16 +444,16 @@ export function IssueDetail({ issueId, onClose, onNavigate }) {
 
           <div className="col-span-full my-3 border-t border-[var(--lnr-border)]" />
 
-          <PropertyRow label="Project">
-            <ProjectPicker
+          <PropertyRow label="Division">
+            <DivisionPicker
               value={issue.objectiveId}
               onSelect={(objectiveId) => set({ objectiveId })}
             >
               <PropertyButton>
                 <Box className="h-4 w-4 text-[var(--lnr-ink-tertiary)]" />
-                <span className="truncate">{linkedProject?.title || "No project"}</span>
+                <span className="truncate">{linkedDivision?.title || "No division"}</span>
               </PropertyButton>
-            </ProjectPicker>
+            </DivisionPicker>
           </PropertyRow>
 
           <PropertyRow label="Cycle">

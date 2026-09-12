@@ -19,7 +19,7 @@ import { LoadingArea } from "@geiger/ui";
 // viewport, since the shell (sidebar + topbar) is already on screen.
 function ScreenLoading() {
   return (
-    <LoadingArea className="min-h-[240px] w-full py-0" />
+    <LoadingArea size={96} className="min-h-[600px] w-full py-0" />
   );
 }
 

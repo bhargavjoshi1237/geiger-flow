@@ -16,10 +16,9 @@ import {
   Trash2,
   Wrench,
 } from "lucide-react";
-import { Button } from "@geiger/ui";
+import { Button, LoadingArea } from "@geiger/ui";
 import { ActionMenu } from "@geiger/ui";
 import { Switch } from "@geiger/ui";
-import { LogoLoading } from "@geiger/ui";
 import {
   Dialog,
   DialogContent,
@@ -623,9 +622,7 @@ export function SecurityScreen() {
       </Toolbar>
 
       {loading ? (
-        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-          <LogoLoading size={40} label="Loading security" />
-        </div>
+        <LoadingArea panel label="Loading security" className="rounded-none min-h-[280px]" />
       ) : (
         <>
           {showAccess ? (

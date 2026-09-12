@@ -25,7 +25,7 @@ import { AddVaultItemDialog, VAULT_TYPES } from "./add_vault_item_dialog";
 import { VaultCredentialAccessDialog } from "./vault_credential_access_dialog";
 import { VaultAccessControl } from "./vault_access_control";
 import FilterDropdown from "../overview/filter_dropdown";
-import { Button, LogoLoading } from "@geiger/ui";
+import { Button, LoadingArea } from "@geiger/ui";
 import {
   listVaultItems,
   createVaultItem,
@@ -244,9 +244,7 @@ export function VaultScreen() {
       </Toolbar>
 
       {loading ? (
-        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-          <LogoLoading size={40} label="Loading vault" />
-        </div>
+        <LoadingArea panel label="Loading vault" className="rounded-none min-h-[280px]" />
       ) : filteredItems.length === 0 ? (
         <div className="rounded-xl border border-border bg-surface-subtle">
           <EmptyState

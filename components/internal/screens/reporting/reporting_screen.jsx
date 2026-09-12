@@ -9,7 +9,7 @@ import {
   Timer,
   Trash2,
 } from "lucide-react";
-import { Avatar, AvatarFallback } from "@geiger/ui";
+import { Avatar, AvatarFallback, LoadingArea } from "@geiger/ui";
 import { Button } from "@geiger/ui";
 import { Progress } from "@geiger/ui";
 import {
@@ -21,7 +21,6 @@ import {
   DialogTitle,
 } from "@geiger/ui";
 import { ActionMenu } from "@geiger/ui";
-import { LogoLoading } from "@geiger/ui";
 import { toast } from "sonner";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import {
@@ -632,9 +631,7 @@ export function ReportingScreen() {
       </Toolbar>
 
       {loading ? (
-        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-          <LogoLoading size={40} label="Loading report data" />
-        </div>
+        <LoadingArea panel label="Loading report data" className="rounded-none min-h-[280px]" />
       ) : activeView === "Tasks" ? (
         <div className="space-y-5">
           <DataTable

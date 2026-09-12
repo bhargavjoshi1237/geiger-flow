@@ -28,7 +28,7 @@ function ItContent({ id }) {
   if (loading) {
     return (
       <div className="flex h-[100dvh] w-full flex-col items-center justify-center gap-3 bg-background">
-        <LogoLoading size={72} label="Loading tracker" />
+        <LogoLoading size={96} label="Loading tracker" />
       </div>
     );
   }

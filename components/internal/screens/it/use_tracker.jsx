@@ -32,12 +32,13 @@ import { isCompleted, toLinearPriority, toLinearStatus } from "./constants";
 
 // One fetch of the whole tracker, shared by every view in the shell.
 //
-// Linear's Cycles / Projects / Initiatives map onto tables this app already
+// Linear's Cycles / Divisions / Initiatives map onto tables this app already
 // owns rather than new ones: flow.milestones are cycles (a dated window with a
-// task roll-up) and flow.objectives are projects (owner, status, progress,
-// start/target). An issue carries its cycle/project association in the
-// metadata bag as `cycleId` / `objectiveId`, promoted to first-class fields by
-// the data layer alongside type/estimate.
+// task roll-up) and flow.objectives are divisions (owner, status, progress,
+// start/target) — sections of the Geiger Flow project this tracker runs on. An
+// issue carries its cycle/division association in the metadata bag as
+// `cycleId` / `objectiveId`, promoted to first-class fields by the data layer
+// alongside type/estimate.
 
 const TrackerContext = createContext(null);
 
@@ -59,7 +60,7 @@ export function TrackerProvider({ children }) {
 
   const [issues, setIssues] = useState([]);
   const [cycles, setCycles] = useState([]);
-  const [projects, setProjects] = useState([]);
+  const [divisions, setDivisions] = useState([]);
   const [activity, setActivity] = useState([]);
   const [members, setMembers] = useState([]);
   const [profiles, setProfiles] = useState({});
@@ -90,11 +91,11 @@ export function TrackerProvider({ children }) {
       listMilestones(projectId),
       listObjectives(projectId),
       listActivityLogs(projectId),
-    ]).then(([issueRows, cycleRows, projectRows, activityRows]) => {
+    ]).then(([issueRows, cycleRows, divisionRows, activityRows]) => {
       if (cancelled) return;
       setIssues((issueRows ?? []).map(decorate));
       setCycles(cycleRows ?? []);
-      setProjects(projectRows ?? []);
+      setDivisions(divisionRows ?? []);
       setActivity(activityRows ?? []);
       setLoadedFor(projectId);
     });
@@ -273,7 +274,7 @@ export function TrackerProvider({ children }) {
       projectKey,
       issues,
       cycles,
-      projects,
+      divisions,
       activity,
       people,
       peopleById,
@@ -292,7 +293,7 @@ export function TrackerProvider({ children }) {
       projectKey,
       issues,
       cycles,
-      projects,
+      divisions,
       activity,
       people,
       peopleById,

@@ -255,24 +255,24 @@ export function LabelPicker({ children, value = [], onSelect, align }) {
   );
 }
 
-export function ProjectPicker({ children, value, onSelect, align }) {
-  const { projects } = useTracker();
+export function DivisionPicker({ children, value, onSelect, align }) {
+  const { divisions } = useTracker();
   return (
     <PickerPopover
       align={align}
       content={(close) => (
         <PickerList
-          placeholder="Add to project..."
+          placeholder="Add to division..."
           selected={value}
           options={[
             {
               value: "__none__",
-              label: "No project",
+              label: "No division",
               icon: <Box className="h-3.5 w-3.5 text-[var(--lnr-ink-tertiary)]" />,
             },
-            ...projects.map((project) => ({
-              value: project.id,
-              label: project.title,
+            ...divisions.map((division) => ({
+              value: division.id,
+              label: division.title,
               icon: <Box className="h-3.5 w-3.5 text-[var(--lnr-accent)]" />,
             })),
           ]}

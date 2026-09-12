@@ -1,76 +1,47 @@
 /*
- * Linear-accurate palette, scoped to the /it tracker.
+ * Tracker theme for /it — Linear's information design on the suite palette.
  *
- * Every value below re-points a @geiger/ui semantic token, so shared primitives
- * (Button, Popover, Dialog, Avatar, Select…) adopt Linear's look without being
- * forked. Radix portals mount on document.body, outside the shell — pass
- * `linear-scope` on the portalled content to carry the palette across.
+ * The tracker keeps its own surface ladder and tight field metrics, but every
+ * colour below derives from the semantic tokens in @geiger/ui, so it follows
+ * the app theme (light/dark) and the shared status hues instead of forcing a
+ * Linear-dark palette. Radix portals mount on document.body, outside the shell
+ * — pass `linear-scope` on the portalled content to carry the aliases (and the
+ * tighter field metrics) across; shared primitives still read the root tokens,
+ * so they look native.
  */
 
 .linear-scope {
-  /* Surface ladder — canvas, page panel, elevated, hover, selected. */
-  --lnr-canvas: #08090a;
-  --lnr-panel: #101012;
-  --lnr-elevated: #18191b;
-  --lnr-hover: #1c1d1f;
-  --lnr-selected: #222326;
-  --lnr-strong: #2a2b2e;
+  /* Surface ladder — canvas, page panel, elevated, hover, selected, strong. */
+  --lnr-canvas: var(--background);
+  --lnr-panel: var(--surface-subtle);
+  --lnr-elevated: var(--surface-dialog);
+  --lnr-hover: var(--surface-hover);
+  --lnr-selected: var(--surface-active);
+  --lnr-strong: var(--surface-strong);
 
-  --lnr-border: #1f2023;
-  --lnr-border-strong: #2c2d31;
+  --lnr-border: var(--border);
+  --lnr-border-strong: var(--border-strong);
 
-  --lnr-ink: #f7f8f8;
-  --lnr-ink-muted: #d0d6e0;
-  --lnr-ink-subtle: #8a8f98;
-  --lnr-ink-tertiary: #62666d;
+  /* Ink ladder — primary, muted body, labels, faint meta. */
+  --lnr-ink: var(--foreground);
+  --lnr-ink-muted: var(--muted-foreground);
+  --lnr-ink-subtle: var(--text-secondary);
+  --lnr-ink-tertiary: var(--text-tertiary);
 
-  --lnr-accent: #5e6ad2;
-  --lnr-accent-hover: #6e79dd;
-  --lnr-accent-soft: rgba(94, 106, 210, 0.16);
+  /* Interaction colour is the suite primary (monochrome, theme-aware). */
+  --lnr-accent: var(--primary);
+  --lnr-accent-hover: color-mix(in srgb, var(--primary) 90%, transparent);
+  --lnr-accent-soft: color-mix(in srgb, var(--primary) 16%, transparent);
 
-  /* Workflow-state hues (status icons, board headers, progress rings). */
-  --lnr-backlog: #6b6f76;
-  --lnr-todo: #8a8f98;
-  --lnr-started: #f2c94c;
-  --lnr-review: #4cb782;
-  --lnr-done: #5e6ad2;
-  --lnr-canceled: #6b6f76;
-  --lnr-urgent: #fc7840;
-
-  /* @geiger/ui token overrides. */
-  --background: var(--lnr-canvas);
-  --foreground: var(--lnr-ink);
-  --card: var(--lnr-panel);
-  --card-foreground: var(--lnr-ink);
-  --popover: var(--lnr-elevated);
-  --popover-foreground: var(--lnr-ink);
-  --primary: var(--lnr-accent);
-  --primary-foreground: #ffffff;
-  --secondary: var(--lnr-elevated);
-  --secondary-foreground: var(--lnr-ink);
-  --muted: var(--lnr-elevated);
-  --muted-foreground: var(--lnr-ink-subtle);
-  --accent: var(--lnr-hover);
-  --accent-foreground: var(--lnr-ink);
-  --destructive: #d1373a;
-  --destructive-foreground: #ffffff;
-  --destructive-text: #f2555a;
-  --border: var(--lnr-border);
-  --input: var(--lnr-elevated);
-  --ring: var(--lnr-accent);
-
-  --surface-subtle: var(--lnr-panel);
-  --surface-card: var(--lnr-elevated);
-  --surface-active: var(--lnr-selected);
-  --surface-hover: var(--lnr-hover);
-  --surface-dialog: var(--lnr-elevated);
-  --surface-strong: var(--lnr-strong);
-  --border-strong: var(--lnr-border-strong);
-  --text-secondary: var(--lnr-ink-subtle);
-  --text-tertiary: var(--lnr-ink-tertiary);
-  --divider: var(--lnr-border);
-  --scrollbar-thumb: #2a2b2e;
-  --scrollbar-thumb-hover: #3a3b3f;
+  /* Workflow-state hues mirror the suite's StatusPill variants (the 400s it
+     uses for in-progress / done / overdue states). */
+  --lnr-backlog: var(--muted-foreground);
+  --lnr-todo: var(--muted-foreground);
+  --lnr-started: #38bdf8; /* sky-400 — In Progress */
+  --lnr-review: #a78bfa; /* violet-400 — In Review */
+  --lnr-done: #34d399; /* emerald-400 — Done */
+  --lnr-canceled: var(--text-tertiary);
+  --lnr-urgent: #f87171; /* red-400 — Urgent / overdue */
 
   /* Linear's fields are tighter than the suite default. */
   --radius: 0.5rem;
@@ -110,14 +81,14 @@
 
 .lnr-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: var(--lnr-strong) transparent;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
 }
 .lnr-scrollbar::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 .lnr-scrollbar::-webkit-scrollbar-thumb {
-  background-color: var(--lnr-strong);
+  background-color: var(--scrollbar-thumb);
   border-radius: 999px;
 }
 .lnr-scrollbar::-webkit-scrollbar-track {

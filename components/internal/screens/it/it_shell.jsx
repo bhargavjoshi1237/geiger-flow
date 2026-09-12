@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import {
   CommandPalette,
+  LogoLoading,
   Sheet,
   SheetContent,
   SheetDescription,
@@ -40,7 +41,7 @@ import { InboxView } from "./views/inbox";
 import { InitiativesView } from "./views/initiatives";
 import { AllIssuesView, MyIssuesView, TriageView, ViewsView } from "./views/issues";
 import { MembersView } from "./views/members";
-import { ProjectsView } from "./views/projects";
+import { DivisionsView } from "./views/divisions";
 import { SettingsView } from "./views/settings";
 
 // The Linear shell for /it/[id]: a left rail over the dark canvas and a single
@@ -58,7 +59,7 @@ const GOTO_KEYS = {
   a: "all-issues",
   t: "triage",
   c: "cycles",
-  p: "projects",
+  d: "divisions",
   v: "views",
   r: "initiatives",
   s: "settings",
@@ -70,7 +71,7 @@ const PALETTE_NAV = [
   { title: "All issues", icon: SquareStack },
   { title: "Triage", icon: Inbox },
   { title: "Cycles", icon: Repeat },
-  { title: "Projects", icon: Box },
+  { title: "Divisions", icon: Box },
   { title: "Initiatives", icon: Target },
   { title: "Views", icon: LayoutGrid },
   { title: "Members", icon: Users },
@@ -83,7 +84,7 @@ const PALETTE_VIEW_BY_TITLE = {
   "All issues": "all-issues",
   Triage: "triage",
   Cycles: "cycles",
-  Projects: "projects",
+  Divisions: "divisions",
   Initiatives: "initiatives",
   Views: "views",
   Members: "members",
@@ -104,7 +105,7 @@ function ShellBody() {
     view,
     issueId,
     cycleId,
-    projectId: openProjectId,
+    divisionId: openDivisionId,
     setParams,
     goToView,
     openIssue,
@@ -220,20 +221,20 @@ function ShellBody() {
             onSelectCycle={(id) => setParams({ cycle: id })}
           />
         );
-      case "projects":
-      case "team-projects":
+      case "divisions":
+      case "team-divisions":
         return (
-          <ProjectsView
+          <DivisionsView
             onOpenIssue={openIssue}
             onCreate={startCreate}
-            selectedId={openProjectId}
-            onSelect={(id) => setParams({ project: id })}
+            selectedId={openDivisionId}
+            onSelect={(id) => setParams({ division: id })}
           />
         );
       case "initiatives":
         return (
           <InitiativesView
-            onSelectProject={(id) => navigate("projects", { project: id })}
+            onSelectDivision={(id) => navigate("divisions", { division: id })}
             onSelectCycle={(id) => navigate("cycles", { cycle: id })}
           />
         );
@@ -290,9 +291,8 @@ function ShellBody() {
 
       <main className="flex min-w-0 flex-1 flex-col overflow-hidden border-[var(--lnr-border)] bg-[var(--lnr-panel)] lg:rounded-tl-[8px] lg:border-l lg:border-t">
         {loading ? (
-          <div className="flex flex-1 flex-col items-center justify-center gap-3">
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--lnr-border-strong)] border-t-[var(--lnr-ink-subtle)]" />
-            <span className="text-[13px] text-[var(--lnr-ink-tertiary)]">Loading workspace…</span>
+          <div className="flex flex-1 flex-col items-center justify-center">
+            <LogoLoading size={40} label="Loading workspace" />
           </div>
         ) : (
           content()

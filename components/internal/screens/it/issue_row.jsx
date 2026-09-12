@@ -30,13 +30,13 @@ import { AssigneePicker, PriorityPicker, StatusPicker } from "./pickers";
 import { useTracker } from "./use_tracker";
 
 // One Linear issue row. Left to right: select box, priority, identifier,
-// status, title, then the right cluster (labels, project/cycle, links, due
+// status, title, then the right cluster (labels, division/cycle, links, due
 // date, avatar). Every glyph in the left cluster is its own picker trigger, so
 // properties are editable without opening the issue — that inline editability
 // is the thing that makes the list feel like Linear rather than a table.
 //
 // Narrow screens drop the right cluster progressively rather than letting it
-// squeeze the title: labels/project/cycle go first (<xl), then the identifier
+// squeeze the title: labels/division/cycle go first (<xl), then the identifier
 // and dates (<sm). Priority, status, title and assignee always survive.
 
 function AssigneeStack({ ids, peopleById }) {
@@ -100,7 +100,7 @@ export function IssueRow({
   onOpen,
   onToggleSelect,
 }) {
-  const { peopleById, people, issues, projects, cycles, patchIssue, removeIssue } =
+  const { peopleById, people, issues, divisions, cycles, patchIssue, removeIssue } =
     useTracker();
 
   const knownLabels = React.useMemo(
@@ -108,7 +108,7 @@ export function IssueRow({
     [issues],
   );
 
-  const project = projects.find((entry) => entry.id === issue.objectiveId);
+  const division = divisions.find((entry) => entry.id === issue.objectiveId);
   const cycle = cycles.find((entry) => entry.id === issue.cycleId);
   const overdue = isOverdue(issue);
 
@@ -204,9 +204,9 @@ export function IssueRow({
               </span>
             ) : null}
 
-            {properties.project && project ? (
+            {properties.division && division ? (
               <span className="hidden max-w-[140px] truncate rounded-full border border-[var(--lnr-border-strong)] px-1.5 py-[1px] text-[11px] text-[var(--lnr-ink-muted)] lg:inline">
-                {project.title}
+                {division.title}
               </span>
             ) : null}
 
@@ -351,14 +351,14 @@ export function IssueRow({
           </RowSubMenu>
         ) : null}
 
-        <RowSubMenu label="Project">
+        <RowSubMenu label="Division">
           <ContextMenuCheckboxItem
             checked={!issue.objectiveId}
             onSelect={() => set({ objectiveId: null })}
           >
-            No project
+            No division
           </ContextMenuCheckboxItem>
-          {projects.map((entry) => (
+          {divisions.map((entry) => (
             <ContextMenuCheckboxItem
               key={entry.id}
               checked={issue.objectiveId === entry.id}

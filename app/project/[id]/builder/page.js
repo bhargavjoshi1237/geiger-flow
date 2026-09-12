@@ -18,7 +18,7 @@ function BuilderContent({ id }) {
   if (loading || !project) {
     return (
       <div className="flex h-[100dvh] w-full flex-col items-center justify-center gap-3 bg-background">
-        <LogoLoading size={72} label="Loading builder" />
+        <LogoLoading size={96} label="Loading builder" />
       </div>
     );
   }

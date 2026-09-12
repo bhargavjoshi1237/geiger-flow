@@ -350,7 +350,7 @@ export function WorkQueueScreen() {
       </Toolbar>
 
       {loading ? (
-        <LoadingArea panel label="Loading the queue" />
+        <LoadingArea panel label="Loading the queue" className="rounded-none" />
       ) : (
         <div className="space-y-5">
           <DataTable

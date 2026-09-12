@@ -175,7 +175,7 @@ export function priorityLabel(priority) {
   return PRIORITY_MAP[toLinearPriority(priority)]?.label ?? "No priority";
 }
 
-// Circular completion ring used by cycles, projects and the roadmap.
+// Circular completion ring used by cycles, divisions and the roadmap.
 export function ProgressRing({ value = 0, size = 14, stroke = 2.5, className }) {
   const clamped = Math.max(0, Math.min(100, Number(value) || 0));
   const radius = (size - stroke) / 2;

@@ -96,7 +96,7 @@ export function ItSidebar({ view, onNavigate, onSearch, onCompose, className }) 
               type="button"
               className="flex min-w-0 flex-1 items-center gap-2 rounded-[5px] px-1.5 py-1.5 text-left hover:bg-[var(--lnr-hover)]"
             >
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-[4px] bg-[var(--lnr-accent)] text-[10px] font-semibold text-white">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-[4px] bg-[var(--lnr-accent)] text-[10px] font-semibold text-[var(--primary-foreground)]">
                 {projectKey.slice(0, 1)}
               </span>
               <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-[var(--lnr-ink)]">
@@ -144,7 +144,7 @@ export function ItSidebar({ view, onNavigate, onSearch, onCompose, className }) 
           onClick={onCompose}
           aria-label="New issue"
           title="New issue"
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[5px] border border-[var(--lnr-border-strong)] bg-[var(--lnr-elevated)] text-[var(--lnr-ink-muted)] hover:bg-[var(--lnr-hover)] hover:text-[var(--lnr-ink)]"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[5px] border border-[var(--lnr-border-strong)] bg-surface-card text-[var(--lnr-ink-muted)] hover:bg-[var(--lnr-hover)] hover:text-[var(--lnr-ink)]"
         >
           <Pencil className="h-3.5 w-3.5" />
         </button>
@@ -176,9 +176,9 @@ export function ItSidebar({ view, onNavigate, onSearch, onCompose, className }) 
         />
         <NavRow
           icon={Box}
-          label="Projects"
-          active={view === "projects"}
-          onClick={() => onNavigate("projects")}
+          label="Divisions"
+          active={view === "divisions"}
+          onClick={() => onNavigate("divisions")}
         />
         <NavRow
           icon={LayoutGrid}
@@ -236,10 +236,10 @@ export function ItSidebar({ view, onNavigate, onSearch, onCompose, className }) 
             />
             <NavRow
               icon={SquareStack}
-              label="Projects"
+              label="Divisions"
               indent
-              active={view === "team-projects"}
-              onClick={() => onNavigate("team-projects")}
+              active={view === "team-divisions"}
+              onClick={() => onNavigate("team-divisions")}
             />
             <NavRow
               icon={SquareStack}

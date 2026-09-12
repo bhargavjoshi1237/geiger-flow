@@ -55,7 +55,7 @@ function GroupGlyph({ group }) {
 
 function GroupHeader({ group, onCreate }) {
   return (
-    <div className="sticky top-0 z-10 flex h-9 items-center gap-2 border-b border-[var(--lnr-border)] bg-[var(--lnr-elevated)] px-3 sm:px-4">
+    <div className="sticky top-0 z-10 flex h-9 items-center gap-2 border-b border-[var(--lnr-border)] bg-[var(--lnr-panel)] px-3 sm:px-4">
       <GroupGlyph group={group} />
       <span className="text-[13px] font-medium text-[var(--lnr-ink)]">{group.label}</span>
       <span className="text-[12px] tabular-nums text-[var(--lnr-ink-tertiary)]">
@@ -145,7 +145,7 @@ export function IssueSurface({
   emptyHint = "Create an issue to get started.",
 }) {
   const tracker = useTracker();
-  const { project, peopleById, projects, cycles } = tracker;
+  const { project, peopleById, divisions, cycles } = tracker;
   const [selected, setSelected] = useState(() => new Set());
   const [focusIndex, setFocusIndex] = useState(0);
   const containerRef = useRef(null);
@@ -156,8 +156,8 @@ export function IssueSurface({
   }, [issues, filters, search, display]);
 
   const groups = useMemo(
-    () => groupIssues(visible, display.grouping, { peopleById, projects, cycles }),
-    [visible, display.grouping, peopleById, projects, cycles],
+    () => groupIssues(visible, display.grouping, { peopleById, divisions, cycles }),
+    [visible, display.grouping, peopleById, divisions, cycles],
   );
 
   // Flat order across groups is what j/k walks.
@@ -228,7 +228,7 @@ export function IssueSurface({
           <Button
             size="sm"
             onClick={() => onCreate({})}
-            className="mt-1 bg-[var(--lnr-accent)] text-white hover:bg-[var(--lnr-accent-hover)]"
+            className="mt-1 bg-[var(--lnr-accent)] text-[var(--primary-foreground)] hover:bg-[var(--lnr-accent-hover)]"
           >
             <Plus className="h-3.5 w-3.5" />
             New issue

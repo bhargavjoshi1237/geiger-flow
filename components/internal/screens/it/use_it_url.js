@@ -14,7 +14,7 @@ export function useItUrl() {
   const view = params.get("view") || "all-issues";
   const issueId = params.get("issue");
   const cycleId = params.get("cycle");
-  const projectId = params.get("project");
+  const divisionId = params.get("division");
   const teamTab = params.get("tab");
 
   const setParams = useCallback(
@@ -40,7 +40,7 @@ export function useItUrl() {
         view: nextView === "all-issues" ? null : nextView,
         issue: null,
         cycle: null,
-        project: null,
+        division: null,
         tab: null,
         ...extra,
       });
@@ -56,13 +56,13 @@ export function useItUrl() {
       view,
       issueId,
       cycleId,
-      projectId,
+      divisionId,
       teamTab,
       setParams,
       goToView,
       openIssue,
       closeIssue,
     }),
-    [view, issueId, cycleId, projectId, teamTab, setParams, goToView, openIssue, closeIssue],
+    [view, issueId, cycleId, divisionId, teamTab, setParams, goToView, openIssue, closeIssue],
   );
 }

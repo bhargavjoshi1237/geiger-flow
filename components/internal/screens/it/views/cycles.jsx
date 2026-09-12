@@ -211,7 +211,7 @@ function NewCycleDialog({ open, onOpenChange, projectId, onCreated }) {
             <Button
               type="submit"
               disabled={saving}
-              className="bg-[var(--lnr-accent)] text-white hover:bg-[var(--lnr-accent-hover)]"
+              className="bg-[var(--lnr-accent)] text-[var(--primary-foreground)] hover:bg-[var(--lnr-accent-hover)]"
             >
               Create cycle
             </Button>
@@ -340,7 +340,7 @@ export function CyclesView({ onOpenIssue, onCreate, cycleId, onSelectCycle }) {
           <Button
             size="sm"
             onClick={() => setCreating(true)}
-            className="mt-1 bg-[var(--lnr-accent)] text-white hover:bg-[var(--lnr-accent-hover)]"
+            className="mt-1 bg-[var(--lnr-accent)] text-[var(--primary-foreground)] hover:bg-[var(--lnr-accent-hover)]"
           >
             <Plus className="h-3.5 w-3.5" />
             New cycle

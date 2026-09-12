@@ -90,7 +90,7 @@ import FilterDropdown from "@/components/internal/screens/projects/overview/filt
 import { AddTaskDialog } from "./add_task_dialog";
 import { cn } from "@/lib/utils";
 import { useProject } from "@/context/project-context";
-import { IssueSeverityBadge, severityIcons, LogoLoading } from "@geiger/ui";
+import { IssueSeverityBadge, severityIcons, LoadingArea } from "@geiger/ui";
 import { getUser } from "@/lib/supabase/user";
 import {
   getProfilesByIds,
@@ -1058,9 +1058,7 @@ function TaskDetails({ task, members = [], onUpdate, onDelete, onEdit }) {
             </div>
           </div>
         ) : loading ? (
-          <div className="flex items-center justify-center gap-2 py-10 text-sm text-text-secondary">
-            <LogoLoading size={36} label="Loading comments" />
-          </div>
+          <LoadingArea size={36} label="Loading comments" className="py-10" />
         ) : comments.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
             <MessageSquare className="h-8 w-8 text-text-tertiary" />
@@ -1515,9 +1513,7 @@ export function TasksScreen() {
       </Toolbar>
 
       {loading ? (
-        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-          <LogoLoading size={40} label="Loading tasks" />
-        </div>
+        <LoadingArea panel label="Loading tasks" className="rounded-none min-h-[280px]" />
       ) : (
         <div className="space-y-5">
           <DataTable

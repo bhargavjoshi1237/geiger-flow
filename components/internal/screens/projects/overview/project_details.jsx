@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Button, Card, CardContent, CardHeader } from "@geiger/ui";
+import { Button, Card, CardContent, CardHeader, LoadingArea } from "@geiger/ui";
 import {
   Activity,
   AlertTriangle,
@@ -42,7 +42,6 @@ import {
   StatsBar,
 } from "@/components/internal/shared/screen_kit";
 import { severityColors } from "@geiger/ui";
-import { LogoLoading } from "@geiger/ui";
 import { cn } from "@/lib/utils";
 import { ExternalLinkIcon } from "@/components/internal/externals/external_links";
 import { listTasks } from "@/features/tasks/actions";
@@ -963,9 +962,7 @@ export function ProjectDetailsScreen({ externalLinks = [], onViewIssues }) {
       <StatsBar stats={headlineStats} />
 
       {loading ? (
-        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-          <LogoLoading size={48} label="Loading overview" />
-        </div>
+        <LoadingArea panel label="Loading overview" className="rounded-none min-h-[280px]" />
       ) : (
         <>
           {dashboardLinks.length > 0 ? (

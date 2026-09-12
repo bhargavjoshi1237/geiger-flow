@@ -26,9 +26,12 @@ import { IssueSurface } from "../issue_list";
 import { DisplayMenu, HeaderButton, ViewHeader } from "../view_header";
 import { useTracker } from "../use_tracker";
 
-// Linear's Projects. A project is a flow.objective — title, lead, health status,
-// progress and a start/target window — and its scope is every issue whose
-// metadata bag points at it. Health is stored in the objective's `status`.
+// Linear's Projects, modelled here as Divisions — sections of the Geiger Flow
+// project this tracker runs on. A division is a flow.objective: title, lead,
+// health status, progress and a start/target window, scoped to every issue
+// whose metadata bag points at it. Health is stored in the objective's
+// `status`. Because the tracker is already inside a project, its work is
+// grouped by division rather than by a second layer of "projects".
 
 const HEALTH = {
   not_started: { label: "Backlog", dot: "var(--lnr-backlog)" },
@@ -39,16 +42,16 @@ const HEALTH = {
 
 const HEALTH_ORDER = ["not_started", "on_track", "at_risk", "completed"];
 
-function projectStats(project, issues) {
-  const scoped = issues.filter((issue) => issue.objectiveId === project.id);
+function divisionStats(division, issues) {
+  const scoped = issues.filter((issue) => issue.objectiveId === division.id);
   const completed = scoped.filter((issue) => isCompleted(issue.status));
-  // A project's own progress column wins when set; otherwise derive it.
+  // A division's own progress column wins when set; otherwise derive it.
   const derived = scoped.length ? Math.round((completed.length / scoped.length) * 100) : 0;
   return {
     issues: scoped,
     total: scoped.length,
     completed: completed.length,
-    progress: project.progress || derived,
+    progress: division.progress || derived,
   };
 }
 
@@ -73,14 +76,14 @@ function HealthPill({ status, onChange }) {
   );
 }
 
-function NewProjectDialog({ open, onOpenChange, projectId, onCreated }) {
+function NewDivisionDialog({ open, onOpenChange, projectId, onCreated }) {
   const [draft, setDraft] = useState({ title: "", description: "", targetDate: "" });
   const [saving, setSaving] = useState(false);
 
   const submit = async (event) => {
     event.preventDefault();
     if (!draft.title.trim()) {
-      toast.error("Give the project a name.");
+      toast.error("Give the division a name.");
       return;
     }
     setSaving(true);
@@ -92,10 +95,10 @@ function NewProjectDialog({ open, onOpenChange, projectId, onCreated }) {
     });
     setSaving(false);
     if (!created) {
-      toast.error("Couldn't create the project.");
+      toast.error("Couldn't create the division.");
       return;
     }
-    toast.success("Project created");
+    toast.success("Division created");
     setDraft({ title: "", description: "", targetDate: "" });
     onOpenChange(false);
     onCreated(created);
@@ -105,16 +108,16 @@ function NewProjectDialog({ open, onOpenChange, projectId, onCreated }) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="linear-scope border-[var(--lnr-border-strong)] bg-[var(--lnr-elevated)] sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>New project</DialogTitle>
+          <DialogTitle>New division</DialogTitle>
           <DialogDescription>
-            Group related issues under a shared target date and health status.
+            A section of this project with its own target date and health status.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={submit} className="grid gap-4">
           <div className="grid gap-2">
-            <Label htmlFor="project-title">Name</Label>
+            <Label htmlFor="division-title">Name</Label>
             <Input
-              id="project-title"
+              id="division-title"
               autoFocus
               value={draft.title}
               onChange={(event) => setDraft({ ...draft, title: event.target.value })}
@@ -122,19 +125,19 @@ function NewProjectDialog({ open, onOpenChange, projectId, onCreated }) {
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="project-summary">Summary</Label>
+            <Label htmlFor="division-summary">Summary</Label>
             <Textarea
-              id="project-summary"
+              id="division-summary"
               rows={3}
               value={draft.description}
               onChange={(event) => setDraft({ ...draft, description: event.target.value })}
-              placeholder="What is this project for?"
+              placeholder="What is this division for?"
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="project-target">Target date</Label>
+            <Label htmlFor="division-target">Target date</Label>
             <Input
-              id="project-target"
+              id="division-target"
               type="date"
               value={draft.targetDate}
               onChange={(event) => setDraft({ ...draft, targetDate: event.target.value })}
@@ -147,9 +150,9 @@ function NewProjectDialog({ open, onOpenChange, projectId, onCreated }) {
             <Button
               type="submit"
               disabled={saving}
-              className="bg-[var(--lnr-accent)] text-white hover:bg-[var(--lnr-accent-hover)]"
+              className="bg-[var(--lnr-accent)] text-[var(--primary-foreground)] hover:bg-[var(--lnr-accent-hover)]"
             >
-              Create project
+              Create division
             </Button>
           </DialogFooter>
         </form>
@@ -158,8 +161,8 @@ function NewProjectDialog({ open, onOpenChange, projectId, onCreated }) {
   );
 }
 
-export function ProjectsView({ onOpenIssue, onCreate, selectedId, onSelect }) {
-  const { projects, issues, projectId, people } = useTracker();
+export function DivisionsView({ onOpenIssue, onCreate, selectedId, onSelect }) {
+  const { divisions, issues, projectId, people } = useTracker();
   const [creating, setCreating] = useState(false);
   const [local, setLocal] = useState([]);
   const [health, setHealth] = useState({});
@@ -167,17 +170,17 @@ export function ProjectsView({ onOpenIssue, onCreate, selectedId, onSelect }) {
 
   const all = useMemo(
     () =>
-      [...projects, ...local].map((entry) => ({
+      [...divisions, ...local].map((entry) => ({
         ...entry,
         status: health[entry.id] ?? entry.status,
       })),
-    [projects, local, health],
+    [divisions, local, health],
   );
 
   const selected = selectedId ? all.find((entry) => entry.id === selectedId) : null;
 
   // Health is a single column write; keep the row optimistic and persist.
-  const setProjectHealth = async (id, status) => {
+  const setDivisionHealth = async (id, status) => {
     setHealth((current) => ({ ...current, [id]: status }));
     const saved = await updateObjective(id, { status });
     if (!saved) {
@@ -186,19 +189,19 @@ export function ProjectsView({ onOpenIssue, onCreate, selectedId, onSelect }) {
         delete next[id];
         return next;
       });
-      toast.error("Couldn't update project health.");
+      toast.error("Couldn't update division health.");
     }
   };
 
   if (selected) {
-    const stats = projectStats(selected, issues);
+    const stats = divisionStats(selected, issues);
     const lead = people.find((person) => person.name === selected.owner);
 
     return (
       <div className="flex min-h-0 flex-1 flex-col">
         <ViewHeader
           crumbs={[
-            { label: "Projects", icon: Box, onClick: () => onSelect(null) },
+            { label: "Divisions", icon: Box, onClick: () => onSelect(null) },
             { label: selected.title },
           ]}
           actions={<DisplayMenu display={display} onChange={setDisplay} />}
@@ -219,7 +222,7 @@ export function ProjectsView({ onOpenIssue, onCreate, selectedId, onSelect }) {
               <div className="mt-3 flex flex-wrap items-center gap-2 text-[12px] text-[var(--lnr-ink-subtle)]">
                 <HealthPill
                   status={selected.status}
-                  onChange={(status) => setProjectHealth(selected.id, status)}
+                  onChange={(status) => setDivisionHealth(selected.id, status)}
                 />
                 {lead ? (
                   <span className="flex items-center gap-1.5 rounded-full border border-[var(--lnr-border-strong)] px-2 py-[2px]">
@@ -254,8 +257,8 @@ export function ProjectsView({ onOpenIssue, onCreate, selectedId, onSelect }) {
           display={display}
           onOpenIssue={onOpenIssue}
           onCreate={(patch) => onCreate({ ...patch, objectiveId: selected.id })}
-          emptyTitle="No issues in this project"
-          emptyHint="Set an issue's Project property to pull it in here."
+          emptyTitle="No issues in this division"
+          emptyHint="Set an issue's Division property to pull it in here."
         />
       </div>
     );
@@ -264,36 +267,37 @@ export function ProjectsView({ onOpenIssue, onCreate, selectedId, onSelect }) {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <ViewHeader
-        crumbs={[{ label: "Projects", icon: Box }]}
-        actions={<HeaderButton icon={Plus} label="New project" onClick={() => setCreating(true)} />}
+        crumbs={[{ label: "Divisions", icon: Box }]}
+        actions={<HeaderButton icon={Plus} label="New division" onClick={() => setCreating(true)} />}
       />
 
       {all.length === 0 ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-2 text-center">
           <Box className="h-6 w-6 text-[var(--lnr-ink-tertiary)]" />
-          <p className="text-[14px] font-medium text-[var(--lnr-ink)]">No projects yet</p>
+          <p className="text-[14px] font-medium text-[var(--lnr-ink)]">No divisions yet</p>
           <p className="max-w-sm text-[13px] text-[var(--lnr-ink-subtle)]">
-            Projects group issues under a shared goal, lead and target date.
+            Divisions are sections of this project — group issues under a shared goal, lead and
+            target date.
           </p>
           <Button
             size="sm"
             onClick={() => setCreating(true)}
-            className="mt-1 bg-[var(--lnr-accent)] text-white hover:bg-[var(--lnr-accent-hover)]"
+            className="mt-1 bg-[var(--lnr-accent)] text-[var(--primary-foreground)] hover:bg-[var(--lnr-accent-hover)]"
           >
             <Plus className="h-3.5 w-3.5" />
-            New project
+            New division
           </Button>
         </div>
       ) : (
         <div className="flex-1 overflow-y-auto lnr-scrollbar">
           <div className="flex h-8 items-center gap-3 border-b border-[var(--lnr-border)] px-3 text-[11px] text-[var(--lnr-ink-tertiary)] sm:px-4">
-            <span className="flex-1">Project</span>
+            <span className="flex-1">Division</span>
             <span className="hidden w-[92px] md:inline">Health</span>
             <span className="hidden w-[120px] sm:inline">Progress</span>
             <span className="w-[64px] text-right sm:w-[80px]">Target</span>
           </div>
           {all.map((entry) => {
-            const stats = projectStats(entry, issues);
+            const stats = divisionStats(entry, issues);
             return (
               <button
                 key={entry.id}
@@ -315,7 +319,7 @@ export function ProjectsView({ onOpenIssue, onCreate, selectedId, onSelect }) {
                 <span className="hidden w-[92px] shrink-0 md:block">
                   <HealthPill
                     status={entry.status}
-                    onChange={(status) => setProjectHealth(entry.id, status)}
+                    onChange={(status) => setDivisionHealth(entry.id, status)}
                   />
                 </span>
                 <span className="hidden w-[120px] shrink-0 items-center gap-2 sm:flex">
@@ -345,7 +349,7 @@ export function ProjectsView({ onOpenIssue, onCreate, selectedId, onSelect }) {
         </div>
       )}
 
-      <NewProjectDialog
+      <NewDivisionDialog
         open={creating}
         onOpenChange={setCreating}
         projectId={projectId}
@@ -355,4 +359,4 @@ export function ProjectsView({ onOpenIssue, onCreate, selectedId, onSelect }) {
   );
 }
 
-export { projectStats, HEALTH };
+export { divisionStats, HEALTH };

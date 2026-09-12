@@ -11,7 +11,7 @@ import {
   Search,
   Trash2,
 } from "lucide-react";
-import { Button } from "@geiger/ui";
+import { Button, LoadingArea } from "@geiger/ui";
 import { ActionMenu } from "@geiger/ui";
 import { Input } from "@geiger/ui";
 import {
@@ -22,7 +22,6 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@geiger/ui";
-import { LogoLoading } from "@geiger/ui";
 import { createClient } from "@/utils/supabase/client";
 import { useProject } from "@/context/project-context";
 import {
@@ -343,9 +342,7 @@ export function OfficeFoldersScreen() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-        <LogoLoading size={48} label="Loading folders" />
-      </div>
+      <LoadingArea panel label="Loading folders" className="rounded-none min-h-[280px]" />
     );
   }
 
@@ -385,9 +382,7 @@ export function OfficeFoldersScreen() {
         </Toolbar>
 
         {filesLoading ? (
-          <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-            <LogoLoading size={40} label="Loading files" />
-          </div>
+          <LoadingArea panel label="Loading files" className="rounded-none min-h-[280px]" />
         ) : (
           <div className="space-y-5">
             <DataTable
@@ -758,7 +753,7 @@ function AddToFolderDialog({
 
           {loading ? (
             <div className="flex min-h-[20vh] items-center justify-center text-text-secondary">
-              <LogoLoading size={40} />
+              <Loader2 className="h-5 w-5 animate-spin" />
             </div>
           ) : filtered.length === 0 ? (
             <p className="py-8 text-center text-sm text-text-secondary">

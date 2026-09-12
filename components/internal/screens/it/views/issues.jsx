@@ -89,7 +89,7 @@ export function IssueViewFrame({
             <button
               type="button"
               onClick={() => onCreate?.({})}
-              className="flex h-7 items-center gap-1 rounded-[5px] bg-[var(--lnr-accent)] px-2.5 text-[12px] font-medium text-white hover:bg-[var(--lnr-accent-hover)]"
+              className="flex h-7 items-center gap-1 rounded-[5px] bg-[var(--lnr-accent)] px-2.5 text-[12px] font-medium text-[var(--primary-foreground)] hover:bg-[var(--lnr-accent-hover)]"
             >
               <Plus className="h-3.5 w-3.5" />
               New

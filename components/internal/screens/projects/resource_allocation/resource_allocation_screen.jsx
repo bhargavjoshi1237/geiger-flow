@@ -14,7 +14,7 @@ import {
   UserX,
   Users,
 } from "lucide-react";
-import { Button } from "@geiger/ui";
+import { Button, LoadingArea } from "@geiger/ui";
 import {
   Dialog,
   DialogContent,
@@ -26,7 +26,6 @@ import {
 import { Progress } from "@geiger/ui";
 import { SegmentedTabs } from "@geiger/ui";
 import { ActionMenu } from "@geiger/ui";
-import { LogoLoading } from "@geiger/ui";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import {
   DataTable,
@@ -530,9 +529,7 @@ export function ResourceAllocationScreen() {
           </Toolbar>
 
           {loading ? (
-            <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-              <LogoLoading size={40} label="Loading allocations" />
-            </div>
+            <LoadingArea panel label="Loading allocations" className="rounded-none min-h-[280px]" />
           ) : (
             <div className="space-y-5">
               <DataTable
@@ -603,9 +600,7 @@ export function ResourceAllocationScreen() {
           </Toolbar>
 
           {loading ? (
-            <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-              <LogoLoading size={40} label="Loading requests" />
-            </div>
+            <LoadingArea panel label="Loading requests" className="rounded-none min-h-[280px]" />
           ) : (
             <div className="space-y-5">
               <DataTable

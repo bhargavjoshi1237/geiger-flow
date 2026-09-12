@@ -33,7 +33,7 @@ export function filterIssues(issues, { filters = {}, search = "", display = {} }
     if (filters.label?.length) {
       if (!(issue.labels ?? []).some((label) => filters.label.includes(label))) return false;
     }
-    if (filters.project?.length && !filters.project.includes(issue.objectiveId)) return false;
+    if (filters.division?.length && !filters.division.includes(issue.objectiveId)) return false;
     if (filters.cycle?.length && !filters.cycle.includes(issue.cycleId)) return false;
     if (filters.assignee?.length) {
       const assignees = issue.assignees ?? [];
@@ -76,7 +76,7 @@ export function sortIssues(issues, ordering) {
 // Each section is { key, label, color, icon, issues } — `icon` names the glyph
 // the renderer should draw (status/priority/none) so grouping stays data-only.
 export function groupIssues(issues, grouping, context) {
-  const { peopleById = {}, projects = [], cycles = [] } = context ?? {};
+  const { peopleById = {}, divisions = [], cycles = [] } = context ?? {};
 
   if (grouping === "none") {
     return [{ key: "all", label: "All issues", icon: "none", issues }];
@@ -121,9 +121,9 @@ export function groupIssues(issues, grouping, context) {
       .sort((a, b) => a.label.localeCompare(b.label));
   }
 
-  if (grouping === "project" || grouping === "cycle") {
-    const source = grouping === "project" ? projects : cycles;
-    const field = grouping === "project" ? "objectiveId" : "cycleId";
+  if (grouping === "division" || grouping === "cycle") {
+    const source = grouping === "division" ? divisions : cycles;
+    const field = grouping === "division" ? "objectiveId" : "cycleId";
     const groups = source.map((entry) => ({
       key: entry.id,
       label: entry.title,
@@ -136,7 +136,7 @@ export function groupIssues(issues, grouping, context) {
     if (orphans.length) {
       groups.push({
         key: "__none__",
-        label: grouping === "project" ? "No project" : "No cycle",
+        label: grouping === "division" ? "No division" : "No cycle",
         icon: "none",
         issues: orphans,
       });
@@ -176,7 +176,7 @@ export function groupPatch(grouping, key) {
       return { priority: key };
     case "assignee":
       return { assignees: key === "__none__" ? [] : [key] };
-    case "project":
+    case "division":
       return { objectiveId: key === "__none__" ? null : key };
     case "cycle":
       return { cycleId: key === "__none__" ? null : key };

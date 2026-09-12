@@ -1,9 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ExternalLink, Link2, Plus, Trash2 } from "lucide-react";
-import { LogoLoading } from "@geiger/ui";
-import { Badge } from "@geiger/ui";
+import { ExternalLink, Link2, Plus, Trash2, Loader2 } from "lucide-react";
+import { Badge, LoadingArea } from "@geiger/ui";
 import { Button } from "@geiger/ui";
 import { ActionMenu } from "@geiger/ui";
 import {
@@ -256,9 +255,7 @@ export function ExternalsScreen({ links = [], linksLoading = false, onCreateLink
       </Toolbar>
 
       {linksLoading ? (
-        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-16 text-sm text-text-secondary">
-          <LogoLoading size={40} label="Loading links" />
-        </div>
+        <LoadingArea panel label="Loading links" className="rounded-none min-h-[280px]" />
       ) : (
         <div className="space-y-5">
           <DataTable
