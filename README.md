@@ -16,7 +16,7 @@ Part of the [Geiger](#the-geiger-suite) suite.
 
 Geiger Flow is the project and work-tracking application of the Geiger suite. Teams organise work into **projects**, break it down into **issues** and **tasks**, and roll it up into **milestones**, **objectives**, and **goals** — with reporting, planning, and resource views layered on top.
 
-Flow is also the suite's reference implementation. Its data-layer patterns (a dedicated Postgres schema, RLS-enforced project access, a `metadata` expansion bag) and its `components/ui/` primitives are the canonical source for the shared [`@geiger/ui`](https://github.com/bhargavjoshi1237/geiger-ui) library that every other Geiger app consumes.
+Flow is also the suite's reference implementation. Its data-layer patterns (a dedicated Postgres schema, RLS-enforced project access, a `metadata` expansion bag) are the model the other apps follow, and its original `components/ui/` primitives seeded the shared [`@geiger/ui`](https://github.com/bhargavjoshi1237/geiger-ui) library that every Geiger app, Flow included, now consumes.
 
 ## Highlights
 
@@ -109,7 +109,6 @@ addons/                  Pluggable add-on modules and the add-on registry
 components/
   internal/screens/      Workspace screens by area
   internal/shared/       Shared screen kit (headers, tables, stats, dialogs)
-  ui/                    shadcn primitives (canonical source for @geiger/ui)
 supabase/
   components/            flowClient() — the schema-scoped Supabase client
   migrations/            Timestamped @up/@down migrations (npm run db:push)
