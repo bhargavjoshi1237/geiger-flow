@@ -1,9 +1,8 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { formatDistanceToNow } from "date-fns";
 import { Button, LoadingArea } from "@geiger/ui";
-import { Upload, ExternalLink, FolderPlus } from "lucide-react";
+import { Upload, FolderPlus } from "lucide-react";
 import { toast } from "sonner";
 import { useProject } from "@/context/project-context";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
@@ -18,17 +17,12 @@ import {
   deleteAsset,
 } from "@/features/assets/actions";
 import {
-  MEDIA_TYPE_MAP,
   MEDIA_TYPES,
   formatBytes,
 } from "@/features/assets/constants";
 import { MediaTable } from "./media_table";
-import { StorageBreakdownCard } from "./storage_breakdown";
 import { UploadDialog } from "./upload_dialog";
-import { ActivityCard } from "./activity_card";
-import { TopAssetsCard } from "./top_assets_card";
 
-const ACTIVITY_LIMIT = 6;
 
 export function AssetsScreen() {
   const { project } = useProject();
@@ -71,53 +65,6 @@ export function AssetsScreen() {
       { label: "Largest asset", value: formatBytes(largest), footer: "Single biggest file" },
     ];
   }, [assets]);
-
-  // Storage usage grouped by media type (sum size_bytes per type).
-  const storageBreakdown = useMemo(() => {
-    const totalSize = assets.reduce((sum, asset) => sum + asset.sizeBytes, 0);
-
-    return MEDIA_TYPES.map((type) => {
-      const bytes = assets
-        .filter((asset) => asset.mediaType === type)
-        .reduce((sum, asset) => sum + asset.sizeBytes, 0);
-
-      return {
-        type,
-        label: MEDIA_TYPE_MAP[type].label,
-        color: MEDIA_TYPE_MAP[type].dot,
-        bytes,
-        used: formatBytes(bytes),
-        percentage: totalSize > 0 ? Math.round((bytes / totalSize) * 100) : 0,
-      };
-    }).sort((a, b) => b.bytes - a.bytes);
-  }, [assets]);
-
-  // Top assets = the largest uploads.
-  const topAssets = useMemo(
-    () => [...assets].sort((a, b) => b.sizeBytes - a.sizeBytes).slice(0, 5),
-    [assets],
-  );
-
-  // Recent activity derived straight from created_at ordering of the rows.
-  const recentActivities = useMemo(
-    () =>
-      assets.slice(0, ACTIVITY_LIMIT).map((asset) => {
-        const created = asset.createdAt ? new Date(asset.createdAt) : null;
-
-        return {
-          id: asset.id,
-          mediaType: asset.mediaType,
-          action: "Uploaded",
-          file: asset.name,
-          user: asset.owner || "Unknown",
-          time:
-            created && !Number.isNaN(created.getTime())
-              ? formatDistanceToNow(created, { addSuffix: true })
-              : "recently",
-        };
-      }),
-    [assets],
-  );
 
   // Upload success: prepend the persisted row.
   const handleUploaded = (created) => {
@@ -166,25 +113,13 @@ export function AssetsScreen() {
         title="Assets"
         description="Manage assets and track storage usage for this project."
         actions={
-          <>
-            <Button
-              variant="outline"
-              className="border-border bg-transparent text-muted-foreground hover:bg-surface-active hover:text-foreground"
-              asChild
-            >
-              <a href="#" title="Open in Digital Asset Manager">
-                <ExternalLink className="h-4 w-4" />
-                Open DAM
-              </a>
-            </Button>
-            <Button
-              className="bg-primary text-primary-foreground hover:bg-primary/90"
-              onClick={() => setUploadOpen(true)}
-            >
-              <Upload className="h-4 w-4" />
-              Upload
-            </Button>
-          </>
+          <Button
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
+            onClick={() => setUploadOpen(true)}
+          >
+            <Upload className="h-4 w-4" />
+            Upload
+          </Button>
         }
       />
 
@@ -225,12 +160,6 @@ export function AssetsScreen() {
               onRename={handleRename}
               onDelete={handleDelete}
             />
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-            <ActivityCard activities={recentActivities} />
-            <TopAssetsCard assets={topAssets} />
-            <StorageBreakdownCard breakdown={storageBreakdown} />
           </div>
         </div>
       )}

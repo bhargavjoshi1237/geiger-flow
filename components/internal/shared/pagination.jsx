@@ -12,12 +12,15 @@ import {
   DropdownMenuTrigger,
 } from "@geiger/ui";
 import { cn } from "@/lib/utils";
+import { useOptionalProject } from "@/context/project-context";
 
 // One pagination footer for every list in the app: page size on the left,
 // page controls on the right. Kept self-contained so it can move to @geiger/ui
 // once the shape settles.
 
 export const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
+export const DEFAULT_PAGE_SIZE = 25;
+export const DEFAULT_PROJECT_PAGE_SIZE = 10;
 
 const ELLIPSIS = "…";
 
@@ -44,9 +47,18 @@ function pageWindow(page, totalPages, span = 3) {
 
 // Client-side paging over an in-memory array. `resetKey` is any string that
 // describes the active filters — change it and the user lands back on page 1.
-export function usePagination(items, { pageSize: initialSize = 25, resetKey } = {}) {
+// The initial size is the explicit `pageSize` when given, otherwise the
+// project's default rows-per-page (Settings ▸ General, 10 when unset), or 25
+// outside a project.
+export function usePagination(items, { pageSize: pageSizeProp, resetKey } = {}) {
+  const projectCtx = useOptionalProject();
+  const projectDefault =
+    Number(projectCtx?.project?.metadata?.defaultPageSize) ||
+    DEFAULT_PROJECT_PAGE_SIZE;
+  const resolvedInitial =
+    pageSizeProp ?? (projectCtx?.project ? projectDefault : DEFAULT_PAGE_SIZE);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(initialSize);
+  const [pageSize, setPageSize] = useState(resolvedInitial);
 
   const total = items?.length ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
@@ -63,7 +75,7 @@ export function usePagination(items, { pageSize: initialSize = 25, resetKey } = 
   }
 
   const onPageSizeChange = (size) => {
-    const next = Number(size) || initialSize;
+    const next = Number(size) || resolvedInitial;
     // Keep the first visible row on screen instead of snapping back to page 1.
     const anchor = (safePage - 1) * pageSize;
     setPageSize(next);

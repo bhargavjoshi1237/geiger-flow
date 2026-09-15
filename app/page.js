@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   ArrowRight,
   BarChart2,
@@ -120,10 +119,11 @@ export default function FlowLandingPage() {
               speed, and the way modern teams actually work.
             </p>
             <Button asChild size="lg" className="rounded-full sm:text-base">
-              <Link href="/org">
+              {/* Plain anchor: /org is geiger-dash's zone, outside Flow's basePath. */}
+              <a href="/org">
                 Open Flow
                 <ArrowRight className="h-4 w-4" />
-              </Link>
+              </a>
             </Button>
           </div>
         </section>
@@ -183,13 +183,13 @@ export default function FlowLandingPage() {
             </h2>
             <div className="flex w-full max-w-md flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
               <Button asChild size="lg" className="w-full rounded-full sm:w-auto">
-                <Link href="/org">
+                <a href="/org">
                   Open Flow
                   <ArrowRight className="h-4 w-4" />
-                </Link>
+                </a>
               </Button>
               <Button asChild variant="outline" size="lg" className="w-full rounded-full sm:w-auto">
-                <a href="#">
+                <a href="mailto:sales@geiger.studio">
                   Contact Sales
                   <ArrowRight className="h-4 w-4" />
                 </a>

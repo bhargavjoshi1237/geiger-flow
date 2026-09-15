@@ -63,10 +63,14 @@ export function ProfileDropdown({ children }) {
     .toUpperCase()
     .slice(0, 2);
 
-  const orgBase = project?.organization_id
-    ? `/org/${project.organization_id}`
-    : "/org";
-  const profileHref = user?.id ? `/profile/${user.id}` : "/profile";
+  // Org-level destinations belong to geiger-dash (/org, /billing) — Flow has no
+  // workspace surface of its own. Project Settings/Security are tabs on the
+  // project page (?tab URL); Profile and Documentation are real Flow routes.
+  const settingsHref = project?.id ? `/project/${project.id}?General` : "";
+  const securityHref = project?.id ? `/project/${project.id}?Security` : "";
+  const profileHref = "/profile";
+  const organizationHref = "/org";
+  const billingHref = "/billing";
 
   const handleSignOut = async () => {
     try {
@@ -138,37 +142,42 @@ export function ProfileDropdown({ children }) {
             </DropdownMenuItem>
 
             <DropdownMenuItem asChild className={`${itemBaseStyle} ${itemHoverStyle}`}>
-              <Link href={`${orgBase}/`}>
+              <a href={organizationHref}>
                 <UsersRound className="size-4 text-muted-foreground" />
                 <span>Organization Settings</span>
-              </Link>
+              </a>
             </DropdownMenuItem>
 
             <DropdownMenuItem asChild className={`${itemBaseStyle} ${itemHoverStyle}`}>
-              <Link href="/billing">
+              <a href={billingHref}>
                 <Wallet className="size-4 text-muted-foreground" />
                 <span>Billing &amp; Plans</span>
-              </Link>
+              </a>
             </DropdownMenuItem>
           </DropdownMenuGroup>
 
-          <DropdownMenuSeparator className="bg-surface-hover my-1" />
+          {/* Project-scoped tabs — nothing to point at without an open project. */}
+          {project?.id ? (
+            <>
+              <DropdownMenuSeparator className="bg-surface-hover my-1" />
 
-          <DropdownMenuGroup>
-            <DropdownMenuItem asChild className={`${itemBaseStyle} ${itemHoverStyle}`}>
-              <Link href={`${orgBase}/settings`}>
-                <Settings className="size-4 text-muted-foreground" />
-                <span>Settings</span>
-              </Link>
-            </DropdownMenuItem>
+              <DropdownMenuGroup>
+                <DropdownMenuItem asChild className={`${itemBaseStyle} ${itemHoverStyle}`}>
+                  <Link href={settingsHref}>
+                    <Settings className="size-4 text-muted-foreground" />
+                    <span>Settings</span>
+                  </Link>
+                </DropdownMenuItem>
 
-            <DropdownMenuItem asChild className={`${itemBaseStyle} ${itemHoverStyle}`}>
-              <Link href={`${orgBase}/security`}>
-                <ShieldCheck className="size-4 text-muted-foreground" />
-                <span>Security</span>
-              </Link>
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
+                <DropdownMenuItem asChild className={`${itemBaseStyle} ${itemHoverStyle}`}>
+                  <Link href={securityHref}>
+                    <ShieldCheck className="size-4 text-muted-foreground" />
+                    <span>Security</span>
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </>
+          ) : null}
 
           <DropdownMenuSeparator className="bg-surface-hover my-1" />
 

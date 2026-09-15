@@ -347,7 +347,7 @@ export function ProjectionsScreen() {
 
   return (
     <MainScreenWrapper className="text-foreground">
-    <div className="flex flex-col h-full w-full min-h-screen">
+    <div className="flex flex-col gap-5 h-full w-full min-h-screen">
       <ScreenHeader
         title="Projections"
         description="View and manage project timelines, milestones, and delivery dates."
@@ -440,6 +440,7 @@ export function ProjectionsScreen() {
               <div className="grid grid-cols-[40px_1fr_40px] border border-border rounded-xl overflow-hidden">
                 <Button
                   type="button"
+                  variant="ghost"
                   className="h-9 flex items-center justify-center text-text-secondary border-r border-border hover:text-foreground hover:bg-surface-card transition-colors"
                   onClick={navigatePrev}
                 >
@@ -447,6 +448,7 @@ export function ProjectionsScreen() {
                 </Button>
                 <Button
                   type="button"
+                  variant="ghost"
                   onClick={goToToday}
                   className="h-9 text-sm font-semibold text-center text-muted-foreground hover:text-foreground hover:bg-surface-card transition-colors"
                 >
@@ -454,6 +456,7 @@ export function ProjectionsScreen() {
                 </Button>
                 <Button
                   type="button"
+                  variant="ghost"
                   className="h-9 flex items-center justify-center text-text-secondary border-l border-border hover:text-foreground hover:bg-surface-card transition-colors"
                   onClick={navigateNext}
                 >
@@ -462,8 +465,8 @@ export function ProjectionsScreen() {
               </div>
             </div>
 
-            <div className="hidden sm:flex items-center justify-between px-5 py-3.5">
-              <div className="flex items-center gap-4">
+            <div className="hidden sm:flex flex-wrap items-center justify-between gap-x-4 gap-y-3 px-5 py-3.5">
+              <div className="flex min-w-0 items-center gap-4">
                 <div className="flex items-center gap-2">
 
                   {viewMode !== "month" && (
@@ -497,10 +500,11 @@ export function ProjectionsScreen() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1">
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="flex items-center gap-2">
                 <Button
                   type="button"
+                  variant="ghost"
                   className="p-1.5 rounded-lg text-text-secondary hover:text-foreground hover:bg-surface-card transition-colors"
                   onClick={navigatePrev}
                 >
@@ -508,6 +512,7 @@ export function ProjectionsScreen() {
                 </Button>
                 <Button
                   type="button"
+                  variant="ghost"
                   className="p-1.5 rounded-lg text-text-secondary hover:text-foreground hover:bg-surface-card transition-colors"
                   onClick={navigateNext}
                 >
@@ -527,8 +532,10 @@ export function ProjectionsScreen() {
                 </Select>
                 <Button
                   type="button"
+                  variant="ghost"
                   onClick={() => openCreateDialog(new Date())}
-                  className="h-9 bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium px-4 rounded-lg gap-1.5"
+                  className="h-9 w-9 rounded-lg border border-border bg-surface-card text-foreground hover:bg-surface-active"
+                  title="Add event"
                 >
                   <Plus className="w-4 h-4" />
                 </Button>

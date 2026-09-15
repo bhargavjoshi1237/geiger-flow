@@ -1,61 +1,19 @@
 "use client";
 
-import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { ProjectContext } from "@/context/project-context";
+import {
+  DEFAULT_ARCHITECTURE_EXPENSES,
+  DEFAULT_MANUAL_EXPENSES,
+  DEFAULT_MONTHLY_BUDGET,
+} from "@/features/project_budgets/constants";
+import {
+  defaultProjectBudget,
+  getProjectBudget,
+  saveProjectBudget,
+} from "@/features/project_budgets/actions";
 
 const ProjectBudgetContext = createContext(null);
-
-const DEFAULT_MONTHLY_BUDGET = 42000;
-
-const initialManualExpenses = [
-  {
-    id: "manual-product-tools",
-    name: "Product and collaboration tools",
-    category: "Software",
-    owner: "Product Ops",
-    monthlyCost: 2400,
-    forecastMultiplier: 1,
-    status: "On Track",
-    source: "Manual",
-    notes: "Planning, design, docs, and team collaboration seats.",
-  },
-  {
-    id: "manual-security-review",
-    name: "Security review reserve",
-    category: "Security",
-    owner: "Security",
-    monthlyCost: 5200,
-    forecastMultiplier: 1.1,
-    status: "Watch",
-    source: "Manual",
-    notes: "External review, tooling, and compliance evidence reserve.",
-  },
-  {
-    id: "manual-qa-lab",
-    name: "QA device and test lab",
-    category: "Quality",
-    owner: "QA",
-    monthlyCost: 3800,
-    forecastMultiplier: 1.15,
-    status: "Watch",
-    source: "Manual",
-    notes: "Browsers, devices, load test capacity, and test data refreshes.",
-  },
-];
-
-const initialArchitectureExpenses = [
-  { id: "customer", name: "Customer", category: "Business", monthlyCost: 0, source: "System Architecture", enabled: false },
-  { id: "cdn", name: "CDN", category: "Infrastructure", monthlyCost: 420, source: "System Architecture", enabled: true },
-  { id: "web-app", name: "Web App", category: "Frontend", monthlyCost: 650, source: "System Architecture", enabled: true },
-  { id: "api-gateway", name: "API Gateway", category: "Backend", monthlyCost: 950, source: "System Architecture", enabled: true },
-  { id: "auth-service", name: "Auth Service", category: "Security", monthlyCost: 700, source: "System Architecture", enabled: true },
-  { id: "microservice", name: "Orders Service", category: "Backend", monthlyCost: 1600, source: "System Architecture", enabled: true },
-  { id: "worker", name: "Worker", category: "Backend", monthlyCost: 900, source: "System Architecture", enabled: true },
-  { id: "database", name: "Primary DB", category: "Data", monthlyCost: 2200, source: "System Architecture", enabled: true },
-  { id: "cache", name: "Cache", category: "Data", monthlyCost: 760, source: "System Architecture", enabled: true },
-  { id: "message-queue", name: "Message Queue", category: "Messaging", monthlyCost: 540, source: "System Architecture", enabled: true },
-  { id: "logging", name: "Logging", category: "Observability", monthlyCost: 880, source: "System Architecture", enabled: true },
-  { id: "metrics", name: "Metrics", category: "Observability", monthlyCost: 620, source: "System Architecture", enabled: true },
-];
 
 function normalizeExpense(expense) {
   return {
@@ -72,59 +30,139 @@ function normalizeExpense(expense) {
   };
 }
 
+// Project-scoped budget state, persisted per project in flow.project_budgets.
+//
+// Mutations stay synchronous and optimistic (local state updates immediately)
+// while the write goes out fire-and-forget; a failed write only logs, so
+// high-frequency edits (sliders) never spam toasts. Without a project (or
+// when the row can't load, e.g. the landing playground's fixture project),
+// the provider degrades to local-only state seeded from the feature defaults.
 export function ProjectBudgetProvider({ children }) {
+  const projectContext = useContext(ProjectContext) ?? null;
+  const projectId = projectContext?.project?.id ?? null;
+
   const [monthlyBudget, setMonthlyBudgetState] = useState(DEFAULT_MONTHLY_BUDGET);
-  const [manualExpenses, setManualExpenses] = useState(initialManualExpenses.map(normalizeExpense));
-  const [architectureExpenses, setArchitectureExpenses] = useState(initialArchitectureExpenses.map(normalizeExpense));
+  const [manualExpenses, setManualExpenses] = useState(() =>
+    DEFAULT_MANUAL_EXPENSES.map(normalizeExpense),
+  );
+  const [architectureExpenses, setArchitectureExpenses] = useState(() =>
+    DEFAULT_ARCHITECTURE_EXPENSES.map(normalizeExpense),
+  );
+  const hydratedRef = useRef(null);
 
-  const setMonthlyBudget = useCallback((value) => {
-    setMonthlyBudgetState(Math.max(0, Number(value) || 0));
-  }, []);
-
-  const upsertManualExpense = useCallback((expense) => {
-    const normalized = normalizeExpense({
-      ...expense,
-      id: expense.id || `manual-${Date.now()}`,
-      source: "Manual",
+  useEffect(() => {
+    if (!projectId || hydratedRef.current === projectId) {
+      return;
+    }
+    hydratedRef.current = projectId;
+    getProjectBudget(projectId).then((row) => {
+      const resolved = row ?? defaultProjectBudget(projectId);
+      setMonthlyBudgetState(resolved.monthlyBudget);
+      setManualExpenses(
+        (resolved.manualExpenses.length > 0
+          ? resolved.manualExpenses
+          : defaultProjectBudget(projectId).manualExpenses
+        ).map(normalizeExpense),
+      );
+      setArchitectureExpenses(
+        (resolved.architectureExpenses.length > 0
+          ? resolved.architectureExpenses
+          : defaultProjectBudget(projectId).architectureExpenses
+        ).map(normalizeExpense),
+      );
     });
+  }, [projectId]);
 
-    setManualExpenses((current) => {
-      const exists = current.some((item) => item.id === normalized.id);
-      if (exists) {
-        return current.map((item) => (item.id === normalized.id ? normalized : item));
+  const persist = useCallback(
+    (patch) => {
+      if (!projectId || hydratedRef.current !== projectId) {
+        return;
       }
-      return [normalized, ...current];
-    });
-  }, []);
+      void saveProjectBudget(projectId, patch);
+    },
+    [projectId],
+  );
 
-  const removeManualExpense = useCallback((expenseId) => {
-    setManualExpenses((current) => current.filter((item) => item.id !== expenseId));
-  }, []);
+  const setMonthlyBudget = useCallback(
+    (value) => {
+      const next = Math.max(0, Number(value) || 0);
+      setMonthlyBudgetState(next);
+      persist({ monthlyBudget: next });
+    },
+    [persist],
+  );
 
-  const upsertArchitectureExpense = useCallback((expense) => {
-    const normalized = normalizeExpense({
-      ...expense,
-      source: "System Architecture",
-    });
+  const upsertManualExpense = useCallback(
+    (expense) => {
+      const normalized = normalizeExpense({
+        ...expense,
+        id: expense.id || `manual-${Date.now()}`,
+        source: "Manual",
+      });
 
-    setArchitectureExpenses((current) => {
-      const exists = current.some((item) => item.id === normalized.id);
-      if (exists) {
-        return current.map((item) => (item.id === normalized.id ? { ...item, ...normalized } : item));
-      }
-      return [normalized, ...current];
-    });
-  }, []);
+      setManualExpenses((current) => {
+        const exists = current.some((item) => item.id === normalized.id);
+        const next = exists
+          ? current.map((item) => (item.id === normalized.id ? normalized : item))
+          : [normalized, ...current];
+        persist({ manualExpenses: next });
+        return next;
+      });
+    },
+    [persist],
+  );
 
-  const syncArchitectureExpenses = useCallback((expenses) => {
-    setArchitectureExpenses(expenses.map((expense) => normalizeExpense({ ...expense, source: "System Architecture" })));
-  }, []);
+  const removeManualExpense = useCallback(
+    (expenseId) => {
+      setManualExpenses((current) => {
+        const next = current.filter((item) => item.id !== expenseId);
+        persist({ manualExpenses: next });
+        return next;
+      });
+    },
+    [persist],
+  );
 
-  const updateArchitectureExpense = useCallback((expenseId, updates) => {
-    setArchitectureExpenses((current) =>
-      current.map((item) => (item.id === expenseId ? normalizeExpense({ ...item, ...updates }) : item)),
-    );
-  }, []);
+  const upsertArchitectureExpense = useCallback(
+    (expense) => {
+      const normalized = normalizeExpense({
+        ...expense,
+        source: "System Architecture",
+      });
+
+      setArchitectureExpenses((current) => {
+        const exists = current.some((item) => item.id === normalized.id);
+        const next = exists
+          ? current.map((item) => (item.id === normalized.id ? { ...item, ...normalized } : item))
+          : [normalized, ...current];
+        persist({ architectureExpenses: next });
+        return next;
+      });
+    },
+    [persist],
+  );
+
+  const syncArchitectureExpenses = useCallback(
+    (expenses) => {
+      const next = expenses.map((expense) => normalizeExpense({ ...expense, source: "System Architecture" }));
+      setArchitectureExpenses(next);
+      persist({ architectureExpenses: next });
+    },
+    [persist],
+  );
+
+  const updateArchitectureExpense = useCallback(
+    (expenseId, updates) => {
+      setArchitectureExpenses((current) => {
+        const next = current.map((item) =>
+          item.id === expenseId ? normalizeExpense({ ...item, ...updates }) : item,
+        );
+        persist({ architectureExpenses: next });
+        return next;
+      });
+    },
+    [persist],
+  );
 
   const expenses = useMemo(
     () => [...architectureExpenses.filter((item) => item.enabled), ...manualExpenses.filter((item) => item.enabled)],

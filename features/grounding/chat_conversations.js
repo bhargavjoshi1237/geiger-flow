@@ -1,0 +1,461 @@
+"use client";
+
+// Data layer for flow.chat_conversations + flow.chat_members.
+// A conversation is a 'dm' (two members, deduped by dm_key) or a 'channel'.
+// Returns camelCase view-models matching the chat UI:
+//   dm:      { id, type:"dm", participantId, unread, pinned, lastActivity, messages }
+//   channel: { id, type:"channel", name, topic, memberIds, unread, pinned, lastActivity, messages }
+// Pure: console.error on failure, return null/[]/false. Never throws/toasts.
+
+import { createClient } from "@/lib/supabase/client";
+import { isSupabaseConfigured, minsAgo, chatDb } from "./config";
+import { normalizeMessage } from "./chat_messages";
+
+const CONVERSATIONS = "chat_conversations";
+const MEMBERS = "chat_members";
+const MESSAGES = "chat_messages";
+
+// Assemble a conversation view-model from a conversation row + resolved members,
+// last message and unread count.
+export function normalizeConversation(c, { meId, memberIds = [], lastMessage = null, unread = 0, pinned = false, reads = {} } = {}) {
+  if (!c) return null;
+  const base = {
+    id: c.id,
+    type: c.kind,
+    pinned: !!pinned,
+    unread: unread || 0,
+    lastActivity: minsAgo(c.last_activity_at),
+    // Map of profileId -> last_read_at ISO string, for read receipts.
+    reads: reads || {},
+    messages: lastMessage ? [normalizeMessage(lastMessage)] : [],
+  };
+  if (c.kind === "channel") {
+    return {
+      ...base,
+      name: c.name || "",
+      topic: c.topic || "",
+      visibility: c.visibility || "public",
+      memberIds,
+    };
+  }
+  return { ...base, participantId: memberIds.find((id) => id !== meId) || null };
+}
+
+// All of my conversations of a kind in a project, newest activity first, each
+// with its last message (preview) and unread count. The project scope is
+// required — an unscoped list would mix in other projects' chats.
+export async function listConversations(meId, kind, projectId) {
+  if (!meId || !projectId || !isSupabaseConfigured()) return null;
+  try {
+    const sb = chatDb();
+
+    // 1) my memberships, joined to the conversation (inner-filtered by kind).
+    const membersQuery = sb
+      .from(MEMBERS)
+      .select("pinned, last_read_at, conversation:chat_conversations!inner(*)")
+      .eq("profile_id", meId)
+      .eq("conversation.kind", kind)
+      .is("conversation.deleted_at", null)
+      .eq("conversation.project_id", projectId);
+    const { data: memberRows, error: mErr } = await membersQuery;
+    if (mErr) {
+      console.error("[chat_conversations.list]", mErr.message);
+      return null;
+    }
+    const convs = (memberRows || [])
+      .filter((r) => r.conversation)
+      .map((r) => ({ row: r.conversation, pinned: r.pinned, lastReadAt: r.last_read_at }));
+    if (convs.length === 0) return [];
+
+    const convIds = convs.map((c) => c.row.id);
+
+    // 2) all members of those conversations (for memberIds / dm participant),
+    //    plus each member's last_read_at to drive read receipts.
+    const { data: allMembers } = await sb
+      .from(MEMBERS)
+      .select("conversation_id, profile_id, last_read_at")
+      .in("conversation_id", convIds);
+    const membersByConv = {};
+    const readsByConv = {};
+    for (const m of allMembers || []) {
+      (membersByConv[m.conversation_id] ||= []).push(m.profile_id);
+      (readsByConv[m.conversation_id] ||= {})[m.profile_id] = m.last_read_at || null;
+    }
+
+    // 3) messages for last-preview + unread. Thread replies (thread_id set) are
+    //    excluded so a busy thread doesn't skew the main preview / unread count.
+    const { data: msgs } = await sb
+      .from(MESSAGES)
+      .select("id, conversation_id, author_id, text, created_at")
+      .in("conversation_id", convIds)
+      .is("deleted_at", null)
+      .is("thread_id", null)
+      .order("created_at", { ascending: true })
+      .limit(2000);
+    const lastByConv = {};
+    const msgsByConv = {};
+    for (const m of msgs || []) {
+      (msgsByConv[m.conversation_id] ||= []).push(m);
+      lastByConv[m.conversation_id] = m;
+    }
+
+    convs.sort(
+      (a, b) =>
+        new Date(b.row.last_activity_at).getTime() - new Date(a.row.last_activity_at).getTime(),
+    );
+
+    return convs.map((c) => {
+      const lastReadTs = c.lastReadAt ? new Date(c.lastReadAt).getTime() : 0;
+      const unread = (msgsByConv[c.row.id] || []).filter(
+        (m) => m.author_id !== meId && new Date(m.created_at).getTime() > lastReadTs,
+      ).length;
+      return normalizeConversation(c.row, {
+        meId,
+        memberIds: membersByConv[c.row.id] || [],
+        lastMessage: lastByConv[c.row.id] || null,
+        unread,
+        pinned: c.pinned,
+        reads: readsByConv[c.row.id] || {},
+      });
+    });
+  } catch (e) {
+    console.error("[chat_conversations.list]", e);
+    return null;
+  }
+}
+
+export async function createChannel({ id, name, topic, visibility = "public", createdBy, memberIds = [], projectId }) {
+  if (!isSupabaseConfigured()) return null;
+  // conversations.project_id is NOT NULL — refuse an unscoped create here
+  // rather than letting it fail as a constraint violation.
+  if (!projectId) return null;
+  const clean = (name || "").trim().replace(/^#/, "");
+  if (!clean) return null;
+  try {
+    const sb = chatDb();
+    const payload = {
+      kind: "channel",
+      name: clean,
+      topic: topic || null,
+      visibility,
+      created_by: createdBy || null,
+      project_id: projectId,
+    };
+    if (id) payload.id = id;
+    const { data: conv, error } = await sb.from(CONVERSATIONS).insert(payload).select("*").single();
+    if (error) {
+      console.error("[chat_conversations.createChannel]", error.message);
+      return null;
+    }
+    const memberSet = [...new Set([createdBy, ...memberIds].filter(Boolean))];
+    if (memberSet.length) {
+      const rows = memberSet.map((pid) => ({
+        conversation_id: conv.id,
+        profile_id: pid,
+        role: pid === createdBy ? "admin" : "member",
+      }));
+      const { error: memErr } = await sb
+        .from(MEMBERS)
+        .upsert(rows, { onConflict: "conversation_id,profile_id" });
+      if (memErr) console.error("[chat_conversations.createChannel.members]", memErr.message);
+    }
+    return normalizeConversation(conv, { meId: createdBy, memberIds: memberSet, pinned: false });
+  } catch (e) {
+    console.error("[chat_conversations.createChannel]", e);
+    return null;
+  }
+}
+
+// Get the existing DM with a person, or create one. Deduped by a sorted dm_key,
+// scoped to the project when projectId is provided so the same two people can
+// have a separate DM thread in each project they share.
+export async function createOrGetDm(meId, otherId, projectId) {
+  if (!meId || !otherId || meId === otherId || !isSupabaseConfigured()) return null;
+  // Every conversation belongs to a project (conversations.project_id is NOT
+  // NULL), so an unscoped call is a caller bug, not a DB round trip.
+  if (!projectId) return null;
+  const dmKey = [meId, otherId].sort().join(":");
+  try {
+    const sb = chatDb();
+    let lookup = sb
+      .from(CONVERSATIONS)
+      .select("*")
+      .eq("dm_key", dmKey)
+      .is("deleted_at", null);
+    if (projectId) lookup = lookup.eq("project_id", projectId);
+    const { data: existing } = await lookup.maybeSingle();
+
+    let conv = existing;
+    let pinned = false;
+    if (!conv) {
+      const insertPayload = { kind: "dm", dm_key: dmKey, created_by: meId };
+      if (projectId) insertPayload.project_id = projectId;
+      const { data: created, error } = await sb
+        .from(CONVERSATIONS)
+        .insert(insertPayload)
+        .select("*")
+        .single();
+      if (error) {
+        // Lost a race on the unique dm_key — fetch the winner.
+        let raceLookup = sb
+          .from(CONVERSATIONS)
+          .select("*")
+          .eq("dm_key", dmKey);
+        if (projectId) raceLookup = raceLookup.eq("project_id", projectId);
+        const { data: raced } = await raceLookup.maybeSingle();
+        if (!raced) {
+          console.error("[chat_conversations.createOrGetDm]", error.message);
+          return null;
+        }
+        conv = raced;
+      } else {
+        conv = created;
+      }
+    }
+
+    // Make sure both members exist (and that I'm one of them).
+    await sb.from(MEMBERS).upsert(
+      [
+        { conversation_id: conv.id, profile_id: meId },
+        { conversation_id: conv.id, profile_id: otherId },
+      ],
+      { onConflict: "conversation_id,profile_id" },
+    );
+
+    return normalizeConversation(conv, { meId, memberIds: [meId, otherId], pinned });
+  } catch (e) {
+    console.error("[chat_conversations.createOrGetDm]", e);
+    return null;
+  }
+}
+
+export async function inviteMembers(conversationId, profileIds = []) {
+  const ids = [...new Set((profileIds || []).filter(Boolean))];
+  if (!conversationId || ids.length === 0 || !isSupabaseConfigured()) return false;
+  try {
+    const sb = chatDb();
+    const rows = ids.map((pid) => ({ conversation_id: conversationId, profile_id: pid }));
+    const { error } = await sb.from(MEMBERS).upsert(rows, { onConflict: "conversation_id,profile_id" });
+    if (error) {
+      console.error("[chat_conversations.invite]", error.message);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error("[chat_conversations.invite]", e);
+    return false;
+  }
+}
+
+export async function setPinned(conversationId, meId, pinned) {
+  if (!conversationId || !meId || !isSupabaseConfigured()) return false;
+  try {
+    const sb = chatDb();
+    const { error } = await sb
+      .from(MEMBERS)
+      .update({ pinned: !!pinned })
+      .eq("conversation_id", conversationId)
+      .eq("profile_id", meId);
+    if (error) {
+      console.error("[chat_conversations.setPinned]", error.message);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error("[chat_conversations.setPinned]", e);
+    return false;
+  }
+}
+
+export async function markRead(conversationId, meId) {
+  if (!conversationId || !meId || !isSupabaseConfigured()) return false;
+  try {
+    const sb = chatDb();
+    const { error } = await sb
+      .from(MEMBERS)
+      .update({ last_read_at: new Date().toISOString() })
+      .eq("conversation_id", conversationId)
+      .eq("profile_id", meId);
+    if (error) {
+      console.error("[chat_conversations.markRead]", error.message);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error("[chat_conversations.markRead]", e);
+    return false;
+  }
+}
+
+// Leave a channel / remove a DM from my list (drops my membership only).
+export async function leaveConversation(conversationId, meId) {
+  if (!conversationId || !meId || !isSupabaseConfigured()) return false;
+  try {
+    const sb = chatDb();
+    const { error } = await sb
+      .from(MEMBERS)
+      .delete()
+      .eq("conversation_id", conversationId)
+      .eq("profile_id", meId);
+    if (error) {
+      console.error("[chat_conversations.leave]", error.message);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error("[chat_conversations.leave]", e);
+    return false;
+  }
+}
+
+// Auto-join every public channel in this project that I'm not yet a member of,
+// so team-wide channels show up for everyone. The project scope is required:
+// without it this would enrol the user in every project's public channels.
+export async function ensurePublicChannelMembership(meId, projectId) {
+  if (!meId || !projectId || !isSupabaseConfigured()) return false;
+  try {
+    const sb = chatDb();
+    const pubQuery = sb
+      .from(CONVERSATIONS)
+      .select("id")
+      .eq("kind", "channel")
+      .eq("visibility", "public")
+      .is("deleted_at", null)
+      .eq("project_id", projectId);
+    const { data: pub } = await pubQuery;
+    if (!pub || pub.length === 0) return true;
+    const pubIds = pub.map((p) => p.id);
+    const { data: mine } = await sb
+      .from(MEMBERS)
+      .select("conversation_id")
+      .eq("profile_id", meId)
+      .in("conversation_id", pubIds);
+    const mineSet = new Set((mine || []).map((m) => m.conversation_id));
+    const toJoin = pubIds.filter((id) => !mineSet.has(id)).map((id) => ({ conversation_id: id, profile_id: meId }));
+    if (toJoin.length) {
+      await sb.from(MEMBERS).upsert(toJoin, { onConflict: "conversation_id,profile_id" });
+    }
+    return true;
+  } catch (e) {
+    console.error("[chat_conversations.ensurePublic]", e);
+    return false;
+  }
+}
+
+// Ensure the project has its default #general channel and that I'm a member of
+// it. A fresh project starts with no channels, so this creates one on first use
+// to give the project a place to talk. Deduped per project by the unique
+// (project_id, lower(name)) index on public channels; on the rare insert
+// race we fetch the winner, mirroring createOrGetDm.
+export async function ensureProjectGeneralChannel(meId, projectId) {
+  if (!meId || !projectId || !isSupabaseConfigured()) return null;
+  try {
+    const sb = chatDb();
+    let { data: chan } = await sb
+      .from(CONVERSATIONS)
+      .select("*")
+      .eq("project_id", projectId)
+      .eq("kind", "channel")
+      .eq("name", "general")
+      .is("deleted_at", null)
+      .maybeSingle();
+
+    if (!chan) {
+      const payload = {
+        kind: "channel",
+        name: "general",
+        topic: "Company-wide announcements and team chat",
+        visibility: "public",
+        created_by: meId,
+        project_id: projectId,
+      };
+      const { data: created, error } = await sb
+        .from(CONVERSATIONS)
+        .insert(payload)
+        .select("*")
+        .single();
+      if (error) {
+        // Lost the create race on the unique (project, name) index — fetch the winner.
+        const { data: raced } = await sb
+          .from(CONVERSATIONS)
+          .select("*")
+          .eq("project_id", projectId)
+          .eq("kind", "channel")
+          .eq("name", "general")
+          .is("deleted_at", null)
+          .maybeSingle();
+        if (!raced) {
+          console.error("[chat_conversations.ensureGeneral]", error.message);
+          return null;
+        }
+        chan = raced;
+      } else {
+        chan = created;
+      }
+    }
+
+    await sb
+      .from(MEMBERS)
+      .upsert({ conversation_id: chan.id, profile_id: meId }, { onConflict: "conversation_id,profile_id" });
+    return chan.id;
+  } catch (e) {
+    console.error("[chat_conversations.ensureGeneral]", e);
+    return null;
+  }
+}
+
+// Realtime: any member's read marker moving (last_read_at), across all
+// conversations. The screen filters to conversations it shows and to other
+// people (my own reads are handled locally) to surface "Seen" on my messages.
+// Returns an unsubscribe function.
+export function subscribeMemberReads(handler) {
+  if (!isSupabaseConfigured()) return () => {};
+  try {
+    const sb = createClient();
+    const channel = sb
+      .channel(`chat-reads-${Date.now()}`)
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "flow", table: MEMBERS },
+        (payload) => handler?.(payload.new),
+      )
+      .subscribe();
+    return () => {
+      try {
+        sb.removeChannel(channel);
+      } catch {
+        /* ignore */
+      }
+    };
+  } catch (e) {
+    console.error("[chat_conversations.subscribeReads]", e);
+    return () => {};
+  }
+}
+
+// Realtime: my membership rows changing (a new channel / invite / removal).
+// Returns an unsubscribe function.
+export function subscribeMembership(meId, handler) {
+  if (!meId || !isSupabaseConfigured()) return () => {};
+  try {
+    const sb = createClient();
+    const channel = sb
+      .channel(`chat-members-${Date.now()}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "flow", table: MEMBERS, filter: `profile_id=eq.${meId}` },
+        (payload) => handler?.(payload),
+      )
+      .subscribe();
+    return () => {
+      try {
+        sb.removeChannel(channel);
+      } catch {
+        /* ignore */
+      }
+    };
+  } catch (e) {
+    console.error("[chat_conversations.subscribeMembership]", e);
+    return () => {};
+  }
+}

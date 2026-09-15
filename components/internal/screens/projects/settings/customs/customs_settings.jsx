@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 import {
   Calculator,
   CalendarDays,
@@ -39,6 +40,18 @@ import {
   SectionCard,
   StatGrid,
 } from "@/components/internal/shared/screen_kit";
+import { useProject } from "@/context/project-context";
+import {
+  createCustomField,
+  listCustomFields,
+  softDeleteCustomField,
+  updateCustomField,
+} from "@/features/custom_fields/actions";
+import {
+  CUSTOM_FIELD_SCOPES,
+  DEFAULT_CUSTOM_FIELD_DRAFT,
+  getFieldTypeLabel,
+} from "@/features/custom_fields/constants";
 
 const FIELD_TYPES = [
   { value: "text", label: "Text", Icon: TextCursorInput },
@@ -49,25 +62,11 @@ const FIELD_TYPES = [
   { value: "formula", label: "Formula", Icon: Calculator },
 ];
 
-const FIELD_SCOPES = ["Tasks", "Milestones", "Goals", "Projects"];
-
-const DEFAULT_DRAFT = {
-  name: "",
-  type: "text",
-  scope: "Tasks",
-  required: false,
-  options: "",
-};
-
-const INITIAL_FIELDS = [];
+const FIELD_SCOPES = CUSTOM_FIELD_SCOPES;
 
 function FieldTypeIcon({ type }) {
   const fieldType = FIELD_TYPES.find((item) => item.value === type) || FIELD_TYPES[0];
   return <fieldType.Icon className="h-4 w-4 text-muted-foreground" />;
-}
-
-function getFieldTypeLabel(type) {
-  return FIELD_TYPES.find((item) => item.value === type)?.label || "Text";
 }
 
 export function CustomsCreateFieldButton({ onClick }) {
@@ -79,18 +78,61 @@ export function CustomsCreateFieldButton({ onClick }) {
   );
 }
 
+function draftFromField(field) {
+  return {
+    name: field.name,
+    type: field.type,
+    scope: field.scope,
+    required: field.required,
+    options: field.options.join(", "),
+  };
+}
+
 export function CustomsSettingsScreen({ isCreateOpen: controlledIsCreateOpen, onCreateOpenChange }) {
-  const [fields, setFields] = useState(INITIAL_FIELDS);
+  const { project } = useProject();
+  const projectId = project?.id ?? null;
+
+  const [fields, setFields] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [uncontrolledIsCreateOpen, setUncontrolledIsCreateOpen] = useState(false);
-  const [draft, setDraft] = useState(DEFAULT_DRAFT);
+  const [draft, setDraft] = useState(DEFAULT_CUSTOM_FIELD_DRAFT);
+  const [editingField, setEditingField] = useState(null);
+  const [saving, setSaving] = useState(false);
   const isCreateOpen = controlledIsCreateOpen ?? uncontrolledIsCreateOpen;
+
+  useEffect(() => {
+    let active = true;
+    void Promise.resolve().then(() => {
+      if (!active) {
+        return undefined;
+      }
+      if (!projectId) {
+        setFields([]);
+        setLoading(false);
+        return undefined;
+      }
+      setLoading(true);
+      return listCustomFields(projectId).then((rows) => {
+        if (!active) {
+          return;
+        }
+        setFields(rows ?? []);
+        setLoading(false);
+      });
+    });
+    return () => {
+      active = false;
+    };
+  }, [projectId]);
 
   const requiredCount = fields.filter((field) => field.required).length;
   const selectableCount = fields.filter((field) => field.type === "select").length;
-  const coveredScopes = FIELD_SCOPES.filter((scope) => fields.some((field) => field.scope === scope));
   const optionsCount = fields.reduce((total, field) => total + field.options.length, 0);
 
-  const resetDraft = () => setDraft(DEFAULT_DRAFT);
+  const resetDraft = () => {
+    setDraft(DEFAULT_CUSTOM_FIELD_DRAFT);
+    setEditingField(null);
+  };
   const setCreateOpen = onCreateOpenChange ?? setUncontrolledIsCreateOpen;
 
   const handleCreateOpenChange = (open) => {
@@ -98,36 +140,88 @@ export function CustomsSettingsScreen({ isCreateOpen: controlledIsCreateOpen, on
     if (!open) resetDraft();
   };
 
-  const addField = () => {
-    const name = draft.name.trim();
-    if (!name) return;
+  const openConfigure = (field) => {
+    setEditingField(field);
+    setDraft(draftFromField(field));
+    setCreateOpen(true);
+  };
 
-    setFields((current) => [
-      {
-        id: `field_${Date.now()}`,
+  const parseOptions = (type, raw) =>
+    type === "select"
+      ? String(raw ?? "")
+          .split(",")
+          .map((option) => option.trim())
+          .filter(Boolean)
+      : [];
+
+  const handleSave = async () => {
+    const name = draft.name.trim();
+    if (!name || !projectId || saving) return;
+    setSaving(true);
+
+    if (editingField) {
+      const previous = fields.find((field) => field.id === editingField.id);
+      const patch = {
         name,
         type: draft.type,
         scope: draft.scope,
         required: draft.required,
-        options:
-          draft.type === "select"
-            ? draft.options
-                .split(",")
-                .map((option) => option.trim())
-                .filter(Boolean)
-            : [],
-      },
-      ...current,
-    ]);
-    handleCreateOpenChange(false);
+        options: parseOptions(draft.type, draft.options),
+      };
+      setFields((current) =>
+        current.map((field) => (field.id === editingField.id ? { ...field, ...patch } : field)),
+      );
+      const updated = await updateCustomField(editingField.id, patch);
+      setSaving(false);
+      if (updated) {
+        setFields((current) => current.map((field) => (field.id === updated.id ? updated : field)));
+        toast.success("Field updated.");
+        handleCreateOpenChange(false);
+      } else {
+        if (previous) {
+          setFields((current) => current.map((field) => (field.id === previous.id ? previous : field)));
+        }
+        toast.error("Couldn't update the field.");
+      }
+      return;
+    }
+
+    const optimistic = {
+      id: crypto.randomUUID(),
+      projectId,
+      name,
+      type: draft.type,
+      scope: draft.scope,
+      required: draft.required,
+      options: parseOptions(draft.type, draft.options),
+    };
+    setFields((current) => [optimistic, ...current]);
+    const created = await createCustomField(projectId, optimistic);
+    setSaving(false);
+    if (created) {
+      setFields((current) => current.map((field) => (field.id === created.id ? created : field)));
+      toast.success("Field created.");
+      handleCreateOpenChange(false);
+    } else {
+      setFields((current) => current.filter((field) => field.id !== optimistic.id));
+      toast.error("Couldn't create the field.");
+    }
   };
 
-  const removeField = (id) => {
+  const removeField = async (id) => {
+    const previous = fields.find((field) => field.id === id);
     setFields((current) => current.filter((field) => field.id !== id));
+    const ok = await softDeleteCustomField(id);
+    if (!ok) {
+      if (previous) setFields((current) => [previous, ...current]);
+      toast.error("Couldn't delete the field.");
+    } else {
+      toast.success("Field deleted.");
+    }
   };
 
   return (
-    <div className="space-y-6 border-t border-border pt-6">
+    <div className="space-y-6">
       <StatGrid
         stats={[
           { label: "Total fields", value: String(fields.length), icon: ListChecks },
@@ -148,7 +242,12 @@ export function CustomsSettingsScreen({ isCreateOpen: controlledIsCreateOpen, on
         bodyPadding={false}
       >
 
-          {fields.length > 0 ? (
+          {loading ? (
+            <div className="flex items-center justify-center gap-2 px-4 py-12 text-sm text-muted-foreground">
+              <SlidersHorizontal className="h-4 w-4 animate-pulse" />
+              Loading custom fields…
+            </div>
+          ) : fields.length > 0 ? (
             <div className="divide-y divide-border">
               {fields.map((field) => (
                 <div key={field.id} className="flex flex-col gap-3 p-4 md:flex-row md:items-center md:justify-between">
@@ -191,7 +290,12 @@ export function CustomsSettingsScreen({ isCreateOpen: controlledIsCreateOpen, on
                     </div>
                   </div>
                   <div className="flex items-center gap-2 md:justify-end">
-                    <Button variant="outline" size="sm" className="h-8 border-border bg-surface-card text-foreground hover:bg-surface-active">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 border-border bg-surface-card text-foreground hover:bg-surface-active"
+                      onClick={() => openConfigure(field)}
+                    >
                       <Settings2 className="mr-1.5 h-3.5 w-3.5" />
                       Configure
                     </Button>
@@ -227,10 +331,12 @@ export function CustomsSettingsScreen({ isCreateOpen: controlledIsCreateOpen, on
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-xl">
               <Plus className="h-5 w-5" />
-              Create Custom Field
+              {editingField ? "Configure Custom Field" : "Create Custom Field"}
             </DialogTitle>
             <DialogDescription className="text-text-secondary">
-              Add a reusable field that can be attached to project work items.
+              {editingField
+                ? "Update the reusable field attached to project work items."
+                : "Add a reusable field that can be attached to project work items."}
             </DialogDescription>
           </DialogHeader>
 
@@ -305,9 +411,13 @@ export function CustomsSettingsScreen({ isCreateOpen: controlledIsCreateOpen, on
             <Button variant="ghost" className="text-text-secondary hover:text-foreground" onClick={() => handleCreateOpenChange(false)}>
               Cancel
             </Button>
-            <Button className="bg-primary text-primary-foreground hover:bg-primary" onClick={addField} disabled={!draft.name.trim()}>
+            <Button
+              className="bg-primary text-primary-foreground hover:bg-primary"
+              onClick={handleSave}
+              disabled={!draft.name.trim() || saving}
+            >
               <Plus className="mr-2 h-4 w-4" />
-              Create Field
+              {saving ? "Saving…" : editingField ? "Save Changes" : "Create Field"}
             </Button>
           </DialogFooter>
         </DialogContent>

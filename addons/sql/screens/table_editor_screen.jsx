@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { toast } from "sonner";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { Button } from "@geiger/ui";
 import { Badge } from "@geiger/ui";
@@ -28,37 +29,28 @@ import {
   RefreshCw,
   ChevronRight,
   ArrowUpDown,
-  TableIcon,
   Columns3,
   Rows3,
   Database,
-  Eye,
   ChevronLeft,
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { flowClient } from "@/supabase/components/flow-client";
+import { useProject } from "@/context/project-context";
+import { SQL_EXPLORER_TABLES } from "@/features/sql_history/constants";
+
+// No execute_sql RPC here either (see sql_editor_screen.jsx): the browser
+// reads whitelisted flow.* tables through the query builder so RLS still
+// applies. Column types are inferred from the first page of rows; `id` is
+// treated as the primary key.
 
 const TYPE_ICONS = {
   uuid: { icon: Hash, label: "UUID" },
   text: { icon: Type, label: "Text" },
-  varchar: { icon: Type, label: "String" },
-  "character varying": { icon: Type, label: "String" },
   integer: { icon: Hash, label: "Integer" },
-  bigint: { icon: Hash, label: "BigInt" },
-  smallint: { icon: Hash, label: "Int" },
   numeric: { icon: Hash, label: "Numeric" },
-  decimal: { icon: Hash, label: "Decimal" },
-  real: { icon: Hash, label: "Real" },
-  double: { icon: Hash, label: "Double" },
   boolean: { icon: ToggleLeft, label: "Boolean" },
   json: { icon: Binary, label: "JSON" },
-  jsonb: { icon: Binary, label: "JSONB" },
   timestamp: { icon: Calendar, label: "Timestamp" },
-  "timestamp with time zone": { icon: Calendar, label: "Timestamptz" },
-  "timestamp without time zone": { icon: Calendar, label: "Timestamp" },
-  date: { icon: Calendar, label: "Date" },
-  time: { icon: Calendar, label: "Time" },
-  bytea: { icon: Binary, label: "Bytes" },
-  array: { icon: Columns3, label: "Array" },
 };
 
 function getTypeInfo(typeName) {
@@ -67,6 +59,31 @@ function getTypeInfo(typeName) {
     if (lower.includes(key)) return value;
   }
   return { icon: Type, label: typeName || "unknown" };
+}
+
+function inferType(value) {
+  if (typeof value === "boolean") return "boolean";
+  if (typeof value === "number") return Number.isInteger(value) ? "integer" : "numeric";
+  if (value instanceof Date) return "timestamp";
+  if (typeof value === "object") return "json";
+  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T/.test(value)) return "timestamp";
+  if (typeof value === "string" && /^[0-9a-f-]{36}$/i.test(value)) return "uuid";
+  return "text";
+}
+
+function inferColumns(rows) {
+  if (!rows || rows.length === 0) {
+    return [];
+  }
+
+  const names = Object.keys(rows[0]);
+  return names.map((column_name, index) => ({
+    column_name,
+    data_type: inferType(rows[0][column_name]),
+    is_nullable: "YES",
+    is_primary: column_name === "id",
+    ordinal_position: index + 1,
+  }));
 }
 
 function ColumnTypeBadge({ type }) {
@@ -183,6 +200,8 @@ function CellValue({ value }) {
 }
 
 export function TableEditorScreen() {
+  const { project } = useProject();
+  const projectId = project?.id;
   const [tables, setTables] = useState([]);
   const [loadingTables, setLoadingTables] = useState(true);
   const [selectedTable, setSelectedTable] = useState(null);
@@ -199,37 +218,47 @@ export function TableEditorScreen() {
 
   const fetchTables = useCallback(async () => {
     setLoadingTables(true);
+
+    const base = SQL_EXPLORER_TABLES.map((table_name) => ({
+      table_name,
+      column_count: null,
+      estimated_rows: null,
+    }));
+    setTables(base);
+
     try {
-      const supabase = createClient();
-      const { data, error } = await supabase.rpc("execute_sql", {
-        query_string: `
-          SELECT 
-            t.table_name,
-            (SELECT count(*) FROM information_schema.columns c WHERE c.table_name = t.table_name AND c.table_schema = 'public') as column_count,
-            c.reltuples::bigint as estimated_rows
-          FROM information_schema.tables t
-          LEFT JOIN pg_class c ON c.relname = t.table_name AND c.relnamespace = (SELECT oid FROM pg_namespace WHERE nspname = 'public')
-          WHERE t.table_schema = 'public' AND t.table_type = 'BASE TABLE'
-          ORDER BY t.table_name;
-        `,
-      });
+      const counts = await Promise.all(
+        SQL_EXPLORER_TABLES.map(async (table_name) => {
+          try {
+            let query = flowClient().from(table_name).select("id", { count: "exact", head: true });
+            if (projectId) {
+              query = query.eq("project_id", projectId);
+            }
+            const { count, error } = await query;
+            if (error) {
+              return { table_name, estimated_rows: null };
+            }
+            return { table_name, estimated_rows: count ?? null };
+          } catch {
+            return { table_name, estimated_rows: null };
+          }
+        }),
+      );
 
-      if (error) {
-        setTables([]);
-        return;
-      }
-
-      const tableList = Array.isArray(data) ? data : [];
-      setTables(tableList);
-    } catch (err) {
-      setTables([]);
+      setTables((current) =>
+        current.map((entry) => ({
+          ...entry,
+          estimated_rows:
+            counts.find((item) => item.table_name === entry.table_name)?.estimated_rows ?? null,
+        })),
+      );
     } finally {
       setLoadingTables(false);
     }
-  }, []);
+  }, [projectId]);
 
   useEffect(() => {
-    fetchTables();
+    void Promise.resolve().then(fetchTables);
   }, [fetchTables]);
 
   const fetchTableData = useCallback(
@@ -242,93 +271,36 @@ export function TableEditorScreen() {
       setSearchFilter("");
 
       try {
-        const supabase = createClient();
-
-        let colData = null;
-        let colError = null;
-        try {
-          const res = await supabase.rpc("execute_sql", {
-            query_string: `
-              SELECT 
-                column_name, 
-                data_type, 
-                is_nullable, 
-                column_default,
-                character_maximum_length,
-                ordinal_position
-              FROM information_schema.columns 
-              WHERE table_name = '${tableName}' AND table_schema = 'public'
-              ORDER BY ordinal_position;
-            `,
-          });
-          colData = res.data;
-          colError = res.error;
-        } catch (e) {
-          colError = e;
+        let query = flowClient().from(tableName).select("*", { count: "exact" }).range(0, pageSize - 1);
+        if (projectId) {
+          query = query.eq("project_id", projectId);
         }
+        const { data, count, error } = await query;
 
-        if (!colError && colData) {
-          setColumns(Array.isArray(colData) ? colData : []);
-
-          try {
-            const pkResult = await supabase.rpc("execute_sql", {
-              query_string: `
-                SELECT a.attname
-                FROM pg_index i
-                JOIN pg_attribute a ON a.attrelid = i.indrelid AND a.attnum = ANY(i.indkey)
-                WHERE i.indrelid = '${tableName}'::regclass AND i.indisprimary;
-              `,
-            });
-            if (!pkResult.error && Array.isArray(pkResult.data)) {
-              const pkCols = pkResult.data.map((r) => r.attname);
-              setColumns((prev) =>
-                prev.map((col) => ({
-                  ...col,
-                  is_primary: pkCols.includes(col.column_name),
-                }))
-              );
-            }
-          } catch (e) {}
-        }
-
-        let countData = null;
-        try {
-          const countRes = await supabase.rpc("execute_sql", {
-            query_string: `SELECT count(*) as total FROM "${tableName}";`,
-          });
-          countData = countRes.data;
-        } catch (e) {}
-        if (Array.isArray(countData) && countData.length > 0) {
-          setTotalRows(countData[0].total || 0);
-        } else {
-          setTotalRows(0);
-        }
-
-        const offset = 0;
-        let rowData = [];
-        let rowError = null;
-        try {
-          const rowRes = await supabase.rpc("execute_sql", {
-            query_string: `SELECT * FROM "${tableName}" ORDER BY 1 LIMIT ${pageSize} OFFSET ${offset};`,
-          });
-          rowData = rowRes.data;
-          rowError = rowRes.error;
-        } catch (e) {
-          rowError = e;
-        }
-
-        if (!rowError) {
-          setRows(Array.isArray(rowData) ? rowData : []);
-        } else {
+        if (error) {
+          console.error("[table-editor] list error:", error);
+          toast.error(`Couldn't load ${tableName}.`);
+          setColumns([]);
           setRows([]);
+          setTotalRows(0);
+          return;
         }
+
+        const pageRows = Array.isArray(data) ? data : [];
+        setColumns(inferColumns(pageRows));
+        setRows(pageRows);
+        setTotalRows(count ?? pageRows.length);
       } catch (err) {
+        console.error("[table-editor] list error:", err);
+        toast.error(`Couldn't load ${tableName}.`);
+        setColumns([]);
         setRows([]);
+        setTotalRows(0);
       } finally {
         setLoadingData(false);
       }
     },
-    []
+    [pageSize, projectId],
   );
 
   const fetchSortedData = useCallback(
@@ -337,24 +309,39 @@ export function TableEditorScreen() {
       setLoadingData(true);
 
       try {
-        const supabase = createClient();
-        const order = direction === "asc" ? "ASC" : "DESC";
         const offset = page * pageSize;
+        let query = flowClient()
+          .from(selectedTable)
+          .select("*", { count: "exact" })
+          .order(col, { ascending: direction === "asc" })
+          .range(offset, offset + pageSize - 1);
+        if (projectId) {
+          query = query.eq("project_id", projectId);
+        }
+        const { data, count, error } = await query;
 
-        const { data, error } = await supabase.rpc("execute_sql", {
-          query_string: `SELECT * FROM "${selectedTable}" ORDER BY "${col}" ${order} LIMIT ${pageSize} OFFSET ${offset};`,
-        });
+        if (error) {
+          console.error("[table-editor] sort error:", error);
+          toast.error("Couldn't sort rows.");
+          return;
+        }
 
-        if (!error) {
-          setRows(Array.isArray(data) ? data : []);
+        const pageRows = Array.isArray(data) ? data : [];
+        if (columns.length === 0) {
+          setColumns(inferColumns(pageRows));
+        }
+        setRows(pageRows);
+        if (typeof count === "number") {
+          setTotalRows(count);
         }
       } catch (err) {
-        setRows([]);
+        console.error("[table-editor] sort error:", err);
+        toast.error("Couldn't sort rows.");
       } finally {
         setLoadingData(false);
       }
     },
-    [selectedTable, page]
+    [columns.length, page, pageSize, projectId, selectedTable],
   );
 
   const handleSort = (colName) => {
@@ -374,30 +361,39 @@ export function TableEditorScreen() {
       setPage(newPage);
 
       try {
-        const supabase = createClient();
         const offset = newPage * pageSize;
-        const orderClause = sortColumn
-          ? ` ORDER BY "${sortColumn}" ${sortDirection === "asc" ? "ASC" : "DESC"}`
-          : " ORDER BY 1";
+        let query = flowClient().from(selectedTable).select("*", { count: "exact" });
+        if (sortColumn) {
+          query = query.order(sortColumn, { ascending: sortDirection === "asc" });
+        }
+        if (projectId) {
+          query = query.eq("project_id", projectId);
+        }
+        const { data, count, error } = await query.range(offset, offset + pageSize - 1);
 
-        const { data, error } = await supabase.rpc("execute_sql", {
-          query_string: `SELECT * FROM "${selectedTable}"${orderClause} LIMIT ${pageSize} OFFSET ${offset};`,
-        });
+        if (error) {
+          console.error("[table-editor] page error:", error);
+          toast.error("Couldn't load the next page.");
+          return;
+        }
 
-        if (!error) {
-          setRows(Array.isArray(data) ? data : []);
+        const pageRows = Array.isArray(data) ? data : [];
+        setRows(pageRows);
+        if (typeof count === "number") {
+          setTotalRows(count);
         }
       } catch (err) {
-        setRows([]);
+        console.error("[table-editor] page error:", err);
+        toast.error("Couldn't load the next page.");
       } finally {
         setLoadingData(false);
       }
     },
-    [selectedTable, sortColumn, sortDirection]
+    [pageSize, projectId, selectedTable, sortColumn, sortDirection],
   );
 
   const filteredTables = tables.filter((t) =>
-    t.table_name.toLowerCase().includes(searchFilter.toLowerCase())
+    t.table_name.toLowerCase().includes(searchFilter.toLowerCase()),
   );
 
   const totalPages = Math.ceil(totalRows / pageSize);
@@ -412,7 +408,7 @@ export function TableEditorScreen() {
               Table Editor
             </h1>
             <p className="text-muted-foreground text-sm">
-              Browse and explore your database tables, schemas, and data
+              Browse whitelisted project tables, schemas, and data
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -462,7 +458,7 @@ export function TableEditorScreen() {
                 </div>
                 <ScrollArea className="flex-1">
                   <div className="p-2 space-y-0.5">
-                    {loadingTables ? (
+                    {loadingTables && tables.length === 0 ? (
                       <div className="space-y-2 p-2">
                         {Array.from({ length: 5 }).map((_, i) => (
                           <Skeleton key={i} className="h-12 w-full bg-surface-card rounded-lg" />
@@ -471,7 +467,7 @@ export function TableEditorScreen() {
                     ) : filteredTables.length === 0 ? (
                       <p className="text-[11px] text-text-tertiary px-2 py-4 text-center leading-relaxed">
                         {tables.length === 0
-                          ? "No tables found in public schema"
+                          ? "No whitelisted tables"
                           : "No tables match your filter"}
                       </p>
                     ) : (

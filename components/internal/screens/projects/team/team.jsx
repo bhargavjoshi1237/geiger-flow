@@ -24,6 +24,7 @@ import {
 } from "@/features/team/actions";
 import {
   MEMBER_ROLE_MAP,
+  MEMBER_SCOPE_BADGE_CLASS,
   MEMBER_STATUS_MAP,
   ROLE_FILTER_OPTIONS,
 } from "@/features/team/constants";
@@ -268,13 +269,16 @@ export function TeamScreen() {
       header: "Access",
       render: (member) => (
         <div className="flex flex-wrap gap-1.5">
-          <Badge variant={MEMBER_ROLE_MAP[member.role]?.variant || "info"}>
+          <Badge
+            variant="neutral"
+            className={MEMBER_ROLE_MAP[member.role]?.badgeClass}
+          >
             <RoleBadgeIcon role={member.role} />
             {MEMBER_ROLE_MAP[member.role]?.label ||
               member.role ||
               "Member"}
           </Badge>
-          <Badge variant="info">
+          <Badge variant="neutral" className={MEMBER_SCOPE_BADGE_CLASS}>
             <Workflow className="mr-1 h-3 w-3" />
             Project
           </Badge>
@@ -285,7 +289,11 @@ export function TeamScreen() {
       key: "status",
       header: "Status",
       render: (member) => (
-        <StatusPill status={member.status || "Active"} map={MEMBER_STATUS_MAP} />
+        <StatusPill
+          status={member.status || "Active"}
+          map={MEMBER_STATUS_MAP}
+          className={MEMBER_STATUS_MAP[member.status || "Active"]?.badgeClass}
+        />
       ),
     },
     {

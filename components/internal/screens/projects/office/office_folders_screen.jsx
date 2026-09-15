@@ -22,9 +22,8 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@geiger/ui";
-import { createClient } from "@/utils/supabase/client";
-import { useProject } from "@/context/project-context";
-import {
+import { toast } from "sonner";
+import { useProject } from "@/context/project-context";import {
   DataTable,
   EmptyState,
   Field,
@@ -41,10 +40,20 @@ import {
   FOLDER_COLORS,
   timeAgo,
 } from "@/lib/office/office-file-meta";
+import {
+  createOfficeFolder,
+  listFilesOutsideFolder,
+  listFolderFiles,
+  listOfficeFolders,
+  softDeleteOfficeFolder,
+  updateOfficeFile,
+  updateOfficeFolder,
+} from "@/features/office/actions";
 import { cn } from "@/lib/utils";
 
 export function OfficeFoldersScreen() {
   const { project } = useProject();
+  const projectId = project?.id;
   const [folders, setFolders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -58,131 +67,120 @@ export function OfficeFoldersScreen() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [addToFolderOpen, setAddToFolderOpen] = useState(false);
 
+  // Fetch on mount / project change through the data layer.
   const fetchFolders = useCallback(async () => {
-    if (!project?.id) return;
+    if (!projectId) return;
     setLoading(true);
     setError(null);
     try {
-      const supabase = createClient();
-      const { data, error: fetchError } = await supabase
-        .from("office_folders")
-        .select("id, name, color, created_at, updated_at")
-        .eq("project_id", project.id)
-        .order("updated_at", { ascending: false });
-
-      if (fetchError) throw fetchError;
-
-      const folderIds = (data ?? []).map((f) => f.id);
-      let fileCounts = {};
-
-      if (folderIds.length > 0) {
-        const { data: countData } = await supabase
-          .from("office_files")
-          .select("folder_id")
-          .in("folder_id", folderIds)
-          .eq("trashed", false);
-
-        for (const row of countData ?? []) {
-          fileCounts[row.folder_id] = (fileCounts[row.folder_id] || 0) + 1;
-        }
-      }
-
-      setFolders(
-        (data ?? []).map((f) => ({
-          ...f,
-          file_count: fileCounts[f.id] || 0,
-        }))
-      );
+      const rows = await listOfficeFolders(projectId);
+      setFolders(rows ?? []);
     } catch (err) {
       setError(err.message || "Failed to load folders");
     } finally {
       setLoading(false);
     }
-  }, [project?.id]);
+  }, [projectId]);
 
   useEffect(() => {
-    fetchFolders();
+    void Promise.resolve().then(fetchFolders);
   }, [fetchFolders]);
 
   const fetchFolderFiles = useCallback(async (folderId) => {
-    if (!project?.id) return;
+    if (!projectId) return;
     setFilesLoading(true);
     try {
-      const supabase = createClient();
-      const { data, error: fetchError } = await supabase
-        .from("office_files")
-        .select("id, type, name, starred, created_at, updated_at")
-        .eq("project_id", project.id)
-        .eq("folder_id", folderId)
-        .eq("trashed", false)
-        .order("updated_at", { ascending: false });
-
-      if (fetchError) throw fetchError;
-      setFolderFiles(data ?? []);
+      const rows = await listFolderFiles(projectId, folderId);
+      setFolderFiles(rows ?? []);
     } catch {
       setFolderFiles([]);
     } finally {
       setFilesLoading(false);
     }
-  }, [project?.id]);
+  }, [projectId]);
 
   useEffect(() => {
     if (activeFolder) {
-      fetchFolderFiles(activeFolder.id);
+      void Promise.resolve().then(() => fetchFolderFiles(activeFolder.id));
     }
   }, [activeFolder, fetchFolderFiles]);
 
+  // Optimistic create with rollback + toast on failure.
   const handleCreateFolder = async ({ name, color }) => {
-    if (!project?.id) return;
+    if (!projectId) return;
+    const optimisticId = crypto.randomUUID();
+    const optimistic = {
+      id: optimisticId,
+      projectId,
+      name,
+      color,
+      fileCount: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    setFolders((prev) => [optimistic, ...prev]);
     try {
-      const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) throw new Error("You must be signed in to create a folder");
-      const { data, error: createError } = await supabase
-        .from("office_folders")
-        .insert({ project_id: project.id, user_id: user.id, name, color })
-        .select()
-        .single();
-      if (createError) throw createError;
-      setFolders((prev) => [{ ...data, file_count: 0 }, ...prev]);
+      const created = await createOfficeFolder(projectId, {
+        id: optimisticId,
+        name,
+        color,
+      });
+      if (!created) {
+        throw new Error("Failed to create folder");
+      }
+      setFolders((prev) => [
+        { ...created, fileCount: 0 },
+        ...prev.filter((f) => f.id !== optimisticId),
+      ]);
+      toast.success("Folder created");
     } catch (err) {
-      setError(err.message || "Failed to create folder");
+      setFolders((prev) => prev.filter((f) => f.id !== optimisticId));
+      toast.error(err.message || "Failed to create folder");
     }
   };
 
+  // Optimistic rename with rollback + toast on failure.
   const handleRenameFolder = async ({ id, name }) => {
+    const previous = folders;
     setFolders((prev) =>
       prev.map((f) => (f.id === id ? { ...f, name } : f))
     );
-    const supabase = createClient();
-    await supabase
-      .from("office_folders")
-      .update({ name })
-      .eq("id", id)
-      .eq("project_id", project.id);
+    const saved = await updateOfficeFolder(id, { name });
+    if (!saved) {
+      setFolders(previous);
+      toast.error("Couldn't rename the folder.");
+      return;
+    }
+    setFolders((prev) =>
+      prev.map((f) =>
+        f.id === saved.id ? { ...saved, fileCount: f.fileCount } : f
+      )
+    );
+    toast.success("Folder renamed");
   };
 
+  // Soft delete — the row is preserved with deleted_at, never hard-deleted.
   const handleDeleteFolder = async (folder) => {
+    if (!folder) return;
     setDeleteTarget(null);
+    const previous = folders;
     setFolders((prev) => prev.filter((f) => f.id !== folder.id));
     if (activeFolder?.id === folder.id) setActiveFolder(null);
-    const supabase = createClient();
-    await supabase
-      .from("office_folders")
-      .delete()
-      .eq("id", folder.id)
-      .eq("project_id", project.id);
+    const ok = await softDeleteOfficeFolder(folder.id);
+    if (!ok) {
+      setFolders(previous);
+      toast.error("Couldn't delete the folder.");
+      return;
+    }
+    toast.success("Folder deleted");
   };
 
   const handleMoveToFolder = async (fileId, folderId) => {
-    const supabase = createClient();
-    await supabase
-      .from("office_files")
-      .update({ folder_id: folderId })
-      .eq("id", fileId)
-      .eq("project_id", project.id);
+    const saved = await updateOfficeFile(fileId, { folderId });
+    if (!saved) {
+      toast.error("Couldn't move the file.");
+      return;
+    }
     if (activeFolder) {
       fetchFolderFiles(activeFolder.id);
     }
@@ -190,12 +188,11 @@ export function OfficeFoldersScreen() {
   };
 
   const handleRemoveFromFolder = async (fileId) => {
-    const supabase = createClient();
-    await supabase
-      .from("office_files")
-      .update({ folder_id: null })
-      .eq("id", fileId)
-      .eq("project_id", project.id);
+    const saved = await updateOfficeFile(fileId, { folderId: null });
+    if (!saved) {
+      toast.error("Couldn't remove the file.");
+      return;
+    }
     if (activeFolder) {
       fetchFolderFiles(activeFolder.id);
     }
@@ -203,9 +200,9 @@ export function OfficeFoldersScreen() {
   };
 
   const stats = useMemo(() => {
-    const totalFiles = folders.reduce((sum, f) => sum + (f.file_count || 0), 0);
-    const empty = folders.filter((f) => !f.file_count).length;
-    const largest = folders.reduce((max, f) => Math.max(max, f.file_count || 0), 0);
+    const totalFiles = folders.reduce((sum, f) => sum + (f.fileCount || 0), 0);
+    const empty = folders.filter((f) => !f.fileCount).length;
+    const largest = folders.reduce((max, f) => Math.max(max, f.fileCount || 0), 0);
     return [
       { label: "Total folders", value: String(folders.length), footer: "In this project" },
       { label: "Files organized", value: String(totalFiles), footer: "Across all folders" },
@@ -256,7 +253,7 @@ export function OfficeFoldersScreen() {
           <div className="min-w-0">
             <p className="truncate text-sm font-medium text-foreground">{folder.name}</p>
             <p className="text-xs text-text-secondary">
-              {folder.file_count} {folder.file_count === 1 ? "file" : "files"}
+              {folder.fileCount} {folder.fileCount === 1 ? "file" : "files"}
             </p>
           </div>
         </div>
@@ -267,7 +264,7 @@ export function OfficeFoldersScreen() {
       header: "Updated",
       render: (folder) => (
         <span className="whitespace-nowrap text-xs text-muted-foreground">
-          {timeAgo(folder.updated_at)}
+          {timeAgo(folder.updatedAt)}
         </span>
       ),
     },
@@ -320,7 +317,7 @@ export function OfficeFoldersScreen() {
       header: "Updated",
       render: (file) => (
         <span className="whitespace-nowrap text-xs text-muted-foreground">
-          {timeAgo(file.updated_at)}
+          {timeAgo(file.updatedAt)}
         </span>
       ),
     },
@@ -488,6 +485,7 @@ export function OfficeFoldersScreen() {
         onSubmit={handleCreateFolder}
       />
       <RenameFolderDialog
+        key={renameTarget?.id ?? "none"}
         open={!!renameTarget}
         folder={renameTarget}
         onOpenChange={(isOpen) => !isOpen && setRenameTarget(null)}
@@ -600,11 +598,9 @@ function CreateFolderDialog({ open, onOpenChange, onSubmit }) {
 }
 
 function RenameFolderDialog({ open, folder, onOpenChange, onSubmit }) {
-  const [name, setName] = useState("");
-
-  useEffect(() => {
-    if (folder) setName(folder.name);
-  }, [folder]);
+  // Keyed by folder id at the call site, so initial state comes from props
+  // with no sync effect.
+  const [name, setName] = useState(folder?.name ?? "");
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -673,23 +669,13 @@ function AddToFolderDialog({
 
   useEffect(() => {
     if (!open || !projectId) return;
-    setLoading(true);
-    const supabase = createClient();
-    supabase
-      .from("office_files")
-      .select("id, type, name, folder_id")
-      .eq("project_id", projectId)
-      .eq("trashed", false)
-      .order("updated_at", { ascending: false })
-      .then(({ data }) => {
-        setFiles(
-          (data ?? []).filter(
-            (f) => !existingFileIds.includes(f.id)
-          )
-        );
-        setLoading(false);
-      });
-  }, [open, projectId, existingFileIds]);
+    void Promise.resolve().then(async () => {
+      setLoading(true);
+      const rows = await listFilesOutsideFolder(projectId, folderId, existingFileIds);
+      setFiles(rows ?? []);
+      setLoading(false);
+    });
+  }, [open, projectId, folderId, existingFileIds]);
 
   const filtered = files.filter((f) =>
     query.trim() ? f.name.toLowerCase().includes(query.toLowerCase()) : true
@@ -715,17 +701,21 @@ function AddToFolderDialog({
   const handleAdd = async () => {
     if (selected.size === 0) return;
     setSaving(true);
-    const supabase = createClient();
+    let failed = 0;
     for (const fileId of selected) {
-      await supabase
-        .from("office_files")
-        .update({ folder_id: folderId })
-        .eq("id", fileId)
-        .eq("project_id", projectId);
+      const saved = await updateOfficeFile(fileId, { folderId });
+      if (!saved) {
+        failed += 1;
+      }
     }
     setSaving(false);
     setSelected(new Set());
     onOpenChange(false);
+    if (failed > 0) {
+      toast.error(`Couldn't move ${failed} file${failed === 1 ? "" : "s"}.`);
+    } else {
+      toast.success("Files added to folder");
+    }
     onAdded?.();
   };
 

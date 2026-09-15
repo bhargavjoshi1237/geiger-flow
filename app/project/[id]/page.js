@@ -138,12 +138,13 @@ function ProjectLayoutContent({ id }) {
       onCreateLink: createLink,
       onDeleteLink: deleteLink,
       onViewIssues: () => setCurrentTab("Issues"),
+      onViewSchedule: () => setCurrentTab("Milestones"),
       enabledAddons,
     }) ?? (
       <ProjectDetailsScreen
         id={id}
-        externalLinks={externalLinks}
         onViewIssues={() => setCurrentTab("Issues")}
+        onViewSchedule={() => setCurrentTab("Milestones")}
       />
     );
 

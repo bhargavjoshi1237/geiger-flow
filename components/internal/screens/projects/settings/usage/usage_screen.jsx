@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Info,
   ArrowUpRight,
@@ -33,19 +33,49 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  LoadingArea,
 } from "@geiger/ui";
 import { cn } from "@/lib/utils";
 import { SectionCard } from "@/components/internal/shared/screen_kit";
+import { useProject } from "@/context/project-context";
+import { listTasks } from "@/features/tasks/actions";
+import { listIssues } from "@/features/issues/actions";
+import { listAssets } from "@/features/assets/actions";
+import { listActivityLogs } from "@/features/activity_logs/actions";
+import { listTimeEntries } from "@/features/time_entries/actions";
 
-const zeroDailyUsage = Array.from({ length: 7 }, (_, index) => ({
-  day: `D${index + 1}`,
-  count: 0,
-  mb: 0,
-  users: 0,
-  size: 0,
-}));
-const databaseRows = [];
-const sessionBreakdown = [];
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+function startOfDay(timestamp) {
+  const date = new Date(timestamp);
+  date.setHours(0, 0, 0, 0);
+  return date.getTime();
+}
+
+function last7Days() {
+  const today = startOfDay(Date.now());
+  return Array.from({ length: 7 }, (_, index) => {
+    const time = today - (6 - index) * DAY_MS;
+    return {
+      time,
+      label: new Date(time).toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+      }),
+    };
+  });
+}
+
+function formatMb(bytes) {
+  const mb = bytes / (1024 * 1024);
+  if (mb >= 100) return `${Math.round(mb)} MB`;
+  if (mb >= 1) return `${mb.toFixed(1)} MB`;
+  return `${Math.max(Math.round(bytes / 1024), bytes > 0 ? 1 : 0)} KB`;
+}
+
+function distinctActors(logs) {
+  return new Set(logs.map((log) => log.actor ?? log.createdBy).filter(Boolean));
+}
 
 function UsageMetricCard({
   icon: Icon,
@@ -192,56 +222,235 @@ function ChartSection({
 }
 
 export function UsageSettingsScreen() {
+  const { project } = useProject();
+  const projectId = project?.id ?? null;
+  const [tasks, setTasks] = useState([]);
+  const [issues, setIssues] = useState([]);
+  const [assets, setAssets] = useState([]);
+  const [logs, setLogs] = useState([]);
+  const [timeEntries, setTimeEntries] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    void Promise.resolve().then(() => {
+      if (!active) {
+        return undefined;
+      }
+      if (!projectId) {
+        setTasks([]);
+        setIssues([]);
+        setAssets([]);
+        setLogs([]);
+        setTimeEntries([]);
+        setLoading(false);
+        return undefined;
+      }
+      setLoading(true);
+      return Promise.all([
+        listTasks(projectId),
+        listIssues(projectId),
+        listAssets(projectId),
+        listActivityLogs(projectId),
+        listTimeEntries(projectId),
+      ]).then(([taskRows, issueRows, assetRows, logRows, entryRows]) => {
+        if (!active) return;
+        setTasks(taskRows ?? []);
+        setIssues(issueRows ?? []);
+        setAssets(assetRows ?? []);
+        setLogs(logRows ?? []);
+        setTimeEntries(entryRows ?? []);
+        setLoading(false);
+      });
+    });
+    return () => {
+      active = false;
+    };
+  }, [projectId]);
+
+  const usage = useMemo(() => {
+    const storageBytes = assets.reduce((sum, asset) => sum + (Number(asset.sizeBytes) || 0), 0);
+    const computeMinutes = timeEntries.reduce((sum, entry) => sum + (Number(entry.minutes) || 0), 0);
+    const actors = distinctActors(logs);
+    const days = last7Days();
+
+    const daily = days.map(({ time, label }) => {
+      const end = time + DAY_MS;
+      const inDay = (value) => {
+        const parsed = new Date(value).getTime();
+        return Number.isFinite(parsed) && parsed >= time && parsed < end;
+      };
+      const dayLogs = logs.filter((log) => inDay(log.occurredAt ?? log.createdAt));
+      const dayBytes = assets
+        .filter((asset) => inDay(asset.createdAt))
+        .reduce((sum, asset) => sum + (Number(asset.sizeBytes) || 0), 0);
+      const mb = Number((dayBytes / (1024 * 1024)).toFixed(2));
+      return { day: label, count: dayLogs.length, mb, users: distinctActors(dayLogs).size, size: mb };
+    });
+
+    const createdBytes = [...assets]
+      .map((asset) => ({ time: new Date(asset.createdAt).getTime(), bytes: Number(asset.sizeBytes) || 0 }))
+      .filter((entry) => Number.isFinite(entry.time))
+      .sort((a, b) => a.time - b.time);
+    const growth = days.map(({ time, label }) => {
+      const end = time + DAY_MS;
+      const bytes = createdBytes
+        .filter((entry) => entry.time < end)
+        .reduce((sum, entry) => sum + entry.bytes, 0);
+      return { day: label, size: Number((bytes / (1024 * 1024)).toFixed(2)) };
+    });
+
+    const bySource = new Map();
+    logs.forEach((log) => {
+      const source = log.source || "app";
+      bySource.set(source, (bySource.get(source) ?? 0) + 1);
+    });
+    const palette = ["bg-primary", "bg-emerald-400", "bg-sky-400", "bg-amber-400", "bg-violet-400"];
+    const sessionBreakdown = [...bySource.entries()]
+      .map(([label, value], index) => ({
+        label,
+        value,
+        pct: logs.length > 0 ? Math.round((value / logs.length) * 100) : 0,
+        color: palette[index % palette.length],
+      }))
+      .sort((a, b) => b.value - a.value);
+
+    const tableCounts = [
+      { table: "tasks", rows: tasks.length, size: null },
+      { table: "issues", rows: issues.length, size: null },
+      { table: "assets", rows: assets.length, size: formatMb(storageBytes) },
+      { table: "activity_logs", rows: logs.length, size: null },
+      { table: "time_entries", rows: timeEntries.length, size: null },
+    ];
+    const totalRows = tableCounts.reduce((sum, row) => sum + row.rows, 0);
+    const databaseRows = tableCounts.map((row) => ({
+      ...row,
+      size: row.size ?? "—",
+      pct: totalRows > 0 ? Math.round((row.rows / totalRows) * 100) : 0,
+    }));
+
+    const monthStart = new Date();
+    monthStart.setDate(1);
+    monthStart.setHours(0, 0, 0, 0);
+    const monthLogs = logs.filter(
+      (log) => new Date(log.occurredAt ?? log.createdAt).getTime() >= monthStart.getTime(),
+    );
+    const firstSeen = new Map();
+    [...logs]
+      .sort((a, b) => new Date(a.occurredAt ?? a.createdAt) - new Date(b.occurredAt ?? b.createdAt))
+      .forEach((log) => {
+        const actor = log.actor ?? log.createdBy;
+        if (actor && !firstSeen.has(actor)) {
+          firstSeen.set(actor, new Date(log.occurredAt ?? log.createdAt).getTime());
+        }
+      });
+    const newUsersMonth = [...firstSeen.values()].filter((time) => time >= monthStart.getTime()).length;
+
+    const hoursByDay = new Map();
+    timeEntries.forEach((entry) => {
+      const key = entry.workedOn || (entry.createdAt ?? "").slice(0, 10);
+      if (!key) return;
+      hoursByDay.set(key, (hoursByDay.get(key) ?? 0) + (Number(entry.minutes) || 0) / 60);
+    });
+    const dayHours = [...hoursByDay.values()];
+    const peakHours = dayHours.length > 0 ? Math.max(...dayHours) : 0;
+    const avgHours = dayHours.length > 0 ? dayHours.reduce((sum, hours) => sum + hours, 0) / dayHours.length : 0;
+
+    const minutesByOwner = new Map();
+    timeEntries.forEach((entry) => {
+      const owner = entry.owner || "Unassigned";
+      minutesByOwner.set(owner, (minutesByOwner.get(owner) ?? 0) + (Number(entry.minutes) || 0));
+    });
+    const ownerTiles = [...minutesByOwner.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([owner, minutes]) => ({
+        label: owner,
+        pct: computeMinutes > 0 ? Math.round((minutes / computeMinutes) * 100) : 0,
+      }));
+
+    return {
+      daily,
+      growth,
+      sessionBreakdown,
+      databaseRows,
+      totalRows,
+      storageBytes,
+      storageLabel: formatMb(storageBytes),
+      activityCount: logs.length,
+      activeUsers: actors.size,
+      computeHours: computeMinutes / 60,
+      monthEvents: monthLogs.length,
+      newUsersMonth,
+      peakHours,
+      avgHours,
+      ownerTiles,
+    };
+  }, [tasks, issues, assets, logs, timeEntries]);
+
+  if (loading) {
+    return <LoadingArea className="h-[400px] rounded-lg border border-border py-0" label="Loading usage" />;
+  }
+
+  const {
+    daily,
+    growth,
+    sessionBreakdown,
+    databaseRows,
+    totalRows,
+    storageBytes,
+    storageLabel,
+    activityCount,
+    activeUsers,
+    computeHours,
+    monthEvents,
+    newUsersMonth,
+    peakHours,
+    avgHours,
+    ownerTiles,
+  } = usage;
+
+  const formatHours = (hours) =>
+    hours >= 10 ? String(Math.round(hours)) : (Math.round(hours * 10) / 10).toString();
+
   return (
     <div className="space-y-12">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <UsageMetricCard
           icon={Zap}
           label="API Requests"
-          value="0"
-          limit="0"
-          percentage={0}
-          description="Backend request usage will appear here"
+          value={String(activityCount)}
+          description="Recorded project events across every source"
         />
         <UsageMetricCard
           icon={HardDrive}
           label="Storage Used"
-          value="0 MB"
-          limit="0 MB"
-          percentage={0}
-          description="Backend storage usage will appear here"
+          value={storageLabel}
+          description={`Across ${assets.length} stored asset${assets.length === 1 ? "" : "s"}`}
         />
         <UsageMetricCard
           icon={Globe}
           label="Bandwidth"
-          value="0 MB"
-          limit="0 MB"
-          percentage={0}
-          description="Backend bandwidth usage will appear here"
+          value={storageLabel}
+          description="Stored bytes served — egress metering isn't connected"
         />
         <UsageMetricCard
           icon={Server}
           label="Compute Time"
-          value="0 hrs"
-          limit="0 hrs"
-          percentage={0}
-          description="Backend compute usage will appear here"
+          value={`${formatHours(computeHours)} hrs`}
+          description={`Logged across ${timeEntries.length} time entr${timeEntries.length === 1 ? "y" : "ies"}`}
         />
         <UsageMetricCard
           icon={Users}
           label="Active Users"
-          value="0"
-          limit="0"
-          percentage={0}
-          description="Backend active user data will appear here"
+          value={String(activeUsers)}
+          description="Contributors appearing in project activity"
         />
         <UsageMetricCard
           icon={Database}
           label="Database Rows"
-          value="0"
-          limit="0"
-          percentage={0}
-          description="Backend row counts will appear here"
+          value={String(totalRows)}
+          description="Live rows across tasks, issues, assets, and logs"
         />
       </div>
 
@@ -283,10 +492,9 @@ export function UsageSettingsScreen() {
           <ChartSection
             title="API Requests"
             subtitle="Daily request count"
-            value="0"
-            limit="0"
-            included="No request data"
-            data={zeroDailyUsage}
+            value={String(activityCount)}
+            included={activityCount > 0 ? `${daily.reduce((sum, day) => sum + day.count, 0)} events in the last 7 days` : "No request data"}
+            data={daily}
             dataKey="count"
             chartType="bar"
             height={140}
@@ -294,10 +502,9 @@ export function UsageSettingsScreen() {
           <ChartSection
             title="Bandwidth"
             subtitle="Daily data transfer"
-            value="0 MB"
-            limit="0 MB"
-            included="No bandwidth data"
-            data={zeroDailyUsage}
+            value={storageLabel}
+            included={storageBytes > 0 ? "Stored bytes served" : "No bandwidth data"}
+            data={daily}
             dataKey="mb"
             chartType="bar"
             height={140}
@@ -313,10 +520,9 @@ export function UsageSettingsScreen() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <ChartSection
             title="Storage Growth"
-            value="0 MB"
-            limit="0 MB"
-            included="No storage data"
-            data={zeroDailyUsage}
+            value={storageLabel}
+            included={storageBytes > 0 ? `Across ${assets.length} assets` : "No storage data"}
+            data={growth}
             dataKey="size"
             chartType="area"
             chartColor="var(--chart-4)"
@@ -328,12 +534,11 @@ export function UsageSettingsScreen() {
                 Compute Hours
               </span>
               <span className="text-[13px] font-medium text-foreground">
-                0 hrs{" "}
-                <span className="text-muted-foreground font-normal">/ 0 hrs</span>
+                {formatHours(computeHours)} hrs
               </span>
             </div>
             <div className="text-[13px] text-emerald-400 font-medium">
-              No compute data
+              {timeEntries.length > 0 ? `${timeEntries.length} logged entries` : "No compute data"}
             </div>
 
             <div className="grid grid-cols-2 gap-6 mt-4">
@@ -342,7 +547,7 @@ export function UsageSettingsScreen() {
                   Avg. Daily
                 </div>
                 <div className="text-xl font-semibold text-foreground">
-                  0<span className="text-sm text-muted-foreground font-normal ml-1">hrs</span>
+                  {formatHours(avgHours)}<span className="text-sm text-muted-foreground font-normal ml-1">hrs</span>
                 </div>
               </div>
               <div className="bg-background border border-border rounded-xl p-4">
@@ -350,21 +555,25 @@ export function UsageSettingsScreen() {
                   Peak Day
                 </div>
                 <div className="text-xl font-semibold text-foreground">
-                  0<span className="text-sm text-muted-foreground font-normal ml-1">hrs</span>
+                  {formatHours(peakHours)}<span className="text-sm text-muted-foreground font-normal ml-1">hrs</span>
                 </div>
               </div>
             </div>
 
             <div className="grid grid-cols-3 gap-3 mt-2">
-              {["Serverless Functions", "Edge Functions", "Background Jobs"].map(
-                (item) => (
-                  <div key={item} className="bg-background border border-border rounded-lg p-3 text-center">
-                    <div className="text-[11px] text-muted-foreground mb-1">{item}</div>
-                    <div className="text-[13px] font-semibold text-muted-foreground">
-                      0%
+              {ownerTiles.length === 0 ? (
+                <div className="col-span-3 rounded-lg border border-dashed border-border bg-background px-4 py-6 text-center text-[13px] text-text-secondary">
+                  Log time to see the breakdown by contributor.
+                </div>
+              ) : (
+                ownerTiles.map((item) => (
+                  <div key={item.label} className="bg-background border border-border rounded-lg p-3 text-center">
+                    <div className="text-[11px] text-muted-foreground mb-1 truncate">{item.label}</div>
+                    <div className="text-[13px] font-semibold text-foreground">
+                      {item.pct}%
                     </div>
                   </div>
-                )
+                ))
               )}
             </div>
           </div>
@@ -379,10 +588,9 @@ export function UsageSettingsScreen() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <ChartSection
             title="Weekly Active Users"
-            value="0"
-            limit="0"
-            included="No active user data"
-            data={zeroDailyUsage}
+            value={String(activeUsers)}
+            included={activeUsers > 0 ? `${monthEvents} events this month` : "No active user data"}
+            data={daily}
             dataKey="users"
             chartType="bar"
             chartColor="var(--foreground)"
@@ -395,14 +603,14 @@ export function UsageSettingsScreen() {
                 Sessions This Month
               </span>
               <span className="text-[13px] font-medium text-foreground">
-                0
+                {monthEvents}
               </span>
             </div>
 
             <div className="space-y-3 mt-4">
               {sessionBreakdown.length === 0 ? (
                 <div className="rounded-lg border border-dashed border-border bg-background px-4 py-6 text-center text-[13px] text-text-secondary">
-                  Session breakdown will appear here after backend data is connected.
+                  No project events recorded yet.
                 </div>
               ) : (
                 sessionBreakdown.map((item) => (
@@ -430,10 +638,10 @@ export function UsageSettingsScreen() {
             <div className="grid grid-cols-2 gap-4 mt-4">
               <div className="bg-background border border-border rounded-xl p-4">
                 <div className="text-[11px] text-muted-foreground uppercase tracking-wider font-medium mb-2">
-                  Avg. Session
+                  Avg. Daily Events
                 </div>
                 <div className="text-xl font-semibold text-foreground">
-                  0<span className="text-sm text-muted-foreground font-normal ml-1">min</span>
+                  {activityCount > 0 ? Math.round((activityCount / 7) * 10) / 10 : 0}
                 </div>
               </div>
               <div className="bg-background border border-border rounded-xl p-4">
@@ -441,7 +649,7 @@ export function UsageSettingsScreen() {
                   New Users
                 </div>
                 <div className="text-xl font-semibold text-foreground">
-                  0<span className="text-sm text-muted-foreground font-normal ml-1">this month</span>
+                  {newUsersMonth}<span className="text-sm text-muted-foreground font-normal ml-1">this month</span>
                 </div>
               </div>
             </div>
@@ -510,9 +718,9 @@ export function UsageSettingsScreen() {
             </Table>
           </div>
           <div className="px-5 py-3 flex items-center justify-between bg-background/50">
-            <span className="text-[12px] text-muted-foreground">Total across 0 tables</span>
+            <span className="text-[12px] text-muted-foreground">Total across {databaseRows.length} tables</span>
             <span className="text-[12px] text-muted-foreground font-medium">
-              0 rows &middot; 0 MB
+              {totalRows} rows &middot; {storageLabel}
             </span>
           </div>
         </div>

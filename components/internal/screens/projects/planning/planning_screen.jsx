@@ -16,9 +16,10 @@ import {
   Copy,
   FileText,
   Layers3,
-  Pencil,
   PanelLeft,
+  Pencil,
   Plus,
+  Shapes,
   Trash2,
   X,
 } from "lucide-react";
@@ -33,7 +34,6 @@ import {
   getPlanningBoard,
   savePlanningBoard,
 } from "@/features/planning/actions";
-import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import NotesSidebar from "./notes/layout/Sidebar";
 import CustomNode from "./notes/nodes/CustomNode";
 import CommentNode from "./notes/nodes/CommentNode";
@@ -151,10 +151,13 @@ function getDefaultNodeData(type, defaultData = {}) {
   }
 
   if (type === "image") {
+    // No demo src: the node falls back to the neutral placeholder graphic
+    // until the user uploads a real image (see ImageSettingsSidebar, which
+    // persists through features/planning/storage.js).
     return {
       label: "Image",
-      src: "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?q=80&w=1000&auto=format&fit=crop",
-      alt: "Placeholder Image",
+      src: null,
+      alt: "Image",
       ...defaultData,
     };
   }
@@ -186,6 +189,7 @@ export function PlanningScreen() {
   const [planningFiles, setPlanningFiles] = useState(INITIAL_FILES);
   const [activeFileId, setActiveFileId] = useState(INITIAL_FILES[0].id);
   const [filesOpen, setFilesOpen] = useState(true);
+  const [paletteOpen, setPaletteOpen] = useState(true);
 
   const [nodes, setNodes] = useState(() => cloneNodes(INITIAL_FILES[0].nodes));
   const [edges, setEdges] = useState(() => cloneEdges(INITIAL_FILES[0].edges));
@@ -767,9 +771,11 @@ export function PlanningScreen() {
   const proOptions = { hideAttribution: true };
   const collaborators = [];
 
+  // Full-bleed canvas like the System Architecture screen: the route renders
+  // this tab without padding or its own scroll (see isFullBleedScreen), so the
+  // root owns the whole main area instead of a boxed div.
   return (
-    <MainScreenWrapper className="max-w-none space-y-0 px-0 py-0 lg:max-w-none">
-      <div className="relative h-[calc(100dvh-8rem)] min-h-[640px] overflow-hidden rounded-xl border border-border bg-background text-foreground">
+    <div className="relative h-full min-h-[640px] w-full overflow-hidden bg-background text-foreground">
         {boardLoading ? (
           <div className="absolute inset-0 z-50 flex items-center justify-center bg-background">
             <LogoLoading size={40} label="Loading board" />
@@ -816,40 +822,20 @@ export function PlanningScreen() {
         </ReactFlow>
 
         <header className="absolute left-0 right-0 top-0 z-40 flex h-14 items-center justify-between border-b border-border/60 bg-background/70 px-4 backdrop-blur-md">
-          <div className="flex min-w-0 items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setFilesOpen((value) => !value)}
-              className="h-8 w-8 text-muted-foreground hover:bg-surface-hover hover:text-foreground"
-              title="Toggle planning files"
-            >
-              <PanelLeft className="h-4 w-4" />
-            </Button>
-            <div className="min-w-0 border-l border-border pl-3">
-              <div className="flex items-center gap-2">
-                <h1 className="text-sm font-semibold text-foreground">Planning</h1>
-                <span className="hidden text-xs text-text-tertiary sm:inline">/</span>
-                <span className="hidden max-w-[260px] truncate text-sm text-muted-foreground sm:inline">
-                  {activeFile?.name || "Planning file"}
-                </span>
-              </div>
-              <p className="hidden text-xs text-text-secondary md:block">
-                Map project dependencies on a clean shared canvas.
-              </p>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <h1 className="text-sm font-semibold text-foreground">Planning</h1>
+              <span className="hidden text-xs text-text-tertiary sm:inline">/</span>
+              <span className="hidden max-w-[260px] truncate text-sm text-muted-foreground sm:inline">
+                {activeFile?.name || "Planning file"}
+              </span>
             </div>
+            <p className="hidden text-xs text-text-secondary md:block">
+              Map project dependencies on a clean shared canvas.
+            </p>
           </div>
 
           <div className="flex items-center gap-3">
-            <span
-              aria-live="polite"
-              className={cn(
-                "text-xs text-text-tertiary transition-opacity duration-200",
-                !saveStatus && "opacity-0"
-              )}
-            >
-              {saveStatus === "saving" ? "Saving…" : "Saved"}
-            </span>
             <div className="flex -space-x-2">
               {collaborators.map((user) => (
                 <Avatar
@@ -863,6 +849,24 @@ export function PlanningScreen() {
                 </Avatar>
               ))}
             </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setFilesOpen((value) => !value)}
+              className="h-8 w-8 text-muted-foreground hover:bg-surface-hover hover:text-foreground"
+              title="Toggle planning files"
+            >
+              <PanelLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setPaletteOpen((value) => !value)}
+              className="h-8 w-8 text-muted-foreground hover:bg-surface-hover hover:text-foreground"
+              title="Toggle insert palette"
+            >
+              <Shapes className="h-4 w-4" />
+            </Button>
           </div>
         </header>
 
@@ -872,7 +876,12 @@ export function PlanningScreen() {
           }
         `}</style>
 
-        <div className="absolute bottom-0 left-0 top-14 z-40">
+        <div
+          className={cn(
+            "absolute bottom-0 left-0 top-14 z-40 transition-transform duration-300",
+            !paletteOpen && "-translate-x-full",
+          )}
+        >
           <NotesSidebar
             selectedEdge={selectedEdge}
             onUpdateEdge={updateEdge}
@@ -885,7 +894,8 @@ export function PlanningScreen() {
 
         <aside
           className={cn(
-            "absolute bottom-4 left-20 top-[4.5rem] z-40 flex w-[292px] flex-col overflow-hidden rounded-xl border border-border/70 bg-background/70 backdrop-blur-md transition-transform duration-300",
+            "absolute bottom-4 top-[4.5rem] z-40 flex w-[292px] flex-col overflow-hidden rounded-xl border border-border/70 bg-background/70 backdrop-blur-md transition-all duration-300",
+            paletteOpen ? "left-20" : "left-4",
             filesOpen ? "translate-x-0" : "-translate-x-[calc(100%+5rem)]",
           )}
         >
@@ -1040,7 +1050,13 @@ export function PlanningScreen() {
         <div
           className={cn(
             "absolute bottom-4 z-40 flex overflow-hidden rounded-lg border border-border/70 bg-surface-strong/60 shadow-xl backdrop-blur-md transition-all duration-300",
-            filesOpen ? "left-[384px]" : "left-20",
+            filesOpen
+              ? paletteOpen
+                ? "left-[384px]"
+                : "left-[320px]"
+              : paletteOpen
+                ? "left-20"
+                : "left-4",
           )}
         >
           <Button
@@ -1054,6 +1070,7 @@ export function PlanningScreen() {
           </Button>
           <Button
             type="button"
+            variant="ghost"
             onClick={onFitView}
             className="h-9 min-w-14 border-r border-border/70 px-3 font-mono text-[11px] text-foreground hover:bg-border-strong/60"
             title="Fit to view"
@@ -1071,6 +1088,5 @@ export function PlanningScreen() {
           </Button>
         </div>
       </div>
-    </MainScreenWrapper>
   );
 }

@@ -33,6 +33,7 @@ import {
   EmptyState,
   ScreenHeader,
   SearchInput,
+  SegmentedTabs,
   StatsBar,
   StatusPill,
   Toolbar,
@@ -89,30 +90,6 @@ function Pill({ value, map }) {
     return <span className="text-xs text-muted-foreground">{fallback}</span>;
   }
   return <StatusPill status={status} map={map} />;
-}
-
-function ViewSwitch({ activeView, onChange }) {
-  return (
-    <div className="flex w-full items-center overflow-x-auto rounded-lg border border-border bg-surface-card p-0.5 xl:w-auto">
-      {SECURITY_VIEWS.map((view) => (
-        <Button
-          key={view}
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => onChange(view)}
-          className={cn(
-            "h-7 rounded-md px-3 text-xs",
-            activeView === view
-              ? "bg-surface-hover text-foreground"
-              : "text-text-secondary hover:bg-transparent hover:text-muted-foreground",
-          )}
-        >
-          {view}
-        </Button>
-      ))}
-    </div>
-  );
 }
 
 function PolicyCard({ policy, onToggle }) {
@@ -596,7 +573,12 @@ export function SecurityScreen() {
 
       <Toolbar>
         <div className="flex flex-wrap items-center gap-2">
-          <ViewSwitch activeView={activeView} onChange={setActiveView} />
+          <SegmentedTabs
+            tabs={SECURITY_VIEWS}
+            value={activeView}
+            onChange={setActiveView}
+            className="w-auto shrink-0"
+          />
           {(showVulnerabilities && !showAccess) || activeView === "Vulnerabilities" ? (
             <>
               <FilterDropdown

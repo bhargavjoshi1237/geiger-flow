@@ -221,7 +221,7 @@ export function IssueSurface({
 
   if (visible.length === 0) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 py-16 text-center">
+      <div className="mx-2 mt-2 flex flex-1 flex-col items-center justify-center gap-3 rounded-b-[8px] border-x border-b border-[var(--lnr-border)] px-6 py-16 text-center">
         <p className="text-[15px] font-medium text-[var(--lnr-ink)]">{emptyTitle}</p>
         <p className="max-w-sm text-[13px] text-[var(--lnr-ink-subtle)]">{emptyHint}</p>
         {onCreate ? (
@@ -241,7 +241,10 @@ export function IssueSurface({
   const selectionActive = selected.size > 0;
 
   return (
-    <div ref={containerRef} className="relative flex-1 overflow-y-auto lnr-scrollbar">
+    <div
+      ref={containerRef}
+      className="relative mx-2 mt-2 flex-1 overflow-y-auto rounded-b-[8px] border-x border-b border-[var(--lnr-border)] lnr-scrollbar"
+    >
       {groups.map((group) => (
         <section key={group.key}>
           <GroupHeader
@@ -346,7 +349,7 @@ function IssueBoardSurface({ groups, display, onOpenIssue, onCreate }) {
   const [dragOver, setDragOver] = useState(null);
 
   return (
-    <div className="flex flex-1 gap-3 overflow-x-auto p-2 lnr-scrollbar sm:p-4">
+    <div className="mx-2 mb-2 mt-2 flex flex-1 gap-3 overflow-x-auto rounded-b-[8px] border-x border-b border-[var(--lnr-border)] p-2 lnr-scrollbar sm:p-4">
       {groups.map((group) => (
         <div
           key={group.key}
@@ -403,7 +406,7 @@ function IssueBoardSurface({ groups, display, onOpenIssue, onCreate }) {
 
 export function ListHint() {
   return (
-    <div className="hidden items-center gap-2 border-t border-[var(--lnr-border)] px-4 py-1.5 text-[11px] text-[var(--lnr-ink-tertiary)] lg:flex">
+    <div className="hidden items-center justify-end gap-2 bg-[var(--lnr-canvas)] px-4 py-2 text-[11px] text-[var(--lnr-ink-tertiary)] lg:flex">
       <Kbd>J</Kbd>
       <Kbd>K</Kbd>
       navigate

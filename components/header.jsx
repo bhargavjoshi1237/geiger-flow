@@ -5,7 +5,9 @@ import { SuiteHeader } from "@geiger/ui/suite-header";
 import { getUser } from "@/lib/supabase/user";
 import { ProfileDropdown } from "@/components/internal/topbar/dialogue/profile_dropdown";
 
-export function Header({ dashboardHref = "/home" }) {
+// dashboardHref falls through to SuiteHeader's "/org" default, which geiger-dash
+// owns; Flow has no workspace-level surface of its own.
+export function Header({ dashboardHref }) {
   const [user, setUser] = useState(null);
   const [resolved, setResolved] = useState(false);
 

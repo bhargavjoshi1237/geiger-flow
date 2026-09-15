@@ -289,7 +289,7 @@ function ShellBody() {
         </SheetContent>
       </Sheet>
 
-      <main className="flex min-w-0 flex-1 flex-col overflow-hidden border-[var(--lnr-border)] bg-[var(--lnr-panel)] lg:rounded-tl-[8px] lg:border-l lg:border-t">
+      <main className="flex min-w-0 flex-1 flex-col overflow-hidden border-[var(--lnr-border)] bg-[var(--lnr-panel)] lg:rounded-tl-[8px] lg:border-t">
         {loading ? (
           <div className="flex flex-1 flex-col items-center justify-center">
             <LogoLoading size={40} label="Loading workspace" />

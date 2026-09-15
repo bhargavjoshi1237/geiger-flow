@@ -1,20 +1,19 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  AlertTriangle,
   Bot,
   CalendarClock,
-  CheckCircle2,
-  CircleDollarSign,
+  Layers3,
   ClipboardCheck,
   Goal,
-  Layers3,
   Milestone,
   Plus,
   Search,
+  Trash2,
   UserRound,
 } from "lucide-react";
+import { toast } from "sonner";
 import {
   Accordion,
   AccordionContent,
@@ -34,11 +33,18 @@ import {
   TableRow,
 } from "@geiger/ui";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
+import { EmptyState } from "@/components/internal/shared/screen_kit";
 import { cn } from "@/lib/utils";
-
-const CREDIT_POOLS = [];
-
-const INITIAL_ALLOCATIONS = [];
+import { useProject } from "@/context/project-context";
+import {
+  createCreditAllocation,
+  createCreditPool,
+  listCreditAllocations,
+  listCreditPools,
+  softDeleteCreditAllocation,
+  updateCreditAllocation,
+} from "@/features/credits/actions";
+import { DEFAULT_TARGET_TYPE } from "@/features/credits/constants";
 
 const USAGE_PLAN = [];
 
@@ -75,16 +81,13 @@ const FILTERS = [
 ];
 
 function formatCredits(value, unit) {
+  const numeric = Number(value) || 0;
   if (unit === "tokens") {
-    if (value >= 1_000_000_000_000) return `${Number((value / 1_000_000_000_000).toFixed(2))}T`;
-    if (value >= 1_000_000_000) return `${Number((value / 1_000_000_000).toFixed(1))}B`;
+    if (numeric >= 1_000_000_000_000) return `${Number((numeric / 1_000_000_000_000).toFixed(2))}T`;
+    if (numeric >= 1_000_000_000) return `${Number((numeric / 1_000_000_000).toFixed(1))}B`;
   }
 
-  return new Intl.NumberFormat("en").format(value);
-}
-
-function getPool(poolId) {
-  return CREDIT_POOLS.find((pool) => pool.id === poolId) || CREDIT_POOLS[0];
+  return new Intl.NumberFormat("en").format(numeric);
 }
 
 function StatusBadge({ status }) {
@@ -98,12 +101,16 @@ function StatusBadge({ status }) {
 }
 
 function CreditStats({ pools, allocations }) {
+  if (pools.length === 0) {
+    return null;
+  }
+
   const tokenPool = pools.find((pool) => pool.id === "pool_tokens") || pools[0];
   const remaining = tokenPool.total - tokenPool.used;
   const watchCount = allocations.filter((allocation) => allocation.status === "watch").length;
 
   const stats = [
-    { label: "Period", value: tokenPool.period },
+    { label: "Period", value: tokenPool.period || "—" },
     { label: "Budget", value: formatCredits(tokenPool.total, tokenPool.unit) },
     { label: "Used", value: formatCredits(tokenPool.used, tokenPool.unit) },
     { label: "Left", value: formatCredits(remaining, tokenPool.unit) },
@@ -142,7 +149,7 @@ function PoolTable({ pools }) {
         </TableHeader>
         <TableBody>
           {pools.map((pool) => {
-            const usedPercent = Math.round((pool.used / pool.total) * 100);
+            const usedPercent = pool.total > 0 ? Math.round((pool.used / pool.total) * 100) : 0;
 
             return (
               <TableRow key={pool.id} className="border-border hover:bg-surface-active">
@@ -150,7 +157,7 @@ function PoolTable({ pools }) {
                   <div className="flex flex-col gap-1">
                     <span className="font-medium text-foreground">{pool.name}</span>
                     <p className="line-clamp-1 text-xs text-text-secondary">
-                      {pool.period} | {pool.unit}
+                      {pool.period || "No period"} | {pool.unit}
                     </p>
                   </div>
                 </TableCell>
@@ -175,7 +182,7 @@ function PoolTable({ pools }) {
                 <TableCell>
                   <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
                     <CalendarClock className="h-3.5 w-3.5 text-text-secondary" />
-                    {pool.reset}
+                    {pool.reset || "—"}
                   </span>
                 </TableCell>
               </TableRow>
@@ -187,7 +194,9 @@ function PoolTable({ pools }) {
   );
 }
 
-function AllocationTable({ allocations }) {
+function AllocationTable({ allocations, pools, onToggleWatch, onDelete }) {
+  const getPool = (poolId) => pools.find((pool) => pool.id === poolId) || pools[0];
+
   return (
     <div className="overflow-hidden rounded-2xl border border-border bg-surface-card">
       <Table>
@@ -199,6 +208,7 @@ function AllocationTable({ allocations }) {
             <TableHead>Planned</TableHead>
             <TableHead>Used</TableHead>
             <TableHead>Remaining</TableHead>
+            <TableHead className="w-[64px]" />
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -212,8 +222,8 @@ function AllocationTable({ allocations }) {
               <TableRow key={allocation.id} className="border-border hover:bg-surface-active">
                 <TableCell>
                   <div className="flex flex-col gap-1">
-                    <span className="font-medium text-foreground">{pool.name}</span>
-                    <p className="line-clamp-1 text-xs text-text-secondary">{allocation.scope}</p>
+                    <span className="font-medium text-foreground">{pool?.name || "Credit pool"}</span>
+                    <p className="line-clamp-1 text-xs text-text-secondary">{allocation.scope || "Monthly usage planning"}</p>
                   </div>
                 </TableCell>
                 <TableCell>
@@ -223,10 +233,17 @@ function AllocationTable({ allocations }) {
                   </span>
                 </TableCell>
                 <TableCell className="whitespace-nowrap">
-                  <StatusBadge status={allocation.status} />
+                  <button
+                    type="button"
+                    onClick={() => onToggleWatch(allocation)}
+                    title="Toggle watch status"
+                    className="rounded-md transition hover:opacity-80"
+                  >
+                    <StatusBadge status={allocation.status} />
+                  </button>
                 </TableCell>
                 <TableCell className="text-sm text-muted-foreground">
-                  {formatCredits(allocation.planned, pool.unit)}
+                  {formatCredits(allocation.planned, pool?.unit)}
                 </TableCell>
                 <TableCell>
                   <div className="w-[130px] space-y-1.5">
@@ -234,11 +251,23 @@ function AllocationTable({ allocations }) {
                       value={usedPercent}
                       className="h-1.5 rounded-full bg-surface-hover [&_[data-slot=progress-indicator]]:bg-primary"
                     />
-                    <p className="text-xs text-text-secondary">{formatCredits(allocation.used, pool.unit)} used</p>
+                    <p className="text-xs text-text-secondary">{formatCredits(allocation.used, pool?.unit)} used</p>
                   </div>
                 </TableCell>
                 <TableCell className="text-sm font-medium text-foreground">
-                  {formatCredits(remaining, pool.unit)}
+                  {formatCredits(remaining, pool?.unit)}
+                </TableCell>
+                <TableCell>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onDelete(allocation.id)}
+                    className="h-8 w-8 text-text-secondary hover:bg-red-500/10 hover:text-red-400"
+                    title="Delete allocation"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
                 </TableCell>
               </TableRow>
             );
@@ -291,10 +320,141 @@ function UsagePlanAccordion() {
 }
 
 export function CreditedResourcesScreen() {
-  const [allocations, setAllocations] = useState(INITIAL_ALLOCATIONS);
+  const { project } = useProject();
+  const projectId = project?.id;
+  const [pools, setPools] = useState([]);
+  const [allocations, setAllocations] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
-  const [allocationCounter, setAllocationCounter] = useState(104);
+
+  useEffect(() => {
+    let active = true;
+    void Promise.resolve().then(() => {
+      if (!projectId) {
+        if (active) {
+          setLoading(false);
+        }
+        return;
+      }
+
+      if (active) {
+        setLoading(true);
+      }
+      return Promise.all([listCreditPools(projectId), listCreditAllocations(projectId)]).then(
+        ([poolRows, allocationRows]) => {
+          if (!active) {
+            return;
+          }
+          setPools(poolRows ?? []);
+          setAllocations(allocationRows ?? []);
+          setLoading(false);
+        },
+      );
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [projectId]);
+
+  const ensurePool = useCallback(async () => {
+    if (pools.length > 0) {
+      return pools[0];
+    }
+
+    const optimisticId = crypto.randomUUID();
+    const optimistic = {
+      id: optimisticId,
+      projectId,
+      name: "AI token pool",
+      period: new Date().toLocaleDateString(undefined, { month: "long", year: "numeric" }),
+      unit: "tokens",
+      total: 1_000_000_000_000,
+      allocated: 0,
+      used: 0,
+      status: "on_track",
+      reset: "1st of next month",
+    };
+    setPools([optimistic]);
+
+    const created = await createCreditPool(projectId, optimistic);
+    if (!created) {
+      setPools([]);
+      toast.error("Couldn't create the credit pool.");
+      return null;
+    }
+
+    setPools([created]);
+    return created;
+  }, [pools, projectId]);
+
+  const addAllocation = useCallback(async () => {
+    if (!projectId) {
+      toast.error("Open a project before allocating credits.");
+      return;
+    }
+
+    const pool = await ensurePool();
+    if (!pool) {
+      return;
+    }
+
+    const optimistic = {
+      id: crypto.randomUUID(),
+      projectId,
+      poolId: pool.id,
+      target: "New allocation",
+      targetType: DEFAULT_TARGET_TYPE,
+      scope: "Monthly usage planning",
+      planned: 250_000_000_000,
+      used: 0,
+      status: "draft",
+    };
+    setAllocations((current) => [optimistic, ...current]);
+
+    const created = await createCreditAllocation(projectId, optimistic);
+    if (!created) {
+      setAllocations((current) => current.filter((item) => item.id !== optimistic.id));
+      toast.error("Couldn't save the allocation.");
+      return;
+    }
+
+    setAllocations((current) => current.map((item) => (item.id === optimistic.id ? created : item)));
+    toast.success("Allocation created");
+  }, [ensurePool, projectId]);
+
+  const toggleWatch = useCallback(async (allocation) => {
+    const nextStatus = allocation.status === "watch" ? "on_track" : "watch";
+    setAllocations((current) =>
+      current.map((item) => (item.id === allocation.id ? { ...item, status: nextStatus } : item)),
+    );
+
+    const updated = await updateCreditAllocation(allocation.id, { status: nextStatus });
+    if (!updated) {
+      setAllocations((current) =>
+        current.map((item) => (item.id === allocation.id ? allocation : item)),
+      );
+      toast.error("Couldn't update the allocation.");
+      return;
+    }
+
+    setAllocations((current) => current.map((item) => (item.id === updated.id ? updated : item)));
+  }, []);
+
+  const deleteAllocation = useCallback(async (id) => {
+    const previous = allocations.find((item) => item.id === id);
+    setAllocations((current) => current.filter((item) => item.id !== id));
+
+    const ok = await softDeleteCreditAllocation(id);
+    if (!ok) {
+      setAllocations((current) => (previous ? [previous, ...current] : current));
+      toast.error("Couldn't delete the allocation.");
+      return;
+    }
+
+    toast.success("Allocation deleted");
+  }, [allocations]);
 
   const filteredAllocations = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -304,31 +464,24 @@ export function CreditedResourcesScreen() {
       if (!matchesFilter) return false;
       if (!normalizedQuery) return true;
 
-      const pool = getPool(allocation.poolId);
-      return [pool.name, allocation.target, allocation.targetType, allocation.scope, allocation.status]
+      const pool = pools.find((item) => item.id === allocation.poolId);
+      return [pool?.name, allocation.target, allocation.targetType, allocation.scope, allocation.status]
         .join(" ")
         .toLowerCase()
         .includes(normalizedQuery);
     });
-  }, [activeFilter, allocations, query]);
+  }, [activeFilter, allocations, pools, query]);
 
-  const addAllocation = () => {
-    const nextId = allocationCounter + 1;
-    setAllocationCounter(nextId);
-    setAllocations((currentAllocations) => [
-      {
-        id: `alloc_${nextId}`,
-        poolId: "pool_tokens",
-        target: "New allocation",
-        targetType: "Task",
-        scope: "Monthly usage planning",
-        planned: 250_000_000_000,
-        used: 0,
-        status: "draft",
-      },
-      ...currentAllocations,
-    ]);
-  };
+  if (loading) {
+    return (
+      <MainScreenWrapper>
+        <div className="flex h-[260px] flex-col items-center justify-center gap-3 text-text-secondary">
+          <Bot className="h-10 w-10 opacity-30" />
+          <p className="text-sm">Loading credited resources…</p>
+        </div>
+      </MainScreenWrapper>
+    );
+  }
 
   return (
     <MainScreenWrapper>
@@ -345,53 +498,74 @@ export function CreditedResourcesScreen() {
         </Button>
       </div>
 
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-        <CreditStats pools={CREDIT_POOLS} allocations={allocations} />
-        <div className="flex items-center gap-2 overflow-x-auto pb-1">
-          {FILTERS.map((filter) => (
-            <Button
-              key={filter.id}
-              type="button"
-              variant="ghost"
-              className={cn(
-                "h-8 rounded-lg border px-3 text-xs",
-                activeFilter === filter.id
-                  ? "border-border-strong bg-surface-hover text-foreground"
-                  : "border-border bg-surface-subtle text-text-secondary hover:bg-surface-card hover:text-foreground",
-              )}
-              onClick={() => setActiveFilter(filter.id)}
-            >
-              {filter.label}
+      {pools.length === 0 && allocations.length === 0 ? (
+        <EmptyState
+          icon={Bot}
+          title="No credited resources yet"
+          description="Create a credit pool and allocate it across users, tasks, goals, and modules."
+          action={
+            <Button className="bg-primary text-primary-foreground hover:bg-primary" onClick={addAllocation}>
+              <Plus className="mr-2 h-4 w-4" />
+              New Allocation
             </Button>
-          ))}
-        </div>
-      </div>
-
-      <PoolTable pools={CREDIT_POOLS} />
-
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <h2 className="text-sm font-semibold text-foreground">Allocations</h2>
-          <p className="mt-1 text-xs text-text-secondary">Credits assigned to users and project work.</p>
-        </div>
-        <div className="relative w-full lg:w-[320px]">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
-          <Input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search allocations"
-            className="!pl-10 !pr-4 bg-surface-subtle border-border text-foreground text-sm placeholder:text-text-secondary focus-visible:ring-0 focus-visible:border-border-strong"
-          />
-        </div>
-      </div>
-
-      {filteredAllocations.length === 0 ? (
-        <div className="flex h-[260px] flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface-subtle text-text-secondary">
-          <Bot className="h-10 w-10 opacity-30" />
-          <p className="mt-3 text-sm">No credit allocations match your current filters.</p>
-        </div>
+          }
+        />
       ) : (
-        <AllocationTable allocations={filteredAllocations} />
+        <>
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+            <CreditStats pools={pools} allocations={allocations} />
+            <div className="flex items-center gap-2 overflow-x-auto pb-1">
+              {FILTERS.map((filter) => (
+                <Button
+                  key={filter.id}
+                  type="button"
+                  variant="ghost"
+                  className={cn(
+                    "h-8 rounded-lg border px-3 text-xs",
+                    activeFilter === filter.id
+                      ? "border-border-strong bg-surface-hover text-foreground"
+                      : "border-border bg-surface-subtle text-text-secondary hover:bg-surface-card hover:text-foreground",
+                  )}
+                  onClick={() => setActiveFilter(filter.id)}
+                >
+                  {filter.label}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          <PoolTable pools={pools} />
+
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <h2 className="text-sm font-semibold text-foreground">Allocations</h2>
+              <p className="mt-1 text-xs text-text-secondary">Credits assigned to users and project work.</p>
+            </div>
+            <div className="relative w-full lg:w-[320px]">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
+              <Input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Search allocations"
+                className="!pl-10 !pr-4 bg-surface-subtle border-border text-foreground text-sm placeholder:text-text-secondary focus-visible:ring-0 focus-visible:border-border-strong"
+              />
+            </div>
+          </div>
+
+          {filteredAllocations.length === 0 ? (
+            <div className="flex h-[260px] flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface-subtle text-text-secondary">
+              <Bot className="h-10 w-10 opacity-30" />
+              <p className="mt-3 text-sm">No credit allocations match your current filters.</p>
+            </div>
+          ) : (
+            <AllocationTable
+              allocations={filteredAllocations}
+              pools={pools}
+              onToggleWatch={toggleWatch}
+              onDelete={deleteAllocation}
+            />
+          )}
+        </>
       )}
 
       <UsagePlanAccordion />

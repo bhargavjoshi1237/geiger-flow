@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -36,8 +37,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@geiger/ui";
-import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
+import { createForm, saveFormQuestions } from "@/features/forms/actions";
 
 const QUESTION_TYPES = {
   short: { label: "Short answer", Icon: TextCursorInput, placeholder: "Single line text" },
@@ -292,6 +293,7 @@ function SettingsPanel({ settings, onChange }) {
 }
 
 export function FormBuilderScreen({ projectId }) {
+  const router = useRouter();
   const [title, setTitle] = useState("Untitled form");
   const [description, setDescription] = useState("");
   const [questions, setQuestions] = useState([createQuestion(1)]);
@@ -322,6 +324,11 @@ export function FormBuilderScreen({ projectId }) {
   };
 
   const saveForm = async (status) => {
+    if (!projectId) {
+      toast.error("Open a project before saving the form.");
+      return;
+    }
+
     if (!title.trim()) {
       toast.error("Add a form title before saving.");
       return;
@@ -334,34 +341,41 @@ export function FormBuilderScreen({ projectId }) {
 
     setSavingMode(status);
     try {
-      const supabase = createClient();
-      const { data: userData } = await supabase.auth.getUser();
-      const payload = {
-        project_id: projectId,
+      // Shared table with the list screen (flow.forms + flow.form_questions) —
+      // no divergent insert path.
+      const form = await createForm(projectId, {
+        id: crypto.randomUUID(),
         title: title.trim(),
         description: description.trim(),
-        status,
-        schema: {
-          version: 1,
-          questions: questions.map((question, index) => ({
-            ...question,
-            order: index,
-            title: question.title.trim(),
-            description: question.description.trim(),
-            options: question.options.map((option) => option.trim()).filter(Boolean),
-          })),
-        },
+        status: status === "published" ? "Published" : "Draft",
+        confidentiality: "Confidential",
         settings,
-        created_by: userData?.user?.id || null,
-        published_at: status === "published" ? new Date().toISOString() : null,
-      };
+        publishedAt: status === "published" ? new Date().toISOString() : null,
+      });
 
-      const { error } = await supabase.from("flow_forms").insert(payload);
-      if (error) {
-        throw error;
+      if (!form) {
+        throw new Error("Unable to save form.");
+      }
+
+      const savedQuestions = await saveFormQuestions(
+        projectId,
+        form.id,
+        questions.map((question, index) => ({
+          title: question.title.trim() || `Question ${index + 1}`,
+          type: question.type,
+          description: question.description.trim(),
+          required: Boolean(question.required),
+          options: question.options.map((option) => option.trim()).filter(Boolean),
+          position: index,
+        })),
+      );
+
+      if (!savedQuestions) {
+        throw new Error("Form saved, but questions could not be saved.");
       }
 
       toast.success(status === "published" ? "Form published." : "Draft saved.");
+      router.push(`/project/${encodeURIComponent(projectId)}?Forms`);
     } catch (error) {
       toast.error(error?.message || "Unable to save form.");
     } finally {

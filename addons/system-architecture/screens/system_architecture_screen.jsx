@@ -15,6 +15,8 @@ import "@xyflow/react/dist/style.css";
 import { useTheme } from "next-themes";
 import {
   Boxes,
+  Check,
+  ChevronDown,
   ChevronsLeft,
   ChevronsRight,
   DollarSign,
@@ -42,12 +44,23 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@geiger/ui";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@geiger/ui";
 import { Input } from "@geiger/ui";
 import { Label } from "@geiger/ui";
 import { Switch } from "@geiger/ui";
 import { Textarea } from "@geiger/ui";
 import { cn } from "@/lib/utils";
+import { useProject } from "@/context/project-context";
 import { useProjectBudget } from "@/context/project-budget-context";
+import {
+  ensureDiagram,
+  updateDiagram,
+} from "@/features/architecture/actions";
 import {
   architectureCategories,
   architectureIconMap,
@@ -307,42 +320,94 @@ function CatalogueSection({ items, categories, activeCategory, onCategoryChange,
   );
 }
 
+// How the cost input is denominated. The node always stores a MONTHLY figure;
+// picking "Year" only changes what the field shows and how typed input is
+// converted back, so the stored value stays comparable across nodes.
+const COST_PERIODS = [
+  { id: "month", label: "Month", months: 1, step: 100 },
+  { id: "year", label: "Year", months: 12, step: 1200 },
+];
+
 function CostInput({ value, onChange, disabled }) {
-  const numericValue = Number(value) || 0;
-  const updateValue = (nextValue) => onChange(Math.max(0, Number(nextValue) || 0));
+  const [periodId, setPeriodId] = useState("month");
+  const period = COST_PERIODS.find((p) => p.id === periodId) ?? COST_PERIODS[0];
+
+  const monthlyValue = Number(value) || 0;
+  // Rounded so switching Month -> Year -> Month doesn't accumulate drift.
+  const shownValue = Math.round(monthlyValue * period.months);
+
+  // Takes a value in the displayed period and stores it back as monthly.
+  const commitShown = (nextShown) => {
+    const safe = Math.max(0, Number(nextShown) || 0);
+    onChange(safe / period.months);
+  };
 
   return (
     <div className={cn("rounded-lg border border-border bg-background", disabled && "opacity-50")}>
       <div className="flex h-10 items-center">
-        <span className="flex h-full w-10 items-center justify-center border-r border-border text-sm font-semibold text-text-secondary">
+        <span className="flex h-full w-10 shrink-0 items-center justify-center border-r border-border text-sm font-semibold text-text-secondary">
           $
         </span>
         <Input
           type="number"
           min="0"
-          step="50"
+          step={period.step}
           disabled={disabled}
-          value={numericValue}
-          onChange={(event) => updateValue(event.target.value)}
+          value={shownValue}
+          onChange={(event) => commitShown(event.target.value)}
           className="min-w-0 flex-1 border-0 bg-transparent px-3 text-sm font-semibold text-foreground shadow-none focus-visible:ring-0 disabled:cursor-not-allowed"
         />
-        <span className="border-l border-border px-3 text-xs font-medium text-text-secondary">
-          /mo
-        </span>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              disabled={disabled}
+              title="Change billing period"
+              className="h-full shrink-0 gap-1 rounded-none rounded-r-lg border-l border-border px-2.5 text-xs font-medium text-text-secondary hover:bg-surface-active hover:text-foreground"
+            >
+              {period.label}
+              <ChevronDown className="h-3 w-3" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="min-w-[8rem] border-border bg-surface-subtle">
+            {COST_PERIODS.map((option) => (
+              <DropdownMenuItem
+                key={option.id}
+                onSelect={() => setPeriodId(option.id)}
+                className="justify-between text-sm"
+              >
+                {option.label}
+                {option.id === periodId ? <Check className="h-3.5 w-3.5" /> : null}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
-      <div className="flex border-t border-border">
-        {[-100, 100].map((step) => (
-          <Button
-            key={step}
-            type="button"
-            disabled={disabled}
-            variant="ghost"
-            onClick={() => updateValue(numericValue + step)}
-            className="flex h-8 flex-1 items-center justify-center text-xs font-medium text-muted-foreground transition hover:bg-surface-active hover:text-foreground disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-muted-foreground first:border-r first:border-border"
-          >
-            {step < 0 ? "-$100" : "+$100"}
-          </Button>
-        ))}
+
+      {/* Stepper. Steps by the displayed period's increment, and the decrement
+          is disabled at zero so it can't bottom out silently. */}
+      <div className="grid grid-cols-2 divide-x divide-border border-t border-border">
+        <Button
+          type="button"
+          variant="ghost"
+          disabled={disabled || shownValue <= 0}
+          onClick={() => commitShown(shownValue - period.step)}
+          title={`Decrease by $${period.step.toLocaleString()}`}
+          className="h-9 gap-1.5 rounded-none rounded-bl-lg text-xs font-medium text-muted-foreground hover:bg-surface-active hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          <Minus className="h-3.5 w-3.5" />${period.step.toLocaleString()}
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          disabled={disabled}
+          onClick={() => commitShown(shownValue + period.step)}
+          title={`Increase by $${period.step.toLocaleString()}`}
+          className="h-9 gap-1.5 rounded-none rounded-br-lg text-xs font-medium text-muted-foreground hover:bg-surface-active hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          <Plus className="h-3.5 w-3.5" />${period.step.toLocaleString()}
+        </Button>
       </div>
     </div>
   );
@@ -350,9 +415,13 @@ function CostInput({ value, onChange, disabled }) {
 
 export function SystemArchitectureScreen() {
   const { resolvedTheme } = useTheme();
+  const { project } = useProject();
+  const projectId = project?.id;
   const { syncArchitectureExpenses, updateArchitectureExpense } = useProjectBudget();
-  const [nodes, setNodes] = useState(starterNodes);
-  const [edges, setEdges] = useState(starterEdges);
+  const [nodes, setNodes] = useState([]);
+  const [edges, setEdges] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [diagramId, setDiagramId] = useState(null);
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [activeLogoCategory, setActiveLogoCategory] = useState("All");
@@ -362,6 +431,74 @@ export function SystemArchitectureScreen() {
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
   const [zoomLevel, setZoomLevel] = useState(1);
   const wrapperRef = useRef(null);
+  const readyRef = useRef(false);
+  const saveTimerRef = useRef(null);
+
+  // Fetch-on-mount: load the project's live diagram, seeding it from the
+  // starter canvas on first run. Local state stays optimistic; the debounced
+  // effect below persists every graph change.
+  useEffect(() => {
+    let active = true;
+    void Promise.resolve().then(() => {
+      if (!projectId) {
+        if (active) {
+          setLoading(false);
+        }
+        return;
+      }
+
+      if (active) {
+        setLoading(true);
+        readyRef.current = false;
+      }
+      return ensureDiagram(projectId, { nodes: starterNodes, edges: starterEdges }).then(
+        (diagram) => {
+          if (!active) {
+            return;
+          }
+          if (diagram) {
+            setDiagramId(diagram.id);
+            setNodes(diagram.nodes?.length ? diagram.nodes : starterNodes);
+            setEdges(diagram.edges?.length ? diagram.edges : starterEdges);
+          } else {
+            setNodes(starterNodes);
+            setEdges(starterEdges);
+          }
+          setLoading(false);
+          readyRef.current = true;
+        },
+      );
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [projectId]);
+
+  // Debounced autosave: every optimistic graph edit lands in flow.* within ~800ms.
+  useEffect(() => {
+    if (!readyRef.current || !diagramId) {
+      return undefined;
+    }
+
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current);
+    }
+
+    saveTimerRef.current = setTimeout(() => {
+      void updateDiagram(diagramId, { nodes, edges }).then((saved) => {
+        if (!saved) {
+          console.error("[architecture] autosave failed");
+        }
+      });
+    }, 800);
+
+    return () => {
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current);
+      }
+    };
+  }, [diagramId, nodes, edges]);
 
   useEffect(() => {
     syncArchitectureExpenses(nodes.map(nodeToArchitectureExpense));
@@ -476,6 +613,8 @@ export function SystemArchitectureScreen() {
     [selectedNode, updateArchitectureExpense],
   );
 
+  // Persisted via the nodes autosave effect above (description rides in the
+  // node's data bag), not local-only state.
   const saveExpenseDescription = useCallback(() => {
     updateSelectedNodeExpense({
       description: expenseDescriptionDraft,
@@ -507,6 +646,11 @@ export function SystemArchitectureScreen() {
 
   return (
     <div ref={wrapperRef} className="relative h-full min-h-[640px] w-full overflow-hidden bg-background text-foreground">
+      {loading ? (
+        <div className="absolute inset-0 z-50 grid place-items-center bg-background/80">
+          <p className="text-sm text-text-secondary">Loading diagram…</p>
+        </div>
+      ) : null}
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -720,17 +864,23 @@ export function SystemArchitectureScreen() {
               />
             </div>
 
-            <Label className="block space-y-2">
-              <span className="text-xs font-medium text-muted-foreground">Monthly infrastructure cost</span>
+            {/* Not a <label>: it would forward stray clicks to the number input
+                and fight the period dropdown nested inside the control. */}
+            <div>
+              <span className="mb-2.5 block text-xs font-medium text-muted-foreground">
+                Monthly infrastructure cost
+              </span>
               <CostInput
                 value={selectedNode.data?.monthlyCost ?? 0}
                 disabled={selectedNode.data?.expenseEnabled === false}
                 onChange={(monthlyCost) => updateSelectedNodeExpense({ monthlyCost })}
               />
-            </Label>
+            </div>
 
-            <Label className="block space-y-2">
-              <span className="text-xs font-medium text-muted-foreground">Node description</span>
+            <Label className="block">
+              <span className="mb-2.5 block text-xs font-medium text-muted-foreground">
+                Node description
+              </span>
               <Textarea
                 value={expenseDescriptionDraft}
                 onChange={(event) => setExpenseDescriptionDraft(event.target.value)}
@@ -763,9 +913,6 @@ export function SystemArchitectureScreen() {
               <Save className="h-4 w-4" />
               Save description
             </Button>
-            <p className="text-xs leading-5 text-text-secondary">
-              Use the close button to hide this editor. Reopen it by selecting any architecture node.
-            </p>
           </div>
         </aside>
       ) : null}

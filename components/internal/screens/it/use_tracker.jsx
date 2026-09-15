@@ -18,8 +18,12 @@ import {
   softDeleteIssue,
   updateIssue,
 } from "@/features/issues/actions";
-import { listMilestones } from "@/features/milestones/actions";
-import { listObjectives } from "@/features/objectives/actions";
+import { createMilestone, listMilestones } from "@/features/milestones/actions";
+import {
+  createObjective,
+  listObjectives,
+  updateObjective,
+} from "@/features/objectives/actions";
 import { listActivityLogs } from "@/features/activity_logs/actions";
 import { getUser } from "@/lib/supabase/user";
 import {
@@ -249,6 +253,72 @@ export function TrackerProvider({ children }) {
     return decorate(created);
   }, []);
 
+  // --- Cycles (flow.milestones) & divisions (flow.objectives): created and
+  // updated through the tracker so every view reads the same persisted rows.
+  // No local overlays in views — writes below append/replace tracker state.
+
+  const reloadCycles = useCallback(async () => {
+    if (!projectId) return;
+    const rows = await listMilestones(projectId);
+    setCycles(rows ?? []);
+  }, [projectId]);
+
+  const reloadDivisions = useCallback(async () => {
+    if (!projectId) return;
+    const rows = await listObjectives(projectId);
+    setDivisions(rows ?? []);
+  }, [projectId]);
+
+  const addCycle = useCallback(
+    async (input) => {
+      if (!projectId) return null;
+      const created = await createMilestone(projectId, input);
+      if (!created) {
+        return null;
+      }
+      setCycles((current) => [...current, created]);
+      return created;
+    },
+    [projectId],
+  );
+
+  const addDivision = useCallback(
+    async (input) => {
+      if (!projectId) return null;
+      const created = await createObjective(projectId, input);
+      if (!created) {
+        return null;
+      }
+      setDivisions((current) => [...current, created]);
+      return created;
+    },
+    [projectId],
+  );
+
+  // Health is a single column write; keep the row optimistic and persist.
+  const setDivisionHealth = useCallback(async (id, status) => {
+    const previous = divisions.find((entry) => entry.id === id);
+    if (!previous) return null;
+
+    setDivisions((current) =>
+      current.map((entry) => (entry.id === id ? { ...entry, status } : entry)),
+    );
+
+    const saved = await updateObjective(id, { status });
+    if (!saved) {
+      setDivisions((current) =>
+        current.map((entry) => (entry.id === id ? previous : entry)),
+      );
+      toast.error("Couldn't update division health.");
+      return null;
+    }
+
+    setDivisions((current) =>
+      current.map((entry) => (entry.id === id ? saved : entry)),
+    );
+    return saved;
+  }, [divisions]);
+
   const counts = useMemo(
     () => ({
       all: issues.length,
@@ -286,6 +356,11 @@ export function TrackerProvider({ children }) {
       removeIssue,
       copyIssue,
       reloadIssues,
+      reloadCycles,
+      reloadDivisions,
+      addCycle,
+      addDivision,
+      setDivisionHealth,
     }),
     [
       project,
@@ -305,6 +380,11 @@ export function TrackerProvider({ children }) {
       removeIssue,
       copyIssue,
       reloadIssues,
+      reloadCycles,
+      reloadDivisions,
+      addCycle,
+      addDivision,
+      setDivisionHealth,
     ],
   );
 

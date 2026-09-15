@@ -5,7 +5,7 @@ import { AddonsSettingsScreen, AddonsViewToggle } from "./addons/addons_settings
 import { UsageSettingsScreen } from "./usage/usage_screen";
 import { AdvancedSettingsScreen } from "./advanced/advanced_settings";
 import { EnterpriseSettingsScreen } from "./enterprise/enterprise_settings";
-import { ConnectionsScreen } from "./connections/connections_screen";
+import { ConnectionsConnectButton, ConnectionsScreen } from "./connections/connections_screen";
 import { NavigationSettingsScreen } from "./navigation/navigation_settings";
 import { SecondaryScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { EmptyState, ScreenHeader } from "@/components/internal/shared/screen_kit";
@@ -26,13 +26,19 @@ const SETTINGS_TAB_META = {
 export function SettingsScreen({ activeSettingsTab = "General" }) {
   const [addonsCompactView, setAddonsCompactView] = useState(false);
   const [customsCreateOpen, setCustomsCreateOpen] = useState(false);
+  const [connectionsCreateOpen, setConnectionsCreateOpen] = useState(false);
 
   const renderContent = () => {
     switch (activeSettingsTab) {
       case "General":
         return <GeneralSettingsScreen />;
       case "Connections":
-        return <ConnectionsScreen />;
+        return (
+          <ConnectionsScreen
+            isCreateOpen={connectionsCreateOpen}
+            onCreateOpenChange={setConnectionsCreateOpen}
+          />
+        );
       case "Customs":
         return (
           <CustomsSettingsScreen
@@ -73,6 +79,10 @@ export function SettingsScreen({ activeSettingsTab = "General" }) {
         }
         actions={
           <>
+            {activeSettingsTab === "Connections" && (
+              <ConnectionsConnectButton onClick={() => setConnectionsCreateOpen(true)} />
+            )}
+
             {activeSettingsTab === "Customs" && (
               <CustomsCreateFieldButton onClick={() => setCustomsCreateOpen(true)} />
             )}

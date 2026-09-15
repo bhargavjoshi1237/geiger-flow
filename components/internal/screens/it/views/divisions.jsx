@@ -19,7 +19,6 @@ import {
   Textarea,
 } from "@geiger/ui";
 import { cn } from "@/lib/utils";
-import { createObjective, updateObjective } from "@/features/objectives/actions";
 import { DEFAULT_DISPLAY, formatShortDate, isCompleted } from "../constants";
 import { ProgressRing } from "../icons";
 import { IssueSurface } from "../issue_list";
@@ -76,7 +75,7 @@ function HealthPill({ status, onChange }) {
   );
 }
 
-function NewDivisionDialog({ open, onOpenChange, projectId, onCreated }) {
+function NewDivisionDialog({ open, onOpenChange, onSubmit }) {
   const [draft, setDraft] = useState({ title: "", description: "", targetDate: "" });
   const [saving, setSaving] = useState(false);
 
@@ -87,7 +86,8 @@ function NewDivisionDialog({ open, onOpenChange, projectId, onCreated }) {
       return;
     }
     setSaving(true);
-    const created = await createObjective(projectId, {
+    // Persisted through the tracker so the new row lands in shared state.
+    const created = await onSubmit({
       title: draft.title.trim(),
       description: draft.description.trim(),
       targetDate: draft.targetDate || null,
@@ -101,7 +101,6 @@ function NewDivisionDialog({ open, onOpenChange, projectId, onCreated }) {
     toast.success("Division created");
     setDraft({ title: "", description: "", targetDate: "" });
     onOpenChange(false);
-    onCreated(created);
   };
 
   return (
@@ -162,36 +161,15 @@ function NewDivisionDialog({ open, onOpenChange, projectId, onCreated }) {
 }
 
 export function DivisionsView({ onOpenIssue, onCreate, selectedId, onSelect }) {
-  const { divisions, issues, projectId, people } = useTracker();
+  const { divisions, issues, people, addDivision, setDivisionHealth } = useTracker();
   const [creating, setCreating] = useState(false);
-  const [local, setLocal] = useState([]);
-  const [health, setHealth] = useState({});
   const [display, setDisplay] = useState({ ...DEFAULT_DISPLAY, grouping: "status" });
 
-  const all = useMemo(
-    () =>
-      [...divisions, ...local].map((entry) => ({
-        ...entry,
-        status: health[entry.id] ?? entry.status,
-      })),
-    [divisions, local, health],
-  );
+  // Divisions come straight from the tracker — no local overlay and no health
+  // shadow map, so the UI always matches the persisted rows.
+  const all = useMemo(() => [...divisions], [divisions]);
 
   const selected = selectedId ? all.find((entry) => entry.id === selectedId) : null;
-
-  // Health is a single column write; keep the row optimistic and persist.
-  const setDivisionHealth = async (id, status) => {
-    setHealth((current) => ({ ...current, [id]: status }));
-    const saved = await updateObjective(id, { status });
-    if (!saved) {
-      setHealth((current) => {
-        const next = { ...current };
-        delete next[id];
-        return next;
-      });
-      toast.error("Couldn't update division health.");
-    }
-  };
 
   if (selected) {
     const stats = divisionStats(selected, issues);
@@ -352,8 +330,7 @@ export function DivisionsView({ onOpenIssue, onCreate, selectedId, onSelect }) {
       <NewDivisionDialog
         open={creating}
         onOpenChange={setCreating}
-        projectId={projectId}
-        onCreated={(created) => setLocal((current) => [...current, created])}
+        onSubmit={addDivision}
       />
     </div>
   );

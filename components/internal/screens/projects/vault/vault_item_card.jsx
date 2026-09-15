@@ -8,14 +8,12 @@ import {
   Database,
   Key,
   Link,
-  Lock,
   Mail,
   Pencil,
   Server,
   Shield,
   Terminal,
   Trash2,
-  Unlock,
   Fingerprint,
 } from "lucide-react";
 import { Button } from "@geiger/ui";
@@ -102,15 +100,6 @@ export function VaultItemCard({
               <span className="text-[11px] font-medium px-2 py-1 rounded-md bg-surface-card border border-border text-muted-foreground flex items-center gap-1">
                 <Clock className="w-3 h-3" />
                 {formatTTL(item.ttl)}
-              </span>
-            )}
-            {item.keylessEntry ? (
-              <span className="text-[11px] font-medium px-2 py-1.5 rounded-md bg-surface-card border border-border text-muted-foreground flex items-center gap-1">
-                <Unlock className="w-3 h-3" />
-              </span>
-            ) : (
-              <span className="text-[11px] font-medium px-2 py-1.5 rounded-md bg-surface-card border border-border text-text-secondary flex items-center gap-1">
-                <Lock className="w-3 h-3" />
               </span>
             )}
             <ActionMenu

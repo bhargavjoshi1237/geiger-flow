@@ -18,6 +18,7 @@ import {
   Flag,
   Calendar,
   CheckCircle2,
+  ChevronDown,
   Circle,
   Plus,
   AlertTriangle,
@@ -113,6 +114,22 @@ export function MilestonesScreen() {
   const [editMilestone, setEditMilestone] = useState(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  // Collapsed by default — the toggle below expands one milestone at a time.
+  const [expandedIds, setExpandedIds] = useState(() => new Set());
+
+  const toggleMilestone = (id) => {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const normalizedQuery = query.trim().toLowerCase();
 
   useEffect(() => {
     if (!projectId) {
@@ -144,8 +161,6 @@ export function MilestonesScreen() {
   );
 
   const filteredMilestones = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
-
     return milestonesWithMetrics.filter((milestone) => {
       const matchesFilter =
         activeFilter === "all" || milestone.metrics.status === activeFilter;
@@ -165,7 +180,7 @@ export function MilestonesScreen() {
 
       return searchableText.includes(normalizedQuery);
     });
-  }, [milestonesWithMetrics, query, activeFilter]);
+  }, [milestonesWithMetrics, normalizedQuery, activeFilter]);
 
   const pager = usePagination(filteredMilestones, {
     resetKey: `${query}|${activeFilter}`,
@@ -278,45 +293,73 @@ export function MilestonesScreen() {
     {
       key: "milestone",
       header: "Milestone",
-      render: (milestone) => (
-        <div className="flex min-w-[240px] flex-col gap-1">
-          <span className="font-medium text-foreground">{milestone.title}</span>
-          {milestone.description ? (
-            <span className="line-clamp-2 text-xs text-text-secondary">
-              {milestone.description}
+      render: (milestone) => {
+        const taskCount = milestone.tasks.length;
+        // A task-name search match forces the row open so the hit is visible.
+        const taskMatch =
+          normalizedQuery.length > 0 &&
+          milestone.tasks.some((task) =>
+            task.title.toLowerCase().includes(normalizedQuery)
+          );
+        const expanded = taskMatch || expandedIds.has(milestone.id);
+        return (
+          <div className="flex min-w-[240px] flex-col gap-1">
+            <span className="font-medium text-foreground">{milestone.title}</span>
+            {milestone.description ? (
+              <span className="line-clamp-2 text-xs text-text-secondary">
+                {milestone.description}
+              </span>
+            ) : null}
+            <span className="flex flex-wrap items-center gap-3 text-xs text-text-secondary">
+              <span className="inline-flex items-center gap-1">
+                <Calendar className="h-3 w-3" />
+                {formatDate(milestone.targetDate)}
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <SquareStack className="h-3 w-3" />
+                {milestone.metrics.totalTasks} tasks
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <Clock3 className="h-3 w-3" />
+                {milestone.owner}
+              </span>
+              <span className="tabular-nums text-text-tertiary">
+                {milestone.metrics.doneTasks}/{milestone.metrics.totalTasks} complete
+              </span>
             </span>
-          ) : null}
-          <span className="flex flex-wrap items-center gap-3 text-xs text-text-secondary">
-            <span className="inline-flex items-center gap-1">
-              <Calendar className="h-3 w-3" />
-              {formatDate(milestone.targetDate)}
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <SquareStack className="h-3 w-3" />
-              {milestone.metrics.totalTasks} tasks
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <Clock3 className="h-3 w-3" />
-              {milestone.owner}
-            </span>
-            <span className="tabular-nums text-text-tertiary">
-              {milestone.metrics.doneTasks}/{milestone.metrics.totalTasks} complete
-            </span>
-          </span>
-          {milestone.tasks.length > 0 ? (
-            <div className="mt-1 space-y-0.5">
-              {milestone.tasks.map((task) => (
-                <TaskToggle
-                  key={task.id}
-                  milestoneId={milestone.id}
-                  task={task}
-                  onToggleTask={handleToggleTask}
-                />
-              ))}
-            </div>
-          ) : null}
-        </div>
-      ),
+            {taskCount > 0 ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => toggleMilestone(milestone.id)}
+                  aria-expanded={expanded}
+                  className="mt-1 inline-flex w-fit items-center gap-1 rounded-md px-1 py-0.5 text-xs font-medium text-text-secondary transition-colors hover:bg-surface-card hover:text-foreground"
+                >
+                  <ChevronDown
+                    className={cn(
+                      "h-3.5 w-3.5 transition-transform",
+                      !expanded && "-rotate-90"
+                    )}
+                  />
+                  {expanded ? "Hide tasks" : `Show tasks (${taskCount})`}
+                </button>
+                {expanded ? (
+                  <div className="mt-1 space-y-0.5">
+                    {milestone.tasks.map((task) => (
+                      <TaskToggle
+                        key={task.id}
+                        milestoneId={milestone.id}
+                        task={task}
+                        onToggleTask={handleToggleTask}
+                      />
+                    ))}
+                  </div>
+                ) : null}
+              </>
+            ) : null}
+          </div>
+        );
+      },
     },
     {
       key: "status",

@@ -17,7 +17,10 @@ import ImageCaptionDialog from "./dialogs/ImageCaptionDialog";
 import ImageCropDialog from "./dialogs/ImageCropDialog";
 import ImageChangeDialog from "./dialogs/ImageChangeDialog";
 import { toast } from "../../toast";
-import { createClient } from "@/lib/supabase/client";
+import {
+  removePlanningNodeFiles,
+  uploadPlanningNodeBlob,
+} from "@/features/planning/storage";
 
 export default function ImageSettingsSidebar({
   selectedNode,
@@ -118,64 +121,36 @@ export default function ImageSettingsSidebar({
     const toastId = toast.loading("Uploading image...");
 
     try {
-      const supabase = createClient();
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-
-      if (userError || !user) {
-        throw new Error("You must be logged in to upload images.");
-      }
-
-      const basePath = `${user.id}/${selectedNode.id}`;
-
-      const { data: existingFiles } = await supabase.storage
-        .from("homeboard")
-        .list(basePath);
-
-      if (existingFiles && existingFiles.length > 0) {
-        const filesToDelete = existingFiles.map(
-          (file) => `${basePath}/${file.name}`,
-        );
-        const { error: deleteError } = await supabase.storage
-          .from("homeboard")
-          .remove(filesToDelete);
-
-        if (deleteError) {
-          console.warn("Failed to delete old files:", deleteError);
-        }
-      }
+      // Storage goes through the planning features layer (auth check ->
+      // upload -> public URL); the returned URL lands in the node's data and
+      // the board persists it via savePlanningBoard.
+      await removePlanningNodeFiles(selectedNode.id);
 
       const res = await fetch(newSrc);
       const highResBlob = await res.blob();
       const thumbnailBlob = await createThumbnailInfo(newSrc);
-      const highResPath = `${basePath}/high_res.png`;
-      const thumbPath = `${basePath}/thumbnail.png`;
 
-      const { error: highResError } = await supabase.storage
-        .from("homeboard")
-        .upload(highResPath, highResBlob, {
-          upsert: true,
-          contentType: highResBlob.type,
-        });
+      const publicUrl = await uploadPlanningNodeBlob(
+        selectedNode.id,
+        "high_res.png",
+        highResBlob,
+        highResBlob.type,
+      );
 
-      if (highResError) throw highResError;
-
-      const { error: thumbError } = await supabase.storage
-        .from("homeboard")
-        .upload(thumbPath, thumbnailBlob, {
-          upsert: true,
-          contentType: "image/jpeg",
-        });
-
-      if (thumbError) {
-        console.warn("Thumbnail upload failed", thumbError);
+      if (!publicUrl) {
+        throw new Error("Failed to upload image");
       }
 
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("homeboard").getPublicUrl(highResPath);
+      const thumbUrl = await uploadPlanningNodeBlob(
+        selectedNode.id,
+        "thumbnail.png",
+        thumbnailBlob,
+        "image/jpeg",
+      );
+
+      if (!thumbUrl) {
+        console.warn("Thumbnail upload failed");
+      }
 
       const cacheBustedUrl = `${publicUrl}?t=${Date.now()}`;
 

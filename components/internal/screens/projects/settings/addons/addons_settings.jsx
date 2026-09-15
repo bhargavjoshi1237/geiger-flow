@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { Badge } from "@geiger/ui";
 import { Switch } from "@geiger/ui";
 import {
@@ -14,6 +15,12 @@ import {
 import { useAddonRegistry } from "@/addons/registry";
 import { getInstalledAddons } from "@/addons/registry";
 import { projectNav } from "@/components/internal/sidebar/projects/sidebar_data";
+import { useProject } from "@/context/project-context";
+import {
+  defaultProjectSettings,
+  getProjectSettings,
+  mergeProjectSettings,
+} from "@/features/project_settings/actions";
 import {
   Select,
   SelectContent,
@@ -95,7 +102,8 @@ function AddonCard({ addon, enabled, positionOptions, selectValue, currentColor,
       <Button
         type="button"
         onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-center gap-1.5 py-2.5 border-t border-border hover:bg-surface-subtle transition-colors duration-200"
+        variant="ghost"
+        className="h-auto w-full flex items-center justify-center gap-1.5 rounded-none rounded-b-xl py-2.5 border-t border-border hover:bg-surface-hover transition-colors duration-200"
       >
         {expanded ? (
           <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
@@ -209,12 +217,71 @@ export function AddonsViewToggle({ compactView, onToggle }) {
 }
 
 export function AddonsSettingsScreen({ compactView: controlledCompactView }) {
-  const { isAddonEnabled, toggleAddon, navPositions, setAddonNavPosition, addonColors, setAddonColor } =
+  const { project } = useProject();
+  const projectId = project?.id ?? null;
+  const { enabledAddons, isAddonEnabled, toggleAddon, navPositions, setAddonNavPosition, addonColors, setAddonColor } =
     useAddonRegistry();
   const installedAddons = getInstalledAddons();
+  const hydratedRef = useRef(null);
 
   const [uncontrolledCompactView] = useState(false);
   const compactView = controlledCompactView ?? uncontrolledCompactView;
+
+  // Hydrate the registry from the project's persisted add-on prefs. Runs per
+  // project; user edits persist afterwards (guarded by hydratedRef so the
+  // hydration itself never writes).
+  useEffect(() => {
+    if (!projectId || hydratedRef.current === projectId) return;
+    hydratedRef.current = projectId;
+    getProjectSettings(projectId).then((settings) => {
+      const prefs = (settings ?? defaultProjectSettings(projectId)).addons;
+      installedAddons.forEach((addon) => {
+        const shouldBeEnabled = prefs.enabled.includes(addon.id);
+        if (shouldBeEnabled !== isAddonEnabled(addon.id)) {
+          toggleAddon(addon.id);
+        }
+        const position = prefs.navPositions[addon.id];
+        if (position !== undefined) {
+          setAddonNavPosition(addon.id, position);
+        }
+        const color = prefs.colors[addon.id];
+        if (color !== undefined && color !== null) {
+          setAddonColor(addon.id, color);
+        }
+      });
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectId]);
+
+  const persistAddons = async (next) => {
+    if (!projectId || hydratedRef.current !== projectId) return;
+    const saved = await mergeProjectSettings(projectId, { addons: next });
+    if (!saved) {
+      toast.error("Couldn't save add-on preferences.");
+    }
+  };
+
+  const handleToggle = (addonId) => {
+    const nextEnabled = enabledAddons.includes(addonId)
+      ? enabledAddons.filter((id) => id !== addonId)
+      : [...enabledAddons, addonId];
+    toggleAddon(addonId);
+    void persistAddons({ enabled: nextEnabled, navPositions, colors: addonColors });
+  };
+
+  const handlePositionChange = (addonId) => (val) => {
+    const position = val === "auto" ? null : val === "end" ? projectNav.length - 1 : Number(val);
+    const nextPositions = { ...navPositions, [addonId]: position };
+    setAddonNavPosition(addonId, position);
+    void persistAddons({ enabled: enabledAddons, navPositions: nextPositions, colors: addonColors });
+  };
+
+  const handleColorChange = (addon, color) => {
+    const nextColor = color === addon.color ? null : color;
+    const nextColors = { ...addonColors, [addon.id]: nextColor };
+    setAddonColor(addon.id, nextColor);
+    void persistAddons({ enabled: enabledAddons, navPositions, colors: nextColors });
+  };
 
   const positionOptions = projectNav.map((item, idx) => ({
     value: String(idx),
@@ -230,7 +297,7 @@ export function AddonsSettingsScreen({ compactView: controlledCompactView }) {
   });
 
   return (
-    <div className="space-y-8 border-t border-border pt-6">
+    <div className="space-y-8">
       {installedAddons.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border bg-background">
           <EmptyState
@@ -265,20 +332,9 @@ export function AddonsSettingsScreen({ compactView: controlledCompactView }) {
                 positionOptions={positionOptions}
                 selectValue={selectValue}
                 currentColor={currentColor}
-                onToggle={() => toggleAddon(addon.id)}
-                onPositionChange={(val) => {
-                  if (val === "auto") {
-                    setAddonNavPosition(addon.id, null);
-                  } else if (val === "end") {
-                    setAddonNavPosition(addon.id, projectNav.length - 1);
-                  } else {
-                    setAddonNavPosition(addon.id, Number(val));
-                  }
-                }}
-                onColorChange={(color) => {
-                  const newColor = color === addon.color ? null : color;
-                  setAddonColor(addon.id, newColor);
-                }}
+                onToggle={() => handleToggle(addon.id)}
+                onPositionChange={handlePositionChange(addon.id)}
+                onColorChange={(color) => handleColorChange(addon, color)}
               />
             );
           })}

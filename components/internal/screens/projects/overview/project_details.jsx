@@ -23,6 +23,7 @@ import {
   PieChart,
   PolarAngleAxis,
   PolarGrid,
+  PolarRadiusAxis,
   Radar,
   RadarChart,
   RadialBar,
@@ -38,12 +39,9 @@ import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers"
 import {
   EditorSectionHeader,
   EmptyState,
-  ScreenHeader,
-  StatsBar,
 } from "@/components/internal/shared/screen_kit";
 import { severityColors } from "@geiger/ui";
 import { cn } from "@/lib/utils";
-import { ExternalLinkIcon } from "@/components/internal/externals/external_links";
 import { listTasks } from "@/features/tasks/actions";
 // NOTE: features/tasks/constants.js exposes statusLabels/statusMeta — there is
 // no TASK_STATUS_MAP export, so the donut derives label+colour from those.
@@ -56,9 +54,11 @@ import {
 } from "@/features/issues/constants";
 import { listGoals } from "@/features/goals/actions";
 import { listMilestones } from "@/features/milestones/actions";
+import { getMilestoneMetrics } from "@/features/milestones/constants";
 import { listActivityLogs } from "@/features/activity_logs/actions";
 import { listAllocations } from "@/features/resources/actions";
 import { listMembers } from "@/features/team/actions";
+import { listOrgMembers } from "@/lib/supabase/profiles";
 
 const CHART_COLORS = {
   primary: "var(--foreground)",
@@ -95,7 +95,7 @@ const RANGE_DAYS = { "1w": 7, "1m": 30, "3m": 90, "1y": 365 };
 const MS_PER_DAY = 86400000;
 const SPARK_BUCKETS = 12;
 const TOP_ISSUES_LIMIT = 5;
-const DEADLINES_LIMIT = 5;
+const DEADLINES_LIMIT = 4;
 
 // Fixed radar/resource metric keys (labels live beside the derivations below).
 const RADAR_METRIC_OPTIONS = [
@@ -131,6 +131,23 @@ function formatShortDate(value) {
     month: "short",
     day: "numeric",
   });
+}
+
+// Days-left buckets behind a deadline card's priority badge and progress accent.
+function getUrgency(daysLeft) {
+  if (daysLeft <= 3) return "critical";
+  if (daysLeft <= 14) return "high";
+  if (daysLeft <= 30) return "medium";
+  return "low";
+}
+
+function formatTimeLeft(daysLeft) {
+  if (daysLeft < 0) {
+    const overdue = Math.abs(daysLeft);
+    return `${overdue} day${overdue === 1 ? "" : "s"} overdue`;
+  }
+  if (daysLeft === 0) return "Due today";
+  return `${daysLeft} day${daysLeft === 1 ? "" : "s"} left`;
 }
 
 // Split [start, end] into `count` buckets and tally every timestamp into one.
@@ -423,6 +440,10 @@ function YearlyRadarWidget({ metrics, caption }) {
       value: getCount(item.value),
     }),
   );
+  // All-zero buckets collapse the radar polygon to the center, which reads
+  // as a blank chart. Detect it so the widget can say why instead.
+  const hasRadarData = radarData.some((item) => item.value > 0);
+  const totalInRange = radarData.reduce((sum, item) => sum + item.value, 0);
 
   return (
     <WidgetShell className="h-[420px]" contentClassName="h-full">
@@ -430,7 +451,7 @@ function YearlyRadarWidget({ metrics, caption }) {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-center gap-2 justify-between w-full">
             <div className="flex flex-col w-full">
-              <h3 className="text-base font-semibold text-foreground">Radar Chart</h3>
+              <h3 className="text-base font-semibold text-foreground">Progress</h3>
               <p className="text-sm text-muted-foreground">{selected.description}</p>
             </div>
 
@@ -444,6 +465,7 @@ function YearlyRadarWidget({ metrics, caption }) {
         </div>
 
         <div className="mt-4 flex min-h-0 flex-1 items-center justify-center">
+          {hasRadarData ? (
           <ChartContainer
             config={{
               value: {
@@ -456,21 +478,29 @@ function YearlyRadarWidget({ metrics, caption }) {
             <RadarChart data={radarData} margin={{ top: 12, right: 30, bottom: 12, left: 30 }}>
               <PolarGrid stroke={CHART_COLORS.grid} />
               <PolarAngleAxis dataKey="label" tick={{ fill: CHART_COLORS.muted, fontSize: 12 }} />
+              <PolarRadiusAxis tick={false} axisLine={false} domain={[0, "dataMax"]} />
               <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
               <Radar
                 dataKey="value"
-                stroke={CHART_COLORS.primary}
-                fill={CHART_COLORS.primary}
+                stroke="var(--color-value)"
+                fill="var(--color-value)"
                 fillOpacity={0.18}
                 strokeWidth={2}
               />
             </RadarChart>
           </ChartContainer>
+          ) : (
+            <EmptyState
+              icon={Activity}
+              title={`No ${selected.label.toLowerCase()} in this range`}
+              description="Complete work or pick a longer range to see the shape."
+            />
+          )}
         </div>
 
         <div className="mt-2 min-h-[44px] text-center">
           <p className="text-sm font-semibold text-foreground">
-            {formatTrend(selected.trend)} in this range
+            {formatTrend(selected.trend)} in this range ({totalInRange} total)
           </p>
           <p className="mt-1 text-sm text-text-secondary">{caption}</p>
         </div>
@@ -589,7 +619,7 @@ function ResourcePerformanceWidget({ metrics, caption }) {
   );
 }
 
-export function ProjectDetailsScreen({ externalLinks = [], onViewIssues }) {
+export function ProjectDetailsScreen({ onViewIssues, onViewSchedule }) {
   const { project } = useProject();
   const { id: projectId } = project ?? {};
   const [filterValue, setFilterValue] = useState("1w");
@@ -601,14 +631,10 @@ export function ProjectDetailsScreen({ externalLinks = [], onViewIssues }) {
   const [activityLogs, setActivityLogs] = useState([]);
   const [allocations, setAllocations] = useState([]);
   const [members, setMembers] = useState([]);
+  const [profiles, setProfiles] = useState([]);
   // Anchored when rows land (and when the range changes) so the range window
   // never calls Date.now() during render.
   const [rangeEnd, setRangeEnd] = useState(null);
-
-  const dashboardLinks = useMemo(
-    () => externalLinks.filter((link) => link.showOnDashboard),
-    [externalLinks],
-  );
 
   useEffect(() => {
     if (!projectId) {
@@ -651,6 +677,42 @@ export function ProjectDetailsScreen({ externalLinks = [], onViewIssues }) {
       cancelled = true;
     };
   }, [projectId]);
+
+  // Org profiles carry avatar URLs (avatar_url or pfp storage). Milestone
+  // owners are free-text names, so resolve them here by name/email — the
+  // shared DeadlinesSection only renders what it is given.
+  const organizationId = project?.organization_id ?? project?.organizationId;
+  useEffect(() => {
+    if (!organizationId) {
+      return undefined;
+    }
+    let cancelled = false;
+    void listOrgMembers(organizationId).then((rows) => {
+      if (!cancelled) {
+        setProfiles(rows ?? []);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [organizationId]);
+
+  // Lowercased name/email -> avatar URL for deadline owner resolution.
+  const avatarByOwner = useMemo(() => {
+    const map = new Map();
+    for (const profile of profiles) {
+      if (!profile?.avatarUrl) {
+        continue;
+      }
+      for (const key of [profile.name, profile.email]) {
+        const normalized = String(key ?? "").trim().toLowerCase();
+        if (normalized && !map.has(normalized)) {
+          map.set(normalized, profile.avatarUrl);
+        }
+      }
+    }
+    return map;
+  }, [profiles]);
 
   // Single range input every widget derives from: the cutoff the FilterDropdown
   // selects. Changing filterValue recomputes all memos below.
@@ -904,9 +966,8 @@ export function ProjectDetailsScreen({ externalLinks = [], onViewIssues }) {
       { label: "Members", value: String(members.length), footer: "On this project" },
       { label: "Goals", value: String(goals.length), footer: "Currently defined" },
       { label: "Milestones", value: String(milestones.length), footer: "Tracked" },
-      { label: "Pinned links", value: String(dashboardLinks.length), footer: "On this dashboard" },
     ],
-    [members, goals, milestones, dashboardLinks],
+    [members, goals, milestones],
   );
 
   // Top open issues by priority (then earliest due date).
@@ -924,7 +985,8 @@ export function ProjectDetailsScreen({ externalLinks = [], onViewIssues }) {
     return open.slice(0, TOP_ISSUES_LIMIT);
   }, [issues]);
 
-  // Deadlines come from milestone target dates (no second fetch in deadlines).
+  // Deadlines come from milestone target dates (avatars resolve from org
+  // profiles; the section itself never fetches).
   const deadlines = useMemo(
     () =>
       milestones
@@ -933,77 +995,86 @@ export function ProjectDetailsScreen({ externalLinks = [], onViewIssues }) {
           (a, b) => toTime(a.targetDate) - toTime(b.targetDate),
         )
         .slice(0, DEADLINES_LIMIT)
-        .map((milestone) => ({
-          id: milestone.id,
-          title: milestone.title,
-          date: milestone.targetDate,
-          owner: milestone.owner,
-        })),
-    [milestones],
+        .map((milestone) => {
+          const metrics = getMilestoneMetrics(milestone);
+          // range.end is the anchored "now" (set when rows land), so the cards
+          // stay pure across re-renders.
+          const daysLeft = Math.ceil(
+            (toTime(milestone.targetDate) - range.end) / MS_PER_DAY,
+          );
+          const ownerKey = String(milestone.owner ?? "").trim().toLowerCase();
+          return {
+            id: milestone.id,
+            title: milestone.title,
+            date: milestone.targetDate,
+            owner: milestone.owner,
+            ownerAvatarUrl: ownerKey ? (avatarByOwner.get(ownerKey) ?? null) : null,
+            progress: metrics.progress,
+            doneTasks: metrics.doneTasks,
+            totalTasks: metrics.totalTasks,
+            urgency: getUrgency(daysLeft),
+            timeLeft: formatTimeLeft(daysLeft),
+          };
+        }),
+    [milestones, range.end, avatarByOwner],
   );
+
+  const headerBadge = project?.tags?.[0] ?? project?.status ?? null;
+  const headerDescription =
+    project?.description || "Activity and delivery metrics for this project.";
 
   return (
     <MainScreenWrapper>
-      <ScreenHeader
-        title={project?.name || "Project"}
-        description={
-          project?.description ||
-          "Activity, delivery metrics, and pinned resources for this project."
-        }
-        actions={
-          <FilterDropdown
-            value={filterValue}
-            onValueChange={handleRangeChange}
-            options={RANGE_OPTIONS}
-          />
-        }
-      />
-
-      <StatsBar stats={headlineStats} />
+      <div>
+        <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+          <div className="flex min-w-0 items-center gap-3">
+            <h1 className="truncate text-2xl font-bold tracking-tight text-foreground">
+              {project?.name || "Project"}
+            </h1>
+            {headerBadge ? (
+              <span className="shrink-0 rounded-md border border-border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                {headerBadge}
+              </span>
+            ) : null}
+          </div>
+          <div className="flex shrink-0 items-start">
+            {headlineStats.map((stat, index) => (
+              <div
+                key={stat.label}
+                className={cn(
+                  "min-w-[96px] px-6 text-center first:pl-0 last:pr-0",
+                  index > 0 && "border-l border-border",
+                )}
+              >
+                <p className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
+                  {stat.label}
+                </p>
+                <p className="mt-1 text-2xl font-bold leading-none text-foreground tabular-nums">
+                  {stat.value}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="mt-6 border-t border-border" />
+        <div className="mt-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <p className="min-w-0 text-sm font-medium leading-relaxed text-muted-foreground md:max-w-[75%] md:flex-1">
+            {headerDescription}
+          </p>
+          <div className="shrink-0">
+            <FilterDropdown
+              value={filterValue}
+              onValueChange={handleRangeChange}
+              options={RANGE_OPTIONS}
+            />
+          </div>
+        </div>
+      </div>
 
       {loading ? (
         <LoadingArea panel label="Loading overview" className="rounded-none min-h-[280px]" />
       ) : (
         <>
-          {dashboardLinks.length > 0 ? (
-            <section className="space-y-4">
-              <EditorSectionHeader
-                title="External links"
-                description="Resources pinned to this project's dashboard."
-              />
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                {dashboardLinks.map((link) => (
-                  <a
-                    key={link.id}
-                    href={link.url}
-                    target={link.openInNewTab ? "_blank" : undefined}
-                    rel={link.openInNewTab ? "noreferrer" : undefined}
-                    className="group flex min-h-20 items-center gap-3 rounded-lg border border-border bg-surface-card p-4 transition-colors hover:border-border-strong hover:bg-surface-active"
-                  >
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-border bg-surface-subtle">
-                      <ExternalLinkIcon
-                        iconName={link.icon}
-                        className="h-5 w-5"
-                        style={{ color: link.textColor || "var(--foreground)" }}
-                      />
-                    </div>
-                    <div className="min-w-0">
-                      <p
-                        className="truncate text-sm font-medium"
-                        style={{ color: link.textColor || "var(--foreground)" }}
-                      >
-                        {link.title}
-                      </p>
-                      <p className="mt-1 truncate text-xs text-text-secondary group-hover:text-muted-foreground">
-                        {link.url}
-                      </p>
-                    </div>
-                  </a>
-                ))}
-              </div>
-            </section>
-          ) : null}
-
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
             {metricCards.map((card) => (
               <MetricCard
@@ -1017,7 +1088,7 @@ export function ProjectDetailsScreen({ externalLinks = [], onViewIssues }) {
             ))}
           </div>
 
-          <DeadlinesSection deadlines={deadlines} />
+          <DeadlinesSection deadlines={deadlines} onViewSchedule={onViewSchedule} />
 
           <div className="flex flex-col gap-4 xl:flex-row">
             <div className="min-w-0 flex-1">

@@ -2,7 +2,12 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/lib/supabase/client";
+import {
+  clearCollabRollback,
+  listHostedSessions,
+  saveCollabRollback,
+} from "@/features/planning/collab";
 import {
   Dialog,
   DialogContent,
@@ -55,12 +60,8 @@ export default function CollaborateDilouge({
   useEffect(() => {
     if (activeTab === "merge" && currentUser) {
       async function fetchHostedSessions() {
-        const { data } = await supabase
-          .from("collab")
-          .select("*")
-          .eq("host", currentUser.id)
-          .order("created_at", { ascending: false });
-        if (data) setMergeSessions(data);
+        const sessions = await listHostedSessions(currentUser.id);
+        setMergeSessions(sessions);
       }
       fetchHostedSessions();
     }
@@ -113,13 +114,9 @@ export default function CollaborateDilouge({
     };
 
     if (selectedMergeSession) {
-      const { error } = await supabase
-        .from("collab")
-        .update({ rollback: rollbackState })
-        .eq("id", selectedMergeSession.id);
+      const ok = await saveCollabRollback(selectedMergeSession.id, rollbackState);
 
-      if (error) {
-        console.error("Error saving rollback state:", error);
+      if (!ok) {
         toast.error("Failed to save rollback state");
       } else {
         const updatedSession = {
@@ -147,13 +144,9 @@ export default function CollaborateDilouge({
     const { nodes: rollbackNodes, edges: rollbackEdges } =
       selectedMergeSession.rollback;
     onMerge(rollbackNodes, rollbackEdges);
-    const { error } = await supabase
-      .from("collab")
-      .update({ rollback: null })
-      .eq("id", selectedMergeSession.id);
+    const ok = await clearCollabRollback(selectedMergeSession.id);
 
-    if (error) {
-      console.error("Error clearing rollback state:", error);
+    if (!ok) {
       toast.error("Failed to clear rollback state");
     } else {
       const updatedSession = { ...selectedMergeSession, rollback: null };

@@ -73,6 +73,7 @@ export function ResourceAllocationScreen() {
   const projectId = project?.id;
 
   const [activeTab, setActiveTab] = useState("allocations");
+  const isAllocations = activeTab === "allocations";
   const [allocations, setAllocations] = useState([]);
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -485,7 +486,7 @@ export function ResourceAllocationScreen() {
         title="Resource Allocation"
         description="Assign people to project work and track resource requests."
         actions={
-          activeTab === "allocations" ? (
+          isAllocations ? (
             <Button
               className="bg-primary text-primary-foreground hover:bg-primary/90"
               onClick={() => {
@@ -508,26 +509,45 @@ export function ResourceAllocationScreen() {
 
       <StatsBar stats={stats} />
 
-      <SegmentedTabs tabs={TABS} value={activeTab} onChange={setActiveTab} />
-
-      {activeTab === "allocations" ? (
-        <>
-          <Toolbar>
-            <div className="flex items-center gap-2">
-              <FilterDropdown
-                value={activeFilter}
-                onValueChange={setActiveFilter}
-                options={ALLOCATION_STATUS_FILTER_OPTIONS}
-                height="h-9"
-              />
-            </div>
-            <SearchInput
-              value={query}
-              onChange={setQuery}
-              placeholder="Search by member, role or notes"
+      {/* Tabs share the filter row so they size to their content instead of
+          stretching across a rail of their own. */}
+      <Toolbar>
+        <div className="flex items-center gap-2">
+          <SegmentedTabs
+            tabs={TABS}
+            value={activeTab}
+            onChange={setActiveTab}
+            className="w-auto shrink-0"
+          />
+          {isAllocations ? (
+            <FilterDropdown
+              value={activeFilter}
+              onValueChange={setActiveFilter}
+              options={ALLOCATION_STATUS_FILTER_OPTIONS}
+              height="h-9"
             />
-          </Toolbar>
+          ) : (
+            <FilterDropdown
+              value={requestFilter}
+              onValueChange={setRequestFilter}
+              options={REQUEST_STATUS_FILTER_OPTIONS}
+              height="h-9"
+            />
+          )}
+        </div>
+        <SearchInput
+          value={query}
+          onChange={setQuery}
+          placeholder={
+            isAllocations
+              ? "Search by member, role or notes"
+              : "Search requests, requesters…"
+          }
+        />
+      </Toolbar>
 
+      {isAllocations ? (
+        <>
           {loading ? (
             <LoadingArea panel label="Loading allocations" className="rounded-none min-h-[280px]" />
           ) : (
@@ -583,22 +603,6 @@ export function ResourceAllocationScreen() {
         </>
       ) : (
         <>
-          <Toolbar>
-            <div className="flex items-center gap-2">
-              <FilterDropdown
-                value={requestFilter}
-                onValueChange={setRequestFilter}
-                options={REQUEST_STATUS_FILTER_OPTIONS}
-                height="h-9"
-              />
-            </div>
-            <SearchInput
-              value={query}
-              onChange={setQuery}
-              placeholder="Search requests, requesters…"
-            />
-          </Toolbar>
-
           {loading ? (
             <LoadingArea panel label="Loading requests" className="rounded-none min-h-[280px]" />
           ) : (

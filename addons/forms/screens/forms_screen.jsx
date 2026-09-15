@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { toast } from "sonner";
 import {
   AlertTriangle,
   BarChart3,
@@ -46,6 +47,16 @@ import {
   TableRow,
 } from "@geiger/ui";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
+import { useProject } from "@/context/project-context";
+import {
+  createFormQuestion,
+  listFormQuestions,
+  listForms,
+  softDeleteForm,
+  softDeleteFormQuestion,
+  updateForm,
+  updateFormQuestion,
+} from "@/features/forms/actions";
 import { cn } from "@/lib/utils";
 
 const QUESTION_TYPES = {
@@ -56,18 +67,14 @@ const QUESTION_TYPES = {
   dropdown: { label: "Dropdown", Icon: ChevronDown, placeholder: "Select from a list" },
 };
 
-const INITIAL_FORMS = [];
-
-const INITIAL_QUESTIONS = [];
-
-const RESPONSES = [];
-
 const RESPONSE_ANSWERS = {
   q1: "Temporary reporting and assets access",
   q2: "Launch audit support for the confidential beta cohort.",
   q3: "Contributor",
   q4: ["Assets", "Reporting"],
 };
+
+const RESPONSES = [];
 
 const STATUS_CLASS = {
   Published: "border-emerald-500/30 bg-emerald-500/15 text-emerald-300",
@@ -489,61 +496,278 @@ function ViewSwitch({ activeView, onChange }) {
 export function FormsScreen() {
   const params = useParams();
   const router = useRouter();
-  const projectId = params?.id || "";
+  const { project } = useProject();
+  const projectId = project?.id || params?.id || "";
   const builderHref = projectId ? `/project/${encodeURIComponent(projectId)}/builder` : "/project/builder";
   const openBuilder = () => {
     router.push(builderHref);
   };
-  const [forms, setForms] = useState(INITIAL_FORMS);
-  const [selectedFormId, setSelectedFormId] = useState(INITIAL_FORMS[0]?.id || null);
-  const [questions, setQuestions] = useState(INITIAL_QUESTIONS);
-  const [activeQuestionId, setActiveQuestionId] = useState(INITIAL_QUESTIONS[0]?.id || null);
+  const [forms, setForms] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedFormId, setSelectedFormId] = useState(null);
+  const [questions, setQuestions] = useState([]);
+  const [questionsLoading, setQuestionsLoading] = useState(false);
+  const [activeQuestionId, setActiveQuestionId] = useState(null);
   const [activeView, setActiveView] = useState("Builder");
-  const [settings, setSettings] = useState({
-    membersOnly: true,
-    verifiedIdentity: true,
-    notifyOwners: true,
-    allowEdits: false,
-  });
+
+  useEffect(() => {
+    let active = true;
+    void Promise.resolve().then(() => {
+      if (!projectId) {
+        if (active) {
+          setLoading(false);
+        }
+        return;
+      }
+
+      if (active) {
+        setLoading(true);
+      }
+      return listForms(projectId).then((rows) => {
+        if (!active) {
+          return;
+        }
+        setForms(rows ?? []);
+        setLoading(false);
+      });
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [projectId]);
 
   const selectedForm = useMemo(
-    () => forms.find((form) => form.id === selectedFormId) || forms[0],
+    () => forms.find((form) => form.id === selectedFormId) || forms[0] || null,
     [forms, selectedFormId],
   );
 
+  const selectedFormIdValue = selectedForm?.id ?? null;
+
+  useEffect(() => {
+    if (!selectedFormIdValue) {
+      return undefined;
+    }
+
+    let active = true;
+    void Promise.resolve().then(() => {
+      if (active) {
+        setQuestionsLoading(true);
+      }
+      return listFormQuestions(selectedFormIdValue).then((rows) => {
+        if (!active) {
+          return;
+        }
+        setQuestions(rows ?? []);
+        setQuestionsLoading(false);
+      });
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [selectedFormIdValue]);
+
+  const settings = useMemo(
+    () => ({
+      membersOnly: selectedForm?.settings?.membersOnly !== false,
+      verifiedIdentity: selectedForm?.settings?.verifiedIdentity !== false,
+      notifyOwners: selectedForm?.settings?.notifyOwners !== false,
+      allowEdits: selectedForm?.settings?.allowEdits === true,
+    }),
+    [selectedForm],
+  );
+
+  const setSettings = useCallback(
+    async (next) => {
+      if (!selectedForm) {
+        return;
+      }
+      setForms((currentForms) =>
+        currentForms.map((form) =>
+          form.id === selectedForm.id ? { ...form, settings: next } : form,
+        ),
+      );
+      const updated = await updateForm(selectedForm.id, { settings: next });
+      if (!updated) {
+        toast.error("Couldn't save collection controls.");
+        return;
+      }
+      setForms((currentForms) =>
+        currentForms.map((form) => (form.id === updated.id ? updated : form)),
+      );
+    },
+    [selectedForm],
+  );
+
   const totalResponses = useMemo(
-    () => forms.reduce((sum, form) => sum + form.responses, 0),
+    () => forms.reduce((sum, form) => sum + (Number(form.responses) || 0), 0),
     [forms],
   );
 
-  const updateSelectedForm = (patch) => {
+  const updateSelectedForm = useCallback(
+    async (patch) => {
+      if (!selectedForm) {
+        return;
+      }
+
+      setForms((currentForms) =>
+        currentForms.map((form) => (form.id === selectedForm.id ? { ...form, ...patch } : form)),
+      );
+
+      const updated = await updateForm(selectedForm.id, patch);
+      if (!updated) {
+        toast.error("Couldn't save the form.");
+        return;
+      }
+      setForms((currentForms) =>
+        currentForms.map((form) => (form.id === updated.id ? updated : form)),
+      );
+    },
+    [selectedForm],
+  );
+
+  const deleteSelectedForm = useCallback(async () => {
     if (!selectedForm) {
       return;
     }
 
-    setForms((currentForms) =>
-      currentForms.map((form) => (form.id === selectedForm.id ? { ...form, ...patch } : form)),
-    );
-  };
+    const previous = forms;
+    setForms((currentForms) => currentForms.filter((form) => form.id !== selectedForm.id));
+    setSelectedFormId(null);
+    setQuestions([]);
 
-  const updateQuestion = (nextQuestion) => {
-    setQuestions((currentQuestions) =>
-      currentQuestions.map((question) => (question.id === nextQuestion.id ? nextQuestion : question)),
-    );
-  };
+    const ok = await softDeleteForm(selectedForm.id);
+    if (!ok) {
+      setForms(previous);
+      toast.error("Couldn't delete the form.");
+      return;
+    }
+    toast.success("Form deleted");
+  }, [forms, selectedForm]);
 
-  const addQuestion = () => {
-    const question = {
-      id: `q${Date.now()}`,
+  const updateQuestion = useCallback(
+    async (nextQuestion) => {
+      setQuestions((currentQuestions) =>
+        currentQuestions.map((question) => (question.id === nextQuestion.id ? nextQuestion : question)),
+      );
+
+      const updated = await updateFormQuestion(nextQuestion.id, nextQuestion);
+      if (!updated) {
+        toast.error("Couldn't save the question.");
+      }
+    },
+    [],
+  );
+
+  const addQuestion = useCallback(async () => {
+    if (!selectedForm || !projectId) {
+      return;
+    }
+
+    const optimistic = {
+      id: crypto.randomUUID(),
+      projectId,
+      formId: selectedForm.id,
       title: "Untitled question",
       type: "short",
       required: false,
       description: "",
       options: [],
+      position: questions.length,
     };
-    setQuestions((currentQuestions) => [...currentQuestions, question]);
-    setActiveQuestionId(question.id);
-  };
+    setQuestions((currentQuestions) => [...currentQuestions, optimistic]);
+    setActiveQuestionId(optimistic.id);
+
+    const created = await createFormQuestion(projectId, selectedForm.id, {
+      ...optimistic,
+      position: questions.length,
+    });
+    if (!created) {
+      setQuestions((currentQuestions) => currentQuestions.filter((item) => item.id !== optimistic.id));
+      toast.error("Couldn't add the question.");
+      return;
+    }
+    setQuestions((currentQuestions) =>
+      currentQuestions.map((item) => (item.id === optimistic.id ? created : item)),
+    );
+    setActiveQuestionId(created.id);
+  }, [projectId, questions.length, selectedForm]);
+
+  const duplicateQuestion = useCallback(
+    async (question) => {
+      if (!selectedForm || !projectId) {
+        return;
+      }
+
+      const optimistic = {
+        ...question,
+        id: crypto.randomUUID(),
+        title: `${question.title} copy`,
+        position: questions.length,
+      };
+      setQuestions((currentQuestions) => {
+        const insertIndex =
+          currentQuestions.findIndex((item) => item.id === question.id) + 1;
+        return [
+          ...currentQuestions.slice(0, insertIndex),
+          optimistic,
+          ...currentQuestions.slice(insertIndex),
+        ];
+      });
+      setActiveQuestionId(optimistic.id);
+
+      const created = await createFormQuestion(projectId, selectedForm.id, {
+        ...optimistic,
+        position: questions.length,
+      });
+      if (!created) {
+        setQuestions((currentQuestions) =>
+          currentQuestions.filter((item) => item.id !== optimistic.id),
+        );
+        toast.error("Couldn't duplicate the question.");
+        return;
+      }
+      setQuestions((currentQuestions) =>
+        currentQuestions.map((item) => (item.id === optimistic.id ? created : item)),
+      );
+      setActiveQuestionId(created.id);
+    },
+    [projectId, questions.length, selectedForm],
+  );
+
+  const deleteQuestion = useCallback(
+    async (questionId) => {
+      const previous = questions;
+      setQuestions((currentQuestions) => currentQuestions.filter((item) => item.id !== questionId));
+
+      const ok = await softDeleteFormQuestion(questionId);
+      if (!ok) {
+        setQuestions(previous);
+        toast.error("Couldn't delete the question.");
+      }
+    },
+    [questions],
+  );
+
+  if (loading) {
+    return (
+      <MainScreenWrapper className="space-y-6 text-foreground">
+        <div className="flex flex-col gap-4 border-b border-border pb-6 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-3">
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-teal-500/25 bg-teal-500/10">
+              <FileQuestion className="h-5 w-5 text-teal-300" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-foreground md:text-3xl">Forms</h1>
+              <p className="mt-1 text-muted-foreground">Create confidential forms for project-bound submissions.</p>
+            </div>
+          </div>
+        </div>
+        <p className="text-sm text-text-secondary">Loading forms…</p>
+      </MainScreenWrapper>
+    );
+  }
 
   if (!selectedForm) {
     return (
@@ -596,6 +820,15 @@ export function FormsScreen() {
           </div>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <Button
+            type="button"
+            variant="ghost"
+            className="text-text-secondary hover:bg-red-500/10 hover:text-red-400"
+            onClick={deleteSelectedForm}
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Delete
+          </Button>
           <Button type="button" className="bg-primary text-primary-foreground hover:bg-primary" onClick={openBuilder}>
             <Plus className="mr-2 h-4 w-4" />
             New form
@@ -656,6 +889,9 @@ export function FormsScreen() {
 
             {activeView === "Builder" ? (
               <div className="space-y-3 p-4">
+                {questionsLoading ? (
+                  <p className="text-sm text-text-secondary">Loading questions…</p>
+                ) : null}
                 {questions.map((question, index) => (
                   <QuestionEditor
                     key={question.id}
@@ -664,21 +900,8 @@ export function FormsScreen() {
                     active={question.id === activeQuestionId}
                     onSelect={() => setActiveQuestionId(question.id)}
                     onChange={updateQuestion}
-                    onDuplicate={() => {
-                      const duplicate = { ...question, id: `q${Date.now()}`, title: `${question.title} copy` };
-                      setQuestions((currentQuestions) => {
-                        const insertIndex = currentQuestions.findIndex((item) => item.id === question.id) + 1;
-                        return [
-                          ...currentQuestions.slice(0, insertIndex),
-                          duplicate,
-                          ...currentQuestions.slice(insertIndex),
-                        ];
-                      });
-                      setActiveQuestionId(duplicate.id);
-                    }}
-                    onDelete={() => {
-                      setQuestions((currentQuestions) => currentQuestions.filter((item) => item.id !== question.id));
-                    }}
+                    onDuplicate={() => duplicateQuestion(question)}
+                    onDelete={() => deleteQuestion(question.id)}
                   />
                 ))}
                 <Button

@@ -88,8 +88,16 @@ const OfficeScreen = screen(() =>
 
 // Tab titles that own their whole scroll container and padding. Kept beside the
 // map because it is the same decision — which screen renders, and how it frames.
+// Planning is a core tab (not an addon) but owns a full-screen canvas exactly
+// like the System Architecture addon, so it is listed here explicitly.
 export function isFullBleedScreen(tab, enabledAddons = []) {
-  return Boolean(getAddonScreenOptions(enabledAddons)[tab]?.fullBleed);
+  return (
+    tab === "Planning" ||
+    // Grounding hosts the chat workspace, which brings its own rail and manages
+    // its own scrolling exactly like the Planning canvas.
+    tab === "Grounding" ||
+    Boolean(getAddonScreenOptions(enabledAddons)[tab]?.fullBleed)
+  );
 }
 
 // The element for `tab`, or null when nothing claims it. Callers decide the
@@ -107,6 +115,7 @@ export function resolveProjectScreen(
     onCreateLink,
     onDeleteLink,
     onViewIssues,
+    onViewSchedule,
     enabledAddons = [],
   } = {},
 ) {
@@ -125,8 +134,8 @@ export function resolveProjectScreen(
       return (
         <ProjectDetailsScreen
           id={id}
-          externalLinks={externalLinks}
           onViewIssues={onViewIssues}
+          onViewSchedule={onViewSchedule}
         />
       );
     case "Issues":

@@ -6,7 +6,6 @@ import {
   Users,
 } from "lucide-react";
 import { Button, LoadingArea } from "@geiger/ui";
-import { createClient } from "@/utils/supabase/client";
 import { useProject } from "@/context/project-context";
 import {
   DataTable,
@@ -27,64 +26,43 @@ import {
   getOfficeFileType,
   timeAgo,
 } from "@/lib/office/office-file-meta";
+import { listSharedOfficeFiles } from "@/features/office/actions";
 import { cn } from "@/lib/utils";
 
 export function OfficeSharedScreen() {
   const { project } = useProject();
+  const projectId = project?.id;
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [query, setQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
 
+  // Fetch on mount / project change through the data layer.
   const fetchSharedFiles = useCallback(async () => {
-    if (!project?.id) return;
+    if (!projectId) return;
     setLoading(true);
     setError(null);
     try {
-      const supabase = createClient();
-      const { data, error: fetchError } = await supabase
-        .from("office_file_shares")
-        .select(
-          `id, shared_by, created_at,
-           file:office_files!inner(id, type, name, starred, trashed, created_at, updated_at, user_id)`
-        )
-        .eq("project_id", project.id)
-        .eq("office_files.trashed", false)
-        .order("created_at", { ascending: false });
-
-      if (fetchError) throw fetchError;
-
-      const sharedFiles = (data ?? [])
-        .filter((row) => row.file)
-        .map((row) => ({
-          ...row.file,
-          _sharedAt: row.created_at,
-          _sharedBy: row.shared_by,
-        }));
-
-      setFiles(sharedFiles);
+      const rows = await listSharedOfficeFiles(projectId, { type: typeFilter });
+      setFiles(rows ?? []);
     } catch (err) {
       setError(err.message || "Failed to load shared files");
     } finally {
       setLoading(false);
     }
-  }, [project?.id]);
+  }, [projectId, typeFilter]);
 
   useEffect(() => {
-    fetchSharedFiles();
+    void Promise.resolve().then(fetchSharedFiles);
   }, [fetchSharedFiles]);
 
   const filtered = useMemo(
     () =>
-      files.filter((f) => {
-        const matchesQuery = query.trim()
-          ? f.name.toLowerCase().includes(query.toLowerCase())
-          : true;
-        const matchesType = typeFilter !== "all" ? f.type === typeFilter : true;
-        return matchesQuery && matchesType;
-      }),
-    [files, query, typeFilter],
+      files.filter((f) =>
+        query.trim() ? f.name.toLowerCase().includes(query.toLowerCase()) : true
+      ),
+    [files, query],
   );
 
   const pager = usePagination(filtered, {
@@ -136,7 +114,7 @@ export function OfficeSharedScreen() {
       header: "Shared",
       render: (file) => (
         <span className="whitespace-nowrap text-xs text-muted-foreground">
-          {timeAgo(file._sharedAt || file.updated_at)}
+          {timeAgo(file._sharedAt || file.updatedAt)}
         </span>
       ),
     },

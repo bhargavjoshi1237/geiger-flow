@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { Inbox, Plus } from "lucide-react";
-import { Button, LoadingArea } from "@geiger/ui";
+import { Inbox, Pencil, Plus, Trash2 } from "lucide-react";
+import { ActionMenu, Button, LoadingArea } from "@geiger/ui";
 import { Progress } from "@geiger/ui";
 import { toast } from "sonner";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
@@ -26,6 +26,8 @@ import { listOrgMembers } from "@/lib/supabase/profiles";
 import {
   listTasks,
   createTask,
+  updateTask,
+  softDeleteTask,
 } from "@/features/tasks/actions";
 import {
   TASK_STATUSES,
@@ -295,6 +297,44 @@ export function WorkQueueScreen() {
         </div>
       ),
     },
+    {
+      key: "actions",
+      header: "",
+      align: "right",
+      className: "text-right",
+      render: (task) => (
+        <ActionMenu
+          label={`Actions for ${task.title}`}
+          items={[
+            {
+              icon: Pencil,
+              label: "Mark in progress",
+              disabled: task.status === "in_progress",
+              onSelect: () => void changeStatus(task.id, "in_progress"),
+            },
+            {
+              icon: Pencil,
+              label: "Mark done",
+              disabled: task.status === "done",
+              onSelect: () => void changeStatus(task.id, "done"),
+            },
+            {
+              icon: Pencil,
+              label: "Move back to to do",
+              disabled: task.status === "todo",
+              onSelect: () => void changeStatus(task.id, "todo"),
+            },
+            { separator: true },
+            {
+              icon: Trash2,
+              label: "Delete",
+              destructive: true,
+              onSelect: () => void removeTask(task.id),
+            },
+          ]}
+        />
+      ),
+    },
   ];
 
   const saveTask = async (input) => {
@@ -313,6 +353,39 @@ export function WorkQueueScreen() {
 
     setTasks((prev) => [created, ...prev.filter((task) => task.id !== optimisticId)]);
     toast.success("Work added to the queue");
+  };
+
+  // Optimistic status change persisted through the data layer, with rollback
+  // + toast when the write fails.
+  const changeStatus = async (id, status) => {
+    const previous = tasks;
+    setTasks((prev) => prev.map((task) => (task.id === id ? { ...task, status } : task)));
+
+    const saved = await updateTask(id, { status });
+    if (!saved) {
+      setTasks(previous);
+      toast.error("Couldn't update the work item.");
+      return;
+    }
+
+    setTasks((prev) => prev.map((task) => (task.id === saved.id ? saved : task)));
+    toast.success("Work item updated");
+  };
+
+  // Optimistic soft delete persisted through the data layer, with rollback +
+  // toast when the write fails.
+  const removeTask = async (id) => {
+    const previous = tasks;
+    setTasks((prev) => prev.filter((task) => task.id !== id));
+
+    const ok = await softDeleteTask(id);
+    if (!ok) {
+      setTasks(previous);
+      toast.error("Couldn't delete the work item.");
+      return;
+    }
+
+    toast.success("Work item deleted");
   };
 
   return (

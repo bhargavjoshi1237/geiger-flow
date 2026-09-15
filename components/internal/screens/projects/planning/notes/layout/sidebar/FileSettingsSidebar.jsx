@@ -7,7 +7,7 @@ import { ActionPlug } from "./plugs/ActionPlug";
 import { ColorPlug } from "./plugs/ColorPlug";
 import FileChangeDialog from "./dialogs/FileChangeDialog";
 import { toast } from "../../toast";
-import { createClient } from "@/lib/supabase/client";
+import { uploadPlanningNodeFile } from "@/features/planning/storage";
 
 export default function FileSettingsSidebar({
   selectedNode,
@@ -38,48 +38,17 @@ export default function FileSettingsSidebar({
     const toastId = toast.loading("Uploading file...");
 
     try {
-      const supabase = createClient();
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
+      // Storage goes through the planning features layer (auth check ->
+      // upload -> public URL); the returned URL lands in the node's data and
+      // the board persists it via savePlanningBoard.
+      const publicUrl = await uploadPlanningNodeFile(selectedNode.id, file);
 
-      if (userError || !user) {
-        throw new Error("You must be logged in to upload files.");
+      if (!publicUrl) {
+        throw new Error("Failed to upload file");
       }
-
-      const basePath = `${user.id}/${selectedNode.id}`;
-      const { data: existingFiles } = await supabase.storage
-        .from("homeboard")
-        .list(basePath);
-
-      if (existingFiles && existingFiles.length > 0) {
-        const filesToDelete = existingFiles.map((f) => `${basePath}/${f.name}`);
-        const { error: deleteError } = await supabase.storage
-          .from("homeboard")
-          .remove(filesToDelete);
-
-        if (deleteError) {
-          console.warn("Failed to delete old files:", deleteError);
-        }
-      }
-
-      const filePath = `${basePath}/${file.name}`;
-      const { error: uploadError } = await supabase.storage
-        .from("homeboard")
-        .upload(filePath, file, {
-          upsert: true,
-          contentType: file.type,
-        });
-
-      if (uploadError) throw uploadError;
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("homeboard").getPublicUrl(filePath);
-      const cacheBustedUrl = `${publicUrl}?t=${Date.now()}`;
 
       updateData({
-        src: cacheBustedUrl,
+        src: publicUrl,
         fileName: file.name,
         fileSize: file.size,
         fileType: file.type,

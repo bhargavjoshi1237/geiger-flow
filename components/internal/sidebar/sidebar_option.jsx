@@ -28,6 +28,7 @@ export function SidebarOption({
   onToggle,
   activeSubTab,
   iconColor,
+  action,
 }) {
   const { state, isMobile } = useSidebar();
   const isCollapsed = state === "collapsed" && !isMobile;
@@ -36,7 +37,7 @@ export function SidebarOption({
   const inactiveIconColor = iconColor || "text-sidebar-foreground/70";
 
   return (
-    <SidebarMenuItem>
+    <SidebarMenuItem className="group/option relative">
       <SidebarMenuButton
         type="button"
         onClick={subItems ? onToggle : () => onClick?.()}
@@ -75,6 +76,17 @@ export function SidebarOption({
           </SidebarMenuBadge>
         )}
       </SidebarMenuButton>
+
+      {/* Trailing affordance (e.g. "open in a new tab"). Revealed on hover so it
+          doesn't compete with the label, and kept out of the row's own click. */}
+      {action && !isCollapsed && (
+        <div
+          className="absolute right-1.5 top-1/2 -translate-y-1/2 opacity-0 transition-opacity focus-within:opacity-100 group-hover/option:opacity-100"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {action}
+        </div>
+      )}
 
       {subItems && isExpanded && !isCollapsed && (
         <ul className="ml-4 mt-1 flex flex-col gap-0.5 border-l border-sidebar-border pl-2">

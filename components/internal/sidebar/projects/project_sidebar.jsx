@@ -12,7 +12,7 @@ import {
   SidebarRail,
   useSidebar,
 } from "@geiger/ui";
-import { PanelLeft, ChevronLeft } from "lucide-react";
+import { PanelLeft, ChevronLeft, ExternalLink } from "lucide-react";
 import { SidebarOption } from "../sidebar_option";
 import { useProject } from "@/context/project-context";
 import { useVisibleProjectNav } from "@/lib/hooks/use-visible-project-nav";
@@ -140,6 +140,30 @@ export function ProjectSidebar({
                         onTabChange(item.title);
                       }}
                       badge={item.badge}
+                      action={
+                        // Grounding hosts the chat workspace, which also runs
+                        // standalone at /chat/<project>. The row still opens it
+                        // in-app; this pops it into its own tab.
+                        item.title === "Grounding" && project?.id && !isDemoMode() ? (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            aria-label="Open chat in a new tab"
+                            title="Open in a new tab"
+                            onClick={() =>
+                              window.open(
+                                `${process.env.NEXT_PUBLIC_BASE_PATH || ""}/chat/${project.id}`,
+                                "_blank",
+                                "noopener,noreferrer",
+                              )
+                            }
+                            className="h-6 w-6 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-foreground"
+                          >
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </Button>
+                        ) : null
+                      }
                     />
                   ))}
                 </SidebarMenu>

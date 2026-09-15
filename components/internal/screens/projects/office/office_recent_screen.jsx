@@ -26,7 +26,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@geiger/ui";
-import { createClient } from "@/utils/supabase/client";
+import { toast } from "sonner";
 import { useProject } from "@/context/project-context";
 import {
   DataTable,
@@ -50,11 +50,18 @@ import {
   getOfficeFileType,
   timeAgo,
 } from "@/lib/office/office-file-meta";
+import {
+  createOfficeFile,
+  listOfficeFiles,
+  softDeleteOfficeFile,
+  updateOfficeFile,
+} from "@/features/office/actions";
 import { cn } from "@/lib/utils";
 
 
 export function OfficeRecentScreen() {
   const { project } = useProject();
+  const projectId = project?.id;
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -65,88 +72,91 @@ export function OfficeRecentScreen() {
   const [renameValue, setRenameValue] = useState("");
   const [deleteTarget, setDeleteTarget] = useState(null);
 
+  // Fetch on mount / project / filter change through the data layer.
   const fetchFiles = useCallback(async () => {
-    if (!project?.id) return;
+    if (!projectId) return;
     setLoading(true);
     setError(null);
     try {
-      const supabase = createClient();
-      let q = supabase
-        .from("office_files")
-        .select("id, type, name, starred, trashed, user_id, created_at, updated_at, folder_id")
-        .eq("project_id", project.id)
-        .eq("trashed", false)
-        .order("updated_at", { ascending: false });
-
-      if (typeFilter !== "all") {
-        q = q.eq("type", typeFilter);
-      }
-
-      const { data, error: fetchError } = await q;
-      if (fetchError) throw fetchError;
-      setFiles(data ?? []);
+      const rows = await listOfficeFiles(projectId, { type: typeFilter });
+      setFiles(rows ?? []);
     } catch (err) {
       setError(err.message || "Failed to load files");
     } finally {
       setLoading(false);
     }
-  }, [project?.id, typeFilter]);
+  }, [projectId, typeFilter]);
 
   useEffect(() => {
-    fetchFiles();
+    void Promise.resolve().then(fetchFiles);
   }, [fetchFiles]);
 
+  // Optimistic create with rollback + toast on failure.
   const handleCreate = async (type) => {
-    if (!project?.id) return;
+    if (!projectId) return;
+    const meta = OFFICE_FILE_TYPES[type];
+    if (!meta) return;
     setCreating(true);
+    const optimisticId = crypto.randomUUID();
+    const optimistic = {
+      id: optimisticId,
+      projectId,
+      type,
+      name: meta.defaultName,
+      content: {},
+      starred: false,
+      trashed: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    setFiles((prev) => [optimistic, ...prev]);
     try {
-      const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) throw new Error("You must be signed in to create a file");
-      const meta = OFFICE_FILE_TYPES[type];
-      const { data, error: createError } = await supabase
-        .from("office_files")
-        .insert({
-          project_id: project.id,
-          user_id: user.id,
-          type,
-          name: meta.defaultName,
-          content: {},
-        })
-        .select()
-        .single();
-      if (createError) throw createError;
-      setFiles((prev) => [data, ...prev]);
+      const created = await createOfficeFile(projectId, {
+        id: optimisticId,
+        type,
+        name: meta.defaultName,
+        content: {},
+      });
+      if (!created) {
+        throw new Error("Failed to create file");
+      }
+      setFiles((prev) => [created, ...prev.filter((f) => f.id !== optimisticId)]);
+      toast.success(`${meta.label} created`);
     } catch (err) {
-      setError(err.message || "Failed to create file");
+      setFiles((prev) => prev.filter((f) => f.id !== optimisticId));
+      toast.error(err.message || "Failed to create file");
     } finally {
       setCreating(false);
     }
   };
 
+  // Optimistic star toggle with rollback + toast on failure.
   const handleToggleStar = async (file) => {
     const next = !file.starred;
+    const previous = files;
     setFiles((prev) =>
       prev.map((f) => (f.id === file.id ? { ...f, starred: next } : f))
     );
-    const supabase = createClient();
-    await supabase
-      .from("office_files")
-      .update({ starred: next })
-      .eq("id", file.id)
-      .eq("project_id", project.id);
+    const saved = await updateOfficeFile(file.id, { starred: next });
+    if (!saved) {
+      setFiles(previous);
+      toast.error("Couldn't update the file.");
+      return;
+    }
+    setFiles((prev) => prev.map((f) => (f.id === saved.id ? saved : f)));
   };
 
+  // Move to trash (reversible flag) with rollback + toast on failure.
   const handleTrash = async (file) => {
+    const previous = files;
     setFiles((prev) => prev.filter((f) => f.id !== file.id));
-    const supabase = createClient();
-    await supabase
-      .from("office_files")
-      .update({ trashed: true })
-      .eq("id", file.id)
-      .eq("project_id", project.id);
+    const saved = await updateOfficeFile(file.id, { trashed: true });
+    if (!saved) {
+      setFiles(previous);
+      toast.error("Couldn't move the file to trash.");
+      return;
+    }
+    toast.success("File moved to trash");
   };
 
   const openRename = (file) => {
@@ -154,31 +164,39 @@ export function OfficeRecentScreen() {
     setRenameValue(file.name);
   };
 
+  // Optimistic rename with rollback + toast on failure.
   const handleRename = async () => {
     const file = renameTarget;
     const newName = renameValue.trim();
     if (!file || !newName) return;
     setRenameTarget(null);
+    const previous = files;
     setFiles((prev) =>
       prev.map((f) => (f.id === file.id ? { ...f, name: newName } : f))
     );
-    const supabase = createClient();
-    await supabase
-      .from("office_files")
-      .update({ name: newName })
-      .eq("id", file.id)
-      .eq("project_id", project.id);
+    const saved = await updateOfficeFile(file.id, { name: newName });
+    if (!saved) {
+      setFiles(previous);
+      toast.error("Couldn't rename the file.");
+      return;
+    }
+    setFiles((prev) => prev.map((f) => (f.id === saved.id ? saved : f)));
+    toast.success("File renamed");
   };
 
+  // Soft delete — the row is preserved with deleted_at, never hard-deleted.
   const handleDelete = async (file) => {
+    if (!file) return;
     setDeleteTarget(null);
+    const previous = files;
     setFiles((prev) => prev.filter((f) => f.id !== file.id));
-    const supabase = createClient();
-    await supabase
-      .from("office_files")
-      .delete()
-      .eq("id", file.id)
-      .eq("project_id", project.id);
+    const ok = await softDeleteOfficeFile(file.id);
+    if (!ok) {
+      setFiles(previous);
+      toast.error("Couldn't delete the file.");
+      return;
+    }
+    toast.success("File deleted");
   };
 
   const filtered = useMemo(
@@ -241,7 +259,7 @@ export function OfficeRecentScreen() {
       header: "Updated",
       render: (file) => (
         <span className="whitespace-nowrap text-xs text-muted-foreground">
-          {timeAgo(file.updated_at)}
+          {timeAgo(file.updatedAt)}
         </span>
       ),
     },
@@ -394,13 +412,13 @@ export function OfficeRecentScreen() {
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Delete file permanently</DialogTitle>
+            <DialogTitle>Delete file</DialogTitle>
             <DialogDescription>
-              Are you sure you want to permanently delete{" "}
+              Are you sure you want to delete{" "}
               <span className="font-medium text-foreground">
                 {deleteTarget?.name}
               </span>
-              ? This action can&apos;t be undone.
+              ? The file will be removed from this project. This action can&apos;t be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

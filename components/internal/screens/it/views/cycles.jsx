@@ -15,7 +15,6 @@ import {
   Label,
 } from "@geiger/ui";
 import { cn } from "@/lib/utils";
-import { createMilestone } from "@/features/milestones/actions";
 import { DEFAULT_DISPLAY, isCompleted } from "../constants";
 import { cycleStats } from "../grouping";
 import { ProgressRing } from "../icons";
@@ -147,7 +146,7 @@ function CycleRow({ cycle, stats, active, onOpen }) {
   );
 }
 
-function NewCycleDialog({ open, onOpenChange, projectId, onCreated }) {
+function NewCycleDialog({ open, onOpenChange, onSubmit }) {
   const [title, setTitle] = useState("");
   const [targetDate, setTargetDate] = useState("");
   const [saving, setSaving] = useState(false);
@@ -159,7 +158,8 @@ function NewCycleDialog({ open, onOpenChange, projectId, onCreated }) {
       return;
     }
     setSaving(true);
-    const created = await createMilestone(projectId, {
+    // Persisted through the tracker so the new row lands in shared state.
+    const created = await onSubmit({
       title: title.trim(),
       targetDate: targetDate || null,
     });
@@ -172,7 +172,6 @@ function NewCycleDialog({ open, onOpenChange, projectId, onCreated }) {
     setTitle("");
     setTargetDate("");
     onOpenChange(false);
-    onCreated(created);
   };
 
   return (
@@ -223,13 +222,14 @@ function NewCycleDialog({ open, onOpenChange, projectId, onCreated }) {
 }
 
 export function CyclesView({ onOpenIssue, onCreate, cycleId, onSelectCycle }) {
-  const { cycles, issues, projectId, projectKey } = useTracker();
+  const { cycles, issues, projectKey, addCycle } = useTracker();
   const [tab, setTab] = useState("active");
   const [creating, setCreating] = useState(false);
-  const [localCycles, setLocalCycles] = useState([]);
   const [display, setDisplay] = useState({ ...DEFAULT_DISPLAY, grouping: "status" });
 
-  const all = useMemo(() => [...cycles, ...localCycles], [cycles, localCycles]);
+  // Cycles come straight from the tracker — no local overlay, so the UI
+  // always matches the persisted rows.
+  const all = useMemo(() => [...cycles], [cycles]);
   const buckets = useMemo(() => classifyCycles(all), [all]);
 
   const selected = useMemo(() => {
@@ -362,8 +362,7 @@ export function CyclesView({ onOpenIssue, onCreate, cycleId, onSelectCycle }) {
       <NewCycleDialog
         open={creating}
         onOpenChange={setCreating}
-        projectId={projectId}
-        onCreated={(cycle) => setLocalCycles((current) => [...current, cycle])}
+        onSubmit={addCycle}
       />
     </div>
   );

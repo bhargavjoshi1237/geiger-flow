@@ -1,7 +1,7 @@
 # Sidebar & Screens — Implementation Status
 
 Audit of every screen reachable from the **project sidebar** (`/project/[id]`) and the
-**workspace sidebar** (`/dashboard`), scored against `MODULE_CONVENTIONS.md`,
+**workspace sidebar** (`/workspace`), scored against `MODULE_CONVENTIONS.md`,
 `SUPABASE_CONVENTIONS.md`, `MIGRATION_CONVENTIONS.md` and `crafting.md`.
 
 UI defects found during this audit have already been fixed in code (see
@@ -292,8 +292,7 @@ office screens. Delete it once §2.1 lands and repoint any remaining importers.
 
 `lib/rbac.js` defines 15 `WORKSPACE_PERMISSIONS`, all of them `view.*` keys for
 the **workspace** nav. `roleHasPermission` / `tabPermissionKey` are called in
-`components/internal/sidebar/sidebar.jsx`, `app/dashboard/page.js` and
-`app/workspace/page.js` — and **nowhere in `project_sidebar.jsx`**.
+`components/internal/sidebar/sidebar.jsx` and `app/workspace/page.js` — and **nowhere in `project_sidebar.jsx`**.
 
 So none of the 21 project sections (Issues, Vault, Security, Settings…) can be
 gated by role. `Settings → Navigation` hides entries, but that is per-user

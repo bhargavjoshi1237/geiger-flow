@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useCallback, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { Button } from "@geiger/ui";
 import { Badge } from "@geiger/ui";
@@ -26,7 +27,14 @@ import {
   Database,
   ChevronLeft,
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { flowClient } from "@/supabase/components/flow-client";
+import { useProject } from "@/context/project-context";
+import {
+  clearSqlHistory,
+  createSqlHistoryEntry,
+  listSqlHistory,
+} from "@/features/sql_history/actions";
+import { SQL_EXPLORER_TABLES } from "@/features/sql_history/constants";
 
 function QueryHistoryItem({ query, timestamp, result, onClick }) {
   const isSuccess = result?.status === "success";
@@ -64,40 +72,148 @@ function QueryHistoryItem({ query, timestamp, result, onClick }) {
   );
 }
 
+// There is deliberately no execute_sql RPC: arbitrary SQL from the anon key
+// would bypass RLS (security-definer execution). The editor accepts
+// read-only `SELECT ... FROM <whitelisted flow table>` and runs it through
+// the query builder so RLS still applies; anything else is rejected with a
+// message. History summaries persist in flow.sql_history.
+function parseTableSelect(sql) {
+  const normalized = String(sql || "").trim();
+  if (!/^select\b/i.test(normalized)) {
+    return {
+      error:
+        "Only read-only SELECT statements are supported. Writes and DDL are disabled (no execute_sql RPC — arbitrary SQL would bypass RLS).",
+    };
+  }
+
+  const fromMatch = normalized.match(/from\s+"?([a-z_][a-z0-9_]*)"?/i);
+  const table = fromMatch?.[1]?.toLowerCase();
+  if (!table || !SQL_EXPLORER_TABLES.includes(table)) {
+    return {
+      error: `Unknown table. Whitelisted tables: ${SQL_EXPLORER_TABLES.join(", ")}.`,
+    };
+  }
+
+  const limitMatch = normalized.match(/limit\s+(\d+)/i);
+  const limit = Math.min(100, Math.max(1, Number(limitMatch?.[1]) || 50));
+
+  return { table, limit };
+}
+
+function formatTimestamp(value) {
+  const date = value ? new Date(value) : new Date();
+  if (Number.isNaN(date.getTime())) {
+    return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  }
+  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
 export function SqlEditorScreen() {
+  const { project } = useProject();
+  const projectId = project?.id;
   const [query, setQuery] = useState("");
   const [results, setResults] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
   const [showHistory, setShowHistory] = useState(true);
   const [activeTab, setActiveTab] = useState("results");
   const textareaRef = useRef(null);
 
-  const formatTimestamp = () => {
-    const now = new Date();
-    return now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  };
+  useEffect(() => {
+    let active = true;
+    void Promise.resolve().then(() => {
+      if (!projectId) {
+        if (active) {
+          setHistoryLoading(false);
+        }
+        return;
+      }
+
+      if (active) {
+        setHistoryLoading(true);
+      }
+      return listSqlHistory(projectId).then((rows) => {
+        if (!active) {
+          return;
+        }
+        setHistory(rows ?? []);
+        setHistoryLoading(false);
+      });
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [projectId]);
+
+  const persistHistory = useCallback(
+    async (entry) => {
+      if (!projectId) {
+        return;
+      }
+
+      const optimistic = {
+        id: crypto.randomUUID(),
+        projectId,
+        query: entry.query,
+        timestamp: new Date().toISOString(),
+        result: entry.result,
+      };
+      setHistory((prev) => [optimistic, ...prev].slice(0, 50));
+
+      const created = await createSqlHistoryEntry(projectId, {
+        id: optimistic.id,
+        query: entry.query,
+        status: entry.result.status,
+        message: entry.result.message,
+        rowCount: entry.result.rowCount ?? 0,
+        duration: entry.result.duration ?? 0,
+        columns: entry.result.columns ?? [],
+      });
+
+      if (created) {
+        setHistory((prev) => prev.map((item) => (item.id === optimistic.id ? created : item)));
+      } else {
+        setHistory((prev) => prev.filter((item) => item.id !== optimistic.id));
+        toast.error("Couldn't save query history.");
+      }
+    },
+    [projectId],
+  );
 
   const executeQuery = useCallback(async (sqlQuery) => {
     const trimmed = (sqlQuery || query).trim();
     if (!trimmed) return;
+
+    if (!projectId) {
+      setError("Open a project before running queries.");
+      setActiveTab("messages");
+      return;
+    }
 
     setLoading(true);
     setError(null);
     setResults(null);
     const startTime = performance.now();
 
+    const parsed = parseTableSelect(trimmed);
+    if (parsed.error) {
+      const errResult = { status: "error", message: parsed.error };
+      setError(parsed.error);
+      setResults(null);
+      setActiveTab("messages");
+      setLoading(false);
+      void persistHistory({ query: trimmed, result: errResult });
+      return;
+    }
+
     try {
-      const supabase = createClient();
-      let data, supabaseError;
-      try {
-        const res = await supabase.rpc("execute_sql", { query_string: trimmed });
-        data = res.data;
-        supabaseError = res.error;
-      } catch (e) {
-        supabaseError = { message: e.message || 'Failed to execute query' };
-      }
+      const { data, error: supabaseError } = await flowClient()
+        .from(parsed.table)
+        .select("*")
+        .limit(parsed.limit);
 
       const duration = Math.round(performance.now() - startTime);
 
@@ -105,16 +221,13 @@ export function SqlEditorScreen() {
         const errResult = { status: "error", message: supabaseError.message };
         setError(supabaseError.message);
         setResults(null);
-        setHistory((prev) => [
-          { query: trimmed, timestamp: formatTimestamp(), result: errResult },
-          ...prev.slice(0, 49),
-        ]);
         setActiveTab("messages");
+        void persistHistory({ query: trimmed, result: errResult });
         return;
       }
 
-      const rows = Array.isArray(data) ? data : data?.rows || [];
-      const columns = rows.length > 0 ? Object.keys(rows[0]) : data?.columns || [];
+      const rows = Array.isArray(data) ? data : [];
+      const columns = rows.length > 0 ? Object.keys(rows[0]) : [];
 
       const successResult = {
         status: "success",
@@ -125,24 +238,18 @@ export function SqlEditorScreen() {
       };
 
       setResults(successResult);
-      setHistory((prev) => [
-        { query: trimmed, timestamp: formatTimestamp(), result: successResult },
-        ...prev.slice(0, 49),
-      ]);
       setActiveTab("results");
+      void persistHistory({ query: trimmed, result: successResult });
     } catch (err) {
       const errResult = { status: "error", message: err.message };
       setError(err.message);
       setResults(null);
-      setHistory((prev) => [
-        { query: trimmed, timestamp: formatTimestamp(), result: errResult },
-        ...prev.slice(0, 49),
-      ]);
       setActiveTab("messages");
+      void persistHistory({ query: trimmed, result: errResult });
     } finally {
       setLoading(false);
     }
-  }, [query]);
+  }, [persistHistory, projectId, query]);
 
   const handleKeyDown = (e) => {
     if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
@@ -164,8 +271,21 @@ export function SqlEditorScreen() {
     textareaRef.current?.focus();
   };
 
-  const clearHistory = () => {
+  const handleClearHistory = async () => {
+    const previous = history;
     setHistory([]);
+
+    if (!projectId) {
+      return;
+    }
+
+    const ok = await clearSqlHistory(projectId);
+    if (!ok) {
+      setHistory(previous);
+      toast.error("Couldn't clear query history.");
+      return;
+    }
+    toast.success("Query history cleared");
   };
 
   return (
@@ -177,7 +297,7 @@ export function SqlEditorScreen() {
               SQL Editor
             </h1>
             <p className="text-muted-foreground text-sm">
-              Write and execute SQL queries against your project database
+              Run read-only SELECT queries against whitelisted project tables
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -201,7 +321,7 @@ export function SqlEditorScreen() {
                       type="button"
                       variant="ghost"
                       size="sm"
-                      onClick={clearHistory}
+                      onClick={handleClearHistory}
                       className="text-[10px] text-text-tertiary hover:text-red-400 transition-colors cursor-pointer"
                     >
                       Clear
@@ -210,16 +330,20 @@ export function SqlEditorScreen() {
                 </div>
                 <ScrollArea className="flex-1">
                   <div className="p-2 space-y-0.5">
-                    {history.length === 0 ? (
+                    {historyLoading ? (
+                      <p className="text-[11px] text-text-tertiary px-2 py-4 text-center leading-relaxed">
+                        Loading history…
+                      </p>
+                    ) : history.length === 0 ? (
                       <p className="text-[11px] text-text-tertiary px-2 py-4 text-center leading-relaxed">
                         No queries executed yet
                       </p>
                     ) : (
-                      history.map((item, i) => (
+                      history.map((item) => (
                         <QueryHistoryItem
-                          key={`${item.timestamp}-${i}`}
+                          key={item.id}
                           query={item.query}
-                          timestamp={item.timestamp}
+                          timestamp={formatTimestamp(item.timestamp)}
                           result={item.result}
                           onClick={() => handleHistoryClick(item)}
                         />
@@ -283,7 +407,7 @@ export function SqlEditorScreen() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Enter your SQL query here... (Ctrl+Enter to execute)"
+                placeholder="SELECT * FROM tasks LIMIT 50  (Ctrl+Enter to execute)"
                 className="min-h-[140px] max-h-[300px] rounded-none border-0 bg-background p-4 font-mono text-xs leading-relaxed text-foreground placeholder:text-text-tertiary resize-y focus-visible:ring-0 focus-visible:ring-offset-0"
                 spellCheck={false}
               />

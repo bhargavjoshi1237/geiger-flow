@@ -1,7 +1,6 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@geiger/ui";
 
@@ -38,10 +37,11 @@ export default function FlowPlaygroundShowcase({ backgroundImage } = {}) {
             project. Click through as much as you like; nothing here saves.
           </p>
           <Button asChild className="rounded-full">
-            <Link href="/org">
+            {/* /org is geiger-dash's zone, outside Flow's basePath. */}
+            <a href="/org">
               Open Flow
               <ArrowRight className="h-4 w-4" />
-            </Link>
+            </a>
           </Button>
         </div>
 

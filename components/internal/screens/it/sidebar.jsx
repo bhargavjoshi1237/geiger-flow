@@ -131,23 +131,22 @@ export function ItSidebar({ view, onNavigate, onSearch, onCompose, className }) 
             </DropdownMenuItem>
             <DropdownMenuSeparator className="bg-[var(--lnr-border)]" />
             <DropdownMenuItem asChild>
-              <Link href={project ? `/project/${project.id}` : "/dashboard"}>
-                <LogOut className="h-4 w-4" />
-                Back to Geiger Flow
-              </Link>
+              {project ? (
+                <Link href={`/project/${project.id}`}>
+                  <LogOut className="h-4 w-4" />
+                  Back to Geiger Flow
+                </Link>
+              ) : (
+                // No project in context — fall back to geiger-dash's org picker,
+                // which sits outside Flow's basePath.
+                <a href="/org">
+                  <LogOut className="h-4 w-4" />
+                  Back to Geiger Flow
+                </a>
+              )}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-
-        <button
-          type="button"
-          onClick={onCompose}
-          aria-label="New issue"
-          title="New issue"
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[5px] border border-[var(--lnr-border-strong)] bg-surface-card text-[var(--lnr-ink-muted)] hover:bg-[var(--lnr-hover)] hover:text-[var(--lnr-ink)]"
-        >
-          <Pencil className="h-3.5 w-3.5" />
-        </button>
       </div>
 
       <nav className="mt-2 flex-1 overflow-y-auto px-2 lnr-scrollbar">
@@ -259,13 +258,23 @@ export function ItSidebar({ view, onNavigate, onSearch, onCompose, className }) 
           active={view === "settings"}
           onClick={() => onNavigate("settings")}
         />
-        <Link
-          href={project ? `/project/${project.id}?Issues` : "/dashboard"}
-          className="flex h-9 w-full items-center gap-2 rounded-[5px] px-2 text-[13px] font-medium text-[var(--lnr-ink-subtle)] transition-colors hover:bg-[var(--lnr-hover)] hover:text-[var(--lnr-ink)] lg:h-[30px]"
-        >
-          <ExternalLink className="h-4 w-4 shrink-0" strokeWidth={1.75} />
-          <span className="truncate">Back to project</span>
-        </Link>
+        {project ? (
+          <Link
+            href={`/project/${project.id}?Issues`}
+            className="flex h-9 w-full items-center gap-2 rounded-[5px] px-2 text-[13px] font-medium text-[var(--lnr-ink-subtle)] transition-colors hover:bg-[var(--lnr-hover)] hover:text-[var(--lnr-ink)] lg:h-[30px]"
+          >
+            <ExternalLink className="h-4 w-4 shrink-0" strokeWidth={1.75} />
+            <span className="truncate">Back to project</span>
+          </Link>
+        ) : (
+          <a
+            href="/org"
+            className="flex h-9 w-full items-center gap-2 rounded-[5px] px-2 text-[13px] font-medium text-[var(--lnr-ink-subtle)] transition-colors hover:bg-[var(--lnr-hover)] hover:text-[var(--lnr-ink)] lg:h-[30px]"
+          >
+            <ExternalLink className="h-4 w-4 shrink-0" strokeWidth={1.75} />
+            <span className="truncate">Back to organization</span>
+          </a>
+        )}
 
         <div className="mt-1 flex items-center gap-2 rounded-[5px] px-2 py-1.5">
           <Avatar className="h-5 w-5 shrink-0">

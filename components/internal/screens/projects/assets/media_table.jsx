@@ -250,6 +250,21 @@ export function MediaTable({ assets = [], loading = false, onRename, onDelete })
     }
   };
 
+  // Real download of the persisted public URL (Preview opens it in a tab).
+  const handleDownload = (item) => {
+    if (!item.url) {
+      return;
+    }
+    const link = document.createElement("a");
+    link.href = item.url;
+    link.download = item.name || "asset";
+    link.target = "_blank";
+    link.rel = "noopener,noreferrer";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const handleCopyLink = (item) => {
     if (item.url) {
       void navigator.clipboard?.writeText(item.url);
@@ -320,7 +335,7 @@ export function MediaTable({ assets = [], loading = false, onRename, onDelete })
           label={`Actions for ${item.name}`}
           items={[
             { icon: Eye, label: "Preview", disabled: !item.url, onSelect: () => handlePreview(item) },
-            { icon: DownloadIcon, label: "Download", disabled: !item.url, onSelect: () => handlePreview(item) },
+            { icon: DownloadIcon, label: "Download", disabled: !item.url, onSelect: () => handleDownload(item) },
             { icon: Link2Icon, label: "Copy Link", disabled: !item.url, onSelect: () => handleCopyLink(item) },
             { separator: true },
             { icon: Pencil, label: "Rename", onSelect: () => startRename(item) },
@@ -373,7 +388,9 @@ export function MediaTable({ assets = [], loading = false, onRename, onDelete })
             data={pager.pageItems}
             getRowKey={(item) => item.id}
             onRowClick={(item) => setUserSelectedId(item.id)}
-            className="rounded-none border-0"
+            // TableRow carries border-b with no last: reset, so the final
+            // row would double up with the pagination rule below it.
+            className="rounded-none border-0 [&_tbody_tr:last-child]:border-b-0"
             empty={
               <div className="rounded-xl border border-border bg-surface-subtle">
                 <EmptyState

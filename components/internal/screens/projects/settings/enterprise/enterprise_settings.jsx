@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { usePathname, useRouter } from "next/navigation";
 import { Badge } from "@geiger/ui";
 import { Button } from "@geiger/ui";
 import { Card } from "@geiger/ui";
@@ -19,6 +21,14 @@ import {
   SettingRow,
   SettingsList,
 } from "@/components/internal/shared/screen_kit";
+import { useProject } from "@/context/project-context";
+import {
+  defaultProjectSettings,
+  getProjectSettings,
+  mergeProjectSettings,
+} from "@/features/project_settings/actions";
+import { DEFAULT_ENTERPRISE_SETTINGS } from "@/features/project_settings/constants";
+import { listActivityLogs } from "@/features/activity_logs/actions";
 
 function StatusBadge({ text, variant }) {
   return (
@@ -44,7 +54,7 @@ function EmptyPanel({ title, description }) {
   );
 }
 
-function StatCard({ icon: Icon, label, helper }) {
+function StatCard({ icon: Icon, label, value, helper }) {
   return (
     <div className="rounded-xl border border-border bg-surface-subtle p-4 shadow-sm">
       <div className="mb-2 flex items-center gap-2.5">
@@ -55,21 +65,101 @@ function StatCard({ icon: Icon, label, helper }) {
           {label}
         </div>
       </div>
-      <div className="text-xl font-semibold text-foreground">0</div>
+      <div className="text-xl font-semibold text-foreground">{value}</div>
       <p className="mt-0.5 text-[11px] text-muted-foreground">{helper}</p>
     </div>
   );
 }
 
+function formatRelative(value) {
+  if (!value) return "";
+  const diffMs = Date.now() - new Date(value).getTime();
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days}d ago`;
+  return new Date(value).toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
 export function EnterpriseSettingsScreen() {
-  const [ssoEnabled, setSsoEnabled] = useState(false);
-  const [scimProvisioning, setScimProvisioning] = useState(false);
-  const [dataRetention, setDataRetention] = useState(false);
-  const [encryptionAtRest, setEncryptionAtRest] = useState(false);
-  const [fieldEncryption, setFieldEncryption] = useState(false);
-  const [ipWhitelist, setIpWhitelist] = useState(false);
-  const [auditTrail, setAuditTrail] = useState(false);
-  const [disablePublicApi, setDisablePublicApi] = useState(false);
+  const { project } = useProject();
+  const projectId = project?.id ?? null;
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const [enterprise, setEnterprise] = useState({ ...DEFAULT_ENTERPRISE_SETTINGS });
+  const [secretCount, setSecretCount] = useState(0);
+  const [auditEvents, setAuditEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    void Promise.resolve().then(() => {
+      if (!active) {
+        return undefined;
+      }
+      if (!projectId) {
+        setEnterprise({ ...DEFAULT_ENTERPRISE_SETTINGS });
+        setSecretCount(0);
+        setAuditEvents([]);
+        setLoading(false);
+        return undefined;
+      }
+      setLoading(true);
+      return Promise.all([getProjectSettings(projectId), listActivityLogs(projectId)]).then(
+        ([settings, logs]) => {
+          if (!active) return;
+          const resolved = settings ?? defaultProjectSettings(projectId);
+          setEnterprise(resolved.enterprise);
+          setSecretCount(resolved.variables.filter((variable) => variable.secret).length);
+          setAuditEvents(logs ?? []);
+          setLoading(false);
+        },
+      );
+    });
+    return () => {
+      active = false;
+    };
+  }, [projectId]);
+
+  const persist = async (next) => {
+    setEnterprise(next);
+    if (!projectId) return;
+    const saved = await mergeProjectSettings(projectId, { enterprise: next });
+    if (saved) {
+      setEnterprise(saved.enterprise);
+    } else {
+      toast.error("Couldn't save the setting.");
+    }
+  };
+
+  const handleToggle = (key) => (checked) => {
+    void persist({ ...enterprise, [key]: Boolean(checked) });
+  };
+
+  const {
+    ssoEnabled,
+    scimProvisioning,
+    dataRetention,
+    encryptionAtRest,
+    fieldEncryption,
+    ipWhitelist,
+    auditTrail,
+    disablePublicApi,
+  } = enterprise;
+
+  const goToLogs = () => {
+    if (pathname) {
+      router.push(`${pathname}?${encodeURIComponent("Logs")}`, { scroll: false });
+    }
+  };
 
   return (
     <div className="space-y-12">
@@ -83,7 +173,12 @@ export function EnterpriseSettingsScreen() {
               Enterprise Plan
             </div>
             <div className="text-[13px] leading-relaxed text-muted-foreground">
-              Enterprise plan and governance details will appear here after backend data is connected.
+              {project?.name
+                ? `Governance and compliance controls for ${project.name}.`
+                : "Governance and compliance controls for this project."}{" "}
+              {auditEvents.length > 0
+                ? `${auditEvents.length} audit event${auditEvents.length === 1 ? "" : "s"} recorded.`
+                : "Events appear below once activity is recorded."}
             </div>
           </div>
         </div>
@@ -108,7 +203,7 @@ export function EnterpriseSettingsScreen() {
                     text={ssoEnabled ? "ACTIVE" : "DISABLED"}
                     variant={ssoEnabled ? "green" : "default"}
                   />
-                  <Switch checked={ssoEnabled} onCheckedChange={setSsoEnabled} />
+                  <Switch checked={ssoEnabled} onCheckedChange={handleToggle("ssoEnabled")} disabled={loading} />
                 </div>
               }
             />
@@ -116,15 +211,27 @@ export function EnterpriseSettingsScreen() {
               title="SCIM User Provisioning"
               description="Automatically sync users from your identity provider"
               checked={scimProvisioning}
-              onCheckedChange={setScimProvisioning}
+              onCheckedChange={handleToggle("scimProvisioning")}
             />
           </SettingsList>
         </SectionCard>
 
-        <EmptyPanel
-          title="No SSO providers configured"
-          description="Identity provider data will appear here after backend fetching is connected."
-        />
+        {ssoEnabled ? (
+          <SectionCard>
+            <SettingsList>
+              <SettingRow
+                title="Primary identity provider"
+                description="SSO is required for every member of this project"
+                control={<StatusBadge text="ENFORCED" variant="green" />}
+              />
+            </SettingsList>
+          </SectionCard>
+        ) : (
+          <EmptyPanel
+            title="No SSO providers configured"
+            description="Enable SSO to require identity-provider sign-in for this project."
+          />
+        )}
       </div>
 
       <div className="space-y-4">
@@ -147,7 +254,8 @@ export function EnterpriseSettingsScreen() {
                   ) : null}
                   <Switch
                     checked={encryptionAtRest}
-                    onCheckedChange={setEncryptionAtRest}
+                    onCheckedChange={handleToggle("encryptionAtRest")}
+                    disabled={loading}
                   />
                 </div>
               }
@@ -156,13 +264,13 @@ export function EnterpriseSettingsScreen() {
               title="Field-Level Encryption"
               description="Encrypt sensitive fields with separate keys"
               checked={fieldEncryption}
-              onCheckedChange={setFieldEncryption}
+              onCheckedChange={handleToggle("fieldEncryption")}
             />
             <SettingRow
               title="IP Whitelist"
               description="Restrict API access to approved IP ranges"
               checked={ipWhitelist}
-              onCheckedChange={setIpWhitelist}
+              onCheckedChange={handleToggle("ipWhitelist")}
             />
             <SettingRow
               title="Audit Trail"
@@ -172,7 +280,7 @@ export function EnterpriseSettingsScreen() {
                   {auditTrail ? (
                     <StatusBadge text="ACTIVE" variant="green" />
                   ) : null}
-                  <Switch checked={auditTrail} onCheckedChange={setAuditTrail} />
+                  <Switch checked={auditTrail} onCheckedChange={handleToggle("auditTrail")} disabled={loading} />
                 </div>
               }
             />
@@ -180,22 +288,42 @@ export function EnterpriseSettingsScreen() {
               title="Data Retention Policy"
               description="Automatically archive or purge data per compliance rules"
               checked={dataRetention}
-              onCheckedChange={setDataRetention}
+              onCheckedChange={handleToggle("dataRetention")}
             />
             <SettingRow
               title="Disable Public API"
               description="Block all external API access to this project"
               checked={disablePublicApi}
-              onCheckedChange={setDisablePublicApi}
+              onCheckedChange={handleToggle("disablePublicApi")}
             />
           </SettingsList>
         </SectionCard>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-          <StatCard icon={KeyRound} label="Encryption Keys" helper="No key data" />
-          <StatCard icon={Network} label="Whitelisted IPs" helper="No IP data" />
-          <StatCard icon={Database} label="Retention Period" helper="No retention data" />
-          <StatCard icon={Shield} label="Key Rotation" helper="No rotation data" />
+          <StatCard
+            icon={KeyRound}
+            label="Secrets Stored"
+            value={String(secretCount)}
+            helper={secretCount > 0 ? "Masked env variables" : "No secrets stored"}
+          />
+          <StatCard
+            icon={Network}
+            label="IP Whitelist"
+            value={ipWhitelist ? "On" : "Off"}
+            helper={ipWhitelist ? "Range enforcement active" : "Open to all IPs"}
+          />
+          <StatCard
+            icon={Database}
+            label="Retention"
+            value={dataRetention ? "90d" : "Off"}
+            helper={dataRetention ? "Default compliance window" : "No retention policy"}
+          />
+          <StatCard
+            icon={Shield}
+            label="Audit Events"
+            value={String(auditEvents.length)}
+            helper={auditTrail ? "Trail recording active" : "From project activity"}
+          />
         </div>
       </div>
 
@@ -209,18 +337,36 @@ export function EnterpriseSettingsScreen() {
 
         <Card className="overflow-hidden rounded-xl border-border bg-surface-subtle text-foreground shadow-sm">
           <div className="-my-6">
-            <div className="px-5 py-8 text-center">
-              <p className="text-sm font-medium text-foreground">No audit events yet</p>
-              <p className="mt-1 text-xs text-text-secondary">
-                Security and access events will appear here after backend data is connected.
-              </p>
-            </div>
+            {auditEvents.length === 0 ? (
+              <div className="px-5 py-8 text-center">
+                <p className="text-sm font-medium text-foreground">No audit events yet</p>
+                <p className="mt-1 text-xs text-text-secondary">
+                  Project activity will appear here as it is recorded.
+                </p>
+              </div>
+            ) : (
+              <div className="divide-y divide-border">
+                {auditEvents.slice(0, 5).map((event) => (
+                  <div key={event.id} className="flex items-center justify-between gap-4 px-5 py-3">
+                    <p className="min-w-0 truncate text-[13px] text-foreground">
+                      {event.message}
+                    </p>
+                    <span className="shrink-0 text-[11px] text-muted-foreground">
+                      {formatRelative(event.occurredAt ?? event.createdAt)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
             <div className="flex items-center justify-between bg-background/50 px-5 py-3">
-              <span className="text-[12px] text-muted-foreground">Showing 0 events</span>
+              <span className="text-[12px] text-muted-foreground">
+                Showing {Math.min(auditEvents.length, 5)} of {auditEvents.length} events
+              </span>
               <Button
                 variant="ghost"
                 size="sm"
                 className="h-7 text-[12px] text-muted-foreground hover:bg-surface-hover hover:text-foreground"
+                onClick={goToLogs}
               >
                 View Full Audit Log
                 <ChevronRight className="ml-1 h-3 w-3" />
