@@ -53,20 +53,25 @@ export function VaultAccessControl({
   const [keylessEntry, setKeylessEntry] = useState(false);
   const [userInput, setUserInput] = useState("");
 
-  useEffect(() => {
-    if (item && open) {
-      setAccessControl(
-        item.accessControl || {
-          type: "team",
-          allowedRoles: [],
-          allowedUsers: [],
-          allowedPositions: [],
-        }
-      );
-      setTtl(item.ttl || "none");
-      setKeylessEntry(item.keylessEntry || false);
-    }
-  }, [item, open]);
+  // Re-seed the draft from the item each time the dialog opens on a new one.
+  // Done during render rather than in an effect so the first painted frame
+  // already shows the item's values instead of the previous one's.
+  const [seededFor, setSeededFor] = useState(null);
+  const seedKey = item && open ? item.id ?? item : null;
+  if (seedKey && seededFor !== seedKey) {
+    setSeededFor(seedKey);
+    setAccessControl(
+      item.accessControl || {
+        type: "team",
+        allowedRoles: [],
+        allowedUsers: [],
+        allowedPositions: [],
+      }
+    );
+    setTtl(item.ttl || "none");
+    setKeylessEntry(item.keylessEntry || false);
+  }
+  if (!seedKey && seededFor !== null) setSeededFor(null);
 
   const handleTypeChange = (type) => {
     setAccessControl((prev) => ({

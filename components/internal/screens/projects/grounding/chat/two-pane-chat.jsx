@@ -64,6 +64,9 @@ export function TwoPaneChat({
 }) {
   const [showThreadMobile, setShowThreadMobile] = useState(false);
   const [call, setCall] = useState(null); // { kind }
+  // Lives here rather than in the header because the conversation row menu — a
+  // sibling of the thread, not a child of the header — also opens the sheet.
+  const [detailsOpen, setDetailsOpen] = useState(false);
 
   // Controlled by the screen (activeId prop) or self-managed for the landing
   // playground (no activeId prop → seed from the first conversation).
@@ -117,6 +120,10 @@ export function TwoPaneChat({
           onPin={onPin}
           onMarkRead={onMarkRead}
           onLeave={onLeave}
+          onOpenDetails={(conversation) => {
+            select(conversation.id);
+            setDetailsOpen(true);
+          }}
         />
       </div>
 
@@ -144,6 +151,8 @@ export function TwoPaneChat({
             onRenameThread={onRenameThread}
             onDeleteThread={onDeleteThread}
             onRefreshThreads={onRefreshThreads}
+            detailsOpen={detailsOpen}
+            onDetailsOpenChange={setDetailsOpen}
           />
         ) : (
           <EmptyThread variant={variant} />

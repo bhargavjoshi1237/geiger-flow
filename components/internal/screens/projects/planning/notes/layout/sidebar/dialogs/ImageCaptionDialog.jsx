@@ -18,16 +18,16 @@ const ImageCaptionDialog = ({ open, onOpenChange, initialData, onSave }) => {
   const [bgColor, setBgColor] = useState("#1e1e1e");
   const [textColor, setTextColor] = useState("#ffffff");
 
-  useEffect(() => {
-    if (initialData) {
-      setCaption(initialData.text || "");
-      setOpacity(
-        initialData.bgOpacity !== undefined ? initialData.bgOpacity : 1,
-      );
-      setBgColor(initialData.bgColor || "#1e1e1e");
-      setTextColor(initialData.textColor || "#ffffff");
-    }
-  }, [initialData, open]);
+  // Re-seed the draft when the dialog reopens or its subject changes, during
+  // render so the fields never paint the previous caption.
+  const [seeded, setSeeded] = useState({ data: null, open: null });
+  if (initialData && (seeded.data !== initialData || seeded.open !== open)) {
+    setSeeded({ data: initialData, open });
+    setCaption(initialData.text || "");
+    setOpacity(initialData.bgOpacity !== undefined ? initialData.bgOpacity : 1);
+    setBgColor(initialData.bgColor || "#1e1e1e");
+    setTextColor(initialData.textColor || "#ffffff");
+  }
 
   const handleSave = () => {
     onSave({

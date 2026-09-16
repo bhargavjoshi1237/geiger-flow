@@ -18,9 +18,13 @@ const CommentNode = ({ id, data, selected }) => {
   const { setNodes } = useReactFlow();
   const [comment, setComment] = React.useState(data?.label || "");
 
-  React.useEffect(() => {
+  // Pull an externally-changed label back into the draft, during render so the
+  // textarea never shows a stale value for a frame.
+  const [prevLabel, setPrevLabel] = React.useState(data?.label);
+  if (prevLabel !== data?.label) {
+    setPrevLabel(data?.label);
     setComment(data?.label || "");
-  }, [data?.label]);
+  }
 
   const handleChange = (e) => {
     setComment(e.target.value);

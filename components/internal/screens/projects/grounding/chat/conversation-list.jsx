@@ -11,7 +11,7 @@ import { getPerson, isExternalPerson } from "@/lib/chat/people-store";
 import { ExternalBadge } from "./external-badge";
 import { cn } from "@/lib/utils";
 
-function ConversationRow({ conversation, active, onSelect, variant, onPin, onMarkRead, onLeave }) {
+function ConversationRow({ conversation, active, onSelect, variant, onPin, onMarkRead, onLeave, onOpenDetails }) {
   const isChannel = conversation.type === "channel";
   const person = isChannel ? null : getPerson(conversation.participantId);
   const title = isChannel ? conversation.name : person?.name;
@@ -32,6 +32,7 @@ function ConversationRow({ conversation, active, onSelect, variant, onPin, onMar
       onPin={onPin}
       onMarkRead={onMarkRead}
       onLeave={onLeave}
+      onOpenDetails={onOpenDetails}
     >
       <button
         type="button"
@@ -106,6 +107,7 @@ export function ConversationList({
   onPin,
   onMarkRead,
   onLeave,
+  onOpenDetails,
 }) {
   const [query, setQuery] = useState("");
 
@@ -165,7 +167,7 @@ export function ConversationList({
               <p className="px-2 pb-1 pt-2 text-[11px] font-medium uppercase tracking-wide text-text-secondary">Pinned</p>
             ) : null}
             {pinned.map((c) => (
-              <ConversationRow key={c.id} conversation={c} active={c.id === activeId} onSelect={onSelect} variant={variant} onPin={onPin} onMarkRead={onMarkRead} onLeave={onLeave} />
+              <ConversationRow key={c.id} conversation={c} active={c.id === activeId} onSelect={onSelect} variant={variant} onPin={onPin} onMarkRead={onMarkRead} onLeave={onLeave} onOpenDetails={onOpenDetails} />
             ))}
             {pinned.length && rest.length ? (
               <p className="px-2 pb-1 pt-3 text-[11px] font-medium uppercase tracking-wide text-text-secondary">
@@ -173,7 +175,7 @@ export function ConversationList({
               </p>
             ) : null}
             {rest.map((c) => (
-              <ConversationRow key={c.id} conversation={c} active={c.id === activeId} onSelect={onSelect} variant={variant} onPin={onPin} onMarkRead={onMarkRead} onLeave={onLeave} />
+              <ConversationRow key={c.id} conversation={c} active={c.id === activeId} onSelect={onSelect} variant={variant} onPin={onPin} onMarkRead={onMarkRead} onLeave={onLeave} onOpenDetails={onOpenDetails} />
             ))}
             {filtered.length === 0 ? (
               <div className="flex flex-col items-center gap-3 px-6 py-12 text-center">

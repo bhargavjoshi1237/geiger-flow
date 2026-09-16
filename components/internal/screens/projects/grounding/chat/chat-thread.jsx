@@ -44,6 +44,7 @@ export function ChatThread({
   onLoadOlder, hasMore = false, loadingOlder = false,
   threads = [], onCreateThread, onRenameThread, onDeleteThread, onRefreshThreads,
   files = [], filesLoading = false, onLoadFiles,
+  detailsOpen, onDetailsOpenChange,
 }) {
   const controlled = !autoReply;
   const [localMessages, setLocalMessages] = useState(conversation.messages || []);
@@ -210,6 +211,8 @@ export function ChatThread({
           activePanel={panel}
           threadCount={threads.length}
           fileCount={files.length}
+          detailsOpen={detailsOpen}
+          onDetailsOpenChange={onDetailsOpenChange}
         />
         {externalPerson ? (
           <div className="flex items-center gap-2 border-b border-amber-500/15 bg-amber-500/[0.06] px-4 py-2 text-xs text-amber-500/90 md:px-6">

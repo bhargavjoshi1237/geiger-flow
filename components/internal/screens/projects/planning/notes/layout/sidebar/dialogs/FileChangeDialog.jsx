@@ -25,13 +25,17 @@ export default function FileChangeDialog({
   const fileInputRef = useRef(null);
   const hasExistingFile = currentSrc && !currentSrc.startsWith("data:");
 
-  useEffect(() => {
+  // Clear the picker each time the dialog opens, during render so a reopen
+  // never flashes the previously chosen file.
+  const [wasOpen, setWasOpen] = useState(open);
+  if (wasOpen !== open) {
+    setWasOpen(open);
     if (open) {
       setSelectedFile(null);
       setIsProcessing(false);
       setIsWarningVisible(true);
     }
-  }, [open]);
+  }
 
   const handleDownloadOld = async () => {
     if (!currentSrc) return;

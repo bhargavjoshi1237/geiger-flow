@@ -23,10 +23,15 @@ export default function EditBoardNameDialog({
   const [name, setName] = useState(initialName || "");
   const [caption, setCaption] = useState(initialCaption || "");
 
-  React.useEffect(() => {
+  // Re-seed the draft when the dialog's subject changes, during render so the
+  // inputs never paint the previous board's values.
+  const seedKey = `${initialName}|${initialCaption}`;
+  const [seededFor, setSeededFor] = React.useState(seedKey);
+  if (seededFor !== seedKey) {
+    setSeededFor(seedKey);
     setName(initialName || "");
     setCaption(initialCaption || "");
-  }, [initialName, initialCaption]);
+  }
 
   const handleSave = () => {
     onSave(name, caption);

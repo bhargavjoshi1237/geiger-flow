@@ -7,6 +7,9 @@ import { ProjectSidebar } from "@/components/internal/sidebar/projects/project_s
 import { ProjectTopbar } from "@/components/internal/topbar/projects/topbar";
 import { ProjectBudgetProvider } from "@/context/project-budget-context";
 import { AddonRegistryProvider } from "@/addons/registry";
+// Side-effect import: fills the addon registry, so the playground offers the
+// same addon screens the real project route does.
+import "@/addons";
 import {
   isFullBleedScreen,
   resolveProjectScreen,

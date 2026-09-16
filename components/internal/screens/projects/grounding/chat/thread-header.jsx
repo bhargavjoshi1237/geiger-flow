@@ -54,16 +54,23 @@ function PanelButton({ icon: Icon, title, onClick, active, count, className }) {
 
 // Top bar of a conversation thread: identity on the left, call/detail actions on
 // the right. On mobile a back button returns to the conversation list.
+// `detailsOpen`/`onDetailsOpenChange` are optional: pass both to drive the
+// details sheet from outside (the conversation row menu opens it this way),
+// omit them and the header manages the sheet itself.
 export function ThreadHeader({
   conversation, onStartCall, onBack, onClose, people = [], onInvite,
   onToggleThreads, onToggleFiles, activePanel, threadCount = 0, fileCount = 0,
+  detailsOpen: detailsOpenProp, onDetailsOpenChange,
 }) {
   const isChannel = conversation.type === "channel";
   const person = isChannel ? null : getPerson(conversation.participantId);
   const external = !isChannel && isExternalPerson(person);
   const members = (conversation.memberIds || []).map(getPerson);
   const presence = person ? PRESENCE[person.presence] || PRESENCE.offline : null;
-  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [localDetailsOpen, setLocalDetailsOpen] = useState(false);
+  const detailsControlled = detailsOpenProp !== undefined;
+  const detailsOpen = detailsControlled ? detailsOpenProp : localDetailsOpen;
+  const setDetailsOpen = detailsControlled ? onDetailsOpenChange : setLocalDetailsOpen;
 
   return (
     <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-border px-3 md:px-6">

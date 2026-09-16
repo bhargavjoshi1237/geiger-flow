@@ -24,11 +24,7 @@ import {
   softDeleteExternalLink,
 } from "@/features/external_links/actions";
 import { toast } from "sonner";
-import "@/addons/sql";
-import "@/addons/project-plus";
-import "@/addons/forms";
-import "@/addons/credited-resources";
-import "@/addons/system-architecture";
+import "@/addons";
 import { useEffect } from "react";
 
 function ProjectLayoutContent({ id }) {

@@ -27,14 +27,16 @@ export default function EditCalendarThemeDialog({
 }) {
   const [data, setData] = useState({});
 
-  useEffect(() => {
-    if (open) {
-      setData({
-        calendarStyle: initialData?.calendarStyle || "default",
-        calendarTheme: initialData?.calendarTheme || "light",
-      });
-    }
-  }, [open, initialData]);
+  // Re-seed the draft whenever the dialog opens or its subject changes, during
+  // render so the preview never paints the previous calendar's theme.
+  const [seeded, setSeeded] = useState({ data: null, open: null });
+  if (open && (seeded.data !== initialData || seeded.open !== open)) {
+    setSeeded({ data: initialData, open });
+    setData({
+      calendarStyle: initialData?.calendarStyle || "default",
+      calendarTheme: initialData?.calendarTheme || "light",
+    });
+  }
 
   const handleChange = (key, val) => {
     setData((d) => ({ ...d, [key]: val }));

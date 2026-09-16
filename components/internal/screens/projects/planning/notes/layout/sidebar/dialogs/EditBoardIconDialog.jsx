@@ -64,11 +64,16 @@ export default function EditBoardIconDialog({
   );
   const [darkAccent, setDarkAccent] = useState(initialDarkAccent || "#c084fc");
 
-  React.useEffect(() => {
+  // Re-seed the draft when the dialog reopens or its subject changes. Done
+  // during render so the form never paints the previous board's icon.
+  const seedKey = `${open}|${initialIcon}|${initialLightAccent}|${initialDarkAccent}`;
+  const [seededFor, setSeededFor] = React.useState(seedKey);
+  if (seededFor !== seedKey) {
+    setSeededFor(seedKey);
     setIconName(initialIcon || "LayoutDashboard");
     setLightAccent(initialLightAccent || "rgba(168, 85, 247, 0.1)");
     setDarkAccent(initialDarkAccent || "#c084fc");
-  }, [initialIcon, initialLightAccent, initialDarkAccent, open]);
+  }
 
   const handleSave = () => {
     onSave({

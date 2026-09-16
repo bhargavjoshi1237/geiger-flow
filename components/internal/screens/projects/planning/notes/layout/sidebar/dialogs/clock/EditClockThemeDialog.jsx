@@ -43,32 +43,34 @@ export default function EditClockThemeDialog({
 }) {
   const [data, setData] = useState({});
 
-  useEffect(() => {
-    if (open) {
-      setData({
-        clockType: initialData?.clockType || "analog",
-        backgroundColor: initialData?.backgroundColor || "#232323",
-        clockFaceColor: initialData?.clockFaceColor || "rgba(0,0,0,0.2)",
-        borderColor: initialData?.borderColor || "rgba(0,0,0,0.1)",
-        hourHandColor: initialData?.hourHandColor || "#555",
-        minuteHandColor: initialData?.minuteHandColor || "#666",
-        secondHandColor: initialData?.secondHandColor || "#ff8da1",
-        centerDotColor: initialData?.centerDotColor || "#333",
-        movement: initialData?.movement || "smooth",
-        showSeconds: initialData?.showSeconds !== false,
-        hourMarkers: initialData?.hourMarkers || "none",
-        numbers: initialData?.numbers || "none",
+  // Re-seed the draft whenever the dialog opens or its subject changes, during
+  // render so the preview never paints the previous clock's theme.
+  const [seeded, setSeeded] = useState({ data: null, open: null });
+  if (open && (seeded.data !== initialData || seeded.open !== open)) {
+    setSeeded({ data: initialData, open });
+    setData({
+      clockType: initialData?.clockType || "analog",
+      backgroundColor: initialData?.backgroundColor || "#232323",
+      clockFaceColor: initialData?.clockFaceColor || "rgba(0,0,0,0.2)",
+      borderColor: initialData?.borderColor || "rgba(0,0,0,0.1)",
+      hourHandColor: initialData?.hourHandColor || "#555",
+      minuteHandColor: initialData?.minuteHandColor || "#666",
+      secondHandColor: initialData?.secondHandColor || "#ff8da1",
+      centerDotColor: initialData?.centerDotColor || "#333",
+      movement: initialData?.movement || "smooth",
+      showSeconds: initialData?.showSeconds !== false,
+      hourMarkers: initialData?.hourMarkers || "none",
+      numbers: initialData?.numbers || "none",
 
-        digitalBackgroundColor:
-          initialData?.digitalBackgroundColor || "#232323",
-        digitalTextColor: initialData?.digitalTextColor || "#ffffff",
-        digitalDateColor: initialData?.digitalDateColor || "#a1a1aa",
-        digitalShowDate: initialData?.digitalShowDate !== false,
-        digitalShowSeconds: initialData?.digitalShowSeconds !== false,
-        showBackground: initialData?.showBackground !== false,
-      });
-    }
-  }, [open, initialData]);
+      digitalBackgroundColor:
+        initialData?.digitalBackgroundColor || "#232323",
+      digitalTextColor: initialData?.digitalTextColor || "#ffffff",
+      digitalDateColor: initialData?.digitalDateColor || "#a1a1aa",
+      digitalShowDate: initialData?.digitalShowDate !== false,
+      digitalShowSeconds: initialData?.digitalShowSeconds !== false,
+      showBackground: initialData?.showBackground !== false,
+    });
+  }
 
   const handleChange = (key, val) => {
     setData((d) => ({ ...d, [key]: val }));

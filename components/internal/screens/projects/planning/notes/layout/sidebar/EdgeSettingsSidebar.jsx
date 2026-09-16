@@ -16,11 +16,13 @@ export default function EdgeSettingsSidebar({
 }) {
   const [label, setLabel] = useState("");
 
-  useEffect(() => {
-    if (selectedEdge) {
-      setLabel(selectedEdge.label || selectedEdge.data?.label || "");
-    }
-  }, [selectedEdge]);
+  // Re-seed the draft label whenever a different edge is selected. Done during
+  // render so the input never paints the previous edge's label for a frame.
+  const [seededEdge, setSeededEdge] = useState(null);
+  if (selectedEdge && seededEdge !== selectedEdge) {
+    setSeededEdge(selectedEdge);
+    setLabel(selectedEdge.label || selectedEdge.data?.label || "");
+  }
 
   if (!selectedEdge) return null;
 

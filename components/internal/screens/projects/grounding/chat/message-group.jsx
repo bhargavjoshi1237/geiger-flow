@@ -129,7 +129,7 @@ export function MessageGroup({ group, onReact, onReply, onInfo, onStartThread, t
                     className={cn(
                       "w-fit rounded-2xl px-3.5 py-2 text-sm leading-relaxed",
                       isMe
-                        ? "rounded-tr-md bg-[#e7e7e7] text-[#161616]"
+                        ? "rounded-tr-md bg-primary text-primary-foreground"
                         : "rounded-tl-md border border-border bg-surface-card text-foreground",
                     )}
                   >

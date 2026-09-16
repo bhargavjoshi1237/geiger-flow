@@ -20,17 +20,15 @@ export default function Sidebar({
   const [cachedSelectedEdge, setCachedSelectedEdge] = useState(selectedEdge);
   const [cachedSelectedNode, setCachedSelectedNode] = useState(selectedNode);
 
-  useEffect(() => {
-    if (selectedEdge) {
-      setCachedSelectedEdge(selectedEdge);
-    }
-  }, [selectedEdge]);
-
-  useEffect(() => {
-    if (selectedNode) {
-      setCachedSelectedNode(selectedNode);
-    }
-  }, [selectedNode]);
+  // Keep the last non-null selection so the panel keeps rendering its subject
+  // through the deselect animation. Updated during render rather than in an
+  // effect: the cache must be current in the same frame the selection changes.
+  if (selectedEdge && selectedEdge !== cachedSelectedEdge) {
+    setCachedSelectedEdge(selectedEdge);
+  }
+  if (selectedNode && selectedNode !== cachedSelectedNode) {
+    setCachedSelectedNode(selectedNode);
+  }
 
   let activePanel = "main";
   if (selectedEdge) activePanel = "edge";

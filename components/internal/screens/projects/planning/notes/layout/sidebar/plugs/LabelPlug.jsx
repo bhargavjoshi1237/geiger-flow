@@ -19,9 +19,13 @@ export const LabelPlug = ({
 }) => {
   const [localValue, setLocalValue] = useState(value || "");
 
-  useEffect(() => {
+  // Pull an externally-changed value back into the input, during render so it
+  // never paints the stale one for a frame.
+  const [prevValue, setPrevValue] = useState(value);
+  if (prevValue !== value) {
+    setPrevValue(value);
     setLocalValue(value || "");
-  }, [value]);
+  }
 
   const handleChange = (e) => {
     const newVal = e.target.value;

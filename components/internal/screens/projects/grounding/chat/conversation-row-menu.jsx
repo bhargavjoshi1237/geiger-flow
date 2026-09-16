@@ -12,8 +12,9 @@ import {
 } from "@geiger/ui";
 
 // Right-click menu for a conversation row. Pin / mark-read / leave persist via
-// the callbacks (the screen toasts); mute / archive are advisory only.
-export function ConversationRowMenu({ conversation, variant, children, onPin, onMarkRead, onLeave }) {
+// the callbacks (the screen toasts); settings and members open the conversation's
+// details sheet; mute / archive are advisory only.
+export function ConversationRowMenu({ conversation, variant, children, onPin, onMarkRead, onLeave, onOpenDetails }) {
   const isChannel = variant === "channel";
   const name = isChannel ? `#${conversation.name}` : getPerson(conversation.participantId).name;
 
@@ -33,10 +34,10 @@ export function ConversationRowMenu({ conversation, variant, children, onPin, on
         <ContextMenuSeparator />
         {isChannel ? (
           <>
-            <ContextMenuItem onSelect={() => toast("Channel settings coming soon")}>
+            <ContextMenuItem onSelect={() => onOpenDetails?.(conversation)}>
               <Settings /> Channel settings
             </ContextMenuItem>
-            <ContextMenuItem onSelect={() => toast(`${name} members`)}>
+            <ContextMenuItem onSelect={() => onOpenDetails?.(conversation)}>
               <Users /> View members
             </ContextMenuItem>
             <ContextMenuSeparator />

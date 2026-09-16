@@ -1,9 +1,13 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { X, Check, RotateCcw } from "lucide-react";
 import { Button } from "@geiger/ui";
+
+// The "is this the client?" store never emits — the snapshot flips purely by
+// virtue of the server and client snapshot functions differing.
+const subscribeNever = () => () => {};
 
 export default function ImageCropDialog({ open, onOpenChange, src, onSave }) {
   const canvasRef = useRef(null);
@@ -15,15 +19,21 @@ export default function ImageCropDialog({ open, onOpenChange, src, onSave }) {
   const [crop, setCrop] = useState({ x: 0, y: 0, w: 0, h: 0 });
   const [dragMode, setDragMode] = useState(null);
   const dragStart = useRef({ mx: 0, my: 0, crop: { x: 0, y: 0, w: 0, h: 0 } });
-  const [mounted, setMounted] = useState(false);
+  // Client-only flag for createPortal: false on the server, true once hydrated,
+  // without the extra commit a setState-in-effect would cost.
+  const mounted = useSyncExternalStore(subscribeNever, () => true, () => false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  // Drop the loaded flag as soon as a new source is requested, during render, so
+  // the canvas never shows the previous image while the next one decodes.
+  const [loadingFor, setLoadingFor] = useState(null);
+  const loadKey = open && src ? src : null;
+  if (loadKey && loadingFor !== loadKey) {
+    setLoadingFor(loadKey);
+    setImgLoaded(false);
+  }
 
   useEffect(() => {
     if (!open || !src) return;
-    setImgLoaded(false);
 
     const img = new Image();
     img.crossOrigin = "anonymous";

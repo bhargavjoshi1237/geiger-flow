@@ -54,8 +54,8 @@ export function SectionTitle({ children, action }) {
 }
 
 // Shared button class strings so screens stay on-palette without repetition.
-// Primary is white (suite primary token); secondary is a bordered dark surface.
+// Primary is the suite primary token; secondary is a bordered dark surface.
 export const btnPrimary =
-  "inline-flex h-9 items-center gap-2 rounded-lg bg-[#e7e7e7] px-4 text-sm font-semibold text-[#161616] transition-colors hover:bg-white disabled:opacity-40";
+  "inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-40";
 export const btnSecondary =
   "inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-surface-card px-4 text-sm font-medium text-muted-foreground transition-colors hover:border-border-strong hover:text-foreground disabled:opacity-40";

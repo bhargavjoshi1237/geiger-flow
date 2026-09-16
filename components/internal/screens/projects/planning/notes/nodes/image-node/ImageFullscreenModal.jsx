@@ -116,7 +116,9 @@ const ImageFullscreenModal = ({
           transition: "transform 0.3s ease",
         }}
       >
-        <img src={src} className="hidden" onLoad={handleImageLoad} />
+        {/* Off-screen probe: exists only to report natural dimensions via
+            onLoad, so it is hidden from assistive tech rather than described. */}
+        <img src={src} alt="" aria-hidden className="hidden" onLoad={handleImageLoad} />
 
         {imgDims.w > 0 && (
           <>

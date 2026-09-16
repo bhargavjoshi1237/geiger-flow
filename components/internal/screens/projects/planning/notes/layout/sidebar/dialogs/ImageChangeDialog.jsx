@@ -33,7 +33,11 @@ export default function ImageChangeDialog({
     currentSrc !== "https://placehold.co/600x400" &&
     !currentSrc.startsWith("data:");
 
-  useEffect(() => {
+  // Clear the picker each time the dialog opens, during render so a reopen
+  // never flashes the previously chosen image.
+  const [wasOpen, setWasOpen] = useState(open);
+  if (wasOpen !== open) {
+    setWasOpen(open);
     if (open) {
       setSelectedFile(null);
       setPreviewUrl(null);
@@ -41,7 +45,7 @@ export default function ImageChangeDialog({
       setIsProcessing(false);
       setIsWarningVisible(true);
     }
-  }, [open]);
+  }
 
   useEffect(() => {
     return () => {
