@@ -2,22 +2,25 @@
 // playground.
 //
 // It implements only the slice of the query builder the app actually uses, so a
-// screen can keep calling listIssues()/listGoals()/… unchanged and get fixture
-// rows back. Reads resolve from the demo store; writes resolve to an error,
-// because the playground is strictly read-only.
+// screen can keep calling listIssues()/createIssue()/… unchanged. Reads and
+// writes both run against the in-memory session store (demo-store.js): a
+// visitor's edits stick for the page session and vanish on reload.
 //
 // Anything unimplemented calls warnDemoGap() rather than returning an empty
 // list: a missing fixture should be loud, not indistinguishable from "no rows".
 
 import { notifyDemoWrite, warnDemoGap } from "./demo-mode.js";
-import { listRows, rpcResult, DEMO_USER, DEMO_SESSION } from "./demo-store.js";
+import { listRows, replaceRows, rpcResult, DEMO_USER, DEMO_SESSION } from "./demo-store.js";
 
-const READ_ONLY_ERROR = {
-  message: "This is a read-only demo.",
-  code: "demo_read_only",
+const UNAVAILABLE_ERROR = {
+  message: "This isn't available in the playground.",
+  code: "demo_unavailable",
   details: null,
   hint: null,
 };
+
+const toList = (payload) => (Array.isArray(payload) ? payload : [payload]);
+const copy = (row) => (row && typeof row === "object" ? { ...row } : row);
 
 // Postgres orders NULLs last on ASC and first on DESC unless told otherwise.
 function compareValues(a, b, { ascending, nullsFirst }) {
@@ -38,16 +41,27 @@ function compareValues(a, b, { ascending, nullsFirst }) {
 
 function matchesFilter(row, { column, type, value }) {
   const actual = row[column];
+  const isNull = actual === null || actual === undefined;
 
   switch (type) {
     case "eq":
       return actual === value;
+    case "neq":
+      return actual !== value;
+    case "gt":
+      return !isNull && actual > value;
+    case "gte":
+      return !isNull && actual >= value;
+    case "lt":
+      return !isNull && actual < value;
+    case "lte":
+      return !isNull && actual <= value;
     case "in":
       return Array.isArray(value) && value.includes(actual);
     case "is":
       // Fixtures set soft-delete columns to an explicit null, but treat a
       // missing key as null too so a leaner fixture row still filters right.
-      return value === null ? actual === null || actual === undefined : actual === value;
+      return value === null ? isNull : actual === value;
     default:
       warnDemoGap("filter operator", { type, column });
       return true;
@@ -55,7 +69,6 @@ function matchesFilter(row, { column, type, value }) {
 }
 
 // PostgREST's `or` string: "a.eq.1,b.eq.2" — a row matches when ANY branch does.
-// The grouped `and(...)` form only appears on write paths, which never run here.
 function parseOrExpression(expression) {
   if (expression.includes("and(")) {
     warnDemoGap("grouped or() expression", expression);
@@ -72,6 +85,17 @@ function parseOrExpression(expression) {
   return branches.length > 0 ? branches : null;
 }
 
+// Columns every row gets from its table defaults when an insert leaves them out.
+function withDefaults(input, now) {
+  return {
+    metadata: {},
+    ...input,
+    id: input.id ?? crypto.randomUUID(),
+    created_at: input.created_at ?? now,
+    updated_at: input.updated_at ?? now,
+  };
+}
+
 class DemoQuery {
   constructor(schema, table) {
     this.schema = schema;
@@ -84,7 +108,10 @@ class DemoQuery {
     this.orBranches = [];
     this.orders = [];
     this.maxRows = null;
+    this.offset = 0;
     this.resultShape = "many";
+    this.onConflict = ["id"];
+    this.ignoreDuplicates = false;
   }
 
   select(projection) {
@@ -97,7 +124,7 @@ class DemoQuery {
 
   insert(payload) {
     this.op = "insert";
-    this.payload = Array.isArray(payload) ? payload[0] : payload;
+    this.payload = payload;
     return this;
   }
 
@@ -107,9 +134,13 @@ class DemoQuery {
     return this;
   }
 
-  upsert(payload) {
+  upsert(payload, options = {}) {
     this.op = "upsert";
-    this.payload = Array.isArray(payload) ? payload[0] : payload;
+    this.payload = payload;
+    if (options.onConflict) {
+      this.onConflict = options.onConflict.split(",").map((column) => column.trim());
+    }
+    this.ignoreDuplicates = Boolean(options.ignoreDuplicates);
     return this;
   }
 
@@ -118,23 +149,50 @@ class DemoQuery {
     return this;
   }
 
-  eq(column, value) {
-    this.filters.push({ column, type: "eq", value });
+  filter(column, operator, value) {
+    this.filters.push({ column, type: operator, value });
     return this;
+  }
+
+  eq(column, value) {
+    return this.filter(column, "eq", value);
+  }
+
+  neq(column, value) {
+    return this.filter(column, "neq", value);
+  }
+
+  gt(column, value) {
+    return this.filter(column, "gt", value);
+  }
+
+  gte(column, value) {
+    return this.filter(column, "gte", value);
+  }
+
+  lt(column, value) {
+    return this.filter(column, "lt", value);
+  }
+
+  lte(column, value) {
+    return this.filter(column, "lte", value);
   }
 
   in(column, value) {
-    this.filters.push({ column, type: "in", value });
-    return this;
+    return this.filter(column, "in", value);
   }
 
   is(column, value) {
-    this.filters.push({ column, type: "is", value });
+    return this.filter(column, "is", value);
+  }
+
+  not(column, operator, value) {
+    this.filters.push({ column, type: operator, value, negate: true });
     return this;
   }
 
-  filter(column, operator, value) {
-    this.filters.push({ column, type: operator, value });
+  match(query) {
+    for (const [column, value] of Object.entries(query)) this.eq(column, value);
     return this;
   }
 
@@ -157,6 +215,12 @@ class DemoQuery {
     return this;
   }
 
+  range(from, to) {
+    this.offset = from;
+    this.maxRows = to - from + 1;
+    return this;
+  }
+
   single() {
     this.resultShape = "single";
     return this;
@@ -167,22 +231,22 @@ class DemoQuery {
     return this;
   }
 
-  // Resolving a query is synchronous over an in-memory array, but the builder
-  // has to be awaitable to stand in for the real one.
-  run() {
-    if (this.op !== "select") {
-      notifyDemoWrite();
-      return Promise.resolve({ data: null, error: READ_ONLY_ERROR });
-    }
-
-    let rows = listRows(this.schema, this.table).filter((row) =>
-      this.filters.every((filter) => matchesFilter(row, filter)),
+  // The rows the filters select, in store order — the target set of a write.
+  matching(rows) {
+    let hit = rows.filter((row) =>
+      this.filters.every((filter) => matchesFilter(row, filter) !== Boolean(filter.negate)),
     );
 
     for (const branches of this.orBranches) {
       if (!branches) continue;
-      rows = rows.filter((row) => branches.some((branch) => matchesFilter(row, branch)));
+      hit = hit.filter((row) => branches.some((branch) => matchesFilter(row, branch)));
     }
+
+    return hit;
+  }
+
+  read() {
+    let rows = this.matching(listRows(this.schema, this.table));
 
     if (this.orders.length > 0) {
       rows = rows
@@ -192,13 +256,68 @@ class DemoQuery {
             const verdict = compareValues(a.row[order.column], b.row[order.column], order);
             if (verdict !== 0) return verdict;
           }
-          return a.index - b.index; // keep equal rows in fixture order
+          return a.index - b.index; // keep equal rows in store order
         })
         .map(({ row }) => row);
     }
 
-    if (this.maxRows !== null) {
-      rows = rows.slice(0, this.maxRows);
+    if (this.offset || this.maxRows !== null) {
+      rows = rows.slice(this.offset, this.maxRows === null ? undefined : this.offset + this.maxRows);
+    }
+
+    return rows;
+  }
+
+  write() {
+    const rows = listRows(this.schema, this.table, { create: true });
+    const now = new Date().toISOString();
+
+    if (this.op === "insert") {
+      const added = toList(this.payload).map((input) => withDefaults(input, now));
+      rows.push(...added);
+      return added;
+    }
+
+    if (this.op === "update") {
+      const hit = this.matching(rows);
+      for (const row of hit) Object.assign(row, this.payload, { updated_at: now });
+      return hit;
+    }
+
+    if (this.op === "delete") {
+      const hit = this.matching(rows);
+      const gone = new Set(hit);
+      replaceRows(this.schema, this.table, rows.filter((row) => !gone.has(row)));
+      return hit;
+    }
+
+    // upsert: merge into the row that shares the onConflict columns, else insert.
+    const written = [];
+    for (const input of toList(this.payload)) {
+      const existing = rows.find((row) =>
+        this.onConflict.every((column) => row[column] === input[column]),
+      );
+      if (!existing) {
+        const row = withDefaults(input, now);
+        rows.push(row);
+        written.push(row);
+      } else if (!this.ignoreDuplicates) {
+        Object.assign(existing, input, { updated_at: now });
+        written.push(existing);
+      }
+    }
+    return written;
+  }
+
+  // Resolving a query is synchronous over an in-memory array, but the builder
+  // has to be awaitable to stand in for the real one. Rows are copied out so a
+  // caller mutating a result can't reach into the store.
+  run() {
+    const isRead = this.op === "select";
+    const rows = isRead ? this.read() : this.write();
+
+    if (!isRead && !this.returning) {
+      return Promise.resolve({ data: null, error: null });
     }
 
     if (this.resultShape === "single") {
@@ -213,14 +332,14 @@ class DemoQuery {
           },
         });
       }
-      return Promise.resolve({ data: rows[0], error: null });
+      return Promise.resolve({ data: copy(rows[0]), error: null });
     }
 
     if (this.resultShape === "maybeSingle") {
-      return Promise.resolve({ data: rows[0] ?? null, error: null });
+      return Promise.resolve({ data: copy(rows[0] ?? null), error: null });
     }
 
-    return Promise.resolve({ data: rows, error: null });
+    return Promise.resolve({ data: rows.map(copy), error: null });
   }
 
   then(resolve, reject) {
@@ -251,21 +370,43 @@ const demoChannel = {
   unsubscribe: async () => "ok",
 };
 
+// Uploaded files stay in the tab as object URLs keyed "<bucket>/<path>", so an
+// uploaded image previews like a real one without a byte leaving the browser.
+const objects = new Map();
+
+function revoke(key) {
+  const url = objects.get(key)?.url;
+  if (url?.startsWith("blob:")) URL.revokeObjectURL(url);
+  objects.delete(key);
+}
+
 const demoStorage = {
   from: (bucket) => ({
     getPublicUrl: (path) => ({
-      data: { publicUrl: `/demo-assets/${bucket}/${path ?? ""}` },
+      data: { publicUrl: objects.get(`${bucket}/${path}`)?.url ?? `/demo-assets/${bucket}/${path ?? ""}` },
     }),
-    // Uploads and deletes are writes; the demo has no bucket behind them. Both
-    // notify so a visitor gets the same read-only message a rejected row write
-    // produces, rather than a failure they can't see.
-    upload: async () => {
-      notifyDemoWrite();
-      return { data: null, error: READ_ONLY_ERROR };
+    upload: async (path, file) => {
+      const key = `${bucket}/${path}`;
+      revoke(key);
+      const url = typeof Blob !== "undefined" && file instanceof Blob ? URL.createObjectURL(file) : `/demo-assets/${key}`;
+      objects.set(key, { url, size: file?.size ?? 0, type: file?.type ?? "" });
+      return { data: { id: crypto.randomUUID(), path, fullPath: key }, error: null };
     },
-    remove: async () => {
-      notifyDemoWrite();
-      return { data: null, error: READ_ONLY_ERROR };
+    remove: async (paths = []) => {
+      const removed = paths.filter((path) => objects.has(`${bucket}/${path}`));
+      for (const path of removed) revoke(`${bucket}/${path}`);
+      return { data: removed.map((name) => ({ name })), error: null };
+    },
+    list: async (prefix = "") => {
+      const base = prefix ? `${bucket}/${prefix.replace(/\/$/, "")}/` : `${bucket}/`;
+      const data = [...objects.entries()]
+        .filter(([key]) => key.startsWith(base) && !key.slice(base.length).includes("/"))
+        .map(([key, item]) => ({
+          id: key,
+          name: key.slice(base.length),
+          metadata: { size: item.size, mimetype: item.type },
+        }));
+      return { data, error: null };
     },
   }),
 };
@@ -283,11 +424,13 @@ class DemoClient {
     return new DemoQuery(this.schemaName, table);
   }
 
-  rpc(name) {
-    // The only rpc in the app (next_issue_number) is part of a write path, so
-    // it is read-only like the rest. rpcResult() stays for the day that changes.
-    notifyDemoWrite();
-    return Promise.resolve({ data: rpcResult(name), error: READ_ONLY_ERROR });
+  rpc(name, args) {
+    const data = rpcResult(this.schemaName, name, args);
+    if (data === undefined) {
+      notifyDemoWrite();
+      return Promise.resolve({ data: null, error: UNAVAILABLE_ERROR });
+    }
+    return Promise.resolve({ data, error: null });
   }
 
   get auth() {

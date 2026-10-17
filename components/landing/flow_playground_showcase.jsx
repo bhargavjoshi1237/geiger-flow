@@ -25,16 +25,17 @@ export default function FlowPlaygroundShowcase({ backgroundImage } = {}) {
         backgroundImage ? { backgroundImage: `url('${backgroundImage}')` } : undefined
       }
     >
-      <div className="absolute inset-0 bg-[#080808]/75" />
+      <div className="absolute inset-0 bg-white/75 dark:bg-[#080808]/75" />
       <div className="relative z-10 flex flex-col gap-6 sm:gap-10">
         <div className="mx-auto mb-4 mt-4 flex w-[92%] flex-col items-start gap-4 sm:mb-6 sm:mt-6 sm:w-[90%]">
           <h3 className="text-3xl font-semibold leading-tight text-foreground">
             Explore the whole workspace, right here.
           </h3>
-          <p className="max-w-lg text-[#bcbcbc]">
+          <p className="max-w-lg text-text-secondary dark:text-[#bcbcbc]">
             This is the real Flow project workspace running live on the page — the
             sidebar, the topbar, and every screen inside them, loaded from a demo
-            project. Click through as much as you like; nothing here saves.
+            project. Add, edit and delete freely; changes stay in this tab and
+            reset when you reload.
           </p>
           <Button asChild className="rounded-full">
             {/* /org is geiger-dash's zone, outside Flow's basePath. */}

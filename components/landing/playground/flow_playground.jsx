@@ -28,7 +28,7 @@ setDemoMode(true);
 // Addons mount their own screens (system-architecture pulls in a React Flow
 // canvas). The playground starts from none enabled rather than turning them off
 // afterwards, so nothing heavy mounts on a public page. Settings → Add-ons
-// still lists them; enabling one simply won't persist.
+// still lists them; enabling one lasts only for the session.
 const PLAYGROUND_ADDONS = [];
 
 function PlaygroundWorkspace() {
@@ -54,14 +54,14 @@ function PlaygroundWorkspace() {
     };
   }, []);
 
-  // Every rejected write funnels here, so the playground owns one message for
-  // the whole workspace instead of each screen inventing its own. The fixed id
-  // collapses a burst of rejections into a single toast.
+  // Edits land in the in-memory session store and reset on reload; only a call
+  // the demo can't serve funnels here, as one message for the whole workspace.
+  // The fixed id collapses a burst of them into a single toast.
   useEffect(() => {
     setDemoWriteHandler(() =>
-      toast.error("This is a read-only demo.", {
-        id: "playground-read-only",
-        description: "Changes aren't saved here. Open the workspace to try it for real.",
+      toast.error("This isn't available in the playground.", {
+        id: "playground-unavailable",
+        description: "Open the workspace to try it for real.",
       }),
     );
     return () => setDemoWriteHandler(null);

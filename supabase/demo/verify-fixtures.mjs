@@ -10,6 +10,7 @@
 
 import { createDemoClient } from "./demo-client.js";
 import { setDemoWriteHandler } from "./demo-mode.js";
+import { resetDemoStore } from "./demo-store.js";
 import { fixtures, DEMO_PROJECT } from "./fixtures.js";
 
 const sb = createDemoClient();
@@ -141,28 +142,66 @@ for (const table of Object.keys(fixtures)) {
   if (orphan.length > 0) report(`${table} single-project`, false, `${orphan.length} other project`);
 }
 
-// --- Read-only enforcement --------------------------------------------------
+// --- Session writes ---------------------------------------------------------
+// Writes land in the in-memory session store and read back; a reset (a reload,
+// in the browser) restores the fixtures.
 
 let toasts = 0;
 setDemoWriteHandler(() => {
   toasts += 1;
 });
 
-const storage = sb.storage.from("homeboard");
-const writes = [
-  ["insert", await flow.from("issues").insert({}).select().single()],
-  ["update", await flow.from("issues").update({}).eq("id", "x").select().single()],
-  ["delete", await flow.from("issues").delete().eq("id", "x")],
-  ["upsert", await flow.from("goals").upsert({})],
-  ["rpc", await flow.rpc("next_issue_number", {})],
-  ["storage.upload", await storage.upload("x.png", "blob")],
-  ["storage.remove", await storage.remove(["x.png"])],
-];
+const issueCount = fixtures["flow.issues"].length;
+const nextNumber = await flow.rpc("next_issue_number", { p_project_id: pid });
+report("rpc next_issue_number", nextNumber.data === peak.data.number + 1, `got ${nextNumber.data}`);
 
-for (const [name, result] of writes) {
-  report(`${name} rejected`, result.error?.code === "demo_read_only" && result.data === null);
-}
-report("every write notified", toasts === writes.length, `${toasts}/${writes.length}`);
+const created = await flow
+  .from("issues")
+  .insert({ project_id: pid, title: "Session issue", number: nextNumber.data, deleted_at: null })
+  .select()
+  .single();
+report("insert returns row", Boolean(created.data?.id) && Boolean(created.data?.created_at));
+
+const afterInsert = await projectScoped("issues");
+report("insert reads back", afterInsert.data.length === issueCount + 1);
+
+const updated = await flow
+  .from("issues")
+  .update({ title: "Renamed" })
+  .eq("id", created.data.id)
+  .select()
+  .single();
+report("update applies", updated.data?.title === "Renamed");
+
+const deleted = await flow.from("issues").delete().eq("id", created.data.id);
+const afterDelete = await projectScoped("issues");
+report("delete removes", !deleted.error && afterDelete.data.length === issueCount);
+
+await flow.from("project_budgets").upsert({ project_id: pid, total: 10 }, { onConflict: "project_id" });
+await flow.from("project_budgets").upsert({ project_id: pid, total: 20 }, { onConflict: "project_id" });
+const budgets = await flow.from("project_budgets").select("*").eq("project_id", pid);
+report("upsert merges on conflict", budgets.data.length === 1 && budgets.data[0].total === 20);
+
+const merged = await flow.rpc("project_merge_settings", { p_project_id: pid, p_patch: { addons: ["sql"] } });
+report("rpc project_merge_settings", merged.data?.metadata?.addons?.[0] === "sql");
+
+const storage = sb.storage.from("homeboard");
+await storage.upload("demo/x.png", "blob");
+const listed = await storage.list("demo");
+await storage.remove(["demo/x.png"]);
+const relisted = await storage.list("demo");
+report("storage upload/list/remove", listed.data.length === 1 && relisted.data.length === 0);
+
+const unknown = await flow.rpc("not_a_real_rpc", {});
+report("unknown rpc unavailable", unknown.error?.code === "demo_unavailable" && toasts === 1);
+
+const fixturedIssue = fixtures["flow.issues"][0];
+await flow.from("issues").update({ title: "Edited" }).eq("id", fixturedIssue.id);
+report("fixtures untouched by writes", fixtures["flow.issues"][0].title === fixturedIssue.title);
+
+resetDemoStore();
+const afterReset = await flow.from("issues").select("*").eq("id", fixturedIssue.id).single();
+report("reset restores fixtures", afterReset.data?.title === fixturedIssue.title);
 
 // --- Verdict ----------------------------------------------------------------
 

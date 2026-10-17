@@ -20,8 +20,9 @@ export function setDemoMode(next) {
   demoMode = Boolean(next);
 }
 
-// The playground registers here, so a rejected write surfaces as one uniform
-// "read-only demo" message instead of looking like a bug in the screen.
+// The playground registers here, so a call the demo can't serve (an rpc it
+// doesn't implement) surfaces as one uniform message instead of looking like a
+// bug in the screen.
 export function setDemoWriteHandler(handler) {
   writeHandler = handler;
 }
