@@ -382,7 +382,7 @@ export function IssueDialog({
                   <button
                     type="button"
                     onClick={() => removeLabel(label)}
-                    className="text-text-secondary hover:text-red-400"
+                    className="text-text-secondary hover:text-red-600 dark:hover:text-red-400"
                     aria-label={`Remove ${label}`}
                   >
                     <X className="h-3 w-3" />

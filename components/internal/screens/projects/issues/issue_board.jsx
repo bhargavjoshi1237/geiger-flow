@@ -66,7 +66,7 @@ import {
 const TERMINAL_STATUSES = ["canceled", "duplicate"];
 
 const FALLBACK_COLUMN_CLASS =
-  "bg-zinc-500/10 text-zinc-300 border-zinc-500/20";
+  "bg-zinc-500/10 text-zinc-700 dark:text-zinc-300 border-zinc-500/20";
 
 // Icon per issue type (mirrors workflows.jsx; the metadata-bag `type` field).
 const TYPE_ICONS = {
@@ -184,7 +184,7 @@ function BoardCardBody({ issue, project, memberMap }) {
             className={cn(
               "inline-flex items-center gap-1 text-[11px]",
               overdue
-                ? "font-medium text-orange-400"
+                ? "font-medium text-orange-600 dark:text-orange-400"
                 : "text-text-secondary",
             )}
             title={overdue ? "Overdue" : "Due date"}

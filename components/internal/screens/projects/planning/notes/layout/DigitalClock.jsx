@@ -22,7 +22,7 @@ export default function DigitalClock({ animated = true }) {
   }
 
   return (
-    <div className="relative overflow-hidden flex items-center justify-center px-2 py-0.5 rounded-md bg-surface-card/50 border border-border-strong/50 hover:bg-surface-card hover:border-zinc-600 transition-all duration-300 cursor-default min-w-[92px]">
+    <div className="relative overflow-hidden flex items-center justify-center px-2 py-0.5 rounded-md bg-surface-card/50 border border-border-strong/50 hover:bg-surface-hover dark:hover:bg-surface-card hover:border-zinc-600 transition-all duration-300 cursor-default min-w-[92px]">
       {animated && (
         <div className="pointer-events-none absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       )}

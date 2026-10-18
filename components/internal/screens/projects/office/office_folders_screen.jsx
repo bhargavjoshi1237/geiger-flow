@@ -421,7 +421,7 @@ export function OfficeFoldersScreen() {
 
   return (
     <div className="space-y-4">
-      {error && <p className="text-sm text-red-300">{error}</p>}
+      {error && <p className="text-sm text-red-700 dark:text-red-300">{error}</p>}
 
       <StatsBar stats={stats} />
 
@@ -777,7 +777,7 @@ function AddToFolderDialog({
                       className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-left transition-colors ${
                         selected.has(file.id)
                           ? "bg-surface-hover"
-                          : "hover:bg-surface-card"
+                          : "hover:bg-surface-hover dark:hover:bg-surface-card"
                       }`}
                     >
                       <input

@@ -937,7 +937,7 @@ export function PlanningScreen() {
                     "rounded-lg border px-3 py-2 transition-colors",
                     isActive
                       ? "border-border-strong bg-surface-active"
-                      : "border-transparent bg-transparent hover:border-border hover:bg-surface-card",
+                      : "border-transparent bg-transparent hover:border-border hover:bg-surface-hover dark:hover:bg-surface-card",
                   )}
                 >
                   <div className="flex items-center gap-2">
@@ -1033,7 +1033,7 @@ export function PlanningScreen() {
                             event.stopPropagation();
                             handleDeleteFile(file.id);
                           }}
-                          className="h-7 w-7 text-text-tertiary hover:bg-red-500/10 hover:text-red-400 disabled:opacity-35"
+                          className="h-7 w-7 text-text-tertiary hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400 disabled:opacity-35"
                           title="Delete file"
                         >
                           <Trash2 className="h-3.5 w-3.5" />

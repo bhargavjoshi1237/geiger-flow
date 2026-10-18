@@ -140,7 +140,7 @@ function SearchableKeyResultSelect({ value, onChange, selectedLabels }) {
                         }}
                       >
                         {isSelected ? (
-                          <Check className="w-3 h-3 text-blue-400 shrink-0" />
+                          <Check className="w-3 h-3 text-blue-600 dark:text-blue-400 shrink-0" />
                         ) : (
                           <span className="w-3 h-3 shrink-0" />
                         )}
@@ -391,7 +391,7 @@ export function NewObjectiveDialog({
                 variant="ghost"
                 size="sm"
                 onClick={addKeyResult}
-                className="text-muted-foreground hover:text-foreground hover:bg-surface-card h-7 text-xs"
+                className="text-muted-foreground hover:text-foreground hover:bg-surface-hover dark:hover:bg-surface-card h-7 text-xs"
               >
                 <Plus className="w-3 h-3 mr-1" />
                 Add
@@ -429,7 +429,7 @@ export function NewObjectiveDialog({
                       variant="ghost"
                       size="icon"
                       onClick={() => removeKeyResult(idx)}
-                      className="w-8 h-8 text-text-tertiary hover:text-red-400 hover:bg-surface-card shrink-0"
+                      className="w-8 h-8 text-text-tertiary hover:text-red-600 dark:hover:text-red-400 hover:bg-surface-hover dark:hover:bg-surface-card shrink-0"
                     >
                       <X className="w-3.5 h-3.5" />
                     </Button>
@@ -445,7 +445,7 @@ export function NewObjectiveDialog({
             type="button"
             variant="ghost"
             onClick={() => setIsOpen(false)}
-            className="text-muted-foreground hover:text-foreground hover:bg-surface-card"
+            className="text-muted-foreground hover:text-foreground hover:bg-surface-hover dark:hover:bg-surface-card"
           >
             Cancel
           </Button>

@@ -67,7 +67,7 @@ import {
 
 function WebhookItem({ webhook, onDelete }) {
   return (
-    <div className="flex items-center justify-between py-3 px-5 border-b border-border last:border-0 hover:bg-surface-subtle transition-colors">
+    <div className="flex items-center justify-between py-3 px-5 border-b border-border last:border-0 hover:bg-surface-hover dark:hover:bg-surface-subtle transition-colors">
       <div className="flex items-center gap-3 min-w-0">
         <div className="w-8 h-8 rounded-lg bg-surface-hover border border-border-strong flex items-center justify-center shrink-0">
           <Globe className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={1.8} />
@@ -94,7 +94,7 @@ function WebhookItem({ webhook, onDelete }) {
           className={cn(
             "text-[10px] h-5 px-2",
             webhook.status === "active"
-              ? "bg-green-500/10 text-green-400 border-green-500/20"
+              ? "bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20"
               : "bg-surface-hover text-muted-foreground border-border-strong"
           )}
         >
@@ -103,7 +103,7 @@ function WebhookItem({ webhook, onDelete }) {
         <Button
           variant="ghost"
           size="icon"
-          className="h-7 w-7 text-text-secondary hover:bg-red-500/10 hover:text-red-300"
+          className="h-7 w-7 text-text-secondary hover:bg-red-500/10 hover:text-red-700 dark:hover:text-red-300"
           onClick={() => onDelete(webhook.id)}
         >
           <Trash2 className="w-3.5 h-3.5" />
@@ -125,7 +125,7 @@ function EnvVarItem({ variable, onDelete }) {
   };
 
   return (
-    <div className="flex items-center justify-between py-3 px-5 border-b border-border last:border-0 hover:bg-surface-subtle transition-colors">
+    <div className="flex items-center justify-between py-3 px-5 border-b border-border last:border-0 hover:bg-surface-hover dark:hover:bg-surface-subtle transition-colors">
       <div className="flex items-center gap-3 min-w-0">
         <div className="w-8 h-8 rounded-lg bg-surface-hover border border-border-strong flex items-center justify-center shrink-0">
           <Key className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={1.8} />
@@ -136,7 +136,7 @@ function EnvVarItem({ variable, onDelete }) {
               {variable.name}
             </span>
             {isSecret && (
-              <Badge className="text-[9px] h-4 px-1.5 bg-amber-500/10 text-amber-400 border-amber-500/20">
+              <Badge className="text-[9px] h-4 px-1.5 bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20">
                 SECRET
               </Badge>
             )}
@@ -178,7 +178,7 @@ function EnvVarItem({ variable, onDelete }) {
         <Button
           variant="ghost"
           size="icon"
-          className="h-7 w-7 text-text-secondary hover:bg-red-500/10 hover:text-red-300"
+          className="h-7 w-7 text-text-secondary hover:bg-red-500/10 hover:text-red-700 dark:hover:text-red-300"
           onClick={() => onDelete(variable.id)}
         >
           <Trash2 className="w-3.5 h-3.5" />
@@ -524,7 +524,7 @@ export function AdvancedSettingsScreen() {
               <span
                 className={cn(
                   "text-[12px] font-medium",
-                  readOnly ? "text-amber-400" : "text-muted-foreground"
+                  readOnly ? "text-amber-700 dark:text-amber-400" : "text-muted-foreground"
                 )}
               >
                 {readOnly ? "Enabled" : "Disabled"}
@@ -562,13 +562,13 @@ export function AdvancedSettingsScreen() {
               <span
                 className={cn(
                   "text-[12px] font-medium",
-                  maintenanceMode ? "text-amber-400" : "text-muted-foreground"
+                  maintenanceMode ? "text-amber-700 dark:text-amber-400" : "text-muted-foreground"
                 )}
               >
                 {maintenanceMode ? "Active" : "Inactive"}
               </span>
               {maintenanceMode && (
-                <Badge className="text-[10px] h-5 px-2 bg-amber-500/10 text-amber-400 border-amber-500/20">
+                <Badge className="text-[10px] h-5 px-2 bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20">
                   <AlertTriangle className="w-3 h-3 mr-1" />
                   Users will see maintenance page
                 </Badge>
@@ -862,7 +862,7 @@ export function AdvancedSettingsScreen() {
 
       <div className="space-y-4">
         <div className="space-y-1">
-          <h3 className="text-lg font-medium text-red-400">
+          <h3 className="text-lg font-medium text-red-600 dark:text-red-400">
             Danger Zone
           </h3>
           <p className="text-sm text-muted-foreground">
@@ -873,7 +873,7 @@ export function AdvancedSettingsScreen() {
           <div className="-my-6">
             <div className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center shrink-0 mt-0.5">
+              <div className="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0 mt-0.5">
                 <RotateCcw className="w-4 h-4" strokeWidth={1.8} />
               </div>
               <div>
@@ -889,7 +889,7 @@ export function AdvancedSettingsScreen() {
             <Button
               variant="outline"
               size="sm"
-              className="h-8 text-[12px] bg-red-500/5 border-red-500/20 text-red-400 hover:bg-red-500/10 hover:text-red-300 shrink-0"
+              className="h-8 text-[12px] bg-red-500/5 border-red-500/20 text-red-600 dark:text-red-400 hover:bg-red-500/10 hover:text-red-700 dark:hover:text-red-300 shrink-0"
               onClick={() => setConfirmReset(true)}
             >
               <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
@@ -898,7 +898,7 @@ export function AdvancedSettingsScreen() {
           </div>
           <div className="border-t border-red-500/10 p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center shrink-0 mt-0.5">
+              <div className="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0 mt-0.5">
                 <Trash2 className="w-4 h-4" strokeWidth={1.8} />
               </div>
               <div>
@@ -914,7 +914,7 @@ export function AdvancedSettingsScreen() {
             <Button
               variant="outline"
               size="sm"
-              className="h-8 text-[12px] bg-red-500/5 border-red-500/20 text-red-400 hover:bg-red-500/10 hover:text-red-300 shrink-0"
+              className="h-8 text-[12px] bg-red-500/5 border-red-500/20 text-red-600 dark:text-red-400 hover:bg-red-500/10 hover:text-red-700 dark:hover:text-red-300 shrink-0"
               onClick={() => setConfirmDelete(true)}
             >
               <Trash2 className="w-3.5 h-3.5 mr-1.5" />

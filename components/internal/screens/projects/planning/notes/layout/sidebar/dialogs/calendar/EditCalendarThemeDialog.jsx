@@ -347,7 +347,7 @@ export default function EditCalendarThemeDialog({
             </div>
             <Button
               onClick={() => onOpenChange(false)}
-              className="w-7 h-7 rounded-lg flex items-center justify-center text-text-secondary hover:text-foreground hover:bg-surface-card transition-all"
+              className="w-7 h-7 rounded-lg flex items-center justify-center text-text-secondary hover:text-foreground hover:bg-surface-hover dark:hover:bg-surface-card transition-all"
             >
               <X className="w-4 h-4" />
             </Button>
@@ -365,7 +365,7 @@ export default function EditCalendarThemeDialog({
                   "flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium border-b-2 transition-colors",
                   activeStyle === tab.id
                     ? "border-foreground text-foreground bg-surface-card/30"
-                    : "border-transparent text-text-secondary hover:text-foreground hover:bg-surface-card/20"
+                    : "border-transparent text-text-secondary hover:text-foreground hover:bg-surface-hover dark:hover:bg-surface-card/20"
                 )}
               >
                 <Icon className="w-4 h-4" />
@@ -408,7 +408,7 @@ export default function EditCalendarThemeDialog({
                   "flex items-center justify-center gap-2 py-3 rounded-lg border text-sm font-medium transition-all",
                   activeTheme === "light"
                     ? "border-foreground text-foreground bg-surface-card/50"
-                    : "border-border text-text-secondary hover:text-foreground hover:bg-surface-card/30"
+                    : "border-border text-text-secondary hover:text-foreground hover:bg-surface-hover dark:hover:bg-surface-card/30"
                 )}
               >
                 <Lightbulb className="h-4 w-4" /><p>Light</p>
@@ -419,7 +419,7 @@ export default function EditCalendarThemeDialog({
                   "flex items-center justify-center gap-2 py-3 rounded-lg border text-sm font-medium transition-all",
                   activeTheme === "dark"
                     ? "border-foreground text-foreground bg-surface-card/50"
-                    : "border-border text-text-secondary hover:text-foreground hover:bg-surface-card/30"
+                    : "border-border text-text-secondary hover:text-foreground hover:bg-surface-hover dark:hover:bg-surface-card/30"
                 )}
               >
                   <Moon className="h-4 w-4" /><p>Dark</p>
@@ -432,7 +432,7 @@ export default function EditCalendarThemeDialog({
           <Button
             variant="ghost"
             onClick={() => onOpenChange(false)}
-            className="text-muted-foreground hover:text-foreground hover:bg-surface-card"
+            className="text-muted-foreground hover:text-foreground hover:bg-surface-hover dark:hover:bg-surface-card"
           >
             Cancel
           </Button>

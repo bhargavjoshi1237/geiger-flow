@@ -26,7 +26,7 @@ export function ExternalContactDialog({ person, onConfirm, onCancel }) {
     <Dialog open={!!person} onOpenChange={(v) => { if (!v) onCancel?.(); }}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <div className="mb-1 flex h-10 w-10 items-center justify-center rounded-full border border-amber-500/20 bg-amber-500/10 text-amber-500">
+          <div className="mb-1 flex h-10 w-10 items-center justify-center rounded-full border border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-500">
             <Globe className="h-5 w-5" />
           </div>
           <DialogTitle>Start an external conversation?</DialogTitle>

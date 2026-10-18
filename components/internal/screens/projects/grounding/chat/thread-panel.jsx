@@ -238,7 +238,7 @@ function ThreadRow({ thread, onOpen, onRename, onDelete }) {
   };
 
   return (
-    <div className="group flex items-center gap-2 rounded-xl px-2 py-2 transition-colors hover:bg-surface-card">
+    <div className="group flex items-center gap-2 rounded-xl px-2 py-2 transition-colors hover:bg-surface-hover dark:hover:bg-surface-card">
       {editing ? (
         <div className="flex flex-1 items-center gap-1.5">
           <input
@@ -294,7 +294,7 @@ function ThreadRow({ thread, onOpen, onRename, onDelete }) {
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onSelect={() => onDelete(thread)}
-                className="cursor-pointer text-red-400 focus:bg-red-500/10 focus:text-red-400"
+                className="cursor-pointer text-red-600 dark:text-red-400 focus:bg-red-500/10 focus:text-red-600 dark:focus:text-red-400"
               >
                 <Trash2 className="mr-2 h-4 w-4" /> Delete
               </DropdownMenuItem>

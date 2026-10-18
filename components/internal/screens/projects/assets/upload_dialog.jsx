@@ -189,7 +189,7 @@ export function UploadDialog({ open, onOpenChange, projectId, onUploaded }) {
                     )}
                   </div>
                   {!uploading && (
-                    <Button variant="ghost" size="icon" className="h-6 w-6 text-text-tertiary hover:text-red-400 flex-shrink-0" onClick={() => removeFile(f.id)}>
+                    <Button variant="ghost" size="icon" className="h-6 w-6 text-text-tertiary hover:text-red-600 dark:hover:text-red-400 flex-shrink-0" onClick={() => removeFile(f.id)}>
                       <X className="w-3 h-3" />
                     </Button>
                   )}

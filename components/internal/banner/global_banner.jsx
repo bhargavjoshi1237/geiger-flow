@@ -51,7 +51,7 @@ export function GlobalBanner() {
             currentTheme.iconBg,
           )}
         >
-          <AlertCircle className="w-3.5 h-3.5 text-foreground" />
+          <AlertCircle className="w-3.5 h-3.5 text-white dark:text-foreground" />
         </div>
         <div className="flex items-center gap-2 text-[13px] font-semibold tracking-tight leading-none">
           <span className="translate-y-[0.5px] -mt-1.5">{banner.message}</span>

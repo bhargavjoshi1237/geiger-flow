@@ -370,7 +370,7 @@ function AssigneeDropdown({ selected, onToggle }) {
         <Button
           type="button"
           variant="outline"
-          className="flex items-center gap-1.5 px-3 py-1.5 h-[30px] rounded-full border border-dashed border-border-strong text-xs font-medium text-muted-foreground hover:text-foreground hover:border-border-strong hover:bg-surface-card transition-all bg-transparent"
+          className="flex items-center gap-1.5 px-3 py-1.5 h-[30px] rounded-full border border-dashed border-border-strong text-xs font-medium text-muted-foreground hover:text-foreground hover:border-border-strong hover:bg-surface-hover dark:hover:bg-surface-card transition-all bg-transparent"
         >
           <Plus className="w-3.5 h-3.5" />
           Add Assignee
@@ -408,7 +408,7 @@ function AssigneeDropdown({ selected, onToggle }) {
                     "w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-xs transition-colors",
                     isSelected
                       ? "bg-surface-active text-foreground"
-                      : "text-muted-foreground hover:bg-surface-card hover:text-foreground",
+                      : "text-muted-foreground hover:bg-surface-hover dark:hover:bg-surface-card hover:text-foreground",
                   )}
                 >
                   <Avatar className="h-6 w-6">
@@ -424,7 +424,7 @@ function AssigneeDropdown({ selected, onToggle }) {
                     </AvatarFallback>
                   </Avatar>
                   <span className="flex-1 text-left font-medium">{member.name}</span>
-                  {isSelected && <Check className="w-3.5 h-3.5 text-emerald-400" />}
+                  {isSelected && <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />}
                 </Button>
               );
             })

@@ -105,7 +105,7 @@ function TableColumnHeader({ column, isSortActive, sortDirection, onSort }) {
     >
       <div className="flex items-center gap-1.5">
         <span>{column.column_name}</span>
-        {column.is_primary && <KeyRound className="w-3 h-3 text-yellow-500/60" />}
+        {column.is_primary && <KeyRound className="w-3 h-3 text-yellow-700/60 dark:text-yellow-500/60" />}
         <ArrowUpDown className={`w-3 h-3 opacity-0 group-hover:opacity-50 transition-opacity ${isSortActive ? "!opacity-100 text-foreground" : ""}`} />
         {isSortActive && (
           <span className="text-[9px] text-text-tertiary">
@@ -156,7 +156,7 @@ function CellValue({ value }) {
   }
   if (typeof value === "boolean") {
     return (
-      <span className={`inline-flex items-center gap-1 ${value ? "text-green-400" : "text-text-tertiary"}`}>
+      <span className={`inline-flex items-center gap-1 ${value ? "text-green-600 dark:text-green-400" : "text-text-tertiary"}`}>
         <div className={`w-1.5 h-1.5 rounded-full ${value ? "bg-green-400" : "bg-surface-strong"}`} />
         {value.toString()}
       </span>
@@ -176,7 +176,7 @@ function CellValue({ value }) {
         href={str}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-[#60a5fa] hover:text-[#93bbfd] hover:underline font-mono text-xs truncate block max-w-[200px]"
+        className="text-blue-600 hover:text-blue-700 dark:text-[#60a5fa] dark:hover:text-[#93bbfd] hover:underline font-mono text-xs truncate block max-w-[200px]"
       >
         {str}
       </a>
@@ -537,7 +537,7 @@ export function TableEditorScreen() {
                             className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-surface-active border border-border hover:border-border transition-colors group cursor-default"
                           >
                             {col.is_primary && (
-                              <KeyRound className="w-2.5 h-2.5 text-yellow-500/60" />
+                              <KeyRound className="w-2.5 h-2.5 text-yellow-700/60 dark:text-yellow-500/60" />
                             )}
                             <span className="text-[10px] text-muted-foreground font-mono group-hover:text-foreground transition-colors">
                               {col.column_name}

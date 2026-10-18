@@ -18,7 +18,7 @@ const FORMAT_OPTIONS = [
     label: "JSON",
     description: "Raw board data",
     icon: Braces,
-    color: "text-yellow-400",
+    color: "text-yellow-700 dark:text-yellow-400",
     accent: "bg-yellow-400/10 border-yellow-400/30",
   },
   {
@@ -26,7 +26,7 @@ const FORMAT_OPTIONS = [
     label: "PDF",
     description: "Printable document",
     icon: FileText,
-    color: "text-red-400",
+    color: "text-red-600 dark:text-red-400",
     accent: "bg-red-400/10 border-red-400/30",
   },
   {
@@ -34,7 +34,7 @@ const FORMAT_OPTIONS = [
     label: "PNG",
     description: "Board layout image",
     icon: Image,
-    color: "text-blue-400",
+    color: "text-blue-600 dark:text-blue-400",
     accent: "bg-blue-400/10 border-blue-400/30",
   },
   {
@@ -42,7 +42,7 @@ const FORMAT_OPTIONS = [
     label: "TXT",
     description: "Plain text summary",
     icon: AlignLeft,
-    color: "text-green-400",
+    color: "text-green-600 dark:text-green-400",
     accent: "bg-green-400/10 border-green-400/30",
   },
 ];
@@ -334,7 +334,7 @@ export default function DownloadBoardDialog({
                     ${
                       isSelected
                         ? `${fmt.accent} border-opacity-100`
-                        : "bg-surface-subtle border-border hover:bg-surface-card/60 hover:border-border-strong"
+                        : "bg-surface-subtle border-border hover:bg-surface-hover dark:hover:bg-surface-card/60 hover:border-border-strong"
                     }`}
                 >
                   <div
@@ -363,7 +363,7 @@ export default function DownloadBoardDialog({
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isLoading}
-            className="border-border-strong text-muted-foreground hover:bg-surface-card hover:text-foreground"
+            className="border-border-strong text-muted-foreground hover:bg-surface-hover dark:hover:bg-surface-card hover:text-foreground"
           >
             Cancel
           </Button>

@@ -259,7 +259,7 @@ export function CustomsSettingsScreen({ isCreateOpen: controlledIsCreateOpen, on
                       <div className="flex flex-wrap items-center gap-2">
                         <p className="truncate text-sm font-medium text-foreground">{field.name}</p>
                         {field.required ? (
-                          <Badge className="border-amber-500/20 bg-amber-500/10 text-amber-300">Required</Badge>
+                          <Badge className="border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-300">Required</Badge>
                         ) : null}
                       </div>
                       <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-text-secondary">
@@ -302,7 +302,7 @@ export function CustomsSettingsScreen({ isCreateOpen: controlledIsCreateOpen, on
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 text-text-secondary hover:bg-red-500/10 hover:text-red-300"
+                      className="h-8 w-8 text-text-secondary hover:bg-red-500/10 hover:text-red-700 dark:hover:text-red-300"
                       onClick={() => removeField(field.id)}
                     >
                       <Trash2 className="h-3.5 w-3.5" />

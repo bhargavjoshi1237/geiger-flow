@@ -31,9 +31,9 @@ const FILTERS = [
 ];
 
 const PRESENCE_BADGE = {
-  online: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
-  away: "bg-amber-500/15 text-amber-300 border-amber-500/30",
-  dnd: "bg-red-500/15 text-red-300 border-red-500/30",
+  online: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30",
+  away: "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30",
+  dnd: "bg-red-500/15 text-red-700 dark:text-red-300 border-red-500/30",
   offline: "bg-surface-hover text-muted-foreground border-border",
 };
 

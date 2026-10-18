@@ -36,7 +36,7 @@ function StatusBadge({ text, variant }) {
       className={cn(
         "h-4 px-1.5 text-[9px]",
         variant === "green"
-          ? "border-green-500/20 bg-green-500/10 text-green-400"
+          ? "border-green-500/20 bg-green-500/10 text-green-600 dark:text-green-400"
           : "border-border-strong bg-surface-hover text-muted-foreground",
       )}
     >

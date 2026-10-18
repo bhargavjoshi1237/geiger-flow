@@ -210,7 +210,7 @@ function GoalCard({ goal, isDragOverlay, onEdit, onDelete, onDuplicate }) {
                   {goal.keyResults.map((kr, idx) => (
                     <div key={idx} className="flex items-center gap-2">
                       {kr.done ? (
-                        <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />
+                        <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
                       ) : (
                         <Circle className="w-3 h-3 text-text-tertiary shrink-0" />
                       )}
@@ -272,7 +272,7 @@ function KanbanColumn({ column, goals, onEdit, onDelete, onDuplicate, onAddGoal 
           variant="ghost"
           size="icon"
           onClick={() => onAddGoal?.(statusKey)}
-          className="w-6 h-6 text-text-tertiary hover:text-muted-foreground hover:bg-surface-subtle"
+          className="w-6 h-6 text-text-tertiary hover:text-muted-foreground hover:bg-surface-hover dark:hover:bg-surface-subtle"
         >
           <Plus className="w-3.5 h-3.5" />
         </Button>

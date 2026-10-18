@@ -221,7 +221,7 @@ function ObjectiveCard({ objective, onSelect, onEdit, onDelete, onDuplicate, onC
                 {objective.keyResults.map((kr, idx) => (
                   <div key={idx} className="flex items-center gap-2.5">
                     {kr.done ? (
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     ) : (
                       <Circle className="w-3.5 h-3.5 text-text-tertiary shrink-0" />
                     )}

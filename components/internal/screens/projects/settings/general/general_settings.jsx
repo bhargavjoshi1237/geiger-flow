@@ -433,7 +433,7 @@ export function GeneralSettingsScreen() {
       <IconButtonCard
         banner="Delete project"
         subBanner="Permanently remove your project and its database"
-        icon={<AlertTriangle className="w-5 h-5 text-red-400" />}
+        icon={<AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />}
         title="Deleting this project will also remove your database."
         subtitle="Make sure you have made a backup if you want to keep your data."
         classNames={{

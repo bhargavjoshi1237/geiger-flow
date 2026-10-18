@@ -142,7 +142,7 @@ export function InviteMemberDialog({
             type="button"
             variant="ghost"
             onClick={() => setOpen(false)}
-            className="text-muted-foreground hover:text-foreground hover:bg-surface-card border border-transparent"
+            className="text-muted-foreground hover:text-foreground hover:bg-surface-hover dark:hover:bg-surface-card border border-transparent"
           >
             Cancel
           </Button>

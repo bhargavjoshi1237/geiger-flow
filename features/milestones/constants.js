@@ -11,17 +11,17 @@ export const MILESTONE_STATUS_META = {
   },
   on_track: {
     label: "On Track",
-    className: "bg-blue-500/10 text-blue-300 border-blue-500/20",
+    className: "bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/20",
     progressClass: "[&_[data-slot=progress-indicator]]:bg-primary",
   },
   at_risk: {
     label: "At Risk",
-    className: "bg-amber-500/10 text-amber-300 border-amber-500/20",
+    className: "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20",
     progressClass: "[&_[data-slot=progress-indicator]]:bg-primary",
   },
   completed: {
     label: "Completed",
-    className: "bg-emerald-500/10 text-emerald-300 border-emerald-500/20",
+    className: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20",
     progressClass: "[&_[data-slot=progress-indicator]]:bg-primary",
   },
 };
@@ -33,15 +33,15 @@ export const TASK_STATUS_META = {
   },
   in_progress: {
     label: "In Progress",
-    className: "bg-blue-500/10 text-blue-300 border-blue-500/20",
+    className: "bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/20",
   },
   blocked: {
     label: "Blocked",
-    className: "bg-red-500/10 text-red-300 border-red-500/20",
+    className: "bg-red-500/10 text-red-700 dark:text-red-300 border-red-500/20",
   },
   done: {
     label: "Done",
-    className: "bg-emerald-500/10 text-emerald-300 border-emerald-500/20",
+    className: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20",
   },
 };
 

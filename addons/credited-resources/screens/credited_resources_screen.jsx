@@ -51,11 +51,11 @@ const USAGE_PLAN = [];
 const STATUS_META = {
   on_track: {
     label: "On Track",
-    className: "bg-blue-500/15 text-blue-300 border-blue-500/30",
+    className: "bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30",
   },
   watch: {
     label: "Watch",
-    className: "bg-amber-500/15 text-amber-300 border-amber-500/30",
+    className: "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30",
   },
   draft: {
     label: "Planned",
@@ -263,7 +263,7 @@ function AllocationTable({ allocations, pools, onToggleWatch, onDelete }) {
                     variant="ghost"
                     size="icon"
                     onClick={() => onDelete(allocation.id)}
-                    className="h-8 w-8 text-text-secondary hover:bg-red-500/10 hover:text-red-400"
+                    className="h-8 w-8 text-text-secondary hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400"
                     title="Delete allocation"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
@@ -524,7 +524,7 @@ export function CreditedResourcesScreen() {
                     "h-8 rounded-lg border px-3 text-xs",
                     activeFilter === filter.id
                       ? "border-border-strong bg-surface-hover text-foreground"
-                      : "border-border bg-surface-subtle text-text-secondary hover:bg-surface-card hover:text-foreground",
+                      : "border-border bg-surface-subtle text-text-secondary hover:bg-surface-hover dark:hover:bg-surface-card hover:text-foreground",
                   )}
                   onClick={() => setActiveFilter(filter.id)}
                 >

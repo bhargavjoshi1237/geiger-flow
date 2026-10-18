@@ -86,7 +86,7 @@ export function LogEntry({ log, onClick }) {
       onClick={() => onClick(log)}
       className={cn(
         "group flex items-start gap-4 px-4 py-3 rounded-xl border transition-all duration-200 cursor-pointer",
-        "bg-surface-subtle border-border hover:border-border-strong hover:bg-surface-card",
+        "bg-surface-subtle border-border hover:border-border-strong hover:bg-surface-hover dark:hover:bg-surface-card",
       )}
     >
       <div className="flex-shrink-0 mt-0.5">

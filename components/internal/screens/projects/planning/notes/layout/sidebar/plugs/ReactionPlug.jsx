@@ -53,7 +53,7 @@ export const ReactionPlug = ({ onReaction, emojis, reactions }) => {
               className="
                 group relative p-2 rounded-xl
                 transition-all duration-150
-                hover:bg-surface-card/80
+                hover:bg-surface-hover dark:hover:bg-surface-card/80
                 active:scale-90 flex items-center justify-center
               "
               onClick={() => onReaction(label)}

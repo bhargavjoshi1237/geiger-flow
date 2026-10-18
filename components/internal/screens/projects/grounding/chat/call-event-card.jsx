@@ -34,7 +34,7 @@ export function CallEventCard({ message, onCallBack }) {
           className={cn(
             "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border",
             missed
-              ? "border-red-500/30 bg-red-500/10 text-red-400"
+              ? "border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-400"
               : "border-border-strong bg-surface-active text-muted-foreground",
           )}
         >

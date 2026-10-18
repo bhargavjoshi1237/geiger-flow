@@ -10,19 +10,19 @@ export const DEFAULT_SEVERITY = "medium";
 export const SEVERITY_MAP = {
   critical: {
     label: "Critical",
-    className: "bg-red-500/10 text-red-400 border-red-500/20",
+    className: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20",
   },
   high: {
     label: "High",
-    className: "bg-orange-500/10 text-orange-400 border-orange-500/20",
+    className: "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20",
   },
   medium: {
     label: "Medium",
-    className: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
+    className: "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20",
   },
   low: {
     label: "Low",
-    className: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+    className: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
   },
 };
 
@@ -40,15 +40,15 @@ export const DEFAULT_VULNERABILITY_STATUS = "open";
 export const VULNERABILITY_STATUS_MAP = {
   open: {
     label: "Open",
-    className: "bg-red-500/10 text-red-400 border-red-500/20",
+    className: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20",
   },
   triaged: {
     label: "Triaged",
-    className: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+    className: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
   },
   resolved: {
     label: "Resolved",
-    className: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+    className: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
   },
 };
 
@@ -58,11 +58,11 @@ export const DEFAULT_RESULT = "allowed";
 export const RESULT_MAP = {
   allowed: {
     label: "Allowed",
-    className: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+    className: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
   },
   denied: {
     label: "Denied",
-    className: "bg-red-500/10 text-red-400 border-red-500/20",
+    className: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20",
   },
 };
 
@@ -76,7 +76,7 @@ export const ENFORCEMENT_MAP = {
   },
   enforce: {
     label: "Enforce",
-    className: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+    className: "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20",
   },
 };
 

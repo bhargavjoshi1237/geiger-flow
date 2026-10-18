@@ -213,7 +213,7 @@ export function VaultAccessControl({
                         "px-3 py-1 rounded-md text-xs font-medium border transition-all duration-200",
                         accessControl.allowedRoles.includes(role)
                           ? "bg-surface-card border-border-strong text-foreground shadow-sm"
-                          : "bg-surface-subtle border-border text-text-secondary hover:border-border-strong hover:text-muted-foreground hover:bg-surface-card",
+                          : "bg-surface-subtle border-border text-text-secondary hover:border-border-strong hover:text-muted-foreground hover:bg-surface-hover dark:hover:bg-surface-card",
                       )}
                     >
                       {role.charAt(0).toUpperCase() + role.slice(1)}
@@ -244,7 +244,7 @@ export function VaultAccessControl({
                           variant="ghost"
                           size="icon-xs"
                           onClick={() => handleUserRemove(email)}
-                          className="text-text-tertiary hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
+                          className="text-text-tertiary hover:text-red-600 dark:hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
                         >
                           <X className="w-4 h-4" />
                         </Button>
@@ -305,7 +305,7 @@ export function VaultAccessControl({
                         "px-3 py-1 rounded-md text-xs font-medium border transition-all duration-200",
                         accessControl.allowedPositions.includes(position)
                           ? "bg-surface-card border-border-strong text-foreground shadow-sm"
-                          : "bg-surface-subtle border-border text-text-secondary hover:border-border-strong hover:text-muted-foreground hover:bg-surface-card",
+                          : "bg-surface-subtle border-border text-text-secondary hover:border-border-strong hover:text-muted-foreground hover:bg-surface-hover dark:hover:bg-surface-card",
                       )}
                     >
                       {position}

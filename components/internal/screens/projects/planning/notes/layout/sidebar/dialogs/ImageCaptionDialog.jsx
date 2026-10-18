@@ -109,7 +109,7 @@ const ImageCaptionDialog = ({ open, onOpenChange, initialData, onSave }) => {
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
-            className="border-border-strong text-foreground hover:bg-surface-card hover:text-foreground"
+            className="border-border-strong text-foreground hover:bg-surface-hover dark:hover:bg-surface-card hover:text-foreground"
           >
             Cancel
           </Button>

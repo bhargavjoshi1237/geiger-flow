@@ -45,12 +45,12 @@ import { cn } from "@/lib/utils";
 import { useProjectBudget } from "@/context/project-budget-context";
 
 const STATUS_CLASS = {
-  red: "border-red-500/30 bg-red-500/15 text-red-300",
-  amber: "border-amber-500/30 bg-amber-500/15 text-amber-300",
-  emerald: "border-emerald-500/30 bg-emerald-500/15 text-emerald-300",
-  blue: "border-blue-500/30 bg-blue-500/15 text-blue-300",
-  violet: "border-violet-500/30 bg-violet-500/15 text-violet-300",
-  cyan: "border-cyan-500/30 bg-cyan-500/15 text-cyan-300",
+  red: "border-red-500/30 bg-red-500/15 text-red-700 dark:text-red-300",
+  amber: "border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-300",
+  emerald: "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+  blue: "border-blue-500/30 bg-blue-500/15 text-blue-700 dark:text-blue-300",
+  violet: "border-violet-500/30 bg-violet-500/15 text-violet-700 dark:text-violet-300",
+  cyan: "border-cyan-500/30 bg-cyan-500/15 text-cyan-700 dark:text-cyan-300",
   zinc: "border-zinc-500/30 bg-zinc-500/15 text-foreground",
 };
 
@@ -268,7 +268,7 @@ export function ReleaseReadinessScreen() {
           <div className="space-y-3 p-4 text-sm">
             {[].map((item) => (
               <div key={item} className="flex items-start gap-3 rounded-xl border border-border bg-surface-subtle p-3">
-                <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-300" />
+                <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-700 dark:text-emerald-300" />
                 <span className="text-foreground">{item}</span>
               </div>
             ))}
@@ -552,7 +552,7 @@ function ExpenseRow({ expense, onRemove }) {
             variant="ghost"
             size="icon"
             onClick={() => onRemove(expense.id)}
-            className="h-8 w-8 text-text-secondary hover:bg-red-500/10 hover:text-red-300"
+            className="h-8 w-8 text-text-secondary hover:bg-red-500/10 hover:text-red-700 dark:hover:text-red-300"
             title="Remove expense"
           >
             <Trash2 className="h-4 w-4" />
@@ -655,7 +655,7 @@ export function BudgetTrackerScreen() {
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div className="rounded-xl border border-border bg-surface-subtle p-3">
                 <p className="text-text-secondary">Remaining</p>
-                <p className={cn("mt-1 text-base font-semibold", totals.remaining < 0 ? "text-red-300" : "text-emerald-300")}>
+                <p className={cn("mt-1 text-base font-semibold", totals.remaining < 0 ? "text-red-700 dark:text-red-300" : "text-emerald-700 dark:text-emerald-300")}>
                   {currency(totals.remaining)}
                 </p>
               </div>
@@ -724,9 +724,9 @@ export function BudgetTrackerScreen() {
               />
               <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-xl border border-border bg-surface-subtle p-3">
-                  <Calculator className="h-4 w-4 text-blue-300" />
+                  <Calculator className="h-4 w-4 text-blue-700 dark:text-blue-300" />
                   <p className="mt-2 text-xs text-text-secondary">Forecast gap</p>
-                  <p className={cn("mt-1 text-sm font-semibold", totals.variance > 0 ? "text-red-300" : "text-emerald-300")}>
+                  <p className={cn("mt-1 text-sm font-semibold", totals.variance > 0 ? "text-red-700 dark:text-red-300" : "text-emerald-700 dark:text-emerald-300")}>
                     {currency(totals.variance)}
                   </p>
                 </div>

@@ -147,7 +147,7 @@ function QuestionCard({ question, index, active, onSelect, onChange, onDuplicate
                     type="button"
                     variant="ghost"
                     size="icon-sm"
-                    className="text-text-secondary hover:bg-surface-active hover:text-red-300"
+                    className="text-text-secondary hover:bg-surface-active hover:text-red-700 dark:hover:text-red-300"
                     onClick={(event) => {
                       event.stopPropagation();
                       onChange({
@@ -204,7 +204,7 @@ function QuestionCard({ question, index, active, onSelect, onChange, onDuplicate
             type="button"
             variant="ghost"
             size="icon-sm"
-            className="text-text-secondary hover:bg-surface-active hover:text-red-300"
+            className="text-text-secondary hover:bg-surface-active hover:text-red-700 dark:hover:text-red-300"
             onClick={(event) => {
               event.stopPropagation();
               onDelete();
@@ -229,7 +229,7 @@ function FormPreview({ title, description, questions }) {
       <div className="border-b border-border bg-surface-subtle p-4">
         <div className="flex items-start gap-3">
           <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-teal-500/25 bg-teal-500/10">
-            <LockKeyhole className="h-4 w-4 text-teal-300" />
+            <LockKeyhole className="h-4 w-4 text-teal-700 dark:text-teal-300" />
           </div>
           <div className="min-w-0">
             <h2 className="break-words text-base font-semibold text-foreground">{title || "Untitled form"}</h2>
@@ -242,7 +242,7 @@ function FormPreview({ title, description, questions }) {
           <div key={question.id} className="space-y-2">
             <div className="flex items-center gap-1.5">
               <p className="break-words text-sm font-medium text-foreground">{question.title || "Untitled question"}</p>
-              {question.required ? <span className="text-red-300">*</span> : null}
+              {question.required ? <span className="text-red-700 dark:text-red-300">*</span> : null}
             </div>
             {question.description ? <p className="text-xs text-text-secondary">{question.description}</p> : null}
             {question.options.length > 0 ? (
@@ -394,7 +394,7 @@ export function FormBuilderScreen({ projectId }) {
               </Link>
             </Button>
             <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-teal-500/25 bg-teal-500/10">
-              <FileQuestion className="h-5 w-5 text-teal-300" />
+              <FileQuestion className="h-5 w-5 text-teal-700 dark:text-teal-300" />
             </div>
             <div className="min-w-0">
               <h1 className="text-2xl font-bold text-foreground">Form builder</h1>
@@ -402,7 +402,7 @@ export function FormBuilderScreen({ projectId }) {
             </div>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <Badge className="w-fit border border-blue-500/30 bg-blue-500/15 px-2 py-1 text-blue-300">Draft</Badge>
+            <Badge className="w-fit border border-blue-500/30 bg-blue-500/15 px-2 py-1 text-blue-700 dark:text-blue-300">Draft</Badge>
             <Button
               type="button"
               variant="outline"

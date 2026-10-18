@@ -367,7 +367,7 @@ export default function ImageCropDialog({ open, onOpenChange, src, onSave }) {
           variant="secondary"
           size="icon"
           onClick={resetCrop}
-          className="rounded-full w-10 h-10 hover:bg-surface-subtle hover:text-foreground transition-colors"
+          className="rounded-full w-10 h-10 hover:bg-surface-hover dark:hover:bg-surface-subtle hover:text-foreground transition-colors"
           title="Reset Crop"
         >
           <RotateCcw size={18} />
@@ -387,7 +387,7 @@ export default function ImageCropDialog({ open, onOpenChange, src, onSave }) {
           variant="secondary"
           size="icon"
           onClick={() => onOpenChange(false)}
-          className="rounded-full w-10 h-10 hover:bg-surface-subtle hover:text-foreground transition-colors"
+          className="rounded-full w-10 h-10 hover:bg-surface-hover dark:hover:bg-surface-subtle hover:text-foreground transition-colors"
           title="Cancel"
         >
           <X size={18} />

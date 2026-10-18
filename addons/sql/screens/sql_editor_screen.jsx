@@ -49,7 +49,7 @@ function QueryHistoryItem({ query, timestamp, result, onClick }) {
     >
       <div className="flex items-start gap-2">
         {isSuccess && <CheckCircle2 className="w-3.5 h-3.5 text-green-500 mt-0.5 shrink-0" />}
-        {isError && <AlertCircle className="w-3.5 h-3.5 text-red-400 mt-0.5 shrink-0" />}
+        {isError && <AlertCircle className="w-3.5 h-3.5 text-red-600 dark:text-red-400 mt-0.5 shrink-0" />}
         {!isSuccess && !isError && <Database className="w-3.5 h-3.5 text-text-secondary mt-0.5 shrink-0" />}
         <div className="min-w-0 flex-1">
           <p className="text-xs text-foreground font-mono truncate leading-relaxed">
@@ -322,7 +322,7 @@ export function SqlEditorScreen() {
                       variant="ghost"
                       size="sm"
                       onClick={handleClearHistory}
-                      className="text-[10px] text-text-tertiary hover:text-red-400 transition-colors cursor-pointer"
+                      className="text-[10px] text-text-tertiary hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer"
                     >
                       Clear
                     </Button>
@@ -425,7 +425,7 @@ export function SqlEditorScreen() {
                     className="bg-primary text-primary-foreground hover:bg-primary/90 text-xs font-medium rounded-md h-7 px-3 gap-1.5"
                   >
                     {loading ? (
-                      <div className="w-3 h-3 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                      <div className="w-3 h-3 border-2 border-white/30 border-t-white dark:border-black/30 dark:border-t-black rounded-full animate-spin" />
                     ) : (
                       <Play className="w-3 h-3" />
                     )}
@@ -531,7 +531,7 @@ export function SqlEditorScreen() {
                           </TableHeader>
                           <TableBody>
                             {results.rows.map((row, idx) => (
-                              <TableRow key={idx} className="border-b border-border/50 hover:bg-surface-subtle">
+                              <TableRow key={idx} className="border-b border-border/50 hover:bg-surface-hover dark:hover:bg-surface-subtle">
                                 <TableCell className="text-text-tertiary text-[11px] font-mono pl-4">
                                   {idx + 1}
                                 </TableCell>
@@ -543,7 +543,7 @@ export function SqlEditorScreen() {
                                     {row[col] === null ? (
                                       <span className="text-text-tertiary italic">null</span>
                                     ) : typeof row[col] === "boolean" ? (
-                                      <span className={row[col] ? "text-green-400" : "text-text-tertiary"}>
+                                      <span className={row[col] ? "text-green-600 dark:text-green-400" : "text-text-tertiary"}>
                                         {row[col].toString()}
                                       </span>
                                     ) : typeof row[col] === "object" ? (
@@ -577,10 +577,10 @@ export function SqlEditorScreen() {
                     {error ? (
                       <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4">
                         <div className="flex items-start gap-3">
-                          <AlertCircle className="w-4 h-4 text-red-400 mt-0.5 shrink-0" />
+                          <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 mt-0.5 shrink-0" />
                           <div>
-                            <p className="text-sm font-medium text-red-300 mb-1">Query Error</p>
-                            <p className="text-xs text-red-400/80 font-mono leading-relaxed whitespace-pre-wrap">
+                            <p className="text-sm font-medium text-red-700 dark:text-red-300 mb-1">Query Error</p>
+                            <p className="text-xs text-red-600/80 dark:text-red-400/80 font-mono leading-relaxed whitespace-pre-wrap">
                               {error}
                             </p>
                           </div>
@@ -589,9 +589,9 @@ export function SqlEditorScreen() {
                     ) : results ? (
                       <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4">
                         <div className="flex items-start gap-3">
-                          <CheckCircle2 className="w-4 h-4 text-green-400 mt-0.5 shrink-0" />
+                          <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5 shrink-0" />
                           <div>
-                            <p className="text-sm font-medium text-green-300">Query executed successfully</p>
+                            <p className="text-sm font-medium text-green-700 dark:text-green-300">Query executed successfully</p>
                             {results.duration && (
                               <p className="text-xs text-text-tertiary mt-1">
                                 Completed in {results.duration}ms

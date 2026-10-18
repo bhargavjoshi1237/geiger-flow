@@ -272,7 +272,7 @@ function CommentItem({ comment, author, onUpdate, onDelete }) {
                 type="button"
                 onClick={handleDelete}
                 disabled={busy}
-                className="rounded p-1 text-text-secondary hover:bg-red-500/10 hover:text-red-400"
+                className="rounded p-1 text-text-secondary hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400"
                 aria-label="Delete comment"
               >
                 <Trash2 className="h-3.5 w-3.5" />
@@ -376,7 +376,7 @@ function AssigneeSection({ value, members, onChange }) {
             <button
               type="button"
               onClick={() => toggle(person.id)}
-              className="text-text-secondary hover:text-red-400"
+              className="text-text-secondary hover:text-red-600 dark:hover:text-red-400"
               aria-label={`Remove ${person.name}`}
             >
               <X className="h-3 w-3" />
@@ -388,7 +388,7 @@ function AssigneeSection({ value, members, onChange }) {
           <PopoverTrigger asChild>
             <button
               type="button"
-              className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-border-strong px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-surface-card hover:text-foreground"
+              className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-border-strong px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-surface-hover dark:hover:bg-surface-card hover:text-foreground"
             >
               <Plus className="h-3.5 w-3.5" />
               Assign
@@ -445,7 +445,7 @@ function AssigneeSection({ value, members, onChange }) {
                         {person.name}
                       </span>
                       {isSelected && (
-                        <Check className="h-3.5 w-3.5 text-emerald-400" />
+                        <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
                       )}
                     </button>
                   );
@@ -645,7 +645,7 @@ function IssueCaseDetails({ issue, members = [], onUpdate, onDelete }) {
               variant="ghost"
               size="sm"
               onClick={() => setConfirmDelete(true)}
-              className="text-red-400 hover:bg-red-500/10 hover:text-red-400"
+              className="text-red-600 dark:text-red-400 hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400"
             >
               <Trash2 className="h-3.5 w-3.5" />
             </Button>
@@ -700,7 +700,7 @@ function IssueCaseDetails({ issue, members = [], onUpdate, onDelete }) {
             </Badge>
           ) : null}
           {overdue ? (
-            <Badge className="gap-1.5 border border-orange-500/20 bg-orange-500/10 px-2 py-1 text-orange-400">
+            <Badge className="gap-1.5 border border-orange-500/20 bg-orange-500/10 px-2 py-1 text-orange-600 dark:text-orange-400">
               <CalendarClock className="h-3 w-3" />
               Overdue
             </Badge>
@@ -889,7 +889,7 @@ function IssueCaseDetails({ issue, members = [], onUpdate, onDelete }) {
                     <CalendarClock className="h-3.5 w-3.5" />
                     Due date
                     {overdue && (
-                      <span className="rounded bg-orange-500/10 px-1.5 py-0.5 text-[10px] font-semibold normal-case tracking-normal text-orange-400">
+                      <span className="rounded bg-orange-500/10 px-1.5 py-0.5 text-[10px] font-semibold normal-case tracking-normal text-orange-600 dark:text-orange-400">
                         Overdue
                       </span>
                     )}
@@ -902,7 +902,7 @@ function IssueCaseDetails({ issue, members = [], onUpdate, onDelete }) {
                     }
                     className={cn(
                       "bg-surface-card border-border text-foreground focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1",
-                      overdue && "border-orange-500/40 text-orange-400",
+                      overdue && "border-orange-500/40 text-orange-600 dark:text-orange-400",
                     )}
                   />
                 </div>
@@ -940,7 +940,7 @@ function IssueCaseDetails({ issue, members = [], onUpdate, onDelete }) {
                     <button
                       type="button"
                       onClick={() => handleRemoveLabel(label)}
-                      className="text-text-secondary hover:text-red-400"
+                      className="text-text-secondary hover:text-red-600 dark:hover:text-red-400"
                       aria-label={`Remove ${label}`}
                     >
                       <X className="h-3 w-3" />
@@ -975,7 +975,7 @@ function IssueCaseDetails({ issue, members = [], onUpdate, onDelete }) {
             </section>
 
             {/* Stats */}
-            <div className="flex items-stretch rounded-lg border border-border bg-black/20">
+            <div className="flex items-stretch rounded-lg border border-border bg-surface-subtle dark:bg-black/20">
               {[
                 {
                   icon: Clock3,

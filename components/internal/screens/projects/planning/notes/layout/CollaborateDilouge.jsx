@@ -328,7 +328,7 @@ export default function CollaborateDilouge({
                   "flex-1 py-3 text-sm font-medium border-b-2 transition-colors",
                   activeTab === tab.id
                     ? "border-foreground text-foreground bg-surface-card/30"
-                    : "border-transparent text-text-secondary hover:text-foreground hover:bg-surface-card/20",
+                    : "border-transparent text-text-secondary hover:text-foreground hover:bg-surface-hover dark:hover:bg-surface-card/20",
                 )}
               >
                 {tab.label}
@@ -392,7 +392,7 @@ export default function CollaborateDilouge({
           <Button
             variant="ghost"
             onClick={() => onOpenChange(false)}
-            className="text-muted-foreground hover:text-foreground hover:bg-surface-card"
+            className="text-muted-foreground hover:text-foreground hover:bg-surface-hover dark:hover:bg-surface-card"
           >
             Close
           </Button>

@@ -329,7 +329,7 @@ export function OfficeRecentScreen() {
         <LoadingArea panel label="Loading files" className="rounded-none min-h-[280px]" />
       ) : error ? (
         <div className="flex min-h-[30vh] flex-col items-center justify-center gap-3 text-center">
-          <p className="text-sm text-red-300">{error}</p>
+          <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
           <Button
             variant="outline"
             size="sm"

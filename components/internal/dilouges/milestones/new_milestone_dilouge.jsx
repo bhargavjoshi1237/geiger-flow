@@ -207,7 +207,7 @@ export function NewMilestoneDialog({
                 variant="ghost"
                 size="sm"
                 onClick={addTask}
-                className="text-muted-foreground hover:text-foreground hover:bg-surface-card h-7 text-xs"
+                className="text-muted-foreground hover:text-foreground hover:bg-surface-hover dark:hover:bg-surface-card h-7 text-xs"
               >
                 <Plus className="w-3 h-3 mr-1" />
                 Add
@@ -249,7 +249,7 @@ export function NewMilestoneDialog({
                       variant="ghost"
                       size="icon"
                       onClick={() => removeTask(idx)}
-                      className="w-8 h-8 text-text-tertiary hover:text-red-400 hover:bg-surface-card shrink-0"
+                      className="w-8 h-8 text-text-tertiary hover:text-red-600 dark:hover:text-red-400 hover:bg-surface-hover dark:hover:bg-surface-card shrink-0"
                     >
                       <X className="w-3.5 h-3.5" />
                     </Button>
@@ -265,7 +265,7 @@ export function NewMilestoneDialog({
             type="button"
             variant="ghost"
             onClick={() => setIsOpen(false)}
-            className="text-muted-foreground hover:text-foreground hover:bg-surface-card"
+            className="text-muted-foreground hover:text-foreground hover:bg-surface-hover dark:hover:bg-surface-card"
           >
             Cancel
           </Button>

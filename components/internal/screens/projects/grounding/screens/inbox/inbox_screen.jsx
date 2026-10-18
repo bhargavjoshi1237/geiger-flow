@@ -191,7 +191,7 @@ export function InboxScreen() {
               className="w-full !pl-9 !pr-4 !py-[7px] bg-surface-subtle border border-border text-foreground text-sm rounded-lg focus:outline-none focus:border-border-strong transition-all focus:ring-1 focus:ring-border-strong placeholder:text-text-tertiary"
             />
           </div>
-          <Button className="flex items-center justify-center p-2 rounded-lg bg-surface-subtle border border-border text-muted-foreground hover:text-foreground hover:bg-surface-card transition-colors shrink-0">
+          <Button className="flex items-center justify-center p-2 rounded-lg bg-surface-subtle border border-border text-muted-foreground hover:text-foreground hover:bg-surface-hover dark:hover:bg-surface-card transition-colors shrink-0">
             <Filter className="w-[18px] h-[18px]" />
           </Button>
         </div>
@@ -324,7 +324,7 @@ export function InboxScreen() {
                     if (extraContent.type === "actions") {
                       return (
                         <div className="flex items-center gap-2 pt-2">
-                          <Button className="flex-1 py-2 rounded-lg border border-border text-[13px] font-medium text-muted-foreground hover:bg-surface-card hover:text-foreground transition-colors">
+                          <Button className="flex-1 py-2 rounded-lg border border-border text-[13px] font-medium text-muted-foreground hover:bg-surface-hover dark:hover:bg-surface-card hover:text-foreground transition-colors">
                             {extraContent.options?.[0] || "Decline"}
                           </Button>
                           <Button className="flex-1 py-2 rounded-lg bg-primary text-[13px] font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
@@ -368,7 +368,7 @@ export function InboxScreen() {
                 )}
                 <Button
                   onClick={() => handleDelete(selectedNotification.id)}
-                  className="w-10 h-10 border border-border text-text-secondary hover:text-red-400 hover:border-red-400/30 hover:bg-red-500/5 rounded-lg flex items-center justify-center transition-colors"
+                  className="w-10 h-10 border border-border text-text-secondary hover:text-red-600 dark:hover:text-red-400 hover:border-red-400/30 hover:bg-red-500/5 rounded-lg flex items-center justify-center transition-colors"
                   title="Delete"
                 >
                   <LucideIcons.Trash2 className="w-4 h-4" />

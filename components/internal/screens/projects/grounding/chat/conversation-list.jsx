@@ -48,7 +48,7 @@ function ConversationRow({ conversation, active, onSelect, variant, onPin, onMar
         }}
         className={cn(
           "group flex w-full items-center gap-3 rounded-xl px-2.5 py-2 text-left transition-colors",
-          active ? "bg-surface-hover" : "hover:bg-surface-card",
+          active ? "bg-surface-hover" : "hover:bg-surface-hover dark:hover:bg-surface-card",
         )}
       >
         {isChannel ? (

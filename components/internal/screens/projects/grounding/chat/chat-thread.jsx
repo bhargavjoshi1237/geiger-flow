@@ -215,7 +215,7 @@ export function ChatThread({
           onDetailsOpenChange={onDetailsOpenChange}
         />
         {externalPerson ? (
-          <div className="flex items-center gap-2 border-b border-amber-500/15 bg-amber-500/[0.06] px-4 py-2 text-xs text-amber-500/90 md:px-6">
+          <div className="flex items-center gap-2 border-b border-amber-500/15 bg-amber-500/[0.06] px-4 py-2 text-xs text-amber-700/90 dark:text-amber-500/90 md:px-6">
             <Globe className="h-3.5 w-3.5 shrink-0" />
             <span className="min-w-0">
               <span className="font-medium">{externalPerson.firstName}</span> is outside{" "}

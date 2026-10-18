@@ -205,7 +205,7 @@ export function AllocationDialog({ allocation = null, open, onOpenChange, onSave
               variant="ghost"
               onClick={() => onOpenChange(false)}
               disabled={saving}
-              className="text-muted-foreground hover:bg-surface-card hover:text-foreground"
+              className="text-muted-foreground hover:bg-surface-hover dark:hover:bg-surface-card hover:text-foreground"
             >
               Cancel
             </Button>

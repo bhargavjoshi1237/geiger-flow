@@ -430,7 +430,7 @@ export function ProjectionsScreen() {
                 <Button
                   type="button"
                   onClick={() => openCreateDialog(new Date())}
-                  className="h-9 bg-background text-foreground hover:bg-surface-subtle text-sm font-medium px-3 rounded-lg gap-1.5 shrink-0 flex-1"
+                  className="h-9 bg-background text-foreground hover:bg-surface-hover dark:hover:bg-surface-subtle text-sm font-medium px-3 rounded-lg gap-1.5 shrink-0 flex-1"
                 >
                   <Plus className="w-4 h-4" />
                   Add event
@@ -441,7 +441,7 @@ export function ProjectionsScreen() {
                 <Button
                   type="button"
                   variant="ghost"
-                  className="h-9 flex items-center justify-center text-text-secondary border-r border-border hover:text-foreground hover:bg-surface-card transition-colors"
+                  className="h-9 flex items-center justify-center text-text-secondary border-r border-border hover:text-foreground hover:bg-surface-hover dark:hover:bg-surface-card transition-colors"
                   onClick={navigatePrev}
                 >
                   <ChevronLeft className="w-4 h-4" />
@@ -450,14 +450,14 @@ export function ProjectionsScreen() {
                   type="button"
                   variant="ghost"
                   onClick={goToToday}
-                  className="h-9 text-sm font-semibold text-center text-muted-foreground hover:text-foreground hover:bg-surface-card transition-colors"
+                  className="h-9 text-sm font-semibold text-center text-muted-foreground hover:text-foreground hover:bg-surface-hover dark:hover:bg-surface-card transition-colors"
                 >
                   Today
                 </Button>
                 <Button
                   type="button"
                   variant="ghost"
-                  className="h-9 flex items-center justify-center text-text-secondary border-l border-border hover:text-foreground hover:bg-surface-card transition-colors"
+                  className="h-9 flex items-center justify-center text-text-secondary border-l border-border hover:text-foreground hover:bg-surface-hover dark:hover:bg-surface-card transition-colors"
                   onClick={navigateNext}
                 >
                   <ChevronRight className="w-4 h-4" />
@@ -482,7 +482,7 @@ export function ProjectionsScreen() {
 
                   <div
                   className="pointer mr-2 flex flex-col items-center justify-center w-11 h-11 rounded-lg border border-border bg-surface-active text-center leading-none">
-                    <span className="text-[9px] font-bold text-blue-400 uppercase tracking-widest">
+                    <span className="text-[9px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">
                       {MONTHS[today.getMonth()].slice(0, 3)}
                     </span>
                     <span className="text-[17px] font-bold text-foreground leading-none mt-0.5">
@@ -505,7 +505,7 @@ export function ProjectionsScreen() {
                 <Button
                   type="button"
                   variant="ghost"
-                  className="p-1.5 rounded-lg text-text-secondary hover:text-foreground hover:bg-surface-card transition-colors"
+                  className="p-1.5 rounded-lg text-text-secondary hover:text-foreground hover:bg-surface-hover dark:hover:bg-surface-card transition-colors"
                   onClick={navigatePrev}
                 >
                   <ChevronLeft className="w-4 h-4" />
@@ -513,7 +513,7 @@ export function ProjectionsScreen() {
                 <Button
                   type="button"
                   variant="ghost"
-                  className="p-1.5 rounded-lg text-text-secondary hover:text-foreground hover:bg-surface-card transition-colors"
+                  className="p-1.5 rounded-lg text-text-secondary hover:text-foreground hover:bg-surface-hover dark:hover:bg-surface-card transition-colors"
                   onClick={navigateNext}
                 >
                   <ChevronRight className="w-4 h-4" />

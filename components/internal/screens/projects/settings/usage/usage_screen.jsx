@@ -96,7 +96,7 @@ function UsageMetricCard({
             className={cn(
               "w-8 h-8 rounded-lg flex items-center justify-center border",
               isOverLimit
-                ? "bg-red-500/10 border-red-500/20 text-red-400"
+                ? "bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400"
                 : "bg-surface-hover border-border-strong text-muted-foreground"
             )}
           >
@@ -111,8 +111,8 @@ function UsageMetricCard({
             className={cn(
               "flex items-center gap-0.5 text-xs font-medium px-2 py-0.5 rounded-full",
               trend === "up"
-                ? "text-green-400 bg-green-400/10"
-                : "text-red-400 bg-red-400/10"
+                ? "text-green-600 dark:text-green-400 bg-green-400/10"
+                : "text-red-600 dark:text-red-400 bg-red-400/10"
             )}
           >
             {trend === "up" ? (
@@ -181,7 +181,7 @@ function ChartSection({
         </span>
       </div>
       {included && (
-        <div className="text-[13px] text-emerald-400 font-medium">{included}</div>
+        <div className="text-[13px] text-emerald-600 dark:text-emerald-400 font-medium">{included}</div>
       )}
       <div className="h-[140px] w-full" style={{ height }}>
         <ChartContainer
@@ -537,7 +537,7 @@ export function UsageSettingsScreen() {
                 {formatHours(computeHours)} hrs
               </span>
             </div>
-            <div className="text-[13px] text-emerald-400 font-medium">
+            <div className="text-[13px] text-emerald-600 dark:text-emerald-400 font-medium">
               {timeEntries.length > 0 ? `${timeEntries.length} logged entries` : "No compute data"}
             </div>
 
@@ -685,7 +685,7 @@ export function UsageSettingsScreen() {
                 {databaseRows.map((row, i) => (
                   <TableRow
                     key={i}
-                    className="last:border-0 hover:bg-surface-card"
+                    className="last:border-0 hover:bg-surface-hover dark:hover:bg-surface-card"
                   >
                     <TableCell className="px-5 py-3 text-[13px] text-foreground font-mono">
                       {row.table}

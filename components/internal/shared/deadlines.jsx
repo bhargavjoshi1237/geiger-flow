@@ -8,22 +8,22 @@ import { cn } from "@/lib/utils";
 const URGENCY_META = {
   critical: {
     label: "Critical",
-    badgeClass: "border-red-500/30 bg-red-500/10 text-red-300",
+    badgeClass: "border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-300",
     barClass: "bg-red-400",
   },
   high: {
     label: "High",
-    badgeClass: "border-amber-500/30 bg-amber-500/10 text-amber-300",
+    badgeClass: "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300",
     barClass: "bg-amber-400",
   },
   medium: {
     label: "Medium",
-    badgeClass: "border-blue-500/30 bg-blue-500/10 text-blue-300",
+    badgeClass: "border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-300",
     barClass: "bg-blue-400",
   },
   low: {
     label: "Low",
-    badgeClass: "border-emerald-500/30 bg-emerald-500/10 text-emerald-300",
+    badgeClass: "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
     barClass: "bg-emerald-400",
   },
 };

@@ -54,8 +54,8 @@ function ParticipantTile({ person, cameraOn = true, muted = false, speaking = fa
       ) : null}
 
       <div className="absolute bottom-2 left-2 flex items-center gap-1.5 rounded-md bg-black/45 px-2 py-1 backdrop-blur-sm">
-        <span className="text-xs font-medium text-foreground">{isSelf ? "You" : person.firstName}</span>
-        {muted ? <MicOff className="h-3 w-3 text-red-400" /> : <Mic className="h-3 w-3 text-text-secondary" />}
+        <span className="text-xs font-medium text-white dark:text-foreground">{isSelf ? "You" : person.firstName}</span>
+        {muted ? <MicOff className="h-3 w-3 text-red-400" /> : <Mic className="h-3 w-3 text-white/70 dark:text-text-secondary" />}
       </div>
     </div>
   );
@@ -73,7 +73,7 @@ function ControlButton({ icon: Icon, label, active, danger, onClick }) {
           ? "border-transparent bg-red-600 text-white hover:bg-red-500"
           : active
             ? "border-border-strong bg-surface-hover text-foreground hover:bg-surface-active"
-            : "border-transparent bg-red-500/10 text-red-300 hover:bg-red-500/20",
+            : "border-transparent bg-red-500/10 text-red-700 dark:text-red-300 hover:bg-red-500/20",
       )}
     >
       <Icon className="h-[18px] w-[18px]" />
@@ -112,7 +112,7 @@ export function MeetStage({ title = "Meeting", participants = [], kind = "video"
     >
       <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
         <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1.5 rounded-full bg-red-500/15 px-2 py-0.5 text-[11px] font-semibold text-red-400">
+          <span className="flex items-center gap-1.5 rounded-full bg-red-500/15 px-2 py-0.5 text-[11px] font-semibold text-red-600 dark:text-red-400">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-red-500" /> LIVE
           </span>
           <div>
@@ -121,10 +121,10 @@ export function MeetStage({ title = "Meeting", participants = [], kind = "video"
           </div>
         </div>
         <div className="flex items-center gap-1">
-          <button className="hidden h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-surface-card hover:text-foreground sm:flex" title="Participants">
+          <button className="hidden h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-surface-hover dark:hover:bg-surface-card hover:text-foreground sm:flex" title="Participants">
             <Users className="h-[18px] w-[18px]" />
           </button>
-          <button className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-surface-card hover:text-foreground" title="Fullscreen">
+          <button className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-surface-hover dark:hover:bg-surface-card hover:text-foreground" title="Fullscreen">
             <Maximize2 className="h-[18px] w-[18px]" />
           </button>
         </div>

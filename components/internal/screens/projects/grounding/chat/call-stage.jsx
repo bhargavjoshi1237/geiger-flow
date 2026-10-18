@@ -52,7 +52,7 @@ function MediaTile({ person, stream, isVideo, isSelf, big, statusLabel }) {
         </div>
       )}
 
-      <div className="absolute bottom-2 left-2 rounded-md bg-black/45 px-2 py-1 text-xs font-medium text-foreground backdrop-blur-sm">
+      <div className="absolute bottom-2 left-2 rounded-md bg-black/45 px-2 py-1 text-xs font-medium text-white dark:text-foreground backdrop-blur-sm">
         {isSelf ? "You" : person.firstName}
       </div>
     </div>
@@ -70,7 +70,7 @@ function ControlButton({ icon: Icon, label, active, onClick }) {
         "flex h-11 w-11 items-center justify-center rounded-full border transition-colors",
         active
           ? "border-border-strong bg-surface-hover text-foreground hover:bg-surface-active"
-          : "border-transparent bg-red-500/10 text-red-300 hover:bg-red-500/20",
+          : "border-transparent bg-red-500/10 text-red-700 dark:text-red-300 hover:bg-red-500/20",
       )}
     >
       <Icon className="h-[18px] w-[18px]" />
@@ -101,7 +101,7 @@ export function CallStage({ call, status, remoteStreams, localStream, micOn, cam
       <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
         <div className="flex items-center gap-3">
           {active ? (
-            <span className="flex items-center gap-1.5 rounded-full bg-red-500/15 px-2 py-0.5 text-[11px] font-semibold text-red-400">
+            <span className="flex items-center gap-1.5 rounded-full bg-red-500/15 px-2 py-0.5 text-[11px] font-semibold text-red-600 dark:text-red-400">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-red-500" /> LIVE
             </span>
           ) : null}

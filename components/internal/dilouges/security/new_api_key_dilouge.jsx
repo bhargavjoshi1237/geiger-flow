@@ -164,7 +164,7 @@ export function NewApiKeyDialog({ children, open, onOpenChange, onCreate }) {
             type="button"
             variant="ghost"
             onClick={() => onOpenChange?.(false)}
-            className="text-muted-foreground hover:text-foreground hover:bg-surface-card"
+            className="text-muted-foreground hover:text-foreground hover:bg-surface-hover dark:hover:bg-surface-card"
           >
             Cancel
           </Button>

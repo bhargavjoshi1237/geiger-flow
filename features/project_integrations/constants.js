@@ -20,9 +20,9 @@ export const DEFAULT_INTEGRATION_PROVIDER = "github";
 export const DEFAULT_INTEGRATION_STATUS = "active";
 
 export const INTEGRATION_STATUS_META = {
-  active: { label: "Active", className: "bg-green-500/10 text-green-400 border-green-500/20" },
+  active: { label: "Active", className: "bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20" },
   paused: { label: "Paused", className: "bg-zinc-500/10 text-muted-foreground border-border-strong" },
-  error: { label: "Error", className: "bg-red-500/10 text-red-400 border-red-500/20" },
+  error: { label: "Error", className: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20" },
 };
 
 export function getProviderLabel(provider) {

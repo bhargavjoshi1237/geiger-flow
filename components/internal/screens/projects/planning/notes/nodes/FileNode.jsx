@@ -82,7 +82,7 @@ const FileNode = ({ id, data, selected, dragging }) => {
             {fileUrl && (
               <Button
                 onClick={handleDownload}
-                className="p-2 hover:bg-surface-card/50 rounded-none transition-colors text-muted-foreground hover:text-foreground z-10"
+                className="p-2 hover:bg-surface-hover dark:hover:bg-surface-card/50 rounded-none transition-colors text-muted-foreground hover:text-foreground z-10"
                 title="Download"
               >
                 <Download size={16} />

@@ -75,7 +75,7 @@ export default function EditBoardNameDialog({
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
-            className="border-border-strong text-muted-foreground hover:bg-surface-card hover:text-foreground"
+            className="border-border-strong text-muted-foreground hover:bg-surface-hover dark:hover:bg-surface-card hover:text-foreground"
           >
             Cancel
           </Button>

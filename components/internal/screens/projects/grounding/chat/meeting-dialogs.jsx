@@ -99,7 +99,7 @@ function MediaToggle({ on, onIcon: OnIcon, offIcon: OffIcon, label, onToggle }) 
         "flex h-11 w-11 items-center justify-center rounded-full border transition-colors",
         on
           ? "border-border-strong bg-surface-hover text-foreground hover:bg-surface-active"
-          : "border-transparent bg-red-500/10 text-red-300 hover:bg-red-500/20",
+          : "border-transparent bg-red-500/10 text-red-700 dark:text-red-300 hover:bg-red-500/20",
       )}
     >
       {on ? <OnIcon className="h-[18px] w-[18px]" /> : <OffIcon className="h-[18px] w-[18px]" />}
@@ -279,7 +279,7 @@ export function JoinConfirmDialog({ open, code, onOpenChange, onJoin }) {
               <UserAvatar person={ME} size="xl" />
             </div>
             {!camOn ? (
-              <span className="absolute bottom-2 left-1/2 -translate-x-1/2 rounded-md bg-black/45 px-2 py-1 text-xs text-text-secondary backdrop-blur-sm">
+              <span className="absolute bottom-2 left-1/2 -translate-x-1/2 rounded-md bg-black/45 px-2 py-1 text-xs text-white/80 dark:text-text-secondary backdrop-blur-sm">
                 Camera is off
               </span>
             ) : null}

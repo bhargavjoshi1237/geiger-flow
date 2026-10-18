@@ -192,7 +192,7 @@ export function VaultCredentialAccessDialog({
               </div>
 
               {error && (
-                <div className="flex items-start gap-2 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-xs text-red-200">
+                <div className="flex items-start gap-2 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-xs text-red-800 dark:text-red-200">
                   <TriangleAlert className="mt-0.5 size-4 shrink-0" />
                   {error}
                 </div>

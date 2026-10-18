@@ -157,10 +157,10 @@ const GOAL_OPTIONS = [
 
 // Status glyph + colour (tasks have their own statuses, distinct from issues).
 const TASK_STATUS_ICONS = {
-  todo: { Icon: Circle, color: "text-zinc-400" },
-  in_progress: { Icon: Timer, color: "text-blue-400" },
-  blocked: { Icon: AlertOctagon, color: "text-red-400" },
-  done: { Icon: CircleCheck, color: "text-emerald-400" },
+  todo: { Icon: Circle, color: "text-zinc-600 dark:text-zinc-400" },
+  in_progress: { Icon: Timer, color: "text-blue-600 dark:text-blue-400" },
+  blocked: { Icon: AlertOctagon, color: "text-red-600 dark:text-red-400" },
+  done: { Icon: CircleCheck, color: "text-emerald-600 dark:text-emerald-400" },
 };
 
 const TASK_TYPE_ICONS = {
@@ -319,7 +319,7 @@ function CommentItem({ comment, author, onUpdate, onDelete }) {
                 type="button"
                 onClick={handleDelete}
                 disabled={busy}
-                className="rounded p-1 text-text-secondary hover:bg-red-500/10 hover:text-red-400"
+                className="rounded p-1 text-text-secondary hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400"
                 aria-label="Delete comment"
               >
                 <Trash2 className="h-3.5 w-3.5" />
@@ -423,7 +423,7 @@ function AssigneeSection({ value, members, onChange }) {
             <button
               type="button"
               onClick={() => toggle(person.id)}
-              className="text-text-secondary hover:text-red-400"
+              className="text-text-secondary hover:text-red-600 dark:hover:text-red-400"
               aria-label={`Remove ${person.name}`}
             >
               <X className="h-3 w-3" />
@@ -435,7 +435,7 @@ function AssigneeSection({ value, members, onChange }) {
           <PopoverTrigger asChild>
             <button
               type="button"
-              className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-border-strong px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-surface-card hover:text-foreground"
+              className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-border-strong px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-surface-hover dark:hover:bg-surface-card hover:text-foreground"
             >
               <Plus className="h-3.5 w-3.5" />
               Assign
@@ -492,7 +492,7 @@ function AssigneeSection({ value, members, onChange }) {
                         {person.name}
                       </span>
                       {isSelected && (
-                        <Check className="h-3.5 w-3.5 text-emerald-400" />
+                        <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
                       )}
                     </button>
                   );
@@ -661,7 +661,7 @@ function TaskDetails({ task, members = [], onUpdate, onDelete, onEdit }) {
               variant="ghost"
               size="sm"
               onClick={() => setConfirmDelete(true)}
-              className="text-red-400 hover:bg-red-500/10 hover:text-red-400"
+              className="text-red-600 dark:text-red-400 hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400"
             >
               <Trash2 className="h-3.5 w-3.5" />
             </Button>
@@ -709,7 +709,7 @@ function TaskDetails({ task, members = [], onUpdate, onDelete, onEdit }) {
             {task.progress}%
           </Badge>
           {overdue ? (
-            <Badge className="gap-1.5 border border-orange-500/20 bg-orange-500/10 px-2 py-1 text-orange-400">
+            <Badge className="gap-1.5 border border-orange-500/20 bg-orange-500/10 px-2 py-1 text-orange-600 dark:text-orange-400">
               <CalendarClock className="h-3 w-3" />
               Overdue
             </Badge>
@@ -897,7 +897,7 @@ function TaskDetails({ task, members = [], onUpdate, onDelete, onEdit }) {
                     <CalendarClock className="h-3.5 w-3.5" />
                     Due date
                     {overdue && (
-                      <span className="rounded bg-orange-500/10 px-1.5 py-0.5 text-[10px] font-semibold normal-case tracking-normal text-orange-400">
+                      <span className="rounded bg-orange-500/10 px-1.5 py-0.5 text-[10px] font-semibold normal-case tracking-normal text-orange-600 dark:text-orange-400">
                         Overdue
                       </span>
                     )}
@@ -910,7 +910,7 @@ function TaskDetails({ task, members = [], onUpdate, onDelete, onEdit }) {
                     }
                     className={cn(
                       "bg-surface-card border-border text-foreground focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1",
-                      overdue && "border-orange-500/40 text-orange-400",
+                      overdue && "border-orange-500/40 text-orange-600 dark:text-orange-400",
                     )}
                   />
                 </div>
@@ -991,7 +991,7 @@ function TaskDetails({ task, members = [], onUpdate, onDelete, onEdit }) {
                     <button
                       type="button"
                       onClick={() => handleRemoveLabel(label)}
-                      className="text-text-secondary hover:text-red-400"
+                      className="text-text-secondary hover:text-red-600 dark:hover:text-red-400"
                       aria-label={`Remove ${label}`}
                     >
                       <X className="h-3 w-3" />
@@ -1026,7 +1026,7 @@ function TaskDetails({ task, members = [], onUpdate, onDelete, onEdit }) {
             </section>
 
             {/* Stats */}
-            <div className="flex items-stretch rounded-lg border border-border bg-black/20">
+            <div className="flex items-stretch rounded-lg border border-border bg-surface-subtle dark:bg-black/20">
               {[
                 {
                   icon: Clock3,
@@ -1425,7 +1425,7 @@ export function TasksScreen() {
         <div className="text-sm text-muted-foreground">
           {task.dueDate ? formatDate(task.dueDate) : "—"}
           {isOverdue(task) ? (
-            <span className="ml-1 text-orange-400">(Overdue)</span>
+            <span className="ml-1 text-orange-600 dark:text-orange-400">(Overdue)</span>
           ) : null}
         </div>
       ),

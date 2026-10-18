@@ -76,10 +76,10 @@ function AddonCard({ addon, enabled, positionOptions, selectValue, currentColor,
             <span className="font-medium text-foreground text-[15px]">
               {addon.name}
             </span>
-            <Badge className="text-[9px] h-4 px-1.5 font-medium border-border text-muted-foreground bg-surface-subtle hover:bg-surface-subtle">
+            <Badge className="text-[9px] h-4 px-1.5 font-medium border-border text-muted-foreground bg-surface-subtle hover:bg-surface-hover dark:hover:bg-surface-subtle">
               v{addon.version}
             </Badge>
-            <Badge className="text-[9px] h-4 px-1.5 font-medium border-border text-muted-foreground bg-surface-subtle hover:bg-surface-subtle">
+            <Badge className="text-[9px] h-4 px-1.5 font-medium border-border text-muted-foreground bg-surface-subtle hover:bg-surface-hover dark:hover:bg-surface-subtle">
               {addon.category}
             </Badge>
           </div>
@@ -90,7 +90,7 @@ function AddonCard({ addon, enabled, positionOptions, selectValue, currentColor,
 
         <div className="flex items-center gap-2 shrink-0">
           {enabled && (
-            <div className="flex items-center gap-1.5 text-green-400 text-[10px] font-semibold tracking-wider uppercase mr-2">
+            <div className="flex items-center gap-1.5 text-green-600 dark:text-green-400 text-[10px] font-semibold tracking-wider uppercase mr-2">
               <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
               Active
             </div>
@@ -203,7 +203,7 @@ export function AddonsViewToggle({ compactView, onToggle }) {
         "w-8 h-8 rounded-lg border flex items-center justify-center transition-all duration-200",
         compactView
           ? "border-border bg-primary text-primary-foreground"
-          : "border-border bg-surface-dialog text-muted-foreground hover:text-muted-foreground hover:bg-surface-card"
+          : "border-border bg-surface-dialog text-muted-foreground hover:text-muted-foreground hover:bg-surface-hover dark:hover:bg-surface-card"
       )}
       title={compactView ? "Switch to list view" : "Switch to grid view"}
     >

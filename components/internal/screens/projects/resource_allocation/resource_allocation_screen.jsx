@@ -327,7 +327,7 @@ export function ResourceAllocationScreen() {
             <div className="flex items-center gap-2">
               <span className="font-medium text-foreground">{resource.member}</span>
               {overloaded ? (
-                <AlertTriangle className="h-3.5 w-3.5 text-amber-300" />
+                <AlertTriangle className="h-3.5 w-3.5 text-amber-700 dark:text-amber-300" />
               ) : null}
             </div>
             <p className="line-clamp-1 text-xs text-text-secondary">{resource.role || "—"}</p>

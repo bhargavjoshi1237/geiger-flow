@@ -244,7 +244,7 @@ export function NewProjectionDialog({
                     type="button"
                     variant="ghost"
                     onClick={() => setConfirmingDelete(false)}
-                    className="text-muted-foreground hover:text-foreground hover:bg-surface-card"
+                    className="text-muted-foreground hover:text-foreground hover:bg-surface-hover dark:hover:bg-surface-card"
                   >
                     Keep
                   </Button>
@@ -252,7 +252,7 @@ export function NewProjectionDialog({
                     type="button"
                     variant="ghost"
                     onClick={() => onDelete?.(editProjection.id)}
-                    className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                    className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-500/10"
                   >
                     Confirm delete
                   </Button>
@@ -263,7 +263,7 @@ export function NewProjectionDialog({
                     type="button"
                     variant="ghost"
                     onClick={() => onToggleArchive?.(editProjection)}
-                    className="mr-auto text-text-secondary hover:text-foreground hover:bg-surface-card gap-1.5"
+                    className="mr-auto text-text-secondary hover:text-foreground hover:bg-surface-hover dark:hover:bg-surface-card gap-1.5"
                   >
                     {editProjection.archivedAt ? (
                       <>
@@ -281,7 +281,7 @@ export function NewProjectionDialog({
                     type="button"
                     variant="ghost"
                     onClick={() => setConfirmingDelete(true)}
-                    className="text-red-400 hover:text-red-300 hover:bg-red-500/10 gap-1.5 mr-auto"
+                    className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-500/10 gap-1.5 mr-auto"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                     Delete
@@ -290,7 +290,7 @@ export function NewProjectionDialog({
                     type="button"
                     variant="ghost"
                     onClick={handleClose}
-                    className="text-muted-foreground hover:text-foreground hover:bg-surface-card"
+                    className="text-muted-foreground hover:text-foreground hover:bg-surface-hover dark:hover:bg-surface-card"
                   >
                     Cancel
                   </Button>
@@ -311,7 +311,7 @@ export function NewProjectionDialog({
                 type="button"
                 variant="ghost"
                 onClick={handleClose}
-                className="text-muted-foreground hover:text-foreground hover:bg-surface-card"
+                className="text-muted-foreground hover:text-foreground hover:bg-surface-hover dark:hover:bg-surface-card"
               >
                 Cancel
               </Button>

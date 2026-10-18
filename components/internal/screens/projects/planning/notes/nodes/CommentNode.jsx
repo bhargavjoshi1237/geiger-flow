@@ -101,7 +101,7 @@ const CommentNode = ({ id, data, selected }) => {
             variant="ghost"
             size="sm"
             onClick={handleSend}
-            className="absolute right-2 text-blue-400 hover:text-blue-300 text-xs font-medium transition-colors"
+            className="absolute right-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-xs font-medium transition-colors"
           >
             Send
           </Button>

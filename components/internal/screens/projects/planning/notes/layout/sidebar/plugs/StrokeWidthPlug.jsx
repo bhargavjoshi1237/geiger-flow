@@ -38,7 +38,7 @@ export const StrokeWidthPlug = ({ value, onChange }) => {
               key={sw.label}
               onClick={() => onChange(sw.value)}
               className={`flex items-center gap-3 px-2 py-2 rounded-lg text-sm transition-colors
-                ${value === sw.value ? "bg-surface-card text-foreground" : "text-muted-foreground hover:bg-surface-card/50 hover:text-foreground"}
+                ${value === sw.value ? "bg-surface-active dark:bg-surface-card text-foreground" : "text-muted-foreground hover:bg-surface-hover dark:hover:bg-surface-card/50 hover:text-foreground"}
             `}
             >
               <div

@@ -106,8 +106,8 @@ export default function EditBoardIconDialog({
                     onClick={() => setIconName(name)}
                     className={`p-2 rounded-md transition-all ${
                       isSelected
-                        ? "bg-purple-500/20 text-purple-400 border border-purple-500/50"
-                        : "text-muted-foreground hover:bg-surface-card hover:text-foreground border border-transparent"
+                        ? "bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/50"
+                        : "text-muted-foreground hover:bg-surface-hover dark:hover:bg-surface-card hover:text-foreground border border-transparent"
                     }`}
                     title={name}
                   >
@@ -181,7 +181,7 @@ export default function EditBoardIconDialog({
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
-            className="border-border-strong text-muted-foreground hover:bg-surface-card hover:text-foreground"
+            className="border-border-strong text-muted-foreground hover:bg-surface-hover dark:hover:bg-surface-card hover:text-foreground"
           >
             Cancel
           </Button>

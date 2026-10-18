@@ -94,7 +94,7 @@ function OwnerPill({ name }) {
 
   return (
     <span className="inline-flex items-center gap-2 whitespace-nowrap">
-      <span className="grid h-6 w-6 place-items-center rounded-full bg-zinc-300 text-[10px] font-bold text-primary-foreground">
+      <span className="grid h-6 w-6 place-items-center rounded-full bg-zinc-300 text-[10px] font-bold text-zinc-900 dark:text-primary-foreground">
         {initials || "?"}
       </span>
       <span className="hidden truncate text-xs font-medium text-foreground 2xl:inline">{name}</span>

@@ -73,11 +73,11 @@ export default function NotificationDialog({
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-zinc-800/50">
+            <div className="divide-y divide-zinc-200 dark:divide-zinc-800/50">
               {notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className="p-4 flex gap-4 hover:bg-surface-card/30 transition-colors"
+                  className="p-4 flex gap-4 hover:bg-surface-hover dark:hover:bg-surface-card/30 transition-colors"
                 >
                   <div className="mt-1">
                     {notification.type === "request" && (
@@ -89,7 +89,7 @@ export default function NotificationDialog({
                           </AvatarFallback>
                         </Avatar>
                         <div className="absolute -bottom-1 -right-1 bg-surface-subtle rounded-full p-0.5 border border-border">
-                          <User className="w-3 h-3 text-blue-400 fill-blue-400" />
+                          <User className="w-3 h-3 text-blue-600 dark:text-blue-400 fill-blue-400" />
                         </div>
                       </div>
                     )}
@@ -123,7 +123,7 @@ export default function NotificationDialog({
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="h-7 text-xs text-muted-foreground hover:text-red-400 hover:bg-red-900/10"
+                          className="h-7 text-xs text-muted-foreground hover:text-red-600 dark:hover:text-red-400 hover:bg-red-900/10"
                           onClick={() => onKickMember(notification.id)}
                         >
                           <X className="w-3 h-3 mr-1.5" />

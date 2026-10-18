@@ -188,7 +188,7 @@ function LogDetailSheet({ log, open, onOpenChange, onDelete }) {
                 className={cn(
                   "absolute top-2 right-2 p-1.5 rounded-md border transition-colors",
                   copied
-                    ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                    ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400"
                     : "bg-surface-card border-border text-text-secondary hover:text-muted-foreground hover:border-border-strong",
                 )}
               >
@@ -207,7 +207,7 @@ function LogDetailSheet({ log, open, onOpenChange, onDelete }) {
             <Button
               variant="ghost"
               onClick={() => onDelete(log)}
-              className="text-red-400 hover:bg-red-500/10 hover:text-red-400 gap-2"
+              className="text-red-600 dark:text-red-400 hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400 gap-2"
             >
               <Trash2 className="w-4 h-4" />
               Delete Log

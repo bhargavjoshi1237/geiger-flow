@@ -15,12 +15,12 @@ export const PRESENCE = {
 // glyph) so the UI is icon-only and consistent everywhere. `colorClass` tints
 // the Lucide icon; consumers render `icon` as a component.
 export const REACTIONS = [
-  { key: "like", label: "Like", icon: ThumbsUp, colorClass: "text-blue-400" },
-  { key: "love", label: "Love", icon: Heart, colorClass: "text-rose-400" },
-  { key: "laugh", label: "Haha", icon: Laugh, colorClass: "text-amber-400" },
-  { key: "celebrate", label: "Celebrate", icon: PartyPopper, colorClass: "text-fuchsia-400" },
-  { key: "insightful", label: "Insightful", icon: Lightbulb, colorClass: "text-yellow-400" },
-  { key: "fire", label: "Fire", icon: Flame, colorClass: "text-orange-400" },
+  { key: "like", label: "Like", icon: ThumbsUp, colorClass: "text-blue-600 dark:text-blue-400" },
+  { key: "love", label: "Love", icon: Heart, colorClass: "text-rose-600 dark:text-rose-400" },
+  { key: "laugh", label: "Haha", icon: Laugh, colorClass: "text-amber-700 dark:text-amber-400" },
+  { key: "celebrate", label: "Celebrate", icon: PartyPopper, colorClass: "text-fuchsia-600 dark:text-fuchsia-400" },
+  { key: "insightful", label: "Insightful", icon: Lightbulb, colorClass: "text-yellow-700 dark:text-yellow-400" },
+  { key: "fire", label: "Fire", icon: Flame, colorClass: "text-orange-600 dark:text-orange-400" },
 ];
 
 export const REACTION_MAP = Object.fromEntries(REACTIONS.map((r) => [r.key, r]));

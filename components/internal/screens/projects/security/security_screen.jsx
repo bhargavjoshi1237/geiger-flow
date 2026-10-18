@@ -100,7 +100,7 @@ function PolicyCard({ policy, onToggle }) {
           className={cn(
             "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border",
             policy.isEnabled
-              ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-300"
+              ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
               : "border-border bg-surface-card text-text-secondary",
           )}
         >

@@ -264,7 +264,7 @@ export function ConnectionsScreen({ isCreateOpen = false, onCreateOpenChange }) 
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 text-text-secondary hover:bg-red-500/10 hover:text-red-300"
+                  className="h-8 w-8 text-text-secondary hover:bg-red-500/10 hover:text-red-700 dark:hover:text-red-300"
                   onClick={() => handleDisconnect(entry.id)}
                 >
                   <Trash2 className="h-3.5 w-3.5" />

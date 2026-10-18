@@ -78,12 +78,12 @@ function TaskToggle({ milestoneId, task, onToggleTask }) {
     <button
       type="button"
       onClick={() => onToggleTask(milestoneId, task.id)}
-      className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition-colors hover:bg-surface-card"
+      className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition-colors hover:bg-surface-hover dark:hover:bg-surface-card"
     >
       {isDone ? (
-        <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-400" />
+        <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
       ) : task.status === "blocked" ? (
-        <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-red-300" />
+        <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-red-700 dark:text-red-300" />
       ) : (
         <Circle className="h-3.5 w-3.5 shrink-0 text-text-tertiary" />
       )}
@@ -333,7 +333,7 @@ export function MilestonesScreen() {
                   type="button"
                   onClick={() => toggleMilestone(milestone.id)}
                   aria-expanded={expanded}
-                  className="mt-1 inline-flex w-fit items-center gap-1 rounded-md px-1 py-0.5 text-xs font-medium text-text-secondary transition-colors hover:bg-surface-card hover:text-foreground"
+                  className="mt-1 inline-flex w-fit items-center gap-1 rounded-md px-1 py-0.5 text-xs font-medium text-text-secondary transition-colors hover:bg-surface-hover dark:hover:bg-surface-card hover:text-foreground"
                 >
                   <ChevronDown
                     className={cn(

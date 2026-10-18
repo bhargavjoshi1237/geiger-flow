@@ -60,25 +60,25 @@ export const stageLabels = Object.fromEntries(
 
 // Badge color classes (tailwind utilities at /10 bg + /20 border).
 export const statusMeta = {
-  todo: { label: "To Do", className: "bg-zinc-500/10 text-zinc-300 border-zinc-500/20" },
-  in_progress: { label: "In Progress", className: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
-  blocked: { label: "Blocked", className: "bg-red-500/10 text-red-400 border-red-500/20" },
-  done: { label: "Done", className: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" },
+  todo: { label: "To Do", className: "bg-zinc-500/10 text-zinc-700 dark:text-zinc-300 border-zinc-500/20" },
+  in_progress: { label: "In Progress", className: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20" },
+  blocked: { label: "Blocked", className: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20" },
+  done: { label: "Done", className: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20" },
 };
 
 export const priorityMeta = {
-  low: { label: "Low", className: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
-  medium: { label: "Medium", className: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20" },
-  high: { label: "High", className: "bg-orange-500/10 text-orange-400 border-orange-500/20" },
-  critical: { label: "Critical", className: "bg-red-500/10 text-red-400 border-red-500/20" },
+  low: { label: "Low", className: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20" },
+  medium: { label: "Medium", className: "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20" },
+  high: { label: "High", className: "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20" },
+  critical: { label: "Critical", className: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20" },
 };
 
 export const typeMeta = {
-  task: { label: "Task", className: "bg-zinc-500/10 text-zinc-300 border-zinc-500/20" },
-  issue: { label: "Issue", className: "bg-amber-500/10 text-amber-400 border-amber-500/20" },
-  bug: { label: "Bug", className: "bg-red-500/10 text-red-400 border-red-500/20" },
-  feature: { label: "Feature", className: "bg-violet-500/10 text-violet-400 border-violet-500/20" },
-  improvement: { label: "Improvement", className: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" },
+  task: { label: "Task", className: "bg-zinc-500/10 text-zinc-700 dark:text-zinc-300 border-zinc-500/20" },
+  issue: { label: "Issue", className: "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20" },
+  bug: { label: "Bug", className: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20" },
+  feature: { label: "Feature", className: "bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20" },
+  improvement: { label: "Improvement", className: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20" },
 };
 
 // Numeric weight for sorting by priority (critical first).

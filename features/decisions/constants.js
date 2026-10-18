@@ -4,17 +4,17 @@ export const DECISION_STATUS_META = {
   proposed: {
     label: "Proposed",
     tone: "blue",
-    className: "border-blue-500/30 bg-blue-500/15 text-blue-300",
+    className: "border-blue-500/30 bg-blue-500/15 text-blue-700 dark:text-blue-300",
   },
   accepted: {
     label: "Accepted",
     tone: "emerald",
-    className: "border-emerald-500/30 bg-emerald-500/15 text-emerald-300",
+    className: "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
   },
   revisit: {
     label: "Revisit",
     tone: "amber",
-    className: "border-amber-500/30 bg-amber-500/15 text-amber-300",
+    className: "border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-300",
   },
   superseded: {
     label: "Superseded",

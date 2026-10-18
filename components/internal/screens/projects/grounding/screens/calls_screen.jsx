@@ -46,7 +46,7 @@ function ActionCard({ icon: Icon, title, subtitle, onClick, children }) {
 }
 
 const DIRECTION_META = {
-  missed: { icon: PhoneMissed, label: "Missed", className: "text-red-400" },
+  missed: { icon: PhoneMissed, label: "Missed", className: "text-red-600 dark:text-red-400" },
   incoming: { icon: PhoneIncoming, label: "Incoming", className: "text-muted-foreground" },
   outgoing: { icon: PhoneOutgoing, label: "Outgoing", className: "text-muted-foreground" },
 };
@@ -66,7 +66,7 @@ function CallTableRow({ call, onCallBack, onAction }) {
         <div className="flex min-w-0 items-center gap-3">
           <UserAvatar person={people[0]} size="md" />
           <div className="min-w-0">
-            <p className={cn("truncate text-sm font-medium", call.missed ? "text-red-400" : "text-foreground")}>{call.title}</p>
+            <p className={cn("truncate text-sm font-medium", call.missed ? "text-red-600 dark:text-red-400" : "text-foreground")}>{call.title}</p>
             <p className="truncate text-xs text-text-secondary">{people.map((p) => p.firstName).join(", ")}</p>
           </div>
         </div>

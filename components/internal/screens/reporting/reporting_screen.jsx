@@ -558,7 +558,7 @@ export function ReportingScreen() {
           className={cn(
             "rounded-md border px-1.5 py-0.5 text-[10px] font-medium",
             entry.billable
-              ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-300"
+              ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
               : "border-zinc-500/25 bg-zinc-500/10 text-foreground",
           )}
         >
@@ -769,7 +769,7 @@ function OwnerWidget({ name, large = false }) {
   return (
     <span className="inline-flex min-w-0 items-center gap-2">
       <Avatar size={large ? "md" : "sm"}>
-        <AvatarFallback className="bg-zinc-300 text-[10px] font-bold text-primary-foreground">
+        <AvatarFallback className="bg-zinc-300 text-[10px] font-bold text-zinc-900 dark:text-primary-foreground">
           {initials || "?"}
         </AvatarFallback>
       </Avatar>

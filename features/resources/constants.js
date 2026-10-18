@@ -33,30 +33,30 @@ export const requestStatusLabels = Object.fromEntries(
 export const allocationStatusMeta = {
   active: {
     label: "Active",
-    className: "bg-blue-500/15 text-blue-300 border-blue-500/30",
+    className: "bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30",
   },
   planned: {
     label: "Planned",
-    className: "bg-violet-500/15 text-violet-300 border-violet-500/30",
+    className: "bg-violet-500/15 text-violet-700 dark:text-violet-300 border-violet-500/30",
   },
   completed: {
     label: "Completed",
-    className: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
+    className: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30",
   },
 };
 
 export const requestStatusMeta = {
   pending: {
     label: "Pending",
-    className: "bg-amber-500/15 text-amber-300 border-amber-500/30",
+    className: "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30",
   },
   approved: {
     label: "Approved",
-    className: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
+    className: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30",
   },
   denied: {
     label: "Denied",
-    className: "bg-red-500/15 text-red-400 border-red-500/20",
+    className: "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/20",
   },
 };
 

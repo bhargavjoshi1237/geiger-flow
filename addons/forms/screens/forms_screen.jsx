@@ -77,12 +77,12 @@ const RESPONSE_ANSWERS = {
 const RESPONSES = [];
 
 const STATUS_CLASS = {
-  Published: "border-emerald-500/30 bg-emerald-500/15 text-emerald-300",
-  Draft: "border-blue-500/30 bg-blue-500/15 text-blue-300",
+  Published: "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+  Draft: "border-blue-500/30 bg-blue-500/15 text-blue-700 dark:text-blue-300",
   Closed: "border-zinc-500/30 bg-zinc-500/15 text-foreground",
-  "Needs review": "border-amber-500/30 bg-amber-500/15 text-amber-300",
-  Approved: "border-emerald-500/30 bg-emerald-500/15 text-emerald-300",
-  Flagged: "border-red-500/30 bg-red-500/15 text-red-300",
+  "Needs review": "border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-300",
+  Approved: "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+  Flagged: "border-red-500/30 bg-red-500/15 text-red-700 dark:text-red-300",
 };
 
 function Metric({ label, value, detail, Icon }) {
@@ -272,7 +272,7 @@ function QuestionEditor({ question, index, active, onSelect, onChange, onDuplica
             type="button"
             variant="ghost"
             size="icon"
-            className="h-8 w-8 text-text-secondary hover:bg-surface-active hover:text-red-300"
+            className="h-8 w-8 text-text-secondary hover:bg-surface-active hover:text-red-700 dark:hover:text-red-300"
             onClick={(event) => {
               event.stopPropagation();
               onDelete();
@@ -299,14 +299,14 @@ function FormPreview({ form, questions }) {
       <div className="border-b border-border bg-surface-subtle p-4">
         <div className="flex items-start gap-3">
           <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-teal-500/25 bg-teal-500/10">
-            <LockKeyhole className="h-4 w-4 text-teal-300" />
+            <LockKeyhole className="h-4 w-4 text-teal-700 dark:text-teal-300" />
           </div>
           <div className="min-w-0">
             <h3 className="text-base font-semibold text-foreground">{form.title}</h3>
             <p className="mt-1 text-xs leading-5 text-text-secondary">{form.description}</p>
           </div>
         </div>
-        <div className="mt-4 rounded-lg border border-teal-500/20 bg-teal-500/10 px-3 py-2 text-xs leading-5 text-teal-200">
+        <div className="mt-4 rounded-lg border border-teal-500/20 bg-teal-500/10 px-3 py-2 text-xs leading-5 text-teal-800 dark:text-teal-200">
           Submissions are confidential and bound to this project&apos;s access clause. Identity is verified before review.
         </div>
       </div>
@@ -317,7 +317,7 @@ function FormPreview({ form, questions }) {
             <div key={question.id}>
               <div className="flex items-center gap-1.5">
                 <p className="text-sm font-medium text-foreground">{question.title}</p>
-                {question.required ? <span className="text-red-300">*</span> : null}
+                {question.required ? <span className="text-red-700 dark:text-red-300">*</span> : null}
               </div>
               {question.description ? (
                 <p className="mt-1 text-xs text-text-secondary">{question.description}</p>
@@ -338,7 +338,7 @@ function FormPreview({ form, questions }) {
                         className={cn(
                           "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm",
                           selected
-                            ? "border-teal-500/30 bg-teal-500/10 text-teal-200"
+                            ? "border-teal-500/30 bg-teal-500/10 text-teal-800 dark:text-teal-200"
                             : "border-border bg-surface-subtle text-text-secondary",
                         )}
                       >
@@ -756,7 +756,7 @@ export function FormsScreen() {
         <div className="flex flex-col gap-4 border-b border-border pb-6 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">
             <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-teal-500/25 bg-teal-500/10">
-              <FileQuestion className="h-5 w-5 text-teal-300" />
+              <FileQuestion className="h-5 w-5 text-teal-700 dark:text-teal-300" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-foreground md:text-3xl">Forms</h1>
@@ -775,7 +775,7 @@ export function FormsScreen() {
         <div className="flex flex-col gap-4 border-b border-border pb-6 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">
             <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-teal-500/25 bg-teal-500/10">
-              <FileQuestion className="h-5 w-5 text-teal-300" />
+              <FileQuestion className="h-5 w-5 text-teal-700 dark:text-teal-300" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-foreground md:text-3xl">Forms</h1>
@@ -812,7 +812,7 @@ export function FormsScreen() {
       <div className="flex flex-col gap-4 border-b border-border pb-6 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">
           <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-teal-500/25 bg-teal-500/10">
-            <FileQuestion className="h-5 w-5 text-teal-300" />
+            <FileQuestion className="h-5 w-5 text-teal-700 dark:text-teal-300" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-foreground md:text-3xl">Forms</h1>
@@ -823,7 +823,7 @@ export function FormsScreen() {
           <Button
             type="button"
             variant="ghost"
-            className="text-text-secondary hover:bg-red-500/10 hover:text-red-400"
+            className="text-text-secondary hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400"
             onClick={deleteSelectedForm}
           >
             <Trash2 className="mr-2 h-4 w-4" />
@@ -866,7 +866,7 @@ export function FormsScreen() {
                   <Badge className={cn("border px-2 py-1", STATUS_CLASS[selectedForm.status])}>
                     {selectedForm.status}
                   </Badge>
-                  <Badge className="border border-teal-500/25 bg-teal-500/10 px-2 py-1 text-teal-200">
+                  <Badge className="border border-teal-500/25 bg-teal-500/10 px-2 py-1 text-teal-800 dark:text-teal-200">
                     <LockKeyhole className="mr-1.5 h-3.5 w-3.5" />
                     {selectedForm.confidentiality}
                   </Badge>
@@ -876,7 +876,7 @@ export function FormsScreen() {
                 <ViewSwitch activeView={activeView} onChange={setActiveView} />
                 <div className="flex flex-wrap items-center gap-2 text-xs text-text-secondary">
                   <span className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-subtle px-3 py-2">
-                    <ShieldCheck className="h-3.5 w-3.5 text-teal-300" />
+                    <ShieldCheck className="h-3.5 w-3.5 text-teal-700 dark:text-teal-300" />
                     Verified identity
                   </span>
                   <span className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-subtle px-3 py-2">

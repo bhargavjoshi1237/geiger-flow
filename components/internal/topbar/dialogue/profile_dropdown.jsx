@@ -206,9 +206,9 @@ export function ProfileDropdown({ children }) {
 
             <DropdownMenuItem
               onSelect={handleSignOut}
-              className={`${itemBaseStyle} text-muted-foreground hover:bg-red-500/10 focus:bg-red-500/10 hover:text-red-400 focus:text-red-400 group`}
+              className={`${itemBaseStyle} text-muted-foreground hover:bg-red-500/10 focus:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400 focus:text-red-600 dark:focus:text-red-400 group`}
             >
-              <LogOut className="size-4 group-hover:text-red-400 group-focus:text-red-400" />
+              <LogOut className="size-4 group-hover:text-red-600 dark:group-hover:text-red-400 group-focus:text-red-600 dark:group-focus:text-red-400" />
               <span>Sign out</span>
             </DropdownMenuItem>
           </DropdownMenuGroup>
@@ -227,14 +227,14 @@ export function ProfileDropdown({ children }) {
             <ToggleGroupItem
               value="light"
               aria-label="Light theme"
-              className="data-[state=on]:bg-surface-active data-[state=on]:text-foreground text-muted-foreground rounded-md hover:bg-surface-card hover:text-foreground px-3 h-7 text-xs gap-1.5 justify-center"
+              className="data-[state=on]:bg-surface-active data-[state=on]:text-foreground text-muted-foreground rounded-md hover:bg-surface-hover dark:hover:bg-surface-card hover:text-foreground px-3 h-7 text-xs gap-1.5 justify-center"
             >
               <Sun className="size-3.5" />
             </ToggleGroupItem>
             <ToggleGroupItem
               value="dark"
               aria-label="Dark theme"
-              className="data-[state=on]:bg-surface-active data-[state=on]:text-foreground text-muted-foreground rounded-md hover:bg-surface-card hover:text-foreground px-3 h-7 text-xs gap-1.5 justify-center"
+              className="data-[state=on]:bg-surface-active data-[state=on]:text-foreground text-muted-foreground rounded-md hover:bg-surface-hover dark:hover:bg-surface-card hover:text-foreground px-3 h-7 text-xs gap-1.5 justify-center"
             >
               <Moon className="size-3.5" />
             </ToggleGroupItem>

@@ -17,7 +17,7 @@ const Reactions = ({ reactions = {}, onReactionClick }) => {
           className={`
             group flex items-center gap-1.5 
             bg-surface-subtle/80 backdrop-blur-md
-            hover:bg-surface-card transition-all duration-300
+            hover:bg-surface-hover dark:hover:bg-surface-card transition-all duration-300
             px-2 py-1 rounded-lg text-xs 
             border border-border-strong/50 hover:border-zinc-500
             shadow-lg shadow-black/20

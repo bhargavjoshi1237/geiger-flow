@@ -37,11 +37,11 @@
      uses for in-progress / done / overdue states). */
   --lnr-backlog: var(--muted-foreground);
   --lnr-todo: var(--muted-foreground);
-  --lnr-started: #38bdf8; /* sky-400 — In Progress */
-  --lnr-review: #a78bfa; /* violet-400 — In Review */
-  --lnr-done: #34d399; /* emerald-400 — Done */
+  --lnr-started: #0284c7; /* sky-600 — In Progress */
+  --lnr-review: #7c3aed; /* violet-600 — In Review */
+  --lnr-done: #059669; /* emerald-600 — Done */
   --lnr-canceled: var(--text-tertiary);
-  --lnr-urgent: #f87171; /* red-400 — Urgent / overdue */
+  --lnr-urgent: #dc2626; /* red-600 — Urgent / overdue */
 
   /* Linear's fields are tighter than the suite default. */
   --radius: 0.5rem;
@@ -52,6 +52,14 @@
   color: var(--lnr-ink);
   font-feature-settings: "cv01", "ss03";
   -webkit-font-smoothing: antialiased;
+}
+
+/* Dark keeps the brighter 400 hues; the 600s above stay legible on white. */
+.dark .linear-scope {
+  --lnr-started: #38bdf8; /* sky-400 */
+  --lnr-review: #a78bfa; /* violet-400 */
+  --lnr-done: #34d399; /* emerald-400 */
+  --lnr-urgent: #f87171; /* red-400 */
 }
 
 /* Inter is Linear's typeface. The doubled class outranks Tailwind's `font-sans`

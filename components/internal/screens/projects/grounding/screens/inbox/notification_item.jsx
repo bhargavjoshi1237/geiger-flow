@@ -51,7 +51,7 @@ export function NotificationItem({
         group relative flex items-start gap-3 p-4 rounded-2xl border transition-all duration-200 cursor-pointer
         ${isUnread
           ? "bg-surface-card border-border hover:border-border-strong"
-          : "bg-surface-card border-transparent hover:bg-surface-subtle hover:border-border"}
+          : "bg-surface-card border-transparent hover:bg-surface-hover dark:hover:bg-surface-subtle hover:border-border"}
       `}
     >
 
@@ -137,7 +137,7 @@ export function NotificationItem({
               }}
               className="cursor-pointer text-[12px]"
             >
-              <Check className="w-3.5 h-3.5 mr-2 text-green-400" />
+              <Check className="w-3.5 h-3.5 mr-2 text-green-600 dark:text-green-400" />
               Mark as read
             </DropdownMenuItem>
           )}
@@ -146,7 +146,7 @@ export function NotificationItem({
               e.stopPropagation();
               onDelete(notification.id);
             }}
-            className="cursor-pointer text-[12px] text-red-400 focus:text-red-400"
+            className="cursor-pointer text-[12px] text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400"
           >
             <Trash2 className="w-3.5 h-3.5 mr-2" />
             Delete

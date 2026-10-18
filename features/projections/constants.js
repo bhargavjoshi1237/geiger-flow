@@ -26,30 +26,30 @@ export const kindLabels = Object.fromEntries(
 export const kindMeta = {
   milestone: {
     label: "Milestone",
-    className: "bg-yellow-500/10 text-yellow-300 border-yellow-500/20",
+    className: "bg-yellow-500/10 text-yellow-700 dark:text-yellow-300 border-yellow-500/20",
   },
   release: {
     label: "Release",
-    className: "bg-violet-500/10 text-violet-300 border-violet-500/20",
+    className: "bg-violet-500/10 text-violet-700 dark:text-violet-300 border-violet-500/20",
   },
   review: {
     label: "Review",
-    className: "bg-cyan-500/10 text-cyan-300 border-cyan-500/20",
+    className: "bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 border-cyan-500/20",
   },
   deadline: {
     label: "Deadline",
-    className: "bg-red-500/10 text-red-300 border-red-500/20",
+    className: "bg-red-500/10 text-red-700 dark:text-red-300 border-red-500/20",
   },
 };
 
 export const visibilityMeta = {
   public: {
     label: "Public",
-    className: "bg-blue-500/10 text-blue-300 border-blue-500/20",
+    className: "bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/20",
   },
   shared: {
     label: "Shared",
-    className: "bg-amber-500/10 text-amber-300 border-amber-500/20",
+    className: "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20",
   },
 };
 
