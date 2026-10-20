@@ -48,7 +48,7 @@ export default function DocPage() {
               </span>
               <span className="text-xs text-muted-foreground">
                 Pick an organization to open a project and reach its overview,
-                tasks, planning, office files, and settings tabs
+                tasks, planning, and settings tabs
               </span>
             </span>
           </a>

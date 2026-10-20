@@ -71,16 +71,6 @@ export default defineNavConfig({
     },
     { screen: "Security", requires: ["Team"] },
 
-    // Office is a document surface over the project's files.
-    { screen: "Recent Files", requires: ["Office"] },
-    { screen: "Folders", requires: ["Office"] },
-    { screen: "Shared with Project", requires: ["Office"] },
-    {
-      screen: "Assets",
-      requires: ["Office"],
-      reason: "Assets are stored in the project's Office files.",
-    },
-
     // Vault holds the credentials externals connect with.
     {
       screen: "Externals",

@@ -71,18 +71,21 @@ export const MEDIA_TYPE_MAP = {
   },
 };
 
-// Filter chips for the assets toolbar ("All" first).
+// Max size for a single upload; enforced in the dialog and the data layer.
+export const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
+
+// Type filter options for the assets toolbar ("all" sentinel first).
 export const MEDIA_TYPE_FILTERS = [
-  { value: "all", label: "All" },
+  { value: "all", label: "All types" },
   ...MEDIA_TYPES.map((type) => ({ value: type, label: MEDIA_TYPE_MAP[type].label })),
 ];
 
 // Sort options for the assets table.
 export const ASSET_SORTS = [
-  { value: "newest", label: "Newest" },
-  { value: "oldest", label: "Oldest" },
-  { value: "largest", label: "Largest" },
-  { value: "name", label: "Name" },
+  { value: "newest", label: "Newest first" },
+  { value: "oldest", label: "Oldest first" },
+  { value: "largest", label: "Largest first" },
+  { value: "name", label: "Name A–Z" },
 ];
 
 export const DEFAULT_ASSET_SORT = "newest";
@@ -119,4 +122,24 @@ export function formatBytes(bytes) {
   const sizes = ["B", "KB", "MB", "GB", "TB"];
   const i = Math.min(Math.floor(Math.log(value) / Math.log(k)), sizes.length - 1);
   return `${parseFloat((value / k ** i).toFixed(1))} ${sizes[i]}`;
+}
+
+// Media-type config with a safe fallback for unknown values.
+export function mediaMeta(type) {
+  return MEDIA_TYPE_MAP[type] ?? MEDIA_TYPE_MAP[DEFAULT_MEDIA_TYPE];
+}
+
+// Upper-cased file extension ("PNG"), or "" when the name has none.
+export function fileExtension(name) {
+  const ext = name?.includes(".") ? name.split(".").pop() : "";
+  return ext ? ext.toUpperCase() : "";
+}
+
+// Short display date ("Oct 12, 2026"); "—" for a missing or invalid value.
+export function formatAssetDate(value) {
+  const date = value ? new Date(value) : null;
+  if (!date || Number.isNaN(date.getTime())) {
+    return "—";
+  }
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }

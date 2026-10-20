@@ -40,14 +40,13 @@ from a static in-file array.
 | 10 | Reporting | `reporting/reporting_screen.jsx` | tasks + issues + time_entries | **Complete** |
 | 11 | Objectives | `objectives/objectives_screen.jsx` | `features/objectives`, `features/goals` | **Complete** |
 | 12 | Assets | `assets/assets_screen.jsx` | `features/assets` | **Complete** |
-| 13 | Office ▸ Recent / Folders / Shared | `office/office_screen.jsx` | `features/office` | **Complete** |
-| 14 | Logs | `logs/logs_screen.jsx` | `features/activity_logs` | **Complete** |
-| 15 | Team | `team/team.jsx` | `features/team` | **Complete** |
-| 16 | Resource Allocation | `resource_allocation/…` | `features/resources` | **Complete** |
-| 17 | Vault | `vault/vault_screen.jsx` | `features/vault` | **Complete** |
-| 18 | Externals | `externals/externals_screen.jsx` | `features/external_links` (via shell props) | **Complete** |
-| 19 | Security | `security/security_screen.jsx` | `features/security` | **Complete** |
-| 20 | Settings | `settings/settings_screen.jsx` | see below | **Complete** |
+| 13 | Logs | `logs/logs_screen.jsx` | `features/activity_logs` | **Complete** |
+| 14 | Team | `team/team.jsx` | `features/team` | **Complete** |
+| 15 | Resource Allocation | `resource_allocation/…` | `features/resources` | **Complete** |
+| 16 | Vault | `vault/vault_screen.jsx` | `features/vault` | **Complete** |
+| 17 | Externals | `externals/externals_screen.jsx` | `features/external_links` (via shell props) | **Complete** |
+| 18 | Security | `security/security_screen.jsx` | `features/security` | **Complete** |
+| 19 | Settings | `settings/settings_screen.jsx` | see below | **Complete** |
 
 ### Settings sub-tabs
 

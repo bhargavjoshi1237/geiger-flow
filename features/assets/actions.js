@@ -17,6 +17,7 @@ import { createClient } from "@/lib/supabase/client";
 import { flowClient } from "@/supabase/components/flow-client";
 import {
   DEFAULT_MEDIA_TYPE,
+  MAX_UPLOAD_BYTES,
   MEDIA_TYPE_MAP,
   mediaTypeFromName,
 } from "./constants";
@@ -24,8 +25,15 @@ import {
 const ASSETS_TABLE = "assets";
 const STORAGE_BUCKET = "homeboard";
 const ASSETS_PREFIX = "project-assets";
-// Sane client-side guard — uploads above this are rejected before they start.
-const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
+
+// Public URL that makes Supabase serve the file as an attachment (cross-origin <a download> is ignored).
+export function assetDownloadUrl(asset) {
+  if (!asset?.url) {
+    return "";
+  }
+  const separator = asset.url.includes("?") ? "&" : "?";
+  return `${asset.url}${separator}download=${encodeURIComponent(asset.name || "asset")}`;
+}
 
 // DB row (snake_case) -> UI view model (camelCase). The metadata bag's keys
 // are spread onto the view model so the UI treats them like first-class fields.

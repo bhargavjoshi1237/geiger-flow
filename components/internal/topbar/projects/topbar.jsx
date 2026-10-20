@@ -4,15 +4,14 @@ import React from "react";
 import { Search, Bell, HelpCircle } from "lucide-react";
 import { Button } from "@geiger/ui";
 import { Kbd, KbdGroup } from "@geiger/ui";
-import { useProject } from "@/context/project-context";
 import { SidebarTrigger } from "@geiger/ui";
 import { NotificationsDropdown } from "../dialogue/notifications_dropdown";
 import { ProfileDropdown } from "../dialogue/profile_dropdown";
 import { SupabaseActivityLine } from "../supabase_activity_line";
 import { ExternalLinkIcon } from "@/components/internal/externals/external_links";
 
-export function ProjectTopbar({ externalLinks = [], onLogoClick }) {
-  const { project } = useProject();
+// `label` is the product name beside the logo, matching the shared @geiger/ui Topbar prop.
+export function ProjectTopbar({ label = "Flow", externalLinks = [], onLogoClick }) {
   const topbarLinks = externalLinks.filter((link) => link.showOnTopbar);
 
   // Defaults to the dashboard, which is what the logo means on a real project
@@ -38,10 +37,9 @@ export function ProjectTopbar({ externalLinks = [], onLogoClick }) {
               }}
             />
           </div>
+          {/* Product label, not the project name: suite-shared projects like "Geiger Notes" made Flow read as another app. */}
           <div className="flex items-center gap-1 cursor-pointer group group-data-[collapsible=icon]:hidden md:border-l md:border-border pl-2 hidden sm:flex">
-            <span className="text-foreground font-semibold text-sm ml-1 truncate max-w-[150px] md:max-w-xs">
-              {project?.name || "Project"}
-            </span>
+            <span className="text-foreground font-semibold text-sm ml-1">{label}</span>
           </div>
         </div>
       </div>
@@ -55,7 +53,7 @@ export function ProjectTopbar({ externalLinks = [], onLogoClick }) {
             e.currentTarget.style.display = "none";
           }}
         />
-        <span className="text-sm font-semibold text-foreground">Flow</span>
+        <span className="text-sm font-semibold text-foreground">{label}</span>
       </div>
 
       <div className="flex justify-between gap-4 md:gap-8 sm:mr-2">

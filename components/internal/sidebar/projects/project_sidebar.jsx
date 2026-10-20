@@ -19,9 +19,9 @@ import { useVisibleProjectNav } from "@/lib/hooks/use-visible-project-nav";
 import { isDemoMode } from "@/supabase/demo/demo-mode";
 import { Button } from "@geiger/ui";
 
-function MobileSidebarHeader() {
+// Shows the product label, like the topbar, so a suite-shared project name doesn't read as another app.
+function MobileSidebarHeader({ label }) {
   const { isMobile } = useSidebar();
-  const { project } = useProject();
 
   if (!isMobile) {
     return null;
@@ -44,7 +44,7 @@ function MobileSidebarHeader() {
             />
           </div>
           <span className="text-foreground font-semibold text-sm truncate max-w-full">
-            {project?.name || "Project"}
+            {label}
           </span>
         </div>
       </div>
@@ -53,6 +53,7 @@ function MobileSidebarHeader() {
 }
 
 export function ProjectSidebar({
+  label = "Flow",
   activeTab = "Overview",
   onTabChange = () => {},
   subMenuMode = "dropdown",
@@ -83,7 +84,7 @@ export function ProjectSidebar({
       collapsible="icon"
       className="bg-sidebar border-r border-sidebar-border text-sidebar-foreground"
     >
-      <MobileSidebarHeader />
+      <MobileSidebarHeader label={label} />
       <SidebarContent className="space-y-2 relative flex-1 overflow-hidden bg-sidebar">
         <div
           className={`absolute inset-0 w-full h-full bg-sidebar transition-transform duration-300 ease-in-out ${

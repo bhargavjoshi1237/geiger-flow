@@ -82,9 +82,6 @@ const PlanningScreen = screen(() =>
 const ExternalsScreen = screen(() =>
   import("./externals/externals_screen").then((m) => m.ExternalsScreen),
 );
-const OfficeScreen = screen(() =>
-  import("./office/office_screen").then((m) => m.OfficeScreen),
-);
 
 // Tab titles that own their whole scroll container and padding. Kept beside the
 // map because it is the same decision — which screen renders, and how it frames.
@@ -175,10 +172,6 @@ export function resolveProjectScreen(
       );
     case "Assets":
       return <AssetsScreen />;
-    case "Recent Files":
-    case "Folders":
-    case "Shared with Project":
-      return <OfficeScreen activeTab={tab} />;
     case "Logs":
       return <LogsScreen />;
     case "Security":

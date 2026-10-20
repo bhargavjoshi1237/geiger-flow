@@ -7,7 +7,7 @@ import { AdvancedSettingsScreen } from "./advanced/advanced_settings";
 import { EnterpriseSettingsScreen } from "./enterprise/enterprise_settings";
 import { ConnectionsConnectButton, ConnectionsScreen } from "./connections/connections_screen";
 import { NavigationSettingsScreen } from "./navigation/navigation_settings";
-import { SecondaryScreenWrapper } from "@/components/internal/shared/screen_wrappers";
+import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import { EmptyState, ScreenHeader } from "@/components/internal/shared/screen_kit";
 import { SlidersHorizontal } from "lucide-react";
 
@@ -70,7 +70,7 @@ export function SettingsScreen({ activeSettingsTab = "General" }) {
   };
 
   return (
-    <SecondaryScreenWrapper>
+    <MainScreenWrapper>
       <ScreenHeader
         title={activeSettingsTab}
         description={
@@ -98,6 +98,6 @@ export function SettingsScreen({ activeSettingsTab = "General" }) {
       />
 
       {renderContent()}
-    </SecondaryScreenWrapper>
+    </MainScreenWrapper>
   );
 }
