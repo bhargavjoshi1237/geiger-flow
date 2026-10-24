@@ -21,11 +21,9 @@ export default async function FlowComponentPage({ params }) {
   const { component } = await params;
   const floating = FLOATING_PLAYGROUND_COMPONENT_IDS.includes(component);
   return (
-    // data-playground-floating also clears the body background (globals.css), so the iframe shows the host behind it.
-    <div
-      data-playground-floating={floating || undefined}
-      className={`h-[100dvh] w-full overflow-hidden ${floating ? "" : "bg-background"}`}
-    >
+    <div className={`h-[100dvh] w-full overflow-hidden ${floating ? "" : "bg-background"}`}>
+      {/* Unlayered, so it beats the base body background and the iframe shows the host page behind it. */}
+      {floating ? <style>{"html,body{background:transparent}"}</style> : null}
       <FlowComponentLoader component={component} />
     </div>
   );
