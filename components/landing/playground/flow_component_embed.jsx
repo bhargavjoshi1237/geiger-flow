@@ -77,6 +77,8 @@ function AddTaskShowcase() {
         goalOptions={goalOptions}
         autoFocus={false}
         modal={false}
+        // The host sizes the frame to the dialog, so let it use all but a slim margin instead of 88vh.
+        contentClassName="max-h-[calc(100dvh-2rem)]"
       />
     </div>
   );

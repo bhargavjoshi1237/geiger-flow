@@ -12,6 +12,7 @@ import {
 } from "@geiger/ui";
 import { Button } from "@geiger/ui";
 import { Plus, Edit3 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { TaskCoreTab } from "./tabs/task_core_tab";
 
 const INITIAL_FORM_STATE = {
@@ -70,6 +71,7 @@ export function AddTaskDialog({
   autoFocus = true,
   // Off inside a floating embed, so the dialog opens over the host's backdrop without a dimming overlay.
   modal = true,
+  contentClassName,
 }) {
   const [internalOpen, setInternalOpen] = useState(false);
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
@@ -160,7 +162,7 @@ export function AddTaskDialog({
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={modal}>
       {children ? <DialogTrigger asChild>{children}</DialogTrigger> : null}
       <DialogContent
-        className="max-h-[88vh] overflow-y-auto bg-background sm:max-w-3xl"
+        className={cn("max-h-[88vh] overflow-y-auto bg-background sm:max-w-3xl", contentClassName)}
         onOpenAutoFocus={autoFocus ? undefined : (event) => event.preventDefault()}
       >
         <DialogHeader>
