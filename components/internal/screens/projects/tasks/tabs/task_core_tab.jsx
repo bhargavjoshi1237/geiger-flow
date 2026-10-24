@@ -70,6 +70,7 @@ export function TaskCoreTab({
   handleInputChange,
   handleToggleAssignee,
   goalOptions = [],
+  autoFocusTitle = true,
 }) {
   return (
     <div className="space-y-4">
@@ -81,7 +82,7 @@ export function TaskCoreTab({
             onChange={(event) => handleInputChange("title", event.target.value)}
             placeholder="Implement dependency graph for release tasks"
             className="bg-surface-card border-border text-foreground h-9 focus-visible:ring-ring focus-visible:ring-offset-0 focus-visible:ring-1"
-            autoFocus
+            autoFocus={autoFocusTitle}
           />
         </Field>
 

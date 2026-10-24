@@ -66,6 +66,8 @@ export function AddTaskDialog({
   onOpenChange,
   onSave = () => {},
   goalOptions = [],
+  // Off when the dialog opens inside an embed, so it can't pull focus (and the host page's scroll) into the frame.
+  autoFocus = true,
 }) {
   const [internalOpen, setInternalOpen] = useState(false);
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
@@ -155,7 +157,10 @@ export function AddTaskDialog({
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       {children ? <DialogTrigger asChild>{children}</DialogTrigger> : null}
-      <DialogContent className="max-h-[88vh] overflow-y-auto bg-background sm:max-w-3xl">
+      <DialogContent
+        className="max-h-[88vh] overflow-y-auto bg-background sm:max-w-3xl"
+        onOpenAutoFocus={autoFocus ? undefined : (event) => event.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {task ? <Edit3 className="h-4 w-4 text-muted-foreground" /> : <Plus className="h-4 w-4 text-muted-foreground" />}
@@ -172,6 +177,7 @@ export function AddTaskDialog({
             handleInputChange={handleInputChange}
             handleToggleAssignee={handleToggleAssignee}
             goalOptions={goalOptions}
+            autoFocusTitle={autoFocus}
           />
         </div>
 

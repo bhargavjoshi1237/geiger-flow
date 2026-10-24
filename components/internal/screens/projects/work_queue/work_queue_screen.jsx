@@ -339,7 +339,8 @@ export function WorkQueueScreen() {
 
   const saveTask = async (input) => {
     const optimisticId = crypto.randomUUID();
-    const optimistic = { id: optimisticId, projectId, ...input };
+    // The dialog sends its own placeholder id, so ours goes last or the row never reconciles.
+    const optimistic = { ...input, id: optimisticId, projectId };
 
     setTasks((prev) => [optimistic, ...prev]);
     setDialogOpen(false);

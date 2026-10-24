@@ -43,8 +43,8 @@ export class ScreenErrorBoundary extends React.Component {
               {title} couldn&apos;t load in the playground
             </p>
             <p className="mx-auto max-w-md text-sm text-text-secondary">
-              Pick another screen from the sidebar, or open the workspace to see
-              this one with your own data.
+              {this.props.hint ||
+                "Pick another screen from the sidebar, or open the workspace to see this one with your own data."}
             </p>
           </div>
         </div>

@@ -147,7 +147,7 @@ const PRIORITY_FILTER_OPTIONS = [
   ...TASK_PRIORITIES.map((priority) => ({ value: priority.value, label: priority.label })),
 ];
 
-const GOAL_OPTIONS = [
+export const GOAL_OPTIONS = [
   { value: "goal:predictable-delivery", label: "Predictable delivery" },
   { value: "goal:clean-inbox", label: "Clean inbox" },
   { value: "goal:onboarding-conversion", label: "Improve onboarding conversion rate" },
@@ -511,7 +511,7 @@ const DETAIL_TABS = [
   { id: "comments", label: "Comments" },
 ];
 
-function TaskDetails({ task, members = [], onUpdate, onDelete, onEdit }) {
+export function TaskDetails({ task, members = [], onUpdate, onDelete, onEdit }) {
   const [activeTab, setActiveTab] = useState("details");
   const [comments, setComments] = useState([]);
   const [draft, setDraft] = useState("");

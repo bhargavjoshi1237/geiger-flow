@@ -1,71 +1,19 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
+import React, { useState } from "react";
 import { SidebarProvider, SidebarInset } from "@geiger/ui";
 import { ProjectSidebar } from "@/components/internal/sidebar/projects/project_sidebar";
 import { ProjectTopbar } from "@/components/internal/topbar/projects/topbar";
-import { ProjectBudgetProvider } from "@/context/project-budget-context";
-import { AddonRegistryProvider } from "@/addons/registry";
-// Side-effect import: fills the addon registry, so the playground offers the
-// same addon screens the real project route does.
-import "@/addons";
 import {
   isFullBleedScreen,
   resolveProjectScreen,
 } from "@/components/internal/screens/projects/resolve_project_screen";
-import { setDemoMode, setDemoWriteHandler } from "@/supabase/demo/demo-mode";
 import { DEMO_PROJECT } from "@/supabase/demo/fixtures";
-import { PlaygroundProjectProvider } from "./playground_project_provider";
+import { PLAYGROUND_ADDONS, PlaygroundSession } from "./playground_session";
 import { ScreenErrorBoundary } from "./screen_error_boundary";
-
-// Armed as this module is evaluated, which happens when the lazy playground
-// chunk loads and therefore before a single child renders. A screen that mounted
-// a tick early would fetch against the real client, get nothing, and sit on an
-// empty state forever — so this cannot be an effect.
-setDemoMode(true);
-
-// Addons mount their own screens (system-architecture pulls in a React Flow
-// canvas). The playground starts from none enabled rather than turning them off
-// afterwards, so nothing heavy mounts on a public page. Settings → Add-ons
-// still lists them; enabling one lasts only for the session.
-const PLAYGROUND_ADDONS = [];
 
 function PlaygroundWorkspace() {
   const [activeTab, setActiveTab] = useState("Overview");
-  // Set while this playground is mounted. See the deferred reset below.
-  const armedRef = useRef(false);
-
-  // Disarm on unmount so the flag can't leak into a later route in the same
-  // session — a client-side navigation to a real project would otherwise render
-  // fixture data with no session.
-  //
-  // The reset is deferred by a microtask because React's StrictMode remount runs
-  // this cleanup without tearing the tree down. The effect body re-arms on that
-  // simulated remount before the microtask drains, so the reset is cancelled; on
-  // a genuine unmount nothing re-arms it and the flag clears.
-  useEffect(() => {
-    armedRef.current = true;
-    return () => {
-      armedRef.current = false;
-      queueMicrotask(() => {
-        if (!armedRef.current) setDemoMode(false);
-      });
-    };
-  }, []);
-
-  // Edits land in the in-memory session store and reset on reload; only a call
-  // the demo can't serve funnels here, as one message for the whole workspace.
-  // The fixed id collapses a burst of them into a single toast.
-  useEffect(() => {
-    setDemoWriteHandler(() =>
-      toast.error("This isn't available in the playground.", {
-        id: "playground-unavailable",
-        description: "Open the workspace to try it for real.",
-      }),
-    );
-    return () => setDemoWriteHandler(null);
-  }, []);
 
   const fullBleed = isFullBleedScreen(activeTab, PLAYGROUND_ADDONS);
 
@@ -110,16 +58,12 @@ function PlaygroundWorkspace() {
 
 export function FlowPlayground() {
   return (
-    <PlaygroundProjectProvider>
-      <ProjectBudgetProvider>
-        {/* No NavVisibilityProvider: @geiger/ui falls back to ALL_VISIBLE, which
-            renders the full sidebar without a session. The cost is that
-            Settings → Navigation has nothing to write to. */}
-        <AddonRegistryProvider initialEnabledAddons={PLAYGROUND_ADDONS}>
-          <PlaygroundWorkspace />
-        </AddonRegistryProvider>
-      </ProjectBudgetProvider>
-    </PlaygroundProjectProvider>
+    // No NavVisibilityProvider: @geiger/ui falls back to ALL_VISIBLE, which
+    // renders the full sidebar without a session. The cost is that
+    // Settings → Navigation has nothing to write to.
+    <PlaygroundSession>
+      <PlaygroundWorkspace />
+    </PlaygroundSession>
   );
 }
 
