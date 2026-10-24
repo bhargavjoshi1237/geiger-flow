@@ -1,11 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  Key,
-  KeyRound,
-  Plus,
-} from "lucide-react";
+import { Fingerprint, Key, KeyRound, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { MainScreenWrapper } from "@/components/internal/shared/screen_wrappers";
 import {
@@ -24,12 +20,23 @@ import { VaultItemCard } from "./vault_item_card";
 import { AddVaultItemDialog, VAULT_TYPES } from "./add_vault_item_dialog";
 import { VaultCredentialAccessDialog } from "./vault_credential_access_dialog";
 import { VaultAccessControl } from "./vault_access_control";
+import { PasskeysDialog } from "./passkeys_dialog";
 import FilterDropdown from "../overview/filter_dropdown";
-import { Button, LoadingArea } from "@geiger/ui";
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  LoadingArea,
+} from "@geiger/ui";
 import {
   listVaultItems,
   createVaultItem,
   updateVaultItem,
+  duplicateVaultItem,
   softDeleteVaultItem,
 } from "@/features/vault/actions";
 
@@ -49,7 +56,9 @@ export function VaultScreen() {
   const [editingItem, setEditingItem] = useState(null);
   const [accessingItem, setAccessingItem] = useState(null);
   const [viewingAccessControl, setViewingAccessControl] = useState(null);
+  const [deletingItem, setDeletingItem] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [passkeysOpen, setPasskeysOpen] = useState(false);
 
   useEffect(() => {
     if (!projectId) {
@@ -77,10 +86,11 @@ export function VaultScreen() {
   const filteredItems = useMemo(
     () =>
       vaultItems.filter((item) => {
+        const query = searchQuery.toLowerCase();
         const matchesSearch =
-          item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          item.notes?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          item.username?.toLowerCase().includes(searchQuery.toLowerCase());
+          item.name.toLowerCase().includes(query) ||
+          item.notes?.toLowerCase().includes(query) ||
+          item.username?.toLowerCase().includes(query);
         const matchesType = filterType === "all" || item.type === filterType;
         return matchesSearch && matchesType;
       }),
@@ -92,38 +102,38 @@ export function VaultScreen() {
   });
 
   const stats = useMemo(() => {
-    const withAccessControl = vaultItems.filter((item) => item.accessControl).length;
-    const keyless = vaultItems.filter((item) => item.keylessEntry).length;
+    const restricted = vaultItems.filter((item) => item.accessMode !== "project").length;
+    const passkey = vaultItems.filter((item) => item.accessMethod === "passkey").length;
     return [
       { label: "Total secrets", value: String(vaultItems.length), footer: `${VAULT_TYPES.length} secret types` },
       { label: "Passwords", value: String(vaultItems.filter((item) => item.type === "password").length), footer: "Password secrets" },
       { label: "API keys", value: String(vaultItems.filter((item) => item.type === "api_key").length), footer: "API key secrets" },
-      { label: "Access controlled", value: String(withAccessControl), footer: `${keyless} keyless` },
+      { label: "Restricted", value: String(restricted), footer: `${passkey} opened by passkey` },
     ];
   }, [vaultItems]);
-
-  // Maps the dialog's form payload onto the persisted shape.
-  const toItemInput = (form) => ({
-    name: form.name,
-    type: form.type,
-    secret: form.secret || "",
-    url: form.url || "",
-    notes: form.notes || "",
-    accessSetup: form.accessSetup,
-  });
 
   const handleAddItem = async (form) => {
     const optimisticId = crypto.randomUUID();
     const optimistic = {
       id: optimisticId,
       projectId,
+      name: form.name,
+      type: form.type,
+      url: form.url,
+      notes: form.notes,
       username: "",
-      ...toItemInput(form),
+      accessMethod: form.accessMethod,
+      accessMode: "project",
+      allowedEmails: [],
+      canOpen: true,
+      canManage: true,
+      hasSecret: true,
+      hasCode: form.accessMethod !== "passkey",
     };
 
     setVaultItems((prev) => [...prev, optimistic]);
 
-    const created = await createVaultItem(projectId, { ...optimistic, id: optimisticId });
+    const created = await createVaultItem(projectId, { ...form, id: optimisticId });
     if (!created) {
       setVaultItems((prev) => prev.filter((item) => item.id !== optimisticId));
       toast.error("Couldn't save the secret.");
@@ -134,37 +144,32 @@ export function VaultScreen() {
     toast.success("Secret saved");
   };
 
-  const handleUpdateItem = async (updatedForm) => {
-    const previous = vaultItems.find((item) => item.id === updatedForm.id);
+  const handleUpdateItem = async (patch, successMessage = "Secret updated") => {
+    const previous = vaultItems.find((item) => item.id === patch.id);
     if (!previous) {
       return;
     }
 
-    const optimistic = { ...previous, ...toItemInput(updatedForm), id: previous.id };
-    setVaultItems((prev) =>
-      prev.map((item) => (item.id === previous.id ? optimistic : item)),
-    );
+    const { id, secret: _secret, code: _code, ...visible } = patch;
+    setVaultItems((prev) => prev.map((item) => (item.id === id ? { ...item, ...visible } : item)));
 
-    const updated = await updateVaultItem(previous.id, toItemInput(updatedForm));
+    const updated = await updateVaultItem(id, patch);
     if (!updated) {
-      setVaultItems((prev) =>
-        prev.map((item) => (item.id === previous.id ? previous : item)),
-      );
+      setVaultItems((prev) => prev.map((item) => (item.id === id ? previous : item)));
       toast.error("Couldn't save the secret.");
       return;
     }
 
     setVaultItems((prev) => prev.map((item) => (item.id === updated.id ? updated : item)));
-    toast.success("Secret updated");
+    toast.success(successMessage);
   };
 
-  const handleDeleteItem = async (itemId) => {
-    const previous = vaultItems.find((item) => item.id === itemId);
-    setVaultItems((prev) => prev.filter((item) => item.id !== itemId));
+  const handleDeleteItem = async (item) => {
+    setVaultItems((prev) => prev.filter((entry) => entry.id !== item.id));
 
-    const ok = await softDeleteVaultItem(itemId);
+    const ok = await softDeleteVaultItem(item.id);
     if (!ok) {
-      setVaultItems((prev) => (previous ? [...prev, previous] : prev));
+      setVaultItems((prev) => [...prev, item]);
       toast.error("Couldn't delete the secret.");
     } else {
       toast.success("Secret deleted");
@@ -173,18 +178,16 @@ export function VaultScreen() {
 
   const handleDuplicate = async (item) => {
     const optimisticId = crypto.randomUUID();
-    const duplicate = {
+    const optimistic = {
       ...item,
       id: optimisticId,
       name: `${item.name} (Copy)`,
+      canManage: true,
     };
 
-    setVaultItems((prev) => [...prev, duplicate]);
+    setVaultItems((prev) => [...prev, optimistic]);
 
-    const created = await createVaultItem(projectId, {
-      ...duplicate,
-      id: optimisticId,
-    });
+    const created = await duplicateVaultItem(projectId, item, optimisticId);
     if (!created) {
       setVaultItems((prev) => prev.filter((entry) => entry.id !== optimisticId));
       toast.error("Couldn't duplicate the secret.");
@@ -195,32 +198,27 @@ export function VaultScreen() {
     toast.success("Secret duplicated");
   };
 
-  const handleRevealSecret = (item) => {
-    setViewingAccessControl(null);
-    setAccessingItem(item);
-  };
-
-  const handleOpenAccessControl = (item) => {
-    setAccessingItem(null);
-    setViewingAccessControl(item);
+  const openAddDialog = () => {
+    setEditingItem(null);
+    setDialogOpen(true);
   };
 
   return (
     <MainScreenWrapper>
       <ScreenHeader
         title="Vault"
-        description="Manage your assets and store them securely."
+        description="Keep the project's secrets encrypted, and choose who can open each one."
         actions={
-          <Button
-            onClick={() => {
-              setEditingItem(null);
-              setDialogOpen(true);
-            }}
-            className="bg-primary text-primary-foreground hover:bg-primary/90"
-          >
-            <Plus className="h-4 w-4" />
-            Add Secret
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" onClick={() => setPasskeysOpen(true)} className="border border-border">
+              <Fingerprint className="h-4 w-4" />
+              Passkeys
+            </Button>
+            <Button onClick={openAddDialog} className="bg-primary text-primary-foreground hover:bg-primary/90">
+              <Plus className="h-4 w-4" />
+              Add Secret
+            </Button>
+          </div>
         }
       />
 
@@ -236,11 +234,7 @@ export function VaultScreen() {
             height="h-9"
           />
         </div>
-        <SearchInput
-          value={searchQuery}
-          onChange={setSearchQuery}
-          placeholder="Search secrets…"
-        />
+        <SearchInput value={searchQuery} onChange={setSearchQuery} placeholder="Search secrets…" />
       </Toolbar>
 
       {loading ? (
@@ -249,24 +243,14 @@ export function VaultScreen() {
         <div className="rounded-xl border border-border bg-surface-subtle">
           <EmptyState
             icon={searchQuery || filterType !== "all" ? KeyRound : Key}
-            title={
-              searchQuery || filterType !== "all"
-                ? "No secrets found"
-                : "No secrets yet"
-            }
+            title={searchQuery || filterType !== "all" ? "No secrets found" : "No secrets yet"}
             description={
               searchQuery || filterType !== "all"
                 ? "Try adjusting your search or filters."
                 : "Add your first secret to get started."
             }
             action={
-              <Button
-                onClick={() => {
-                  setEditingItem(null);
-                  setDialogOpen(true);
-                }}
-                className="bg-primary text-primary-foreground hover:bg-primary/90"
-              >
+              <Button onClick={openAddDialog} className="bg-primary text-primary-foreground hover:bg-primary/90">
                 <Plus className="h-4 w-4" />
                 Add Secret
               </Button>
@@ -284,16 +268,23 @@ export function VaultScreen() {
                   setEditingItem(item);
                   setDialogOpen(true);
                 }}
-                onDelete={() => handleDeleteItem(item.id)}
+                onDelete={() => setDeletingItem(item)}
                 onDuplicate={() => handleDuplicate(item)}
-                onAccessCredential={() => handleRevealSecret(item)}
-                onAccessControl={() => handleOpenAccessControl(item)}
+                onAccessCredential={() => {
+                  setViewingAccessControl(null);
+                  setAccessingItem(item);
+                }}
+                onAccessControl={() => {
+                  setAccessingItem(null);
+                  setViewingAccessControl(item);
+                }}
               />
             ))}
           </div>
           <ListPagination {...pager} itemLabel="secrets" />
         </div>
       )}
+
       <AddVaultItemDialog
         key={editingItem?.id || "new-vault-item"}
         open={dialogOpen}
@@ -302,39 +293,73 @@ export function VaultScreen() {
           if (!open) setEditingItem(null);
         }}
         item={editingItem}
-        onSave={(item) => {
+        onSave={(form) => {
           if (editingItem) {
-            handleUpdateItem(item);
+            handleUpdateItem(form);
           } else {
-            handleAddItem(item);
+            handleAddItem(form);
           }
           setDialogOpen(false);
           setEditingItem(null);
         }}
       />
+
       {accessingItem && (
         <VaultCredentialAccessDialog
+          key={accessingItem.id}
           item={accessingItem}
           open={!!accessingItem}
           onOpenChange={(open) => {
             if (!open) setAccessingItem(null);
           }}
+          onManagePasskeys={() => setPasskeysOpen(true)}
         />
       )}
 
       {viewingAccessControl && (
         <VaultAccessControl
+          key={viewingAccessControl.id}
           item={viewingAccessControl}
           open={!!viewingAccessControl}
           onOpenChange={(open) => {
             if (!open) setViewingAccessControl(null);
           }}
-          onSave={(updatedItem) => {
-            handleUpdateItem(updatedItem);
+          onSave={(patch) => {
+            handleUpdateItem(patch, "Access updated");
             setViewingAccessControl(null);
           }}
         />
       )}
+
+      <PasskeysDialog open={passkeysOpen} onOpenChange={setPasskeysOpen} />
+
+      <Dialog open={!!deletingItem} onOpenChange={(open) => !open && setDeletingItem(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Remove secret</DialogTitle>
+            <DialogDescription>
+              <span className="font-medium text-foreground">{deletingItem?.name}</span> and its stored value will be
+              destroyed. This can&apos;t be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setDeletingItem(null)}>
+              Cancel
+            </Button>
+            <Button
+              className="bg-red-500/90 text-white hover:bg-red-500"
+              onClick={() => {
+                const item = deletingItem;
+                setDeletingItem(null);
+                if (item) handleDeleteItem(item);
+              }}
+            >
+              <Trash2 className="h-4 w-4" />
+              Remove
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </MainScreenWrapper>
   );
 }

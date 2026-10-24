@@ -75,6 +75,66 @@ export function rpcResult(schema, name, args = {}) {
     return { ...row };
   }
 
+  // Vault: secrets and codes sit in a session-only table, the playground's stand-in for Supabase Vault.
+  if (name.startsWith("vault_")) {
+    return vaultRpc(schema, name, args);
+  }
+
+  return undefined;
+}
+
+function vaultRpc(schema, name, args) {
+  const secrets = listRows(schema, "vault_item_secrets", { create: true });
+  const items = listRows(schema, "vault_items", { create: true });
+  const stored = (id) => secrets.find((entry) => entry.item_id === id);
+  const live = (id) => items.find((row) => row.id === id && !row.deleted_at);
+
+  if (name === "vault_item_permissions") {
+    return items
+      .filter((row) => row.project_id === args.p_project_id && !row.deleted_at)
+      .map((row) => ({
+        item_id: row.id,
+        can_open: true,
+        can_manage: true,
+        has_secret: Boolean(stored(row.id)?.secret),
+        has_code: Boolean(stored(row.id)?.code) && stored(row.id)?.method === row.access_method,
+      }));
+  }
+
+  if (name === "vault_save_secret") {
+    const row = live(args.p_item_id);
+    if (!row) return undefined;
+    let entry = stored(row.id);
+    if (!entry) {
+      entry = { item_id: row.id };
+      secrets.push(entry);
+    }
+    if (args.p_secret) entry.secret = args.p_secret;
+    if (args.p_method) row.access_method = args.p_method;
+    if (row.access_method === "passkey") {
+      entry.code = null;
+    } else if (args.p_code) {
+      entry.code = args.p_code;
+      entry.method = row.access_method;
+    }
+    return null;
+  }
+
+  if (name === "vault_reveal") {
+    const row = live(args.p_item_id);
+    const entry = row && stored(row.id);
+    if (!entry?.secret) return { ok: false, error: "no_secret" };
+    if (!entry.code || entry.method !== row.access_method) return { ok: false, error: "no_code" };
+    if (args.p_code !== entry.code) return { ok: false, error: "wrong_code", attemptsLeft: 4 };
+    return { ok: true, secret: entry.secret };
+  }
+
+  if (name === "vault_duplicate_secret") {
+    const source = stored(args.p_source_id);
+    if (source) secrets.push({ ...source, item_id: args.p_target_id });
+    return null;
+  }
+
   return undefined;
 }
 

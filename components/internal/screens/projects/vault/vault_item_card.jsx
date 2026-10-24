@@ -3,29 +3,27 @@
 import React from "react";
 import {
   Box,
-  Clock,
   Copy,
   Database,
+  Fingerprint,
   Key,
   Link,
+  LockKeyhole,
   Mail,
   Pencil,
   Server,
   Shield,
   Terminal,
   Trash2,
-  Fingerprint,
 } from "lucide-react";
-import { Button } from "@geiger/ui";
-import { ActionMenu } from "@geiger/ui";
+import { ActionMenu, Button } from "@geiger/ui";
+import { ACCESS_MODE_LABELS } from "@/features/vault/constants";
 
-function formatTTL(ttl) {
-  if (!ttl) return null;
-  const match = ttl.match(/^(\d+)([dhms])$/);
-  if (!match) return ttl;
-  const [, value, unit] = match;
-  return `${value}${unit === "d" ? "d" : unit === "h" ? "h" : unit === "m" ? "m" : "s"}`;
-}
+const METHOD_META = {
+  pin: { label: "PIN", icon: LockKeyhole },
+  password: { label: "Password", icon: Key },
+  passkey: { label: "Passkey", icon: Fingerprint },
+};
 
 function VaultTypeIcon({ type }) {
   switch (type) {
@@ -48,29 +46,19 @@ function VaultTypeIcon({ type }) {
   }
 }
 
-export function VaultItemCard({
-  item,
-  onEdit,
-  onDelete,
-  onDuplicate,
-  onAccessCredential,
-  onAccessControl,
-}) {
-  const getAccessLabel = () => {
-    switch (item.accessControl?.type) {
-      case "team":
-        return "Team";
-      case "roles":
-        return "Roles";
-      case "users":
-        return "Users";
-      case "positions":
-        return "Positions";
-      default:
-        return null;
-    }
-  };
-  const accessLabel = getAccessLabel();
+// Why the Access button is unavailable, or null when it works.
+function accessBlockedReason(item) {
+  if (!item.canOpen) return "You don't have access to this secret";
+  if (!item.hasSecret) return "No secret is saved";
+  if (item.accessMethod !== "passkey" && !item.hasCode) return "No PIN or password is set yet";
+  return null;
+}
+
+export function VaultItemCard({ item, onEdit, onDelete, onDuplicate, onAccessCredential, onAccessControl }) {
+  const accessLabel = ACCESS_MODE_LABELS[item.accessMode];
+  const method = METHOD_META[item.accessMethod] ?? METHOD_META.pin;
+  const MethodIcon = method.icon;
+  const blocked = accessBlockedReason(item);
 
   return (
     <div className="min-w-0">
@@ -81,9 +69,7 @@ export function VaultItemCard({
               <VaultTypeIcon type={item.type} />
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="text-[15px] font-medium text-foreground truncate">
-                {item.name}
-              </h3>
+              <h3 className="text-[15px] font-medium text-foreground truncate">{item.name}</h3>
               <p className="text-[12px] text-text-secondary truncate">
                 {item.username || item.url || "No details"}
               </p>
@@ -96,41 +82,42 @@ export function VaultItemCard({
                 {accessLabel}
               </span>
             )}
-            {item.ttl && (
-              <span className="text-[11px] font-medium px-2 py-1 rounded-md bg-surface-card border border-border text-muted-foreground flex items-center gap-1">
-                <Clock className="w-3 h-3" />
-                {formatTTL(item.ttl)}
-              </span>
+            <span className="text-[11px] font-medium px-2 py-1 rounded-md bg-surface-card border border-border text-muted-foreground flex items-center gap-1">
+              <MethodIcon className="w-3 h-3" />
+              {method.label}
+            </span>
+            {item.canManage && (
+              <ActionMenu
+                label={`Actions for ${item.name}`}
+                items={[
+                  { icon: Pencil, label: "Edit", onSelect: onEdit },
+                  { icon: Copy, label: "Duplicate", onSelect: onDuplicate },
+                  { icon: Shield, label: "Access Control", onSelect: onAccessControl },
+                  { separator: true },
+                  { icon: Trash2, label: "Remove", destructive: true, onSelect: onDelete },
+                ]}
+              />
             )}
-            <ActionMenu
-              label={`Actions for ${item.name}`}
-              items={[
-                { icon: Pencil, label: "Edit", onSelect: onEdit },
-                { icon: Copy, label: "Duplicate", onSelect: onDuplicate },
-                { icon: Shield, label: "Access Control", onSelect: onAccessControl },
-                { separator: true },
-                { icon: Trash2, label: "Remove", destructive: true, onSelect: onDelete },
-              ]}
-            />
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 pt-3 sm:flex-row sm:items-end sm:justify-between">
+        <div className="mt-auto flex flex-col gap-3 pt-3 sm:flex-row sm:items-end sm:justify-between">
           {item.notes && (
-            <p className="text-[12px] text-text-secondary line-clamp-2 sm:pr-3">
-              {item.notes}
-            </p>
+            <p className="text-[12px] text-text-secondary line-clamp-2 sm:pr-3">{item.notes}</p>
           )}
           <Button
             type="button"
+            variant="ghost"
+            disabled={Boolean(blocked)}
+            title={blocked ?? undefined}
             onClick={(event) => {
               event.preventDefault();
               event.stopPropagation();
               onAccessCredential();
             }}
-            className="text-[11px] text-text-secondary hover:text-foreground flex shrink-0 items-center gap-1.5 transition-colors"
+            className="ml-auto text-[11px] text-text-secondary hover:text-foreground flex shrink-0 items-center gap-1.5 transition-colors"
           >
-            <Fingerprint className="w-3 h-3" />
+            <MethodIcon className="w-3 h-3" />
             Access
           </Button>
         </div>
