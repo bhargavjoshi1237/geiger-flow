@@ -9,11 +9,12 @@ import { EmptyState } from "@/components/internal/shared/screen_kit";
 import { useProject } from "@/context/project-context";
 import { createTask, listTasks, updateTask } from "@/features/tasks/actions";
 import { listOrgMembers } from "@/lib/supabase/profiles";
+import { FLOATING_PLAYGROUND_COMPONENT_IDS } from "./playground_components";
 import { PlaygroundSession } from "./playground_session";
 import { ScreenErrorBoundary } from "./screen_error_boundary";
 
 function EmbedLoading() {
-  return <LoadingArea size={56} className="h-full bg-background" />;
+  return <LoadingArea size={56} className="h-full" />;
 }
 
 const embed = (loader) => dynamic(loader, { ssr: false, loading: EmbedLoading });
@@ -64,7 +65,7 @@ function AddTaskShowcase() {
   };
 
   return (
-    <div className="flex h-full w-full items-center justify-center bg-background">
+    <div className="flex h-full w-full items-center justify-center">
       <Button onClick={() => setOpen(true)} className="gap-1.5">
         <Plus className="h-4 w-4" />
         Create Task
@@ -75,6 +76,7 @@ function AddTaskShowcase() {
         onSave={handleSave}
         goalOptions={goalOptions}
         autoFocus={false}
+        modal={false}
       />
     </div>
   );
@@ -178,7 +180,11 @@ export function FlowComponentEmbed({ component }) {
 
   return (
     <PlaygroundSession>
-      <div className="h-full w-full overflow-hidden bg-background font-sans text-foreground selection:bg-surface-strong">
+      <div
+        className={`h-full w-full overflow-hidden font-sans text-foreground selection:bg-surface-strong ${
+          FLOATING_PLAYGROUND_COMPONENT_IDS.includes(component) ? "" : "bg-background"
+        }`}
+      >
         <ScreenErrorBoundary
           title={entry.title}
           hint="Open the workspace to see this one with your own data."

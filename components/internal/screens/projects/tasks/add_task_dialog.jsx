@@ -68,6 +68,8 @@ export function AddTaskDialog({
   goalOptions = [],
   // Off when the dialog opens inside an embed, so it can't pull focus (and the host page's scroll) into the frame.
   autoFocus = true,
+  // Off inside a floating embed, so the dialog opens over the host's backdrop without a dimming overlay.
+  modal = true,
 }) {
   const [internalOpen, setInternalOpen] = useState(false);
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
@@ -155,7 +157,7 @@ export function AddTaskDialog({
   };
 
   return (
-    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={modal}>
       {children ? <DialogTrigger asChild>{children}</DialogTrigger> : null}
       <DialogContent
         className="max-h-[88vh] overflow-y-auto bg-background sm:max-w-3xl"

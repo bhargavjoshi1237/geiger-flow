@@ -9,7 +9,7 @@ const FlowComponentEmbed = dynamic(
   () => import("./flow_component_embed").then((mod) => mod.FlowComponentEmbed),
   {
     ssr: false,
-    loading: () => <LoadingArea size={56} label="Loading the playground" className="h-full bg-background" />,
+    loading: () => <LoadingArea size={56} label="Loading the playground" className="h-full" />,
   },
 );
 

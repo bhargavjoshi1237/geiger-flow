@@ -197,6 +197,9 @@
   body {
     @apply bg-background text-foreground;
   }
+  body:has([data-playground-floating]) {
+    @apply bg-transparent;
+  }
 }
 
 
