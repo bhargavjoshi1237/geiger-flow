@@ -26,6 +26,7 @@ import {
 import FilterDropdown from "@/components/internal/screens/projects/overview/filter_dropdown";
 import { useProject } from "@/context/project-context";
 import { createClient } from "@/lib/supabase/client";
+import { isDemoMode, notifyDemoWrite } from "@/supabase/demo/demo-mode";
 import {
   Copy,
   Check,
@@ -191,6 +192,12 @@ export function GeneralSettingsScreen() {
 
   const handleDelete = async () => {
     if (!project?.id || deleting) {
+      return;
+    }
+    // Deleting leaves for the dashboard, which would take a playground embed off its page.
+    if (isDemoMode()) {
+      setDeleteOpen(false);
+      notifyDemoWrite();
       return;
     }
     setDeleting(true);

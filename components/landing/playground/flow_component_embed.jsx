@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { ClipboardList, Plus } from "lucide-react";
 import { Button, LoadingArea } from "@geiger/ui";
 import { EmptyState } from "@/components/internal/shared/screen_kit";
+import { itFont } from "@/components/internal/screens/it/it_font";
+import { NavVisibilityProvider } from "@/context/nav-visibility-context";
 import { useProject } from "@/context/project-context";
 import { createTask, listTasks, updateTask } from "@/features/tasks/actions";
 import { listOrgMembers } from "@/lib/supabase/profiles";
@@ -31,6 +33,58 @@ const TaskDetails = embed(() =>
 const AddTaskDialog = embed(() =>
   import("@/components/internal/screens/projects/tasks/add_task_dialog").then((m) => m.AddTaskDialog),
 );
+const ProjectDetailsScreen = embed(() =>
+  import("@/components/internal/screens/projects/overview/project_details").then((m) => m.ProjectDetailsScreen),
+);
+const ItShell = embed(() => import("@/components/internal/screens/it/it_shell").then((m) => m.ItShell));
+const GroundingScreen = embed(() =>
+  import("@/components/internal/screens/projects/grounding/grounding_screen").then((m) => m.GroundingScreen),
+);
+const PlanningScreen = embed(() =>
+  import("@/components/internal/screens/projects/planning/planning_screen").then((m) => m.PlanningScreen),
+);
+const ProjectionsScreen = embed(() =>
+  import("@/components/internal/screens/projects/projections/projections_screen").then((m) => m.ProjectionsScreen),
+);
+const MilestonesScreen = embed(() =>
+  import("@/components/internal/screens/projects/milestones/milestones_screen").then((m) => m.MilestonesScreen),
+);
+const GoalsScreen = embed(() =>
+  import("@/components/internal/screens/projects/goals/goals_screen").then((m) => m.GoalsScreen),
+);
+const ObjectivesScreen = embed(() =>
+  import("@/components/internal/screens/projects/objectives/objectives_screen").then((m) => m.ObjectivesScreen),
+);
+const ReportingScreen = embed(() =>
+  import("@/components/internal/screens/reporting/reporting_screen").then((m) => m.ReportingScreen),
+);
+const AssetsScreen = embed(() =>
+  import("@/components/internal/screens/projects/assets/assets_screen").then((m) => m.AssetsScreen),
+);
+const LogsScreen = embed(() =>
+  import("@/components/internal/screens/projects/logs/logs_screen").then((m) => m.LogsScreen),
+);
+const TeamScreen = embed(() => import("@/components/internal/screens/projects/team/team").then((m) => m.TeamScreen));
+const ResourceAllocationScreen = embed(() =>
+  import("@/components/internal/screens/projects/resource_allocation/resource_allocation_screen").then(
+    (m) => m.ResourceAllocationScreen,
+  ),
+);
+const VaultScreen = embed(() =>
+  import("@/components/internal/screens/projects/vault/vault_screen").then((m) => m.VaultScreen),
+);
+const SecurityScreen = embed(() =>
+  import("@/components/internal/screens/projects/security/security_screen").then((m) => m.SecurityScreen),
+);
+const SettingsScreen = embed(() =>
+  import("@/components/internal/screens/projects/settings/settings_screen").then((m) => m.SettingsScreen),
+);
+const SystemArchitectureScreen = embed(() =>
+  import("@/addons/system-architecture/screens/system_architecture_screen").then((m) => m.SystemArchitectureScreen),
+);
+const BudgetTrackerScreen = embed(() =>
+  import("@/addons/project-plus/screens/product_addon_screens").then((m) => m.BudgetTrackerScreen),
+);
 
 // Same frame as a screen inside the workspace's main area, minus the sidebar and topbar.
 function ScreenFrame({ children }) {
@@ -40,6 +94,28 @@ function ScreenFrame({ children }) {
     </main>
   );
 }
+
+// For screens that own their whole area and scrolling (Planning, Grounding, System Architecture), as in the workspace.
+function FullBleedFrame({ children }) {
+  return <div className="h-full w-full overflow-hidden">{children}</div>;
+}
+
+// The issue tracker held to one view, without the rail it would navigate from.
+function TrackerFrame({ view, openLeadIssue = false }) {
+  return (
+    <div className={`${itFont.variable} h-full w-full`}>
+      <ItShell pinnedView={view} openLeadIssue={openLeadIssue} />
+    </div>
+  );
+}
+
+const screenEntry = (title, render) => ({ title, render: () => <ScreenFrame>{render()}</ScreenFrame> });
+const fullBleedEntry = (title, render) => ({ title, render: () => <FullBleedFrame>{render()}</FullBleedFrame> });
+const trackerEntry = (title, view, options = {}) => ({
+  title,
+  render: () => <TrackerFrame view={view} {...options} />,
+});
+const settingsEntry = (tab) => screenEntry(`${tab} settings`, () => <SettingsScreen activeSettingsTab={tab} />);
 
 // The New Task dialog on its own: open from the start, reopened from a lone Create Task button once closed.
 function AddTaskShowcase() {
@@ -173,6 +249,42 @@ const COMPONENTS = {
       </ScreenFrame>
     ),
   },
+  // View Issues and View Schedule lead to other screens, so here they do nothing.
+  overview: screenEntry("Overview", () => <ProjectDetailsScreen />),
+  issues: trackerEntry("Issues", "all-issues"),
+  "issue-details": trackerEntry("Issue details", "all-issues", { openLeadIssue: true }),
+  "issues-inbox": trackerEntry("Inbox", "inbox"),
+  "issues-triage": trackerEntry("Triage", "triage"),
+  "issues-views": trackerEntry("Views", "views"),
+  "issues-members": trackerEntry("Members", "members"),
+  "issues-settings": trackerEntry("Tracker settings", "settings"),
+  "issues-cycles": trackerEntry("Cycles", "cycles"),
+  "issues-divisions": trackerEntry("Divisions", "divisions"),
+  "issues-initiatives": trackerEntry("Initiatives", "initiatives"),
+  grounding: fullBleedEntry("Grounding", () => <GroundingScreen />),
+  planning: fullBleedEntry("Planning", () => <PlanningScreen />),
+  projections: screenEntry("Projections", () => <ProjectionsScreen />),
+  milestones: screenEntry("Milestones", () => <MilestonesScreen />),
+  goals: screenEntry("Goals", () => <GoalsScreen />),
+  objectives: screenEntry("Objectives", () => <ObjectivesScreen />),
+  reporting: screenEntry("Reporting", () => <ReportingScreen />),
+  assets: screenEntry("Assets", () => <AssetsScreen />),
+  logs: screenEntry("Logs", () => <LogsScreen />),
+  team: screenEntry("Team", () => <TeamScreen />),
+  "resource-allocation": screenEntry("Resource Allocation", () => <ResourceAllocationScreen />),
+  vault: screenEntry("Vault", () => <VaultScreen />),
+  security: screenEntry("Security", () => <SecurityScreen />),
+  "settings-general": settingsEntry("General"),
+  // Navigation writes to the per-user sidebar preferences, which only exist under this provider.
+  "settings-navigation": screenEntry("Navigation settings", () => (
+    <NavVisibilityProvider>
+      <SettingsScreen activeSettingsTab="Navigation" />
+    </NavVisibilityProvider>
+  )),
+  "settings-add-ons": settingsEntry("Add-ons"),
+  "settings-usage": settingsEntry("Usage"),
+  "system-architecture": fullBleedEntry("System Architecture", () => <SystemArchitectureScreen />),
+  "budget-tracker": screenEntry("Budget Tracker", () => <BudgetTrackerScreen />),
 };
 
 // One Flow component in the demo session, with nothing around it to navigate away to.

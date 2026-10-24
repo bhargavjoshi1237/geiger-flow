@@ -98,11 +98,11 @@ export function useShellNav() {
   return useContext(ShellNavContext);
 }
 
-function ShellBody() {
+function ShellBody({ pinnedView, openLeadIssue }) {
   const tracker = useTracker();
   const { loading, issues, project } = tracker;
   const {
-    view,
+    view: urlView,
     issueId,
     cycleId,
     divisionId: openDivisionId,
@@ -111,12 +111,23 @@ function ShellBody() {
     openIssue,
     closeIssue,
   } = useItUrl();
+  // A pinned embed shows one view, whatever the URL asks for.
+  const view = pinnedView || urlView;
 
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
   const [createDefaults, setCreateDefaults] = useState({});
   const [drawerOpen, setDrawerOpen] = useState(false);
   const gotoArmed = useRef(false);
+  const leadOpened = useRef(false);
+
+  // The issue-details embed opens on the lead issue (the first in progress) once the tracker loads.
+  useEffect(() => {
+    if (!openLeadIssue || loading || leadOpened.current) return;
+    leadOpened.current = true;
+    const lead = issues.find((issue) => issue.status === "in_progress") ?? issues[0];
+    if (lead && !issueId) openIssue(lead.id);
+  }, [openLeadIssue, loading, issues, issueId, openIssue]);
 
   const startCreate = useCallback((defaults = {}) => {
     setCreateDefaults(defaults ?? {});
@@ -253,43 +264,52 @@ function ShellBody() {
   return (
     <ShellNavContext.Provider value={shellNav}>
     <div className="linear-scope flex h-[100dvh] w-full overflow-hidden bg-[var(--lnr-canvas)] text-[var(--lnr-ink)]">
-      {/* Docked rail from lg up. */}
-      <div className="hidden lg:flex">
-        <ItSidebar
-          view={view}
-          onNavigate={navigate}
-          onSearch={() => setPaletteOpen(true)}
-          onCompose={() => startCreate({})}
-        />
-      </div>
+      {/* A pinned embed has neither the rail nor the drawer: there is nowhere else to go. */}
+      {pinnedView ? null : (
+        <>
+          {/* Docked rail from lg up. */}
+          <div className="hidden lg:flex">
+            <ItSidebar
+              view={view}
+              onNavigate={navigate}
+              onSearch={() => setPaletteOpen(true)}
+              onCompose={() => startCreate({})}
+            />
+          </div>
 
-      {/* Drawer below lg. */}
-      <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
-        <SheetContent
-          side="left"
-          showCloseButton={false}
-          className="linear-scope w-[264px] gap-0 border-[var(--lnr-border)] bg-[var(--lnr-canvas)] p-0 sm:max-w-[264px] lg:hidden"
-        >
-          <SheetTitle className="sr-only">Navigation</SheetTitle>
-          <SheetDescription className="sr-only">
-            Jump to a view in this tracker.
-          </SheetDescription>
-          <ItSidebar
-            view={view}
-            onNavigate={navigate}
-            onSearch={() => {
-              setDrawerOpen(false);
-              setPaletteOpen(true);
-            }}
-            onCompose={() => {
-              setDrawerOpen(false);
-              startCreate({});
-            }}
-          />
-        </SheetContent>
-      </Sheet>
+          {/* Drawer below lg. */}
+          <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
+            <SheetContent
+              side="left"
+              showCloseButton={false}
+              className="linear-scope w-[264px] gap-0 border-[var(--lnr-border)] bg-[var(--lnr-canvas)] p-0 sm:max-w-[264px] lg:hidden"
+            >
+              <SheetTitle className="sr-only">Navigation</SheetTitle>
+              <SheetDescription className="sr-only">
+                Jump to a view in this tracker.
+              </SheetDescription>
+              <ItSidebar
+                view={view}
+                onNavigate={navigate}
+                onSearch={() => {
+                  setDrawerOpen(false);
+                  setPaletteOpen(true);
+                }}
+                onCompose={() => {
+                  setDrawerOpen(false);
+                  startCreate({});
+                }}
+              />
+            </SheetContent>
+          </Sheet>
+        </>
+      )}
 
-      <main className="flex min-w-0 flex-1 flex-col overflow-hidden border-[var(--lnr-border)] bg-[var(--lnr-panel)] lg:rounded-tl-[8px] lg:border-t">
+      <main
+        className={`flex min-w-0 flex-1 flex-col overflow-hidden border-[var(--lnr-border)] bg-[var(--lnr-panel)] ${
+          pinnedView ? "" : "lg:rounded-tl-[8px] lg:border-t"
+        }`}
+      >
         {loading ? (
           <div className="flex flex-1 flex-col items-center justify-center">
             <LogoLoading size={40} label="Loading workspace" />
@@ -330,10 +350,12 @@ function ShellBody() {
   );
 }
 
-export function ItShell() {
+// `pinnedView` holds an embed (the suite Help Center) to one view with no rail;
+// `openLeadIssue` starts it on an issue's details.
+export function ItShell({ pinnedView = null, openLeadIssue = false } = {}) {
   return (
     <TrackerProvider>
-      <ShellBody />
+      <ShellBody pinnedView={pinnedView} openLeadIssue={openLeadIssue} />
     </TrackerProvider>
   );
 }

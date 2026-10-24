@@ -2,19 +2,11 @@
 
 import React, { Suspense, use, useEffect } from "react";
 import Link from "next/link";
-import { Inter } from "next/font/google";
 import { ArrowLeft, FolderX } from "lucide-react";
 import { Button, LoadingScreen, LogoLoading } from "@geiger/ui";
 import { ProjectProvider, useProject } from "@/context/project-context";
+import { itFont } from "@/components/internal/screens/it/it_font";
 import { ItShell } from "@/components/internal/screens/it/it_shell";
-
-// The tracker is typeset in Inter with Linear's OpenType features, so it reads
-// like Linear rather than like the rest of the suite (which is on Geist).
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-it-sans",
-  display: "swap",
-});
 
 function ItContent({ id }) {
   const { fetchProjectInfo, project, loading, notFound } = useProject();
@@ -57,7 +49,7 @@ function ItContent({ id }) {
   }
 
   return (
-    <div className={inter.variable}>
+    <div className={itFont.variable}>
       <ItShell />
     </div>
   );
