@@ -19,9 +19,10 @@ import { Header } from "@/components/header";
 import FlowPlaygroundShowcase from "@/components/landing/flow_playground_showcase";
 
 export const metadata = {
-  title: "Flow - Geiger Studio",
+  title: "Geiger Flow: project and issue tracking for teams",
   description:
     "Plan work, ship faster, and keep your team in sync. Geiger Flow is your team's project and issue tracker built for clarity, speed, and modern workflows.",
+  alternates: { canonical: "https://geiger.studio/flow" },
 };
 
 const showcaseBackgroundImages = [
