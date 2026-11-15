@@ -64,6 +64,9 @@ Create a `.env` file in the project root:
 NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_TURN_URL=turn:your-turn-host:3478       # optional TURN relay for chat calls
+NEXT_PUBLIC_TURN_USERNAME=your-turn-username        # (with _CREDENTIAL, if the relay needs auth)
+NEXT_PUBLIC_TURN_CREDENTIAL=your-turn-credential
 
 # Server-only
 STRING_URI=your-direct-postgres-connection-string   # migrations only
