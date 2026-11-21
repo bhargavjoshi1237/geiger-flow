@@ -472,11 +472,13 @@ export function ProjectionsScreen() {
                   {viewMode !== "month" && (
                     <Button
                       type="button"
+                      variant="ghost"
                       onClick={() => setViewMode("month")}
-                      className="flex mr-4 items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors mr-1"
+                      aria-label="Back to month"
+                      title="Back to month"
+                      className="mr-3 h-9 w-9 rounded-lg border border-border bg-surface-card text-text-secondary hover:bg-surface-hover hover:text-foreground"
                     >
-                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-                      <span className="hidden lg:inline">Month</span>
+                      <ChevronLeft className="w-4 h-4" />
                     </Button>
                   )}
 

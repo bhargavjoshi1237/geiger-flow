@@ -329,8 +329,7 @@ export function CustomsSettingsScreen({ isCreateOpen: controlledIsCreateOpen, on
       <Dialog open={isCreateOpen} onOpenChange={handleCreateOpenChange}>
         <DialogContent className="bg-background border-border text-foreground sm:max-w-xl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-xl">
-              <Plus className="h-5 w-5" />
+            <DialogTitle className="text-xl">
               {editingField ? "Configure Custom Field" : "Create Custom Field"}
             </DialogTitle>
             <DialogDescription className="text-text-secondary">

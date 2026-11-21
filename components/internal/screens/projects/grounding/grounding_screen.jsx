@@ -2,8 +2,6 @@
 
 import React, { useCallback, useMemo, useState } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { ExternalLink } from "lucide-react";
-import { Button, Tooltip, TooltipContent, TooltipTrigger } from "@geiger/ui";
 import { useOptionalProject } from "@/context/project-context";
 import { ChatScopeProvider } from "@/lib/chat/scope-context";
 import { useUnreadNotifier } from "@/lib/chat/use-unread-notifier";
@@ -73,27 +71,12 @@ export function GroundingScreen({ projectId: projectIdProp = null, embedded = tr
           collapsed={collapsed}
           onToggleCollapsed={() => setCollapsed((c) => !c)}
           unreadCount={unreadCount}
+          onOpenStandalone={
+            embedded && projectId && !isDemoMode() ? openStandalone : null
+          }
         />
 
         <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
-          {embedded && projectId && !isDemoMode() ? (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={openStandalone}
-                  aria-label="Open chat in a new tab"
-                  className="absolute right-3 top-3 z-20 h-8 w-8 border border-border bg-surface-card text-muted-foreground hover:text-foreground"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="left">Open in a new tab</TooltipContent>
-            </Tooltip>
-          ) : null}
-
           <div className="min-h-0 flex-1 overflow-hidden">
             <ActiveScreen onNavigate={setActiveTab} />
           </div>

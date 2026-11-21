@@ -278,8 +278,7 @@ export function ConnectionsScreen({ isCreateOpen = false, onCreateOpenChange }) 
       <Dialog open={dialogOpen} onOpenChange={handleDialogOpenChange}>
         <DialogContent className="bg-background border-border text-foreground sm:max-w-xl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-xl">
-              <Plus className="h-5 w-5" />
+            <DialogTitle className="text-xl">
               Connect a service
             </DialogTitle>
             <DialogDescription className="text-text-secondary">

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { PanelLeft } from "lucide-react";
+import { ExternalLink, PanelLeft } from "lucide-react";
 import { Button, Tooltip, TooltipContent, TooltipTrigger } from "@geiger/ui";
 import { cn } from "@/lib/utils";
 import { CHAT_NAV } from "./nav";
@@ -13,7 +13,14 @@ import { CHAT_NAV } from "./nav";
 // the same collapse state. It is styled to the same tokens as the project
 // sidebar (sidebar surface, sidebar-accent active row, 36px rows) so the two
 // read as one navigation system — see components/internal/sidebar/sidebar_option.jsx.
-export function ChatRail({ activeTab, onTabChange, collapsed, onToggleCollapsed, unreadCount = 0 }) {
+export function ChatRail({
+  activeTab,
+  onTabChange,
+  collapsed,
+  onToggleCollapsed,
+  unreadCount = 0,
+  onOpenStandalone = null,
+}) {
   return (
     <nav
       aria-label="Chat"
@@ -79,20 +86,41 @@ export function ChatRail({ activeTab, onTabChange, collapsed, onToggleCollapsed,
         </ul>
       </div>
 
-      {/* Collapse control, in a bordered footer like the project sidebar's own. */}
-      <div className="z-10 mt-auto border-t border-sidebar-border bg-sidebar p-2">
+      {/* Collapse + pop-out controls, in a bordered footer like the project sidebar's own. */}
+      <div
+        className={cn(
+          "z-10 mt-auto flex gap-1 border-t border-sidebar-border bg-sidebar p-2",
+          collapsed && "flex-col",
+        )}
+      >
         <Button
           type="button"
           variant="ghost"
           onClick={onToggleCollapsed}
           aria-label={collapsed ? "Expand chat navigation" : "Collapse chat navigation"}
           className={cn(
-            "flex w-full items-center gap-3 rounded-lg p-2 text-sidebar-foreground transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+            "flex min-w-0 flex-1 items-center gap-3 rounded-lg p-2 text-sidebar-foreground transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
             collapsed && "justify-center",
           )}
         >
           <PanelLeft className="h-5 w-5 shrink-0" />
         </Button>
+        {onOpenStandalone ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={onOpenStandalone}
+                aria-label="Open chat in a new tab"
+                className="flex items-center justify-center rounded-lg p-2 text-sidebar-foreground transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              >
+                <ExternalLink className="h-4 w-4 shrink-0" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side={collapsed ? "right" : "top"}>Open in a new tab</TooltipContent>
+          </Tooltip>
+        ) : null}
       </div>
     </nav>
   );

@@ -27,7 +27,7 @@ import {
   PopoverTrigger,
 } from "@geiger/ui";
 import { ScrollArea } from "@geiger/ui";
-import { Plus, X, Target, Pencil, Search, Check } from "lucide-react";
+import { Plus, X, Target, Search, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Field } from "@/components/internal/shared/screen_kit";
 import { OBJECTIVE_STATUSES } from "@/features/objectives/constants";
@@ -274,12 +274,7 @@ export function NewObjectiveDialog({
       {children && <DialogTrigger asChild>{children}</DialogTrigger>}
       <DialogContent className="sm:max-w-2xl max-h-[85vh] flex flex-col bg-background border-border text-foreground p-0 shadow-2xl">
         <DialogHeader className="px-6 pt-6 pb-4 border-b border-border">
-          <DialogTitle className="text-xl flex items-center gap-2 font-semibold">
-            {isEditMode ? (
-              <Pencil className="w-5 h-5 text-blue-500" />
-            ) : (
-              <Target className="w-5 h-5 text-blue-500" />
-            )}
+          <DialogTitle className="text-xl font-semibold">
             {isEditMode ? "Edit Objective" : "New Objective"}
           </DialogTitle>
           <DialogDescription className="text-muted-foreground text-sm">

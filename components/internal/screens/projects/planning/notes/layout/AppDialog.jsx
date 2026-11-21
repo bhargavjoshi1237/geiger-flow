@@ -17,12 +17,9 @@ export default function AppDialog({ open, onOpenChange, dialogContainer }) {
         className={`${dialogContainer ? "absolute max-h-[calc(100%-1rem)]" : ""} max-w-md bg-surface-dialog border-border text-foreground p-0 overflow-hidden shadow-xl sm:rounded-lg`}
       >
         <DialogHeader className="p-4 border-b border-border">
-          <div className="flex items-center gap-2">
-            <Smartphone className="w-5 h-5 text-muted-foreground" />
-            <DialogTitle className="text-base font-medium text-foreground">
-              Mobile App
-            </DialogTitle>
-          </div>
+          <DialogTitle className="text-base font-medium text-foreground">
+            Mobile App
+          </DialogTitle>
         </DialogHeader>
 
         <ScrollArea className="h-[min(400px,calc(100dvh-180px))]">

@@ -928,8 +928,7 @@ export function AdvancedSettingsScreen() {
       <Dialog open={webhookOpen} onOpenChange={setWebhookOpen}>
         <DialogContent className="bg-background border-border text-foreground sm:max-w-xl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-xl">
-              <Plus className="h-5 w-5" />
+            <DialogTitle className="text-xl">
               Add Webhook
             </DialogTitle>
             <DialogDescription className="text-text-secondary">
@@ -981,8 +980,7 @@ export function AdvancedSettingsScreen() {
       <Dialog open={variableOpen} onOpenChange={setVariableOpen}>
         <DialogContent className="bg-background border-border text-foreground sm:max-w-xl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-xl">
-              <Plus className="h-5 w-5" />
+            <DialogTitle className="text-xl">
               Add Variable
             </DialogTitle>
             <DialogDescription className="text-text-secondary">

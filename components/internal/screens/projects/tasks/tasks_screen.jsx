@@ -63,6 +63,7 @@ import {
   Plus,
   Search,
   Send,
+  Share2,
   ShieldAlert,
   Sparkles,
   Tag,
@@ -173,6 +174,37 @@ const TASK_TYPE_ICONS = {
 
 // Collapse long descriptions behind a fade past this length.
 const DESCRIPTION_CLAMP = 220;
+
+// Shared task links ride alongside the shell's tab key: ?Tasks&task=<id>.
+const TASK_LINK_PARAM = "task";
+
+function readTaskLink() {
+  return new URLSearchParams(window.location.search).get(TASK_LINK_PARAM);
+}
+
+function nonTaskParams() {
+  return window.location.search
+    .slice(1)
+    .split("&")
+    .filter((part) => part && !part.startsWith(`${TASK_LINK_PARAM}=`));
+}
+
+function buildTaskLink(id) {
+  const query = [...nonTaskParams(), `${TASK_LINK_PARAM}=${id}`].join("&");
+  return `${window.location.origin}${window.location.pathname}?${query}`;
+}
+
+function clearTaskLink() {
+  if (!readTaskLink()) {
+    return;
+  }
+  const query = nonTaskParams().join("&");
+  window.history.replaceState(
+    null,
+    "",
+    query ? `${window.location.pathname}?${query}` : window.location.pathname,
+  );
+}
 
 function formatDate(value) {
   if (!value) {
@@ -637,22 +669,28 @@ export function TaskDetails({ task, members = [], onUpdate, onDelete, onEdit }) 
     }
   };
 
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(buildTaskLink(task.id));
+      toast.success("Link copied");
+    } catch {
+      toast.error("Couldn't copy link");
+    }
+  };
+
   const overdue = isOverdue(task);
   const TypeIcon = TASK_TYPE_ICONS[task.type] || ClipboardList;
 
   return (
     <div className="flex h-full flex-col bg-background text-foreground">
       <div className="border-b border-border bg-gradient-to-b from-surface-subtle/60 to-background p-6 pr-12">
-        <div className="mb-4 flex items-center justify-between gap-2">
-          <span className="inline-flex items-center gap-1 rounded-md border border-border bg-surface-card px-2 py-1 font-mono text-xs text-muted-foreground">
-            <Hash className="h-3 w-3" />
-            {task.id.slice(0, 8)}
-          </span>
+        <div className="mb-4 flex items-center justify-end gap-2">
           <div className="flex items-center gap-1">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => onEdit(task)}
+              aria-label="Edit task"
               className="text-muted-foreground hover:bg-surface-hover hover:text-foreground"
             >
               <Pencil className="h-3.5 w-3.5" />
@@ -660,7 +698,17 @@ export function TaskDetails({ task, members = [], onUpdate, onDelete, onEdit }) 
             <Button
               variant="ghost"
               size="sm"
+              onClick={handleShare}
+              aria-label="Share task"
+              className="text-muted-foreground hover:bg-surface-hover hover:text-foreground"
+            >
+              <Share2 className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => setConfirmDelete(true)}
+              aria-label="Delete task"
               className="text-red-600 dark:text-red-400 hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400"
             >
               <Trash2 className="h-3.5 w-3.5" />
@@ -1026,7 +1074,7 @@ export function TaskDetails({ task, members = [], onUpdate, onDelete, onEdit }) 
             </section>
 
             {/* Stats */}
-            <div className="flex items-stretch rounded-lg border border-border bg-surface-subtle dark:bg-black/20">
+            <div className="flex items-stretch rounded-lg border border-border bg-surface-card">
               {[
                 {
                   icon: Clock3,
@@ -1201,6 +1249,12 @@ export function TasksScreen() {
     setLoading(true);
     const rows = await listTasks(projectId);
     setTasks(rows);
+    // Reopens a shared ?task=<id> link once its row has loaded.
+    const linkedId = readTaskLink();
+    const linked = linkedId && rows?.find((task) => task.id === linkedId);
+    if (linked) {
+      setSelectedTask(linked);
+    }
     setLoading(false);
   }, [projectId]);
 
@@ -1599,6 +1653,7 @@ export function TasksScreen() {
         onOpenChange={(open) => {
           if (!open) {
             setSelectedTask(null);
+            clearTaskLink();
           }
         }}
       >

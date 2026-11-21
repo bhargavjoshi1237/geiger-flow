@@ -12,7 +12,6 @@ import {
 import { Button } from "@geiger/ui";
 import { Input } from "@geiger/ui";
 import { Textarea } from "@geiger/ui";
-import { Plus, UserPlus } from "lucide-react";
 import { Field } from "@/components/internal/shared/screen_kit";
 
 const INITIAL_FORM_STATE = {
@@ -78,12 +77,7 @@ export function RequestDialog({ request = null, open, onOpenChange, onSave = () 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg max-h-[88vh] overflow-y-auto bg-surface-dialog border-border text-foreground p-0 gap-0 sm:rounded-lg shadow-xl">
         <DialogHeader className="p-4 border-b border-border">
-          <DialogTitle className="flex items-center gap-2 text-base font-medium text-foreground">
-            {request ? (
-              <UserPlus className="h-4 w-4 text-muted-foreground" />
-            ) : (
-              <Plus className="h-4 w-4 text-muted-foreground" />
-            )}
+          <DialogTitle className="text-base font-medium text-foreground">
             {dialogTitle}
           </DialogTitle>
           <DialogDescription className="text-xs text-text-secondary">

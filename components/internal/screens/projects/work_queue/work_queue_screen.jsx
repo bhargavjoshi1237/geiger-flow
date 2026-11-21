@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { Inbox, Pencil, Plus, Trash2 } from "lucide-react";
+import { CircleCheck, Inbox, Plus, Timer, Trash2, Undo2 } from "lucide-react";
 import { ActionMenu, Button, LoadingArea } from "@geiger/ui";
 import { Progress } from "@geiger/ui";
 import { toast } from "sonner";
@@ -307,19 +307,19 @@ export function WorkQueueScreen() {
           label={`Actions for ${task.title}`}
           items={[
             {
-              icon: Pencil,
+              icon: Timer,
               label: "Mark in progress",
               disabled: task.status === "in_progress",
               onSelect: () => void changeStatus(task.id, "in_progress"),
             },
             {
-              icon: Pencil,
+              icon: CircleCheck,
               label: "Mark done",
               disabled: task.status === "done",
               onSelect: () => void changeStatus(task.id, "done"),
             },
             {
-              icon: Pencil,
+              icon: Undo2,
               label: "Move back to to do",
               disabled: task.status === "todo",
               onSelect: () => void changeStatus(task.id, "todo"),

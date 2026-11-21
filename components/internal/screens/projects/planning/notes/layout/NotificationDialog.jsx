@@ -47,7 +47,6 @@ export default function NotificationDialog({
       >
         <DialogHeader className="p-4 border-b border-border">
           <div className="flex items-center gap-2">
-            <Bell className="w-5 h-5 text-muted-foreground" />
             <DialogTitle className="text-base font-medium text-foreground">
               Notifications
             </DialogTitle>

@@ -11,7 +11,6 @@ import {
   DialogTrigger,
 } from "@geiger/ui";
 import { Button } from "@geiger/ui";
-import { Plus, Edit3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TaskCoreTab } from "./tabs/task_core_tab";
 
@@ -166,8 +165,7 @@ export function AddTaskDialog({
         onOpenAutoFocus={autoFocus ? undefined : (event) => event.preventDefault()}
       >
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            {task ? <Edit3 className="h-4 w-4 text-muted-foreground" /> : <Plus className="h-4 w-4 text-muted-foreground" />}
+          <DialogTitle>
             {dialogTitle}
           </DialogTitle>
           <DialogDescription>

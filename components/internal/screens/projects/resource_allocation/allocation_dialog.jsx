@@ -19,7 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@geiger/ui";
-import { Edit3, Plus } from "lucide-react";
 import { Field } from "@/components/internal/shared/screen_kit";
 import { ALLOCATION_STATUSES } from "@/features/resources/constants";
 
@@ -97,12 +96,7 @@ export function AllocationDialog({ allocation = null, open, onOpenChange, onSave
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg max-h-[88vh] overflow-y-auto bg-surface-dialog border-border text-foreground p-0 gap-0 sm:rounded-lg shadow-xl">
         <DialogHeader className="p-4 border-b border-border">
-          <DialogTitle className="flex items-center gap-2 text-base font-medium text-foreground">
-            {allocation ? (
-              <Edit3 className="h-4 w-4 text-muted-foreground" />
-            ) : (
-              <Plus className="h-4 w-4 text-muted-foreground" />
-            )}
+          <DialogTitle className="text-base font-medium text-foreground">
             {dialogTitle}
           </DialogTitle>
           <DialogDescription className="text-xs text-text-secondary">
