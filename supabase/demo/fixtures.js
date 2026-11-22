@@ -33,6 +33,7 @@ const SEED = {
   allocation: "718293a4",
   link: "8293a4b5",
   notification: "93a4b5c6",
+  budget: "a4b5c6d7",
 };
 
 const id = (key, n) =>
@@ -1175,6 +1176,55 @@ const EXTERNAL_LINKS = [
   deleted_at: null,
 }));
 
+// One budget row per project. Manual lines tie back to the work above; an empty
+// architecture_expenses falls back to the default node costs in the budget context.
+const PROJECT_BUDGET = {
+  id: id("budget", 1),
+  project_id: PROJECT_ID,
+  monthly_budget: 42000,
+  manual_expenses: [
+    {
+      id: "manual-design-tooling",
+      name: "Figma and Storybook seats",
+      category: "Software",
+      owner: ADA.name,
+      monthlyCost: 1800,
+      forecastMultiplier: 1,
+      status: "On Track",
+      source: "Manual",
+      notes: "Design seats for the token work and the hosted Storybook used in design review.",
+    },
+    {
+      id: "manual-visual-diff",
+      name: "Visual diff runner in CI",
+      category: "Quality",
+      owner: LENA.name,
+      monthlyCost: 950,
+      forecastMultiplier: 1.2,
+      status: "Watch",
+      source: "Manual",
+      notes: "Snapshot minutes grow with every baseline screen added to the design QA gate.",
+    },
+    {
+      id: "manual-icon-licences",
+      name: "Icon family licences",
+      category: "Software",
+      owner: ADA.name,
+      monthlyCost: 600,
+      forecastMultiplier: 1,
+      status: "Watch",
+      source: "Manual",
+      notes: "Two families are still unlicensed, which is what blocks the icon consolidation.",
+    },
+  ],
+  architecture_expenses: [],
+  metadata: {},
+  created_by: ADA.id,
+  created_at: daysAgo(40),
+  updated_at: daysAgo(6),
+  deleted_at: null,
+};
+
 // The project row itself. `organization_id` is load-bearing: Issues, Tasks,
 // Work Queue and Reporting all resolve assignable people through
 // listOrgMembers(project.organization_id).
@@ -1283,4 +1333,5 @@ export const fixtures = {
   })),
   "flow.resource_allocations": RESOURCE_ALLOCATIONS,
   "flow.external_links": EXTERNAL_LINKS,
+  "flow.project_budgets": [PROJECT_BUDGET],
 };

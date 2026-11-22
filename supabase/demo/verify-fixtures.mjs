@@ -102,6 +102,14 @@ rows(
 const single = await sb.from("projects").select("*").eq("id", pid).maybeSingle();
 report("maybeSingle project", Boolean(single.data));
 
+const budget = await flow
+  .from("project_budgets")
+  .select("*")
+  .eq("project_id", pid)
+  .is("deleted_at", null)
+  .maybeSingle();
+report("project budget", Boolean(budget.data));
+
 const peak = await flow
   .from("issues")
   .select("number")
