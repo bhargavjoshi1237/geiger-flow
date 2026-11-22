@@ -17,6 +17,7 @@ import {
 } from "@geiger/ui";
 import { Header } from "@/components/header";
 import FlowPlaygroundShowcase from "@/components/landing/flow_playground_showcase";
+import HeroStoryCard from "@/components/landing/hero_story_card";
 
 export const metadata = {
   title: "Geiger Flow: project and issue tracking for teams",
@@ -110,7 +111,7 @@ export default function FlowLandingPage() {
 
       <main className="relative z-10 flex flex-1 flex-col pt-16 sm:pt-20">
         {/* Hero */}
-        <section className="mx-auto mb-10 mt-10 flex w-full max-w-6xl items-start justify-start px-4 sm:mt-16 sm:px-6">
+        <section className="mx-auto mt-8 grid w-full max-w-6xl items-center gap-8 px-4 sm:mt-12 sm:px-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-16">
           <div className="max-w-3xl">
             <h1 className="mb-4 text-2xl font-semibold text-foreground sm:text-3xl">
               Plan work, ship faster, and keep your team in sync.
@@ -127,10 +128,11 @@ export default function FlowLandingPage() {
               </a>
             </Button>
           </div>
+          <HeroStoryCard />
         </section>
 
         {/* Live playground: the real project workspace on a demo project */}
-        <div className="mx-auto my-10 w-[94%] sm:my-20 md:w-[80%]">
+        <div className="mx-auto mb-10 mt-12 w-[94%] sm:mb-20 sm:mt-16 md:w-[80%]">
           <FlowPlaygroundShowcase backgroundImage={playgroundBg} />
         </div>
 
